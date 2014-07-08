@@ -29,9 +29,6 @@ CONFIG=$(EPICS_BASE)/configure
 # Example
 ADCORE_MODULE_VERSION		= R2.0-0.1.0
 ASYN_MODULE_VERSION			= R4.23-0.1.0
-#BUSY_MODULE_VERSION		= R1.6.0-0.5.0
-#CALC_MODULE_VERSION		= R3.2-0.4.0
-#SSCAN_MODULE_VERSION		= R2.8.1-0.1.0
 
 # ============================================================
 # External Support module path definitions
@@ -48,9 +45,6 @@ ASYN_MODULE_VERSION			= R4.23-0.1.0
 # ============================================================
 ADCORE		= $(EPICS_MODULES)/ADCore/$(ADCORE_MODULE_VERSION)
 ASYN		= $(EPICS_MODULES)/asyn/$(ASYN_MODULE_VERSION)
-#BUSY		= $(EPICS_MODULES)/busy/$(BUSY_MODULE_VERSION)
-#CALC		= $(EPICS_MODULES)/calc/$(CALC_MODULE_VERSION)
-#SSCAN		= $(EPICS_MODULES)/sscan/$(SSCAN_MODULE_VERSION)
 
-MY_MODULES	= ~/wa2/trunk/pcds/epics/modules
-ADCORE		= $(MY_MODULES)/ADCore/current
+#MY_MODULES	= ~/wa2/trunk/pcds/epics/modules
+#ADCORE		= $(MY_MODULES)/ADCore/current
