@@ -11,7 +11,7 @@ include $(TOP)/configure/CONFIG
 # Create and install (or just install)
 # databases, templates, substitutions like this
 
-DB += prosilica.template
+# DB += prosilica.template
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add
