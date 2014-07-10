@@ -11,6 +11,7 @@ iocs_DEPEND_DIRS += edtPdvApp
 endif
 include $(TOP)/configure/RULES_TOP
 
+ifeq ($(BUILD_IOCS), YES)
 uninstall: uninstall_iocs
 uninstall_iocs:
 	$(MAKE) -C iocs uninstall
@@ -20,4 +21,5 @@ realuninstall: realuninstall_iocs
 realuninstall_iocs:
 	$(MAKE) -C iocs realuninstall
 .PHONY: realuninstall realuninstall_iocs
+endif
 

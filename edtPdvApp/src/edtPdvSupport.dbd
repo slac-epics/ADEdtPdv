@@ -1,0 +1,17 @@
+device( ai,			INST_IO,	devAiEdtPdv,	"EdtPdv" )
+device( bo,			INST_IO,	devBoEdtPdv,	"EdtPdv" )
+device( longin,		INST_IO,	devLiEdtPdv,	"EdtPdv" )
+device( longout,	INST_IO,	devLoEdtPdv,	"EdtPdv" )
+device( stringin,	INST_IO,	devSiEdtPdv,	"EdtPdv" )
+device( waveform,	INST_IO,	devWfEdtPdv,	"EdtPdv" )
+
+#registrar(	resetImageTimingRegister	)
+#registrar(	showImageTimingRegister		)
+registrar(	edtPdvConfigRegister		)
+registrar(	edt_set_verbosityRegister	)
+variable(	EDT_PDV_DEBUG,	int	)
+
+#function(HWroiInit)
+#function(HWroiProc)
+#function(resetImageTiming)
+#function(showImageTiming)

@@ -11,11 +11,17 @@ USR_CXXFLAGS_Darwin += -D_OSX -D_x86
 LIBRARY_IOC_WIN32 += edtPdv
 LIBRARY_IOC_Linux += edtPdv
 LIBRARY_IOC_Darwin += edtPdv
-#LIB_SRCS += prosilica.cpp
+
+LIB_SRCS += drvAsynEdtPdvSerial.cpp
+LIB_SRCS += edtPdvCamera.cpp
 
 LIB_LIBS += pdv
 
-#DBD += prosilicaSupport.dbd
+INCLUDE += drvAsynEdtPdvSerial.h
+INCLUDE += edtPdvCamera.h
+
+DBD += drvAsynEdtPdvSerial.dbd
+DBD += edtPdvSupport.dbd
 
 include $(ADCORE)/ADApp/commonLibraryMakefile
 
