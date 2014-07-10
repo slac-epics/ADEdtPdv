@@ -46,5 +46,5 @@ ASYN_MODULE_VERSION			= R4.23-0.1.0
 ADCORE		= $(EPICS_MODULES)/ADCore/$(ADCORE_MODULE_VERSION)
 ASYN		= $(EPICS_MODULES)/asyn/$(ASYN_MODULE_VERSION)
 
-#MY_MODULES	= ~/wa2/trunk/pcds/epics/modules
+MY_MODULES	= ~/wa2/trunk/pcds/epics/modules
 #ADCORE		= $(MY_MODULES)/ADCore/current
