@@ -1,6 +1,8 @@
 /////////////////////////////////////////////////////////////////////////////
-// Filename: epicsCam.cpp
-// Description: EPICS device support for EDT cameras
+// Filename: edtPdvCamera.cpp
+// Description: EPICS device support for cameras using EDT framegrabbers
+//              via EDT's PDV software library
+// Author: Bruce Hill, SLAC National Accelerator Lab, July 11 2014
 /////////////////////////////////////////////////////////////////////////////
 
 //	Standard headers
@@ -13,11 +15,15 @@
 #include <dbAccess.h>
 #include <cantProceed.h>
 #include <epicsThread.h>
+#include <epicsExit.h>
 #include <epicsExport.h>
 #include <registryFunction.h>
 #include <errlog.h>
 #include <epicsVersion.h>
 #include <unistd.h>
+
+// AreaDetector headers
+#include "ADDriver.h"
 
 // ADEdtPdv headers
 #include "edtPdvCamera.h"
@@ -33,9 +39,11 @@
 
 using namespace		std;
 
-int				EDT_PDV_DEBUG = 2;
+static const char *	driverName	= "prosilica";
 
-#define			N_PDV_BUF_DEFAULT	(IMGQBUFSIZ+4)	//	Default number of pdv buffer to use
+int		EDT_PDV_DEBUG	= 2;
+
+#define	N_PDV_BUF_DEFAULT	(IMGQBUFSIZ+4)	//	Default number of pdv buffer to use
 
 //	t_HiResTime		imageCaptureCumTicks	= 0LL;
 //	unsigned long	imageCaptureCount		= 0L;
@@ -83,6 +91,7 @@ int edtPdvCamera::ShowAllCameras( int level )
 
 int edtPdvCamera::StartAllCameras()
 {
+    static const char	*	functionName = "edtPdvCamera::StartAllCameras";
 	map<string, edtPdvCamera *>::iterator	it;
 
 	for ( it = ms_cameraMap.begin(); it != ms_cameraMap.end(); ++it )
@@ -90,8 +99,8 @@ int edtPdvCamera::StartAllCameras()
 		edtPdvCamera		*	pCamera	= it->second;
 		if ( pCamera->CameraStart() != 0 )
 		{
-			errlogPrintf(	"CameraStart() call failed for camera %s!\n",
-							pCamera->m_CameraName.c_str() );
+			errlogPrintf(	"%s:%s: ERROR, CameraStart() call failed for camera %s!\n", 
+							driverName, functionName, pCamera->m_CameraName.c_str() );
 			epicsThreadSuspendSelf();
 			return -1;
 		}
@@ -162,6 +171,17 @@ int edtPdvCamera::CameraShow( int level )
     return 0;
 }
 
+#if 0
+void edtPdvCamera::ExitHook(void)
+{
+	exit_loop = 1;
+	acquire = 0;
+	edt_abort_dma(m_pPdvDev);
+	epicsThreadSleep(2.);
+	pdv_close(m_pPdvDev);
+}
+#endif
+
 
 ///	Thread routine for epics camera
 /// For each epics camera, a new thread is spawned, with this
@@ -170,9 +190,11 @@ int edtPdvCamera::CameraShow( int level )
 /// handling successive images, returning only on error.
 int edtPdvCamera::ThreadStart(edtPdvCamera * pCamera)
 {
+    static const char	*	functionName = "edtPdvCamera::ThreadStart";
     if(pCamera == NULL)
     {
-        errlogPrintf("Camera polling thread quits because no legal pCamera!\n");
+        errlogPrintf(	"%s:%s: ERROR, Camera polling thread failed! NULL pCamera!\n",
+        	    		driverName, functionName );
         return -1;
     }
 
@@ -180,7 +202,8 @@ int edtPdvCamera::ThreadStart(edtPdvCamera * pCamera)
     edtSyncObject *sobj = new edtSyncObject(pCamera);
     return sobj->poll();
 #else
-	errlogPrintf("Camera polling loop not implemented yet!\n");
+	errlogPrintf(	"%s:%s: ERROR, Camera polling loop not implemented yet!\n",
+					driverName, functionName );
 	return -1;
 #endif
 }
@@ -188,6 +211,11 @@ int edtPdvCamera::ThreadStart(edtPdvCamera * pCamera)
 
 int edtPdvCamera::CameraStart( )
 {
+#if 0
+    // Install exit hook for clean shutdown
+    epicsAtExit( (EPICSTHREADFUNC)edtPdvCamera::ExitHook, (void *) this );
+#endif
+
     /* Create thread */
     m_ThreadId	= epicsThreadMustCreate(	m_CameraName.c_str(), CAMERA_THREAD_PRIORITY, CAMERA_THREAD_STACK,
 											(EPICSTHREADFUNC)edtPdvCamera::ThreadStart, (void *) this );
@@ -197,12 +225,69 @@ int edtPdvCamera::CameraStart( )
 
 extern "C" int
 edtPdvConfig(
-	char * cameraName,
-	int unit,
-	int channel,
-	char * cfgName	)
+	const char	*	cameraName,
+	int				unit,
+	int				channel,
+	const char	*	cfgName	)
 {
+    if( cameraName == NULL || strlen(cameraName) == 0 )
+    {
+        errlogPrintf( "NULL or zero length camera name.\nUsage: edtPdvConfig(name,unit,chan,config)\n");
+        return  -1;
+    }
+    if( cfgName == NULL || strlen(cfgName) == 0 )
+    {
+        errlogPrintf( "NULL or zero length config name.\nUsage: edtPdvConfig(name,unit,chan,config)\n");
+        return  -1;
+    }
+    if ( edtPdvCamera::CreateCamera( cameraName, unit, channel, cfgName ) != 0 )
+    {
+        errlogPrintf( "edtPdvConfig failed for camera %s, config %s!\n", cameraName, cfgName );
+		if ( EDT_PDV_DEBUG >= 4 )
+        	epicsThreadSuspendSelf();
+        return -1;
+    }
+    return 0;
+}
+
+extern "C" int
+edtPdvConfigFull(
+	const char	*	cameraName,
+	int				unit,
+	int				channel,
+	const char	*	cfgName,
+	int				maxBuffers,				// 0 = unlimited
+	size_t			maxMemory,				// 0 = unlimited
+	int				priority,				// 0 = default 50, high is 90
+	int				stackSize			)	// 0 = default 1 MB
+{
+    if( cameraName == NULL || strlen(cameraName) == 0 )
+    {
+        errlogPrintf( "NULL or zero length camera name.\nUsage: edtPdvConfig(name,unit,chan,config)\n");
+        return  -1;
+    }
+    if( cfgName == NULL || strlen(cfgName) == 0 )
+    {
+        errlogPrintf( "NULL or zero length config name.\nUsage: edtPdvConfig(name,unit,chan,config)\n");
+        return  -1;
+    }
+
+    if( cameraName == NULL || strlen(cameraName) == 0 )
+    {
+        errlogPrintf( "NULL or zero length camera name. Check parameters to edtPdvConfig()!\n");
+        return  -1;
+    }
+    if ( edtPdvCamera::CreateCamera( cameraName, unit, channel, cfgName ) != 0 )
+    {
+        errlogPrintf( "edtPdvConfig failed for camera %s!\n", cameraName );
+		if ( EDT_PDV_DEBUG >= 4 )
+        	epicsThreadSuspendSelf();
+        return -1;
+    }
+    return 0;
+}
 #if 0
+	// Remnants from edt_unix's epicsCamInit()
     DBADDR addr;
     static double zero = 0.0;
     double *dval = &zero;
@@ -224,47 +309,37 @@ edtPdvConfig(
     }
 #endif
 
-    if( cameraName == NULL || strlen(cameraName) == 0 )
-    {
-        errlogPrintf( "NULL or zero length camera name. Check parameters to edtPdvConfig()!\n");
-        return  -1;
-    }
-    if ( edtPdvCamera::CreateCamera( cameraName, unit, channel, cfgName ) != 0 )
-    {
-        errlogPrintf( "edtPdvConfig failed for camera %s!\n", cameraName );
-		if ( EDT_PDV_DEBUG >= 4 )
-        	epicsThreadSuspendSelf();
-        return -1;
-    }
-    return 0;
-}
 
-
-int edtPdvCamera::CreateCamera( char * cameraName, int unit, int channel, char * cfgName	)
+int edtPdvCamera::CreateCamera( const char * cameraName, int unit, int channel, const char * cfgName	)
 {
+    static const char	*	functionName = "edtPdvCamera::CreateCamera";
+
     /* Parameters check */
     if( cameraName == NULL || strlen(cameraName) == 0 )
     {
-        errlogPrintf( "NULL or zero length camera name. Check parameters to edtPdvConfig()!\n");
+        errlogPrintf(	"%s:%s: ERROR, NULL or zero length camera name. Check parameters to edtPdvConfig()!\n",
+            			driverName, functionName );
         return  -1;
     }
 
     if ( edtPdvCamera::CameraFindByName(cameraName) != NULL )
     {
-        errlogPrintf( "Camera name %s already in use!\n", cameraName );
+        errlogPrintf(	"%s:%s: ERROR, Camera name %s already in use!\n",
+						driverName, functionName, cameraName );
         return -1;
     }
 
     if( IsCameraChannelUsed( unit, channel ) )
     {
-        errlogPrintf( "PMC %d channel %d already in use!\n", unit, channel);
+        errlogPrintf(	"%s:%s: ERROR, PMC %d channel %d already in use!\n",
+						driverName, functionName, unit, channel	);
         return -1;
     }
 
     if( cfgName == NULL || strlen(cfgName) == 0 )
     {
-        errlogPrintf(	"NULL or zero length camera configuration filename.\n"
-						"Check parameters to edtPdvConfig()!\n" );
+        errlogPrintf(	"%s:%s: ERROR, NULL or zero length camera configuration filename.\n",
+						driverName, functionName );
         return  -1;
     }
 
@@ -285,8 +360,20 @@ int edtPdvCamera::CreateCamera( char * cameraName, int unit, int channel, char *
 }
 
 
-edtPdvCamera::edtPdvCamera( const string & cameraName, int unit, int channel, const string & cfgName )
-	:	
+edtPdvCamera::edtPdvCamera(
+	const char			*	cameraName,
+	int						unit,
+	int						channel,
+	const char			*	cfgName,
+	int						maxBuffers,				// 0 = unlimited
+	size_t					maxMemory,				// 0 = unlimited
+	int						priority,				// 0 = default 50, high is 90
+	int						stackSize			)	// 0 = default 1 MB
+	:	ADDriver(			cameraName,		1,
+							NUM_EDT_PDV_PARAMS, maxBuffers, maxMemory,
+							asynOctetMask,	0,	// Supports an asynOctect interface w/ no interrupts
+							ASYN_CANBLOCK,	1,	// ASYN_CANBLOCK=1, ASYN_MULTIDEVICE=0, autoConnect=1
+							priority, stackSize	),
 		m_reconfig(			FALSE			    ),
 		m_NumBuffers(		N_PDV_BUF_DEFAULT	),
 		m_NumPdvTimeouts(	0					),
@@ -294,20 +381,22 @@ edtPdvCamera::edtPdvCamera( const string & cameraName, int unit, int channel, co
 		m_pDD(				NULL			    ),
 		m_unit(				unit				),
 		m_channel(			channel				),
-		m_CameraName(		cameraName	        ),
 		m_CameraClass(							),
+		m_CameraInfo(							),
 		m_CameraModel(							),
-		m_ConfigName(			cfgName			),
-		m_width(				0				),
-		m_height(				0				),
-		m_numOfBits(			0				),
-		m_imageSize(			0				),
-		m_dmaSize(				0				),
-		m_gain(					0				),
-		m_timeStampEvent(		0				),
-		m_frameCounts(			0				),
-		m_Fiducial(				0				),
-		m_ThreadId(				NULL			),
+		m_CameraName(		cameraName	        ),
+		m_ConfigName(		cfgName				),
+		m_DrvVersion(							),
+		m_width(			0					),
+		m_height(			0					),
+		m_numOfBits(		0					),
+		m_imageSize(		0					),
+	//	m_dmaSize(			0					),
+		m_gain(				0					),
+		m_timeStampEvent(	0					),
+		m_frameCounts(		0					),
+		m_Fiducial(			0					),
+		m_ThreadId(			NULL				),
 //		m_imgqrd(			0					),
 //		m_imgqwr(			0					),
 //		m_imgqBuf(								),
@@ -323,16 +412,23 @@ edtPdvCamera::edtPdvCamera( const string & cameraName, int unit, int channel, co
 {
 }
 
+// Destructor
+edtPdvCamera::~edtPdvCamera( )
+{
+}
 
 int edtPdvCamera::InitCamera( )
 {
-    Edtinfo			edtinfo;
-    int n;
+    static const char	*	functionName = "InitCamera";
+    Edtinfo					edtinfo;
+    int						n;
 
     // Initialize I/O Intr processing
     scanIoInit( &m_ioscan );
     if ( m_ioscan == NULL )
-        printf( "ERROR: scanIoInit failed!\n" );
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
+            "%s:%s: ERROR, scanIoInit failed!\n",
+            driverName, functionName );
 
 #if 0
     edt_msg_set_level( edt_msg_default_handle(), DEBUG1 | DEBUG2 );
@@ -375,30 +471,67 @@ int edtPdvCamera::InitCamera( )
     if ( edt_get_library_version(	m_pPdvDev, buf, MAX_STRING_SIZE ) )
         m_LibVersion = buf;
 
+	// Fetch the camera manufacturer and model and write them to ADBase
     m_CameraClass	= pdv_get_camera_class(	m_pPdvDev );
     m_CameraModel	= pdv_get_camera_model(	m_pPdvDev );
-    m_width			= pdv_get_width(		m_pPdvDev );
-    m_height		= pdv_get_height(		m_pPdvDev );
-    m_numOfBits		= pdv_get_depth(		m_pPdvDev );
-    m_gain			= pdv_get_gain(			m_pPdvDev );
+	setStringParam( ADManufacturer, m_CameraClass.c_str() );
+	setStringParam( ADModel,		m_CameraModel.c_str() );
 
-    m_imageSize		= pdv_get_imagesize(	m_pPdvDev );
-    m_dmaSize		= pdv_get_dmasize(		m_pPdvDev );
+	// Fetch the full image geometry parameters and write them to ADBase
+    m_width			= pdv_get_width(	m_pPdvDev );
+    m_height		= pdv_get_height(	m_pPdvDev );
+    m_numOfBits		= pdv_get_depth(	m_pPdvDev );
+	if ( m_numOfBits <= 8 )
+		setIntegerParam(	NDDataType,	NDUInt8	);
+	else if ( m_numOfBits <= 16 )
+		setIntegerParam( NDDataType,	NDUInt16	);
+	setIntegerParam( NDArrayCallbacks,	1	);
+	setIntegerParam( NDArraySizeX,		m_width	);
+	setIntegerParam( NDArraySizeY,		m_height	);
+	setIntegerParam( NDArraySize,		m_width * m_height	); 
+
+	//	TODO: Do we need these?
+    //	m_gain			= pdv_get_gain(			m_pPdvDev );
+	//	m_imageSize		= pdv_get_imagesize(	m_pPdvDev );
+    //	m_dmaSize		= pdv_get_dmasize(		m_pPdvDev );
+
+	// Create ADBase parameters
+	createParam( EdtPdvClassString,		asynParamOctet,		&m_PdvParamClass	);
+	createParam( EdtPdvDebugString,		asynParamInt32,		&m_PdvParamDebug	);
+	createParam( EdtPdvDebugMsgString,	asynParamInt32,		&m_PdvParamDebugMsg	);
+	createParam( EdtPdvInfoString,		asynParamOctet,		&m_PdvParamInfo		);
+//	createParam( EdtPdvFloat1String,	asynParamFloat64,	&m_PdvParamFloat1	);
+
+	// Update EdtPdv asyn parameters
+    m_CameraClass	= pdv_get_camera_class(	m_pPdvDev );
+    setStringParam( m_PdvParamClass, m_CameraClass.c_str()	);
+    m_CameraInfo	= pdv_get_camera_info(	m_pPdvDev );
+    setStringParam( m_PdvParamInfo,	m_CameraInfo.c_str()	);
+
+//	m_PdvDebugLevel	= pdv_debug_level(	m_pPdvDev );
+//	pdv_setdebug(		m_pPdvDev, 		m_PdvDebugLevel	);
+//	setIntegerParam(	m_PdvParamDebug,	m_PdvDebugLevel	);
+//	getIntegerParam(	m_PdvParamDebug,	&m_PdvDebugLevel	);
+
+//#include edt_error.h
+//	m_PdvMsgDebugLevel	= edt_msg_default_level( );
+//	edt_msg_set_level(	edt_msg_default_handle(),	m_PdvDebugMsgLevel	);
+//	setIntegerParam(	m_PdvParamDebugMsg,	 m_PdvDebugMsgLevel	);
+//	getIntegerParam(	m_PdvParamDebugMsg,	&m_PdvDebugMsgLevel	);
 
     if (	m_width		== 0
 		||	m_height	== 0
 		||	m_numOfBits	== 0
-		||	m_imageSize	== 0
-		||	m_dmaSize	== 0	)
+	//	||	m_dmaSize	== 0
+		||	m_imageSize	== 0	)
     {
         errlogPrintf( "camera %s has an invalid image configuration\n", m_CameraName.c_str() );
         return -1;
     }
 
 	if ( EDT_PDV_DEBUG >= 1 )
-		printf( "Camera %s: image size=%u: %u*%u pixels, %u bits/pixel; dma_size=%u\n",
-				m_CameraName.c_str(), m_imageSize, m_width, m_height,
-				m_numOfBits, m_dmaSize );
+		printf( "Camera %s: image size=%u: %u*%u pixels, %u bits/pixel\n",
+				m_CameraName.c_str(), m_imageSize, m_width, m_height, m_numOfBits );
 
     pdv_set_timeout( m_pPdvDev, 0 );
 
@@ -429,15 +562,19 @@ int edtPdvCamera::InitCamera( )
 
     // Flush serial line
     int cnt = pdv_serial_get_numbytes(m_pPdvDev);
-    if (cnt) {
-        char buf[256];
-        printf("Flushing %d bytes in serial line of %s.\n", cnt, m_CameraName.c_str());
-        pdv_serial_read(m_pPdvDev, buf, cnt);
+    if ( cnt > 0 )
+	{
+        char		buf[256];
+        printf( "Flushing %d bytes in serial line of %s.\n", cnt, m_CameraName.c_str() );
+        pdv_serial_read( m_pPdvDev, buf, cnt );
     }
 
     // Configure an asyn port for serial commands
     if ( drvAsynEdtPdvSerialPortConfigure( m_CameraName.c_str(), 0, 0, 0, m_pPdvDev ) < 0 ) {
         printf( "Error: Unable to configure asyn serial port for %s.\n", m_CameraName.c_str() );
+        asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW, 
+            "%s:%s: ERROR, drvAsynEdtPdvSerialPortConfigure failed!\n",
+            driverName, functionName );
         return -1;
     }
 
@@ -709,17 +846,16 @@ void showImageTimingRegister(void)
 epicsExportRegistrar( showImageTimingRegister );
 
 // Register Function:
-//	int edtPdvConfig( char * cameraName, int unit, int channel, char * cfgName )
+//	int edtPdvConfig( const char * cameraName, int unit, int channel, const char * cfgName )
 static const iocshArg		edtPdvConfigArg0	= { "name",		iocshArgString };
 static const iocshArg		edtPdvConfigArg1	= { "unit",		iocshArgInt };
 static const iocshArg		edtPdvConfigArg2	= { "channel",	iocshArgInt };
 static const iocshArg		edtPdvConfigArg3	= { "cfgFile",	iocshArgString };
-//static const iocshArg		edtPdvConfigArg4	= { "triggerPV",	iocshArgString };
-//static const iocshArg		edtPdvConfigArg5	= { "delayPV",		iocshArgString };
-//static const iocshArg		edtPdvConfigArg6	= { "syncPV",		iocshArgString };
-//static const iocshArg	*	edtPdvConfigArgs[7]	= { &edtPdvConfigArg0, &edtPdvConfigArg1, &edtPdvConfigArg2, &edtPdvConfigArg3, &edtPdvConfigArg4, &edtPdvConfigArg5, &edtPdvConfigArg6 };
-static const iocshArg	*	edtPdvConfigArgs[4]	= { &edtPdvConfigArg0, &edtPdvConfigArg1, &edtPdvConfigArg2, &edtPdvConfigArg3 };
-static const iocshFuncDef   edtPdvConfigFuncDef	= { "edtPdvConfig", 7, edtPdvConfigArgs };
+static const iocshArg	*	edtPdvConfigArgs[4]	=
+{
+	&edtPdvConfigArg0, &edtPdvConfigArg1, &edtPdvConfigArg2, &edtPdvConfigArg3
+};
+static const iocshFuncDef   edtPdvConfigFuncDef	= { "edtPdvConfig", 4, edtPdvConfigArgs };
 static int  edtPdvConfigCallFunc( const iocshArgBuf * args )
 {
     return edtPdvConfig( args[0].sval, args[1].ival, args[2].ival, args[3].sval );
@@ -727,6 +863,37 @@ static int  edtPdvConfigCallFunc( const iocshArgBuf * args )
 void edtPdvConfigRegister(void)
 {
 	iocshRegister( &edtPdvConfigFuncDef, reinterpret_cast<iocshCallFunc>(edtPdvConfigCallFunc) );
+}
+
+// Register Function:
+//	int edtPdvConfigFull( const char * cameraName, int unit, int channel, const char * cfgName, int, size_t, int, int  )
+static const iocshArg		edtPdvConfigFullArg0	= { "name",			iocshArgString };
+static const iocshArg		edtPdvConfigFullArg1	= { "unit",			iocshArgInt };
+static const iocshArg		edtPdvConfigFullArg2	= { "channel",		iocshArgInt };
+static const iocshArg		edtPdvConfigFullArg3	= { "cfgFile",		iocshArgString };
+static const iocshArg		edtPdvConfigFullArg4	= { "maxBuffers",	iocshArgInt };
+static const iocshArg		edtPdvConfigFullArg5	= { "maxMemory",	iocshArgInt };
+static const iocshArg		edtPdvConfigFullArg6	= { "priority",		iocshArgInt };
+static const iocshArg		edtPdvConfigFullArg7	= { "stackSize",	iocshArgInt };
+// There has to be a better way to handle triggerPV, delayPV, and syncPV
+//static const iocshArg		edtPdvConfigFullArgX	= { "triggerPV",	iocshArgString };
+//static const iocshArg		edtPdvConfigFullArgX	= { "delayPV",		iocshArgString };
+//static const iocshArg		edtPdvConfigFullArgX	= { "syncPV",		iocshArgString };
+static const iocshArg	*	edtPdvConfigFullArgs[8]	=
+{
+	&edtPdvConfigFullArg0, &edtPdvConfigFullArg1, &edtPdvConfigFullArg2, &edtPdvConfigFullArg3,
+	&edtPdvConfigFullArg4, &edtPdvConfigFullArg5, &edtPdvConfigFullArg6, &edtPdvConfigFullArg7
+};
+static const iocshFuncDef   edtPdvConfigFullFuncDef	= { "edtPdvConfigFull", 8, edtPdvConfigFullArgs };
+static int  edtPdvConfigFullCallFunc( const iocshArgBuf * args )
+{
+    return edtPdvConfigFull(
+		args[0].sval, args[1].ival, args[2].ival, args[3].sval,
+		args[4].ival, args[5].ival, args[6].ival, args[7].ival	);
+}
+void edtPdvConfigFullRegister(void)
+{
+	iocshRegister( &edtPdvConfigFullFuncDef, reinterpret_cast<iocshCallFunc>(edtPdvConfigFullCallFunc) );
 }
 
 // Register Function:
@@ -748,6 +915,7 @@ void edt_set_verbosityRegister(void)
 extern "C"
 {
 	epicsExportRegistrar( edtPdvConfigRegister );
+	epicsExportRegistrar( edtPdvConfigFullRegister );
 	epicsExportRegistrar( edt_set_verbosityRegister );
 	epicsExportAddress( int, EDT_PDV_DEBUG );
 }
