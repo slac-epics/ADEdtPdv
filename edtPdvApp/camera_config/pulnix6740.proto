@@ -1,0 +1,111 @@
+#
+InTerminator	= CR;
+OutTerminator	= CR;
+ReplyTimeout	= 800;
+ReadTimeout	= 100;
+WriteTimeout	= 100;
+ExtraInput	= Ignore;
+
+# Safe command to send to test communications
+ComTest
+{
+	out	":SHR?";	in	":o%*{A|M|D}S%*X";
+	@init { out	":SHR?";	in	":o%*{A|M|D}S%*X"; }
+}
+
+
+# Get shutter speed
+GetShutter
+{
+	out	":SHR?";	in	":o%*{A|M|D}S%X";
+	@init { out	":SHR?";	in	":o%*{A|M|D}S%X"; }
+}
+
+# Get shutter mode
+GetShutterMode
+{
+	in	":o%{A|M|D}S%*X";
+	@init { out	":SHR?";	in	":o%{A|M|D}S%*X"; }
+}
+
+# Set direct shutter speed
+# Shutter stays open for specified number of scan lines
+#	0-XXX	-	Max depends on max scan line
+SetDirectShutter
+{
+	out	":DSH=%03X";	in	":o";
+}
+
+# Set manual shutter speed
+# Internal timing - free run mode
+#	0	-	Manual No Shutter
+#	1-8	-	Manual 1/500 .. 1/64000
+SetManualShutter
+{
+	out	":MSH=%X";	in	":o";
+}
+
+# Set async shutter speed
+# External timing via VINIT trigger
+# Async Modes:
+#	0	-	Async No Shutter
+#	1-8	-	Async 1/500 .. 1/64000
+#	9	-	Async Pulse Width
+SetAsyncShutter
+{
+	out	":ASH=%X";	in	":o";
+}
+
+SetGainA
+{
+	out	":MGA=%03X";
+	in	":o";
+	out	":MGA?";
+	in      ":oGA%03X";
+	@init { out	":MGA?"; in      ":oGA%03X"; }
+}
+
+SetGainB
+{
+	out	":MGB=%03X";
+	in	":o";
+	out	":MGB?";
+        in      ":oGB%03X";
+	@init { out	":MGB?"; in      ":oGB%03X"; }
+}
+
+SetOffA
+{
+	out	":VRA=%03X";
+	in	":o";
+	out	":VRA?";
+        in      ":oVA%03X";
+	@init { out	":VRA?"; in      ":oVA%03X"; }
+}
+
+SetOffB
+{
+	out	":VRB=%03X";
+	in	":o";
+	out	":VRB?";
+        in      ":oVB%03X";
+	@init { out	":VRB?"; in      ":oVB%03X"; }
+}
+
+SetAutoGain
+{
+	out	":%{DABL|EABL}";
+	in	":o";
+}
+
+GetModel
+{
+	out	":CAM?";	in	":o%#s";
+	@init { out	":CAM?";	in	":o%#s"; }
+}
+
+GetVers
+{
+	out	":VER?";	in	":o%#s";
+	@init { out	":VER?";	in	":o%#s"; }
+}

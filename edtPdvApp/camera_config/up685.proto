@@ -1,0 +1,67 @@
+#
+InTerminator	= "\01";
+OutTerminator	= CR;
+ReplyTimeout	= 800;
+ReadTimeout	= 100;
+WriteTimeout	= 100;
+ExtraInput	= Ignore;
+
+# Safe command to send to test communications
+ComTest
+{
+	out	"rp";
+	in	"G %*x R %*x S %*i %*{NS|DS} %*{AM|NM} %*s\r\r"
+}
+
+# Report camera settings
+Report
+{
+	out	"rp";
+	in	"G %*x R %*x S %*i %*{NS|DS} %{AM|NM} %*s\r\r"
+}
+
+ReadGain
+{
+	in	"G %x R %*x S %*i %*{NS|DS} %*{AM|NM} %*s\r\r"
+}
+
+ReadReference
+{
+	in	"G %*x R %x S %*i %*{NS|DS} %*{AM|NM} %*s\r\r"
+}
+
+ReadShutterMode
+{
+	in	"G %*x R %*x S %i %*{NS|DS} %*{AM|NM} %*s\r\r"
+}
+
+ReadDoubleSpeed
+{
+	in	"G %*x R %*x S %*i %{NS|DS} %*{AM|NM} %*s\r\r"
+}
+
+ReadFreeRun
+{
+	in	"G %*x R %*x S %*i %*{NS|DS} %{AM|NM} %*s\r\r"
+}
+
+# Set shutter speed
+SetShutter
+{
+	out	"sm%x";
+	in	"\r";
+}
+
+# Set shutter mode
+SetShutterMode
+{
+	out	"%{am|nm}";
+	in	"\r";
+}
+
+# Set gain
+SetGain
+{
+	out	"gn%03x";
+	in	"\r";
+}

@@ -27,7 +27,7 @@ CONFIG=$(EPICS_BASE)/configure
 # Define the version(s) of any other needed modules 
 # ===============================================================
 # Example
-ADCORE_MODULE_VERSION		= R2.0-0.1.0
+ADCORE_MODULE_VERSION		= R2.0-0.2.0
 ASYN_MODULE_VERSION			= R4.23-0.1.0
 
 # ============================================================

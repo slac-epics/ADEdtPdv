@@ -1,0 +1,15 @@
+#
+# Hamamatsu Orca Flash 4.0 Scientfic CMOS Camera
+#
+# EPICS DB file for records specific to this model of camera
+#
+# Protocol root must match db filename root
+# i.e. hamaOrcaFlash4_0.proto
+
+record( stringin, "$(P)$(R)ORCA_MODEL" )
+{
+   field( DTYP, "stream" )
+   field( INP,  "@hamaOrcaFlash4_0.proto GetModel $(PORT).SER" )
+   field( SCAN, "Passive" )
+   field( PINI, "YES" )
+}

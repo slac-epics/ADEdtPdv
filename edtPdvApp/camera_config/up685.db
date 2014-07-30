@@ -1,0 +1,203 @@
+#
+# UNIQ UP685/UP685CL Camera Serial Command template
+#
+
+record( seq, "$(CAM):DoReport" )
+{
+	field( DESC,	"Do delayed report" )
+	field( DOL1,    "0" )
+	field( DLY1,    "2" )
+	field( LNK1,    "$(CAM):Report PP" )
+}
+
+record( longin,	"$(CAM):Report" )
+{
+	field( DESC,	"Report camera settings" )
+	field( DTYP,	"stream" )
+	field( INP,		"@up685.proto Report $(PORT)" )
+}
+
+record( longin,	"$(CAM):ReadGain" )
+{
+	field( DESC,	"Gain from camera report" )
+	field( DTYP,	"stream" )
+	field( INP,		"@up685.proto ReadGain $(PORT)" )
+	field( SCAN,	"I/O Intr" )
+}
+
+record( longin,	"$(CAM):ReadReference" )
+{
+	field( DESC,	"Reference from camera report" )
+	field( DTYP,	"stream" )
+	field( INP,		"@up685.proto ReadReference $(PORT)" )
+	field( SCAN,	"I/O Intr" )
+}
+
+record( longin,	"$(CAM):ReadDoubleSpeed" )
+{
+	field( DESC,	"DblSpd from camera report" )
+	field( DTYP,	"stream" )
+	field( INP,		"@up685.proto ReadDoubleSpeed $(PORT)" )
+	field( SCAN,	"I/O Intr" )
+}
+
+record( ao, "$(CAM):Gain" )
+{
+	field( DESC,	"Camera gain (0..1023)" )
+	field( DRVH,	"1023" )
+	field( DRVL,	"0" )
+	field( HOPR,	"1023" )
+	field( LOPR,	"0" )
+	field( PINI,	"YES" )
+	field( FLNK,	"$(CAM):SetGain" )
+}
+
+record( ao, "$(CAM):SetGain" )
+{
+	field( DESC,	"Set camera gain (0..1023)" )
+	field( DOL,		"$(CAM):Gain" )
+	field( OMSL,	"closed_loop" )
+	field( DTYP,	"stream" )
+	field( OUT,		"@up685.proto SetGain $(PORT)" )
+	field( DRVH,	"1023" )
+	field( DRVL,	"0" )
+	field( PINI,	"YES" )
+	field( FLNK,	"$(CAM):DoReport" )
+}
+
+record( mbbi,	"$(CAM):Shutter" )
+{
+	field( DESC,	"Camera shutter speed" )
+	field( ZRVL,	"0"	)
+	field( ONVL,	"1"	)
+	field( TWVL,	"2"	)
+	field( THVL,	"3"	)
+	field( FRVL,	"4"	)
+	field( FVVL,	"5"	)
+	field( SXVL,	"6"	)
+	field( SVVL,	"7"	)
+	field( EIVL,	"8"	)
+	field( NIVL,	"9"	)
+	field( TEVL,	"10"	)
+	field( ELVL,	"11"	)
+	field( TVVL,	"12"	)
+	field( TTVL,	"13"	)
+	field( FTVL,	"14"	)
+	field( FFVL,	"15"	)
+	field( ZRST,	"1/110"	)
+	field( ONST,	"1/220"	)
+	field( TWST,	"1/440"	)
+	field( THST,	"1/900"	)
+	field( FRST,	"1/1800"	)
+	field( FVST,	"1/3500"	)
+	field( SXST,	"1/4500"	)
+	field( SVST,	"1/7000"	)
+	field( EIST,	"1/9000"	)
+	field( NIST,	"1/14000"	)
+	field( TEST,	"1/18000"	)
+	field( ELST,	"1/22000"	)
+	field( TVST,	"1/28000"	)
+	field( TTST,	"1/37000"	)
+	field( FTST,	"1/55000"	)
+	field( FFST,	"1/110000"	)
+	field( PINI,	"YES" )
+}
+
+record( calcout, "$(CAM):CalcShutterOut" )
+{
+	field( DESC,	"Calc shtr val" )
+	field( INPA,	"$(CAM):Shutter CPP" )
+	field( INPB,	"$(CAM):ShutterMode CPP" )
+	field( CALC,	"B ? A : (A>5?A-1:A)" )
+	field( OUT,		"$(CAM):SetRawShutter PP" )
+	field( OOPT,	"On Change" )
+}
+
+record( longout, "$(CAM):SetRawShutter" )
+{
+	field( DESC,	"Numeric shutter value" )
+	field( DTYP,	"stream" )
+	field( OUT,		"@up685.proto SetShutter $(PORT)" )
+	field( FLNK,	"$(CAM):DoReport" )
+}
+
+record( longin,	"$(CAM):ReadRawShutter" )
+{
+	field( DESC,	"Shutter from camera report" )
+	field( DTYP,	"stream" )
+	field( INP,		"@up685.proto ReadShutterMode $(PORT)" )
+	field( SCAN,	"I/O Intr" )
+}
+
+record( calcout, "$(CAM):CalcShutterIn" )
+{
+	field( DESC,	"Calc shtr val" )
+	field( INPA,	"$(CAM):ReadRawShutter CPP" )
+	field( INPB,	"$(CAM):ShutterMode CPP" )
+	field( CALC,	"B ? A : (A>5?A+1:A)" )
+	field( OUT,		"$(CAM):ReadShutter PP" )
+	field( OOPT,	"On Change" )
+}
+
+record( mbbi,	"$(CAM):ReadShutter" )
+{
+	field( DESC,	"Camera shutter speed" )
+	field( ZRVL,	"0"	)
+	field( ONVL,	"1"	)
+	field( TWVL,	"2"	)
+	field( THVL,	"3"	)
+	field( FRVL,	"4"	)
+	field( FVVL,	"5"	)
+	field( SXVL,	"6"	)
+	field( SVVL,	"7"	)
+	field( EIVL,	"8"	)
+	field( NIVL,	"9"	)
+	field( TEVL,	"10"	)
+	field( ELVL,	"11"	)
+	field( TVVL,	"12"	)
+	field( TTVL,	"13"	)
+	field( FTVL,	"14"	)
+	field( FFVL,	"15"	)
+	field( ZRST,	"1/110"	)
+	field( ONST,	"1/220"	)
+	field( TWST,	"1/440"	)
+	field( THST,	"1/900"	)
+	field( FRST,	"1/1800"	)
+	field( FVST,	"1/3500"	)
+	field( SXST,	"1/4500"	)
+	field( SVST,	"1/7000"	)
+	field( EIST,	"1/9000"	)
+	field( NIST,	"1/14000"	)
+	field( TEST,	"1/18000"	)
+	field( ELST,	"1/22000"	)
+	field( TVST,	"1/28000"	)
+	field( TTST,	"1/37000"	)
+	field( FTST,	"1/55000"	)
+	field( FFST,	"1/110000"	)
+}
+
+record( mbbi,	"$(CAM):ShutterMode" )
+{
+	field( DESC,	"Camera shutter mode" )
+	field( DTYP,	"stream" )
+	field( INP,		"@up685.proto ReadFreeRun $(PORT) " )
+	field( SCAN,	"I/O Intr" )
+	field( ZRVL,	"0"	)
+	field( ONVL,	"1"	)
+	field( ZRST,	"Trig"		)
+	field( ONST,	"FreeRun"	)
+}
+
+record( bo,	"$(CAM):AutoGain" )
+{
+	field( DESC,	"Not supported" )
+	field( DOL,		"0" )
+	field( ZNAM,	"Disabled" )
+	field( ONAM,	"Enabled" )
+}
+
+record( stringin, "$(CAM):ID" )
+{
+	field( DESC,	"Camera reported model" )
+	field( VAL,	"UP685" )
+}

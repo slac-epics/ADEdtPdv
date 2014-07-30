@@ -15,11 +15,35 @@ extern "C" {
 //	#define ASYN_ERROR_PARITY  0x0001
 //	#define ASYN_ERROR_FRAMING 0x0002
 
-int drvAsynEdtPdvSerialPortConfigure(	const char	*	cameraName,
-                               			unsigned int	priority,
-										int				noAutoConnect,
-                               			int				noProcessEos,
-										PdvDev		*	pPdvDev );
+//
+// This structure holds the hardware-specific information
+// for a single asyn link.	There is one for each camera.
+//
+typedef struct ttyController
+{
+	asynUser		*	pasynUser;
+	char			*	portName;
+	int					m_addr;
+	bool				m_Connected;
+	PdvDev			*	m_pPdvDev;
+	unsigned long		nRead;
+	unsigned long		nWritten;
+	double				readTimeout;
+	double				writeTimeout;
+	asynInterface		common;
+	asynInterface		octet;
+	epicsMutexId		m_serialLock;
+}	ttyController_t;
+
+ttyController_t	*	drvAsynEdtPdvSerialPortConfigure(	const char		*	portName,
+														unsigned int		priority,
+														int					autoConnect,
+														int					noProcessEos );
+
+asynStatus drvAsynEdtPdvSerialPortConnect(				ttyController_t	*	tty,
+														PdvDev			*	pPdvDev	);
+
+asynStatus drvAsynEdtPdvSerialPortDisconnect(			ttyController_t	*	tty		);
 
 #ifdef __cplusplus
 }

@@ -20,7 +20,7 @@ LIB_LIBS += pdv
 INCLUDE += drvAsynEdtPdvSerial.h
 INCLUDE += edtPdvCamera.h
 
-DBD += drvAsynEdtPdvSerial.dbd
+# DBD += drvAsynEdtPdvSerial.dbd
 DBD += edtPdvSupport.dbd
 
 include $(ADCORE)/ADApp/commonLibraryMakefile

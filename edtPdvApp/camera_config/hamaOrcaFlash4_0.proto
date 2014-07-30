@@ -1,0 +1,122 @@
+#
+InTerminator	= CR;
+OutTerminator	= CR;
+ReplyTimeout	= 800;
+ReadTimeout	= 100;
+WriteTimeout	= 100;
+ExtraInput	= Ignore;
+
+# Safe command to send to test communications
+ComTest
+{
+	out	"?CAI T";			in	"CAI T %s";
+#	@init { out	"?CAI T";	in	"CAI T %s"; }
+}
+
+# Get camera model name
+GetModel
+{
+	out	"?CAI T";			in	"CAI T %s";
+#	@init { out	"?CAI T";	in	"CAI T %s"; }
+}
+
+# Get camera serial number
+GetSerialNumber
+{
+	out	"?CAI N";			in	"CAI N %d";
+#	@init { out	"?CAI N";	in	"CAI N %d"; }
+}
+
+GetVers
+{
+	out	"?VER";			in	"VER %s";
+#	@init { out	"?VER";	in	"VER %s"; }
+}
+
+# GetWidth - CCD EFfective Horizontal Pixel count
+GetWidth
+{
+	out	"?CAI H";			in	"CAI H %s";
+#	@init { out	"?CAI H";	in	"CAI H %s"; }
+}
+
+# GetHeight - CCD EFfective Vertical Pixel count
+GetHeight
+{
+	out	"?CAI V";			in	"CAI V %s";
+#	@init { out	"?CAI V";	in	"CAI V %s"; }
+}
+
+GetActualExposure
+{
+	out "?RAT";			in	"RAT %f";
+#	@init { out	"?RAT";	in	"RAT %s"; }
+}
+
+GetExposureTime
+{
+	out "?AET";			in	"AET %f";
+#	@init { out	"?AET";	in	"AET %s"; }
+}
+
+SetExposureTime
+{
+	out "AET%f";
+}
+
+# Get Start Exposure Timing Mode
+#	0	= Normal
+#	1	= External trigger
+#	2	= Start
+#	3	= Light sheet
+GetExposureMode
+{
+	out "?AMD";			in	"AMD %{N,E,S,L}";
+#	@init { out "?AMD";	in	"AMD %{N,E,S,L}"; }
+}
+
+# Set Start Exposure Timing Mode
+#	0	= Normal
+#	1	= External trigger
+#	2	= Start
+#	3	= Light sheet
+SetExposureMode
+{
+	out "AMD %{N,E,S,L}";
+}
+
+# Get External Trigger Exposure Mode
+#	0	= Edge
+#	1	= Level
+#	2	= Synchronous
+GetExtTrigMode
+{
+	out "?EMD";		in	"EMD %{E,L,S}";
+}
+
+# Set External Trigger Exposure Mode
+#	0	= Edge
+#	1	= Level
+#	2	= Synchronous
+SetExtTrigMode
+{
+	out "EMD%{E,L,S}";
+}
+
+# Get Scanning Mode
+#	0	= Normal
+#	1	= Binning
+#	2	= Sub-array (Vertical Double Scan)
+GetScanningMode
+{
+	out "?SMD";		in	"SMD %{N,S,W}";
+}
+
+# Set Scanning Mode
+#	0	= Normal
+#	1	= Binning
+#	2	= Sub-array (Vertical Double Scan)
+SetScanningMode
+{
+	out "SMD %{N,S,W}";
+}
