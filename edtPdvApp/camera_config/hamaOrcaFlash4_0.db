@@ -6,10 +6,179 @@
 # Protocol root must match db filename root
 # i.e. hamaOrcaFlash4_0.proto
 
-record( stringin, "$(P)$(R)ORCA_MODEL" )
+record( stringin, "$(P)$(R)COM_TEST" )
 {
-   field( DTYP, "stream" )
-   field( INP,  "@hamaOrcaFlash4_0.proto GetModel $(PORT).SER" )
-   field( SCAN, "Passive" )
-   field( PINI, "YES" )
+	field( DESC, "Communication Test" )
+	field( DTYP, "stream" )
+	field( INP,  "@hamaOrcaFlash4_0.proto ComTest $(PORT).SER" )
+	field( SCAN, "Passive" )
+	field( PINI, "YES" )
 }
+
+record( stringin, "$(P)$(R)OrcaInfo_RBV" )
+{
+	field( DESC, "Orca Camera Info" )
+	field( DTYP, "stream" )
+	field( INP,  "@hamaOrcaFlash4_0.proto GetInfo $(PORT).SER" )
+	field( SCAN, "Passive" )
+	field( PINI, "YES" )
+#  info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
+}
+
+record( stringin, "$(P)$(R)OrcaModel_RBV" )
+{
+	field( DESC, "Orca Camera Model" )
+	field( DTYP, "stream" )
+	field( INP,  "@hamaOrcaFlash4_0.proto GetModel $(PORT).SER" )
+	field( SCAN, "Passive" )
+	field( PINI, "YES" )
+#  info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
+}
+
+record( stringin, "$(P)$(R)OrcaSerialNumber_RBV" )
+{
+	field( DESC, "Orca Serial Number" )
+	field( DTYP, "stream" )
+	field( INP,  "@hamaOrcaFlash4_0.proto GetSerialNumber $(PORT).SER" )
+	field( SCAN, "Passive" )
+	field( PINI, "YES" )
+#  info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
+}
+
+record( stringin, "$(P)$(R)OrcaFirmware_RBV" )
+{
+	field( DESC, "Orca Firmware" )
+	field( DTYP, "stream" )
+	field( INP,  "@hamaOrcaFlash4_0.proto GetFirmware $(PORT).SER" )
+	field( PINI, "YES" )
+#  info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
+}
+
+record( longin, "$(P)$(R)OrcaHeight_RBV" )
+{
+	field( DESC, "Orca CCD Height" )
+	field( DTYP, "stream" )
+	field( INP,  "@hamaOrcaFlash4_0.proto GetHeight $(PORT).SER" )
+	field( EGU,  "Px" )
+	field( PINI, "YES" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
+	info( archiveFields,  "VAL" )
+}
+
+record( longin, "$(P)$(R)OrcaWidth_RBV" )
+{
+	field( DESC, "Orca CCD Width" )
+	field( DTYP, "stream" )
+	field( INP,  "@hamaOrcaFlash4_0.proto GetWidth $(PORT).SER" )
+	field( EGU,  "Px" )
+	field( PINI, "YES" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
+	info( archiveFields,  "VAL" )
+}
+
+# Read ORCA Actual Exposure Time
+record( ai, "$(P)$(R)OrcaActualExposure_RBV" )
+{
+	field( DESC, "Orca Actual Exposure" )
+	field( DTYP, "stream" )
+	field( INP,  "@hamaOrcaFlash4_0.proto GetActualExposure $(PORT).SER" )
+	field( EGU,  "sec" )
+	field( PREC, "5" )
+	field( PINI, "YES" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "VAL" )
+}
+
+# Set ORCA AcquireTime (Exposure Time)
+record( ao, "$(P)$(R)OrcaAcquireTime" )
+{
+	field( DTYP, "stream" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)AcquireTime PP NMS"  )
+	field( OUT,  "@hamaOrcaFlash4_0.proto SetAcquireTime $(PORT).SER" )
+	field( EGU,  "sec" )
+	field( PREC, "5" )
+	field( FLNK, "$(P)$(R)OrcaAcquireTime_RBV" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "VAL" )
+}
+
+# Read ORCA AcquireTime (Exposure Time)
+record( ai, "$(P)$(R)OrcaAcquireTime_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@hamaOrcaFlash4_0.proto GetAcquireTime $(PORT).SER" )
+	field( EGU,  "sec" )
+	field( PREC, "5" )
+	field( PINI, "YES" )
+	field( FLNK, "$(P)$(R)OrcaAcquireTime_Fanout" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "VAL" )
+}
+
+# Forward AcquireTime to ADBase.template's AcquireTime_RBV
+record( dfanout, "$(P)$(R)OrcaAcquireTime_Fanout" )
+{
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)OrcaAcquireTime_RBV NPP MS" )
+	field( OUTA, "$(P)$(R)AcquireTime_RBV PP NMS" )
+}
+
+# Set ORCA TriggerMode
+record( longout, "$(P)$(R)OrcaTriggerMode" )
+{
+	field( DTYP, "stream" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)TriggerMode PP NMS" )
+	field( OUT,  "@hamaOrcaFlash4_0.proto SetTriggerMode $(PORT).SER" )
+	field( SCAN, "Passive" )
+	field( FLNK, "$(P)$(R)OrcaTriggerMode_RBV" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
+	info( archiveFields,  "VAL" )
+}
+
+# Read ORCA TriggerMode
+record( longin, "$(P)$(R)OrcaTriggerMode_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@hamaOrcaFlash4_0.proto GetTriggerMode $(PORT).SER" )
+	field( FLNK, "$(P)$(R)OrcaTriggerMode_Fanout" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
+	info( archiveFields,  "VAL" )
+}
+
+# Forward TriggerMode to ADBase.template's TriggerMode_RBV
+record( dfanout, "$(P)$(R)OrcaTriggerMode_Fanout" )
+{
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)OrcaTriggerMode NPP MS" )
+	field( OUTA, "$(P)$(R)TriggerMode_RBV PP NMS" )
+}
+
+# Replace ADBase.template PV's w/ Orca specific modes as needed
+#record(mbbo, "$(P)$(R)TriggerMode" )
+#{
+#	field( PINI, "YES" )
+#	field( DTYP, "asynInt32" )
+#	field( OUT,  "@asyn($(PORT),0,0)TRIGGER_MODE" )
+#	field( ZRST, "Internal" )
+#	field( ZRVL, "0" )
+#	field( ONST, "External" )
+#	field( ONVL, "1" )
+#	field( VAL,  "0" )
+#}
+
+#record(mbbi, "$(P)$(R)TriggerMode_RBV" )
+#{
+#	field( DTYP, "asynInt32" )
+#	field( INP,  "@asyn($(PORT),0,0)TRIGGER_MODE" )
+#	field( ZRST, "Internal" )
+#	field( ZRVL, "0" )
+#	field( ONST, "External" )
+#	field( ONVL, "1" )
+#	field( SCAN, "I/O Intr" )
+#}

@@ -27,7 +27,8 @@
 
 // ADEdtPdv headers
 #include "edtPdvCamera.h"
-#include "drvAsynEdtPdvSerial.h"
+//#include "drvAsynEdtPdvSerial.h"
+#include "asynEdtPdvSerial.h"
 
 //	PCDS headers
 //#include "HiResTime.h"
@@ -349,10 +350,12 @@ edtPdvCamera::edtPdvCamera(
 	size_t					maxMemory,				// 0 = unlimited
 	int						priority,				// 0 = default 50, high is 90
 	int						stackSize			)	// 0 = default 1 MB
-	:	ADDriver(			cameraName,		2,
-							NUM_EDT_PDV_PARAMS, maxBuffers, maxMemory,
+	:	ADDriver(			cameraName,	
+							N_PDV_DRV_ADDR_MAX,
+							NUM_EDT_PDV_PARAMS,
+							maxBuffers, maxMemory,
 							asynOctetMask,	0,	// Supports an asynOctect interface w/ no interrupts
-							ASYN_CANBLOCK,	0,	// ASYN_CANBLOCK=1, ASYN_MULTIDEVICE=0, autoConnect=1
+							ASYN_CANBLOCK,	1,	// ASYN_CANBLOCK=1, ASYN_MULTIDEVICE=0, autoConnect=1
 							priority, stackSize	),
 		m_reconfig(			FALSE			    ),
 		m_NumMultiBuf(		N_PDV_MULTIBUF_DEF	),
@@ -395,7 +398,8 @@ edtPdvCamera::edtPdvCamera(
 		m_HWROI_gen(        0          			),
 #endif	// USE_EDT_ROI
 		m_ioscan(			NULL				),
-		m_ttyPort(			NULL				)
+		m_pAsynSerial(		NULL				)
+//		m_ttyPort(			NULL				)
 {
 	static const char	*	functionName = "edtPdvCamera:edtPdvCamera";
 
@@ -417,17 +421,18 @@ edtPdvCamera::edtPdvCamera(
     // Configure an asyn port for serial commands
 	unsigned int		serPriority		= 0;
 	int					autoConnect		= 0;
-	int					noProcessEos	= 0;
-    m_ttyPort = drvAsynEdtPdvSerialPortConfigure(	m_SerialPort.c_str(), serPriority,
-													autoConnect,	noProcessEos );
-    if ( m_ttyPort == NULL )
-	{
-        printf( "Error: Unable to configure asyn serial port for %s.\n", m_SerialPort.c_str() );
-        asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW, 
-					"asynPrint "
-					"%s %s: ERROR, drvAsynEdtPdvSerialPortConfigure failed!\n",
-					driverName,		functionName );
-    }
+//	int					noProcessEos	= 0;
+//    m_ttyPort = drvAsynEdtPdvSerialPortConfigure(	m_SerialPort.c_str(), serPriority,
+//													autoConnect,	noProcessEos );
+//    if ( m_ttyPort == NULL )
+//	{
+//       printf( "Error: Unable to configure asyn serial port for %s.\n", m_SerialPort.c_str() );
+//      asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW, 
+//					"asynPrint "
+//					"%s %s: ERROR, drvAsynEdtPdvSerialPortConfigure failed!\n",
+//					driverName,		functionName );
+//    }
+    m_pAsynSerial = new asynEdtPdvSerial(	m_SerialPort.c_str(), serPriority,	autoConnect	);
 
     // NOTE: If we needed to, could we get the ttyController ptr via findAsynPortDriver()?
 	//	ttyController	*	tty	= (ttyController *) findAsynPortDriver( m_SerialPort.c_str() );
@@ -659,7 +664,7 @@ int edtPdvCamera::UpdateADConfigParams( )
 asynStatus edtPdvCamera::ConnectCamera( )
 {
     static const char	*	functionName	= "edtPdvCamera::ConnectCamera";
-    int						status			= asynSuccess;
+    asynStatus				status			= asynSuccess;
 
 	if ( EDT_PDV_DEBUG >= 1 )
 		printf( "%s: %s ...\n", functionName, m_CameraName.c_str() );
@@ -672,12 +677,16 @@ asynStatus edtPdvCamera::ConnectCamera( )
 		printf( "%s: %s failed to initialize PdvDev camera!\n", functionName, m_CameraName.c_str() );
         return asynError;
 	}
-	if ( m_ttyPort == NULL )
+//	if ( m_ttyPort == NULL )
+	if ( m_pAsynSerial == NULL )
 	{
 		printf( "%s: %s failed to initialize PdvDev camera serial port!\n", functionName, m_CameraName.c_str() );
         return asynError;
 	}
-	if ( drvAsynEdtPdvSerialPortConnect( m_ttyPort, m_pPdvDev ) != asynSuccess )
+
+//	if ( drvAsynEdtPdvSerialPortConnect( m_ttyPort, m_pPdvDev ) != asynSuccess )
+ //       return asynError;
+	if ( m_pAsynSerial->pdvDevConnected( m_pPdvDev ) != asynSuccess )
         return asynError;
 
 	// Write the configuration parameters to the AreaDetector parameter PV's UpdateADConfigParams( );
@@ -689,6 +698,8 @@ asynStatus edtPdvCamera::ConnectCamera( )
 				m_CameraName.c_str(), m_width, m_height, m_numOfBits );
 	}
 
+#if 0
+// flush should now be handled by asynPortDriver
 	// TODO: Move to drvAsynEdtPdvSerialPortConnect
     // Flush serial line
     int cnt = pdv_serial_get_numbytes( m_pPdvDev );
@@ -698,7 +709,10 @@ asynStatus edtPdvCamera::ConnectCamera( )
         printf( "Flushing %d bytes for %s.\n", cnt, m_SerialPort.c_str() );
         pdv_serial_read( m_pPdvDev, buf, cnt );
     }
- 
+#endif
+
+#if 0
+// These should now be handled by asynPortDriver
 	// Signal asynManager that we are connected
     status = pasynManager->exceptionConnect( this->pasynUserSelf );
     if ( status != asynSuccess )
@@ -716,8 +730,9 @@ asynStatus edtPdvCamera::ConnectCamera( )
 				"asynPrint "
 				"%s %s: Camera %s 0 connected!\n", 
 				driverName, functionName, m_CameraName.c_str() );
+#endif
 
-    return asynSuccess;
+    return status;
 }
 
 
@@ -735,8 +750,9 @@ asynStatus edtPdvCamera::DisconnectCamera( )
           		"%s %s: disconnecting camera %s\n", 
 				driverName, functionName, m_CameraName.c_str() );
 
-	if ( m_ttyPort )
-		drvAsynEdtPdvSerialPortDisconnect( m_ttyPort );
+//	if ( m_ttyPort )
+//		drvAsynEdtPdvSerialPortDisconnect( m_ttyPort );
+	m_pAsynSerial->pdvDevDisconnected( NULL );
 
     if ( m_pPdvDev )
 	{
@@ -884,7 +900,8 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
     static const char	*	functionName	= "edtPdvCamera::writeInt32";
     const char			*	reasonName		= "unknownReason";
 	getParamName( 0, pasynUser->reason, &reasonName );
-    printf( "(%s) function: %d %s, value %d\n", functionName, pasynUser->reason, reasonName, value );
+    epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
+					"%s: Reason %d %s, value %d\n", functionName, pasynUser->reason, reasonName, value );
 
     if ( pasynUser->reason == ADAcquire )
 	{
@@ -942,7 +959,8 @@ asynStatus edtPdvCamera::writeFloat64(	asynUser *	pasynUser, epicsFloat64	value 
     static const char	*	functionName	= "edtPdvCamera::writeFloat64";
     const char			*	reasonName		= "unknownReason";
 	getParamName( 0, pasynUser->reason, &reasonName );
-    printf( "(%s) function: %d %s, value %lf\n", functionName, pasynUser->reason, reasonName, value );
+    epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
+					"%s: Reason %d %s, value %lf\n", functionName, pasynUser->reason, reasonName, value );
 
     if ( pasynUser->reason == ADAcquireTime)
 	{

@@ -12,12 +12,13 @@ LIBRARY_IOC_WIN32 += edtPdv
 LIBRARY_IOC_Linux += edtPdv
 LIBRARY_IOC_Darwin += edtPdv
 
-LIB_SRCS += drvAsynEdtPdvSerial.cpp
+#LIB_SRCS += drvAsynEdtPdvSerial.cpp
+LIB_SRCS += asynEdtPdvSerial.cpp
 LIB_SRCS += edtPdvCamera.cpp
 
 LIB_LIBS += pdv
 
-INCLUDE += drvAsynEdtPdvSerial.h
+#INCLUDE += drvAsynEdtPdvSerial.h
 INCLUDE += edtPdvCamera.h
 
 # DBD += drvAsynEdtPdvSerial.dbd

@@ -20,8 +20,10 @@
 //	#include "HiResTime.h"
 //	#include "timesync.h"
 
-struct	ttyController;
+class	asynEdtPdvSerial;
+//	struct	ttyController;
 
+#define N_PDV_DRV_ADDR_MAX		4
 #define N_PDV_MULTIBUF_DEF		4
 
 // Camera operation data structure definition
@@ -309,8 +311,9 @@ private:	//	Private member variables
 	int		m_PdvParamInfo;
 	#define LAST_EDT_PDV_PARAM  m_PdvParamInfo
 
-	IOSCANPVT			m_ioscan;
-	ttyController	*	m_ttyPort;
+	IOSCANPVT				m_ioscan;
+	asynEdtPdvSerial	*	m_pAsynSerial;
+	//	ttyController	*	m_ttyPort;
 
 private:	//	Private class variables
 	static	std::map<std::string, edtPdvCamera *>	ms_cameraMap;

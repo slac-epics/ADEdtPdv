@@ -77,7 +77,7 @@ ttyConnectIt( void * drvPvt, asynUser * pasynUser)
 	{
 		//	No need to alarm people since we don't need the serial interface
 		//	when m_pPdvDev is null, so only show this error message in debug mode
-		if ( EDT_PDV_DEBUG >= 3 )
+//		if ( EDT_PDV_DEBUG >= 3 )
 			epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
 							"%s %s: Camera Device not available!\n", functionName, tty->portName );
 		return asynError;

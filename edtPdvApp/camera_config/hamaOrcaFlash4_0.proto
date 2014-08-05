@@ -1,10 +1,12 @@
 #
-InTerminator	= CR;
-OutTerminator	= CR;
-ReplyTimeout	= 800;
-ReadTimeout	= 100;
-WriteTimeout	= 100;
-ExtraInput	= Ignore;
+Terminator      = CR;
+# InTerminator	= LF;
+# OutTerminator	= LF;
+ReplyTimeout	= 2000;
+ReadTimeout		= 500;
+WriteTimeout	= 200;
+ExtraInput		= Ignore;
+#ExtraInput		= Error;
 
 # Safe command to send to test communications
 ComTest
@@ -13,74 +15,73 @@ ComTest
 #	@init { out	"?CAI T";	in	"CAI T %s"; }
 }
 
+# Get firmware version
+GetFirmware
+{
+	out	"?VER";			in	"VER %s";
+}
+
+# Get info string
+GetInfo
+{
+	out	"?INF";			in	"INF %s";
+}
+
 # Get camera model name
 GetModel
 {
 	out	"?CAI T";			in	"CAI T %s";
-#	@init { out	"?CAI T";	in	"CAI T %s"; }
 }
 
 # Get camera serial number
 GetSerialNumber
 {
-	out	"?CAI N";			in	"CAI N %d";
-#	@init { out	"?CAI N";	in	"CAI N %d"; }
+	out	"?CAI N";			in	"CAI N %s";
 }
 
-GetVers
-{
-	out	"?VER";			in	"VER %s";
-#	@init { out	"?VER";	in	"VER %s"; }
-}
-
-# GetWidth - CCD EFfective Horizontal Pixel count
-GetWidth
-{
-	out	"?CAI H";			in	"CAI H %s";
-#	@init { out	"?CAI H";	in	"CAI H %s"; }
-}
-
-# GetHeight - CCD EFfective Vertical Pixel count
+# GetHeight - CCD Effective Vertical Pixel count
 GetHeight
 {
-	out	"?CAI V";			in	"CAI V %s";
-#	@init { out	"?CAI V";	in	"CAI V %s"; }
+	out	"?CAI V";			in	"CAI V %d";
+}
+
+# GetWidth - CCD Effective Horizontal Pixel count
+GetWidth
+{
+	out	"?CAI H";			in	"CAI H %d";
 }
 
 GetActualExposure
 {
 	out "?RAT";			in	"RAT %f";
-#	@init { out	"?RAT";	in	"RAT %s"; }
 }
 
-GetExposureTime
+GetAcquireTime
 {
 	out "?AET";			in	"AET %f";
-#	@init { out	"?AET";	in	"AET %s"; }
 }
 
-SetExposureTime
+SetAcquireTime
 {
 	out "AET%f";
 }
 
 # Get Start Exposure Timing Mode
-#	0	= Normal
+#	0	= Normal free run
 #	1	= External trigger
 #	2	= Start
 #	3	= Light sheet
-GetExposureMode
+GetTriggerMode
 {
 	out "?AMD";			in	"AMD %{N,E,S,L}";
-#	@init { out "?AMD";	in	"AMD %{N,E,S,L}"; }
 }
 
 # Set Start Exposure Timing Mode
-#	0	= Normal
+#	0	= Normal free run
 #	1	= External trigger
 #	2	= Start
 #	3	= Light sheet
-SetExposureMode
+SetTriggerMode
 {
 	out "AMD %{N,E,S,L}";
 }

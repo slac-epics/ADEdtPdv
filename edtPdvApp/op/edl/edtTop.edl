@@ -1,0 +1,1974 @@
+4 0 1
+beginScreenProperties
+major 4
+minor 0
+release 1
+x 1924
+y 552
+w 700
+h 508
+font "helvetica-medium-r-12.0"
+ctlFont "helvetica-medium-r-12.0"
+btnFont "helvetica-medium-r-12.0"
+fgColor index 14
+bgColor index 7
+textColor index 14
+ctlFgColor1 index 14
+ctlFgColor2 index 0
+ctlBgColor1 index 0
+ctlBgColor2 index 14
+topShadowColor index 0
+botShadowColor index 14
+title "$(CAM) Setup"
+showGrid
+snapToGrid
+gridSize 4
+endScreenProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 364
+y 240
+w 328
+h 208
+lineColor index 3
+fill
+fillColor index 3
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 364
+y 60
+w 328
+h 160
+lineColor index 3
+fill
+fillColor index 3
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 12
+y 144
+w 336
+h 244
+lineColor index 3
+fill
+fillColor index 3
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 12
+y 60
+w 336
+h 68
+lineColor index 3
+fill
+fillColor index 3
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 0
+y 0
+w 700
+h 40
+lineColor index 56
+fill
+fillColor index 56
+lineWidth 0
+endObjectProperties
+
+# (Exit Button)
+object activeExitButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 632
+y 8
+w 48
+h 24
+fgColor index 14
+bgColor index 4
+topShadowColor index 1
+botShadowColor index 11
+label "Exit"
+font "helvetica-medium-r-12.0"
+3d
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 28
+y 0
+w 196
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 56
+value {
+  "Camera $(CAM)"
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 4
+release 0
+x 252
+y 8
+w 100
+h 24
+fgColor index 14
+bgColor index 3
+topShadowColor index 1
+botShadowColor index 13
+font "helvetica-medium-r-12.0"
+buttonLabel "Live Image"
+numPvs 4
+numDsps 1
+displayFileName {
+  0 "gigeScreens/liveImage.edl"
+}
+closeAction {
+  0 1
+}
+setPosition {
+  0 "parentWindow"
+}
+symbols {
+  0 "CAM=$(CAM),IOC=$(IOC)"
+}
+closeDisplay {
+  0 1
+}
+icon
+endObjectProperties
+
+# (Motif Slider)
+object activeMotifSliderClass
+beginObjectProperties
+major 4
+minor 2
+release 0
+x 376
+y 100
+w 112
+h 20
+fgColor index 14
+bgColor index 2
+2ndBgColor index 14
+topShadowColor index 2
+botShadowColor index 14
+increment 40
+controlPv "$(CAM):Gain"
+controlLabelType "pvName"
+font "helvetica-medium-r-12.0"
+limitsFromDb
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 4
+release 0
+x 576
+y 8
+w 48
+h 24
+fgColor index 14
+bgColor index 3
+topShadowColor index 0
+botShadowColor index 14
+font "helvetica-medium-r-12.0"
+buttonLabel "IOC"
+numPvs 4
+numDsps 1
+displayFileName {
+  0 "iocScreens/ioc_soft.edl"
+}
+symbols {
+  0 "IOC=$(IOC)"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 28
+y 16
+w 196
+h 20
+controlPv "$(CAM):Model_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+limitsFromDb
+nullColor index 0
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Shell Command)
+object shellCmdClass
+beginObjectProperties
+major 4
+minor 3
+release 0
+x 468
+y 8
+w 92
+h 24
+fgColor index 14
+bgColor index 3
+topShadowColor index 1
+botShadowColor index 14
+font "helvetica-medium-r-12.0"
+buttonLabel "Python Viewer"
+numCmds 1
+commandLabel {
+  0 "Color Viewer"
+}
+command {
+  0 "gigeScreens/gigeViewer.sh --camerapv $(CAM) --instr $(HUTCH) --pvlist $(PVLIST) &"
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 4
+release 0
+x 300
+y 460
+w 88
+h 24
+fgColor index 14
+bgColor index 3
+topShadowColor index 0
+botShadowColor index 14
+font "helvetica-medium-r-12.0"
+buttonLabel "Plugins"
+numPvs 4
+numDsps 1
+displayFileName {
+  0 "gigeScreens/pcdsPlugins.edl"
+}
+symbols {
+  0 "CAM=$(CAM),P=$(CAM):,IOC=$(IOC)"
+}
+replaceSymbols {
+  0 1
+}
+propagateMacros {
+  0 0
+}
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 24
+y 76
+w 80
+h 20
+fgColor index 25
+onColor index 6
+offColor index 3
+topShadowColor index 1
+botShadowColor index 13
+controlPv "$(CAM):AsynIO.CNCT"
+pressValue "1"
+onLabel "Connect"
+offLabel "Connect"
+3d
+useEnumNumeric
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 112
+y 76
+w 80
+h 20
+fgColor index 25
+onColor index 6
+offColor index 3
+topShadowColor index 1
+botShadowColor index 13
+controlPv "$(CAM):AsynIO.CNCT"
+pressValue "0"
+onLabel "Disconnect"
+offLabel "Disconnect"
+3d
+useEnumNumeric
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 208
+y 460
+w 84
+h 24
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 1
+useDisplayBg
+value {
+  "PCDS Plugins"
+}
+endObjectProperties
+
+# (Shell Command)
+object shellCmdClass
+beginObjectProperties
+major 4
+minor 3
+release 0
+x 364
+y 8
+w 92
+h 24
+fgColor index 14
+bgColor index 3
+topShadowColor index 1
+botShadowColor index 14
+font "helvetica-medium-r-12.0"
+buttonLabel "MPEG Stream"
+numCmds 1
+commandLabel {
+  0 "View MPEG stream in browser"
+}
+command {
+  0 "firefox --no-remote `caget -t -S $(CAM):MJPG1:MJPG_URL_RBV`"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 452
+y 252
+w 48
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Acquire"
+}
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 504
+y 252
+w 44
+h 20
+fgColor index 25
+onColor index 6
+offColor index 3
+topShadowColor index 1
+botShadowColor index 13
+controlPv "$(CAM):Acquire"
+pressValue "1"
+onLabel "Start"
+offLabel "Start"
+3d
+useEnumNumeric
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 548
+y 252
+w 40
+h 20
+fgColor index 25
+onColor index 6
+offColor index 3
+topShadowColor index 1
+botShadowColor index 13
+controlPv "$(CAM):Acquire"
+pressValue "0"
+onLabel "Stop"
+offLabel "Stop"
+3d
+useEnumNumeric
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 4
+release 0
+x 124
+y 460
+w 76
+h 24
+fgColor index 14
+bgColor index 3
+topShadowColor index 0
+botShadowColor index 14
+font "helvetica-medium-r-12.0"
+buttonLabel "Setup"
+numPvs 4
+numDsps 1
+displayFileName {
+  0 "areaDetectorScreens/prosilica.edl"
+}
+symbols {
+  0 "CAM=$(CAM),P=$(CAM),R=:,IOC=$(IOC)"
+}
+replaceSymbols {
+  0 1
+}
+propagateMacros {
+  0 0
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 4
+y 460
+w 116
+h 24
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 1
+useDisplayBg
+value {
+  "AreaDetector Setup"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 508
+y 460
+w 188
+h 20
+controlPv "$(IOC):TOD"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+fgAlarm
+bgColor index 12
+useDisplayBg
+limitsFromDb
+nullColor index 0
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 44
+y 212
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Sensor size"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 256
+y 212
+w 76
+h 20
+controlPv "$(P)$(R)MaxSizeY_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 172
+y 212
+w 76
+h 20
+controlPv "$(P)$(R)MaxSizeX_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 452
+y 280
+w 136
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Detector state"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 596
+y 280
+w 88
+h 20
+controlPv "$(P)$(R)DetectorState_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 596
+y 252
+w 88
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+bgColor index 12
+visPv "CALC\\\{(A)\}($(P)$(R)Acquire)"
+visMin "0"
+visMax "1"
+value {
+  "Done"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 596
+y 252
+w 88
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 35
+bgColor index 12
+visPv "CALC\\\{(A)\}($(P)$(R)Acquire)"
+visInvert
+visMin "0"
+visMax "1"
+value {
+  "Collecting"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 452
+y 308
+w 92
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Image counter"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 452
+y 336
+w 136
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Image rate"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 596
+y 308
+w 88
+h 20
+controlPv "$(P)$(R)ArrayCounter_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 596
+y 336
+w 88
+h 20
+controlPv "$(P)$(R)ArrayRate_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 200
+y 76
+w 90
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+bgColor index 12
+visPv "CALC\\\{(A)\}($(P)$(R)AsynIO.CNCT)"
+visInvert
+visMin "0"
+visMax "1"
+value {
+  "Connected"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 200
+y 76
+w 90
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 20
+bgColor index 12
+visPv "CALC\\\{(A)\}($(P)$(R)AsynIO.CNCT)"
+visMin "0"
+visMax "1"
+value {
+  "Disconnected"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 44
+y 272
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Image size (bytes)"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 44
+y 360
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Color mode"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 44
+y 244
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Image size"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 44
+y 332
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Data type"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 532
+y 100
+w 60
+h 20
+controlPv "$(P)$(R)Gain"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 488
+y 100
+w 32
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Gain"
+}
+endObjectProperties
+
+# (Menu Button)
+object activeMenuButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 172
+y 360
+w 76
+h 20
+fgColor index 14
+bgColor index 63
+inconsistentColor index 12
+topShadowColor index 2
+botShadowColor index 12
+controlPv "$(P)$(R)ColorMode"
+indicatorPv "$(P)$(R)ColorMode"
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Menu Button)
+object activeMenuButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 172
+y 332
+w 76
+h 20
+fgColor index 14
+bgColor index 63
+inconsistentColor index 12
+topShadowColor index 2
+botShadowColor index 12
+controlPv "$(P)$(R)DataType"
+indicatorPv "$(P)$(R)DataType"
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 256
+y 244
+w 76
+h 20
+controlPv "$(P)$(R)ArraySizeY_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 172
+y 272
+w 160
+h 20
+controlPv "$(P)$(R)ArraySize_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 100
+w 88
+h 20
+controlPv "$(P)$(R)Gain_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 256
+y 332
+w 76
+h 20
+controlPv "$(P)$(R)DataType_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 256
+y 360
+w 76
+h 20
+controlPv "$(P)$(R)ColorMode_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 172
+y 244
+w 76
+h 20
+controlPv "$(P)$(R)ArraySizeX_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 452
+y 364
+w 136
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Frames completed"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 596
+y 364
+w 88
+h 20
+controlPv "$(P)$(R)PSFramesCompleted_RBV"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 452
+y 392
+w 136
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Frames dropped"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 596
+y 392
+w 88
+h 20
+controlPv "$(P)$(R)PSFramesDropped_RBV"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 44
+y 184
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Model"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 44
+y 156
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Manufacturer"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 172
+y 184
+w 160
+h 20
+controlPv "$(P)$(R)Model_RBV"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 15
+fgAlarm
+bgColor index 12
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 172
+y 156
+w 160
+h 20
+controlPv "$(P)$(R)Manufacturer_RBV"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 15
+fgAlarm
+bgColor index 12
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 548
+y 308
+w 40
+h 20
+fgColor index 25
+onColor index 6
+offColor index 3
+topShadowColor index 1
+botShadowColor index 13
+controlPv "$(P)$(R)ArrayCounter"
+pressValue "0"
+onLabel "Zero"
+offLabel "Zero"
+3d
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 376
+y 72
+w 140
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Exposure time"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 532
+y 72
+w 59
+h 18
+controlPv "$(P)$(R)AcquireTime"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 376
+y 188
+w 140
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Period between images"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 532
+y 188
+w 59
+h 18
+controlPv "$(P)$(R)AcquirePeriod"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 72
+w 88
+h 20
+controlPv "$(P)$(R)AcquireTime_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 188
+w 88
+h 20
+controlPv "$(P)$(R)AcquirePeriod_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Menu Button)
+object activeMenuButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 472
+y 128
+w 120
+h 20
+fgColor index 14
+bgColor index 63
+inconsistentColor index 12
+topShadowColor index 2
+botShadowColor index 12
+controlPv "$(P)$(R)ImageMode"
+indicatorPv "$(P)$(R)ImageMode"
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Menu Button)
+object activeMenuButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 472
+y 160
+w 120
+h 20
+fgColor index 14
+bgColor index 63
+inconsistentColor index 12
+topShadowColor index 2
+botShadowColor index 12
+controlPv "$(P)$(R)TriggerMode"
+indicatorPv "$(P)$(R)TriggerMode"
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 376
+y 128
+w 88
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Image mode"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 376
+y 160
+w 88
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Trigger mode"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 128
+w 88
+h 20
+controlPv "$(P)$(R)ImageMode_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 160
+w 88
+h 20
+controlPv "$(P)$(R)TriggerMode_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 12
+y 52
+w 132
+h 20
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "Camera Connection"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 12
+y 136
+w 50
+h 20
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "Status"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 364
+y 52
+w 104
+h 20
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "Image Settings"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 364
+y 232
+w 112
+h 20
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "Image Collection"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 172
+y 300
+w 160
+h 20
+controlPv "$(P)$(R)PSPacketSize_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 44
+y 300
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Packet size (bytes)"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 596
+y 420
+w 88
+h 20
+controlPv "$(P)$(R)PSPacketsResent_RBV"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 452
+y 420
+w 136
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Packets Resent"
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 4
+release 0
+x 396
+y 460
+w 104
+h 24
+fgColor index 14
+bgColor index 3
+topShadowColor index 2
+botShadowColor index 12
+font "helvetica-medium-r-12.0"
+buttonLabel "Network Stats"
+numPvs 4
+numDsps 1
+displayFileName {
+  0 "areaDetectorScreens/prosilicaMore.edl"
+}
+menuLabel {
+  0 "Network Stats"
+}
+symbols {
+  0 "P=$(P),R=$(R)"
+}
+icon
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 4
+release 0
+x 24
+y 104
+w 152
+h 20
+fgColor index 14
+bgColor index 3
+topShadowColor index 0
+botShadowColor index 14
+font "helvetica-medium-r-12.0"
+buttonLabel "Asyn CAM"
+numPvs 4
+numDsps 1
+displayFileName {
+  0 "asynScreens/asynRecord.edl"
+}
+symbols {
+  0 "P=$(P),R=$(R)AsynIO"
+}
+replaceSymbols {
+  0 1
+}
+propagateMacros {
+  0 0
+}
+icon
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 4
+release 0
+x 184
+y 104
+w 156
+h 20
+fgColor index 14
+bgColor index 3
+topShadowColor index 0
+botShadowColor index 14
+font "helvetica-medium-r-12.0"
+buttonLabel "Asyn CAM.SER"
+numPvs 4
+numDsps 1
+displayFileName {
+  0 "asynScreens/asynRecord.edl"
+}
+symbols {
+  0 "P=$(P):SER,R=$(R)AsynIO"
+}
+replaceSymbols {
+  0 1
+}
+propagateMacros {
+  0 0
+}
+icon
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 12
+y 408
+w 336
+h 40
+lineColor index 3
+fill
+fillColor index 3
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 12
+y 396
+w 132
+h 20
+font "helvetica-bold-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "Camera Connection"
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 4
+release 0
+x 24
+y 416
+w 152
+h 20
+fgColor index 14
+bgColor index 3
+topShadowColor index 0
+botShadowColor index 14
+font "helvetica-medium-r-12.0"
+buttonLabel "Orca Specific"
+numPvs 4
+numDsps 1
+displayFileName {
+  0 "edtPdvScreens/hamaOrcaFlash4_0.edl"
+}
+symbols {
+  0 "P=$(P),R=$(R),IOC=$(IOC)"
+}
+replaceSymbols {
+  0 1
+}
+propagateMacros {
+  0 0
+}
+icon
+endObjectProperties
+
