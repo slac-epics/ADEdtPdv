@@ -21,7 +21,6 @@ extern "C" {
 //
 typedef struct ttyController
 {
-	asynUser		*	pasynUser;
 	char			*	portName;
 	int					m_addr;
 	bool				m_Connected;

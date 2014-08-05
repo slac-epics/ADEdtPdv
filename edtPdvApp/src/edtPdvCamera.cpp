@@ -415,7 +415,11 @@ edtPdvCamera::edtPdvCamera(
 	m_SerialPort	+=	".SER";
 
     // Configure an asyn port for serial commands
-    m_ttyPort = drvAsynEdtPdvSerialPortConfigure( m_SerialPort.c_str(), 0, 0, 0 );
+	unsigned int		serPriority		= 0;
+	int					autoConnect		= 0;
+	int					noProcessEos	= 0;
+    m_ttyPort = drvAsynEdtPdvSerialPortConfigure(	m_SerialPort.c_str(), serPriority,
+													autoConnect,	noProcessEos );
     if ( m_ttyPort == NULL )
 	{
         printf( "Error: Unable to configure asyn serial port for %s.\n", m_SerialPort.c_str() );
@@ -676,8 +680,7 @@ asynStatus edtPdvCamera::ConnectCamera( )
 	if ( drvAsynEdtPdvSerialPortConnect( m_ttyPort, m_pPdvDev ) != asynSuccess )
         return asynError;
 
-	// Write the configuration parameters to the AreaDetector parameter PV's
-	UpdateADConfigParams( );
+	// Write the configuration parameters to the AreaDetector parameter PV's UpdateADConfigParams( );
 
 	if ( EDT_PDV_DEBUG >= 2 )
 	{

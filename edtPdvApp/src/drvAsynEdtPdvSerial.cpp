@@ -37,51 +37,22 @@ ttyCloseConnection( asynUser *	pasynUser, ttyController_t * tty )
 	const char	*	functionName	= "ttyCloseConnection";
 	if ( EDT_PDV_DEBUG >= 1 )
 		printf(  "tty %s: Close %s serial connection.\n", functionName, tty->portName );
-	if ( tty->m_Connected )
-	{
-		asynPrint(	pasynUser, ASYN_TRACE_FLOW,
+
+	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
+				"asynPrint "
+				"%s: Close %s serial connection.\n", functionName, tty->portName );
+
+	tty->m_Connected = false;
+
+	// Signal asynManager that we are disconnected
+	int  status = pasynManager->exceptionDisconnect( pasynUser );
+	if ( status != asynSuccess )
+		asynPrint(	pasynUser, ASYN_TRACE_ERROR,
 					"asynPrint "
-					"%s: Close %s serial connection.\n", functionName, tty->portName );
-		//	close(tty->fd);
-		tty->m_Connected = false;
-		//	tty->m_pPdvDev	 = NULL;
-		// Signal asynManager that we are disconnected
-		int  status = pasynManager->exceptionDisconnect( tty->pasynUser );
-		if ( status != asynSuccess )
-			asynPrint(	tty->pasynUser, ASYN_TRACE_ERROR,
-						"asynPrint "
-						"%s %s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
-						driverName, functionName, tty->portName, tty->pasynUser->errorMessage );
-	}
+					"%s %s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
+					driverName, functionName, tty->portName, pasynUser->errorMessage );
 }
 
-/*
- * Report link parameters
- */
-static void
-report( void * drvPvt, FILE * fp, int details )
-{
-	ttyController_t *tty = (ttyController_t *)drvPvt;
-
-	assert(tty);
-	int			connected	= 0;
-	pasynManager->isConnected( tty->pasynUser, &connected );
-	fprintf(	fp, "Camera serial port %s: %s\n",
-				tty->portName,
-				tty->m_Connected ? "Connected" : "Disconnected" );
-	if ( tty->m_Connected && !connected )
-	{
-		fprintf(	fp, "Warning, Camera serial port %s thinks it's %s, but asynManager says %s\n",
-					tty->portName,
-					tty->m_Connected	? "Connected" : "Disconnected",
-					connected			? "Connected" : "Disconnected"	);
-	}
-	if ( details >= 1 )
-	{
-		fprintf( fp, "	 Characters written: %lu\n", tty->nWritten );
-		fprintf( fp, "		Characters read: %lu\n", tty->nRead );
-	}
-}
 
 /*
  * Create a link
@@ -91,53 +62,44 @@ ttyConnectIt( void * drvPvt, asynUser * pasynUser)
 {
 	const char	*	functionName	= "ttyConnectIt";
 	ttyController_t *tty = (ttyController_t *)drvPvt;
+	assert(tty);
 
 	if ( EDT_PDV_DEBUG >= 3 )
 		printf(	"%s: %s ...\n", functionName, tty->portName );
 
-	/*
-	 * Sanity check
-	 */
-	assert(tty);
+	//
+	// We can't open the connection unless we have a valid m_pPdvDev ptr
+	// Control over that ptr is from the main EDT port driver,
+	// via drvAsynEdtPdvSerialPortConnect()
+	// and drvAsynEdtPdvSerialPortDisconnect()
+	///
 	if ( tty->m_pPdvDev == NULL )
 	{
-		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
-						"%s %s: Camera Device not available!\n", functionName, tty->portName );
+		//	No need to alarm people since we don't need the serial interface
+		//	when m_pPdvDev is null, so only show this error message in debug mode
+		if ( EDT_PDV_DEBUG >= 3 )
+			epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
+							"%s %s: Camera Device not available!\n", functionName, tty->portName );
 		return asynError;
 	}
 
-#if 0
-	if ( tty->m_Connected )
-	{
-		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
-						"%s %s: Serial Link already open!\n", functionName, tty->portName );
-		return asynError;
-	}
-#endif
+	//
+	// Open connection to camera
+	///
+	tty->m_Connected = true;
 
-	int			connected	= 0;
-	pasynManager->isConnected( tty->pasynUser, &connected );
-	if ( !connected || !tty->m_Connected )
-	{
-		/*
-		 * Open connection to camera
-		 */
-		tty->m_Connected = true;
+	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
+				"asynPrint "
+				"%s: Opened connection to %s\n", functionName, tty->portName );
 
-		if ( EDT_PDV_DEBUG >= 1 )
-			printf(	"tty %s: Opened connection to %s\n", functionName, tty->portName );
-		asynPrint(	pasynUser, ASYN_TRACE_FLOW,
+	// Signal asynManager that we are connected
+	int  status = pasynManager->exceptionConnect( pasynUser );
+	if ( status != asynSuccess )
+		asynPrint(	pasynUser, ASYN_TRACE_ERROR,
 					"asynPrint "
-					"%s: Opened connection to %s\n", functionName, tty->portName );
+					"%s %s port %s: Error calling pasynManager->exceptionConnect, error=%s\n",
+					driverName, functionName, tty->portName, pasynUser->errorMessage );
 
-		// Signal asynManager that we are connected
-		int  status = pasynManager->exceptionConnect( tty->pasynUser );
-		if ( status != asynSuccess )
-			asynPrint(	tty->pasynUser, ASYN_TRACE_ERROR,
-						"asynPrint "
-						"%s %s port %s: Error calling pasynManager->exceptionConnect, error=%s\n",
-						driverName, functionName, tty->portName, tty->pasynUser->errorMessage );
-	}
 	return asynSuccess;
 }
 
@@ -149,8 +111,6 @@ ttyDisconnect( void * drvPvt, asynUser * pasynUser )
 	ttyController_t *tty = (ttyController_t *)drvPvt;
 
 	assert(tty);
-	if ( EDT_PDV_DEBUG >= 1 )
-		printf(	"%s: %s\n", functionName, tty->portName );
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
 				"asynPrint "
 				"%s: %s\n", functionName, tty->portName );
@@ -167,7 +127,7 @@ static asynStatus ttyWriteIt(
 	asynUser		*	pasynUser,
 	const char		*	data,
 	size_t				numchars,
-	size_t			*	nbytesTransfered )
+	size_t			*	nBytesTransfered )
 {
 	const char		*	functionName	= "ttyWriteIt";
 	ttyController_t *tty = (ttyController_t *)drvPvt;
@@ -175,12 +135,10 @@ static asynStatus ttyWriteIt(
 	asynStatus status = asynSuccess;
 
 	assert(tty);
-	if ( EDT_PDV_DEBUG >= 3 )
-		printf(	"%s: %s write %zu chars\n", functionName, tty->portName, numchars );
 	asynPrintIO( pasynUser,	ASYN_TRACE_FLOW | ASYN_TRACEIO_DRIVER, data, numchars,
 				"asynPrintIO "
 				"%s: %s write %zu chars\n", functionName, tty->portName, numchars );
-	if ( !tty->m_Connected )
+	if ( tty->m_pPdvDev == NULL )
 	{
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
 						"%s: %s disconnected!\n", functionName, tty->portName );
@@ -188,7 +146,7 @@ static asynStatus ttyWriteIt(
 	}
 	if (numchars == 0)
 	{
-		*nbytesTransfered = 0;
+		*nBytesTransfered = 0;
 		return asynSuccess;
 	}
 	if (tty->writeTimeout != pasynUser->timeout)
@@ -230,18 +188,12 @@ static asynStatus ttyWriteIt(
 		status = asynError;
 	}
 
-	*nbytesTransfered = numchars - nleft;
-	if ( EDT_PDV_DEBUG >= 3 )
-		printf(	"%s: wrote %zu chars to %s, return %s\n",
-				functionName,
-				(unsigned long)*nbytesTransfered,
-				tty->portName,
-				pasynManager->strStatus(status)	);
+	*nBytesTransfered = numchars - nleft;
 	asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
 				"asynPrint "
 				"%s: wrote %zu to %s, return %s\n",
 				functionName,
-				*nbytesTransfered,
+				*nBytesTransfered,
 				tty->portName,
 				pasynManager->strStatus(status)	);
 	return status;
@@ -254,8 +206,8 @@ static asynStatus ttyReadIt(
 	void			*	drvPvt,
 	asynUser		*	pasynUser,
 	char			*	data,
-	size_t				maxchars,
-	size_t			*	nbytesTransfered,
+	size_t				nBytesToRead,
+	size_t			*	nBytesTransfered,
 	int				*	gotEom	)
 {
 	const char		*	functionName	= "ttyReadIt";
@@ -265,21 +217,35 @@ static asynStatus ttyReadIt(
 	int timeout_ms;
 
 	assert(tty);
-	if ( EDT_PDV_DEBUG >= 3 )
-		printf(  "%s: %s read up to %zu chars\n", functionName, tty->portName, maxchars );
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
 				"asynPrint "
-				"%s: %s read up to %zu chars\n", functionName, tty->portName, maxchars );
+				"%s %p: %s read max of %zu chars\n", functionName, ttyReadIt, tty->portName, nBytesToRead );
+	if ( tty->m_pPdvDev == NULL )
+	{
+		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
+						"%s Error: %s disconnected:", functionName, tty->portName );
+		return asynError;
+	}
 	if ( !tty->m_Connected )
 	{
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
 						"%s Error: %s disconnected:", functionName, tty->portName );
 		return asynError;
 	}
-	if ( maxchars == 0 )
+	int			connected	= 0;
+	pasynManager->isConnected( pasynUser, &connected );
+	if ( !connected )
 	{
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
-						"%s: %s maxchars is 0! Why?\n", functionName, tty->portName );
+						"%s Error: Port %s thinks it's connected, but asyManager is disconnected:",
+						functionName, tty->portName );
+		return asynError;
+	}
+
+	if ( nBytesToRead == 0 )
+	{
+		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
+						"%s: %s nBytesToRead is 0! Why?\n", functionName, tty->portName );
 		return asynError;
 	}
 	if( tty->readTimeout != pasynUser->timeout )
@@ -304,16 +270,16 @@ static asynStatus ttyReadIt(
 		 */
 		if (timeout_ms)
 			nAvailToRead = pdv_serial_wait( tty->m_pPdvDev,
-											(timeout_ms > 0) ? timeout_ms : 0, maxchars );
+											(timeout_ms > 0) ? timeout_ms : 0, nBytesToRead );
 		else
-			nAvailToRead = pdv_serial_get_numbytes(tty->m_pPdvDev);
+			nAvailToRead = pdv_serial_get_numbytes( tty->m_pPdvDev );
 		epicsMutexUnlock(tty->m_serialLock);
 
 		if( nAvailToRead > 0 )
 		{
 			int		nToRead	= nAvailToRead;
-			if( nToRead > static_cast<int>(maxchars) )
-				nToRead = static_cast<int>(maxchars);
+			if( nToRead > static_cast<int>(nBytesToRead) )
+				nToRead = static_cast<int>(nBytesToRead);
 			epicsMutexLock(tty->m_serialLock);
 			nRead = pdv_serial_read( tty->m_pPdvDev, data, nToRead );
 			epicsMutexUnlock(tty->m_serialLock);
@@ -323,7 +289,8 @@ static asynStatus ttyReadIt(
 		{
 			asynPrintIO(	pasynUser, ASYN_TRACEIO_DRIVER, data, nRead,
 							"asynPrint "
-							"%s: %s read %d\n", functionName, tty->portName, nRead);
+							"%s: %s read %d of %d\n", functionName, tty->portName,
+							nRead, nAvailToRead );
 			tty->nRead += nRead;
 			break;			/* If we have something, we're done. */
 		}
@@ -348,16 +315,19 @@ static asynStatus ttyReadIt(
 
 	if (nRead == 0 && (status == asynSuccess))	/* If we don't have anything, not even an error	*/
 		status = asynTimeout;					/* then we must have timed out.					*/
-	*nbytesTransfered = nRead;
+	*nBytesTransfered = nRead;
 	/* If there is room add a null byte */
-	if ( nRead < static_cast<int>(maxchars) )
+	if ( nRead < static_cast<int>(nBytesToRead) )
+	{
 		data[nRead] = 0;
+		*gotEom = ASYN_EOM_EOS;
+	}
 	else if (gotEom)
 		*gotEom = ASYN_EOM_CNT;
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
 				"asynPrint "
 				"%s: %s read %zu, status %d\n",
-				functionName, tty->portName, *nbytesTransfered, status	);
+				functionName, tty->portName, *nBytesTransfered, status	);
 	return status;
 }
 
@@ -371,14 +341,13 @@ ttyFlushIt( void * drvPvt, asynUser *	pasynUser )
 	ttyController_t *tty = (ttyController_t *)drvPvt;
 
 	assert(tty);
-	if ( EDT_PDV_DEBUG >= 1 )
-		printf(	"%s: %s\n", functionName, tty->portName );
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
 				"asynPrint "
 				"%s: %s\n", functionName, tty->portName );
-	if ( tty->m_Connected )
+	if ( tty->m_pPdvDev )
 	{
-		//	tcflush(tty->fd, TCIFLUSH);
+		//	?
+		//	tty->m_pPdvDev->pdv_reset_serial();
 	}
 	return asynSuccess;
 }
@@ -394,30 +363,46 @@ ttyCleanup(ttyController_t *tty)
 	{
 		if ( EDT_PDV_DEBUG >= 1 )
 			printf(  "tty %s: %s\n", functionName, tty->portName );
-		if ( tty->m_Connected )
-		{
-			//	close(tty->fd);
-			tty->m_Connected	= false;
-			// Signal asynManager that we are disconnected
-			int	status	= pasynManager->exceptionDisconnect( tty->pasynUser );
-			if ( status != asynSuccess )
-				asynPrint(	tty->pasynUser, ASYN_TRACE_ERROR,
-							"asynPrint "
-							"%s %s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
-							driverName, functionName, tty->portName, tty->pasynUser->errorMessage );
-		}
 		tty->m_pPdvDev		= NULL;
 		free(tty->portName);
 		free(tty);
 	}
 }
 
+//
+// Report link parameters
+//
+static void
+ttyReport( void * drvPvt, FILE * fp, int details )
+{
+	ttyController_t	*	tty = (ttyController_t *)drvPvt;
+
+	assert(tty);
+	fprintf(	fp, "Camera serial port %s is %s\n",
+				tty->portName,
+				tty->m_Connected	? "Connected" : "Disconnected"	);
+
+	if ( tty->m_Connected && tty->m_pPdvDev == NULL )
+	{
+		fprintf(	fp, "Warning, Camera serial port %s thinks it's %s, but asynManager says %s\n",
+					tty->portName,
+					tty->m_Connected	? "Connected" : "Disconnected",
+					tty->m_pPdvDev		? "Connected" : "Disconnected"	);
+	}
+	if ( details >= 1 )
+	{
+		fprintf( fp, "	 Characters written: %lu\n", tty->nWritten );
+		fprintf( fp, "		Characters read: %lu\n", tty->nRead );
+	}
+}
+
+
 /*
  * asynCommon methods
  */
 static const struct asynCommon drvAsynEdtPdvSerialPortAsynCommon =
 {
-	report,
+	ttyReport,
 	ttyConnectIt,
 	ttyDisconnect
 };
@@ -440,7 +425,7 @@ drvAsynEdtPdvSerialPortConfigure(
 	asynOctet		*	pasynOctet;
 
 	if ( EDT_PDV_DEBUG >= 1 )
-		printf(  "tty %s: %s\n", functionName, tty->portName );
+		printf(  "tty %s: %s\n", functionName, portName );
 
 	/*
 	 * Check arguments
@@ -503,14 +488,14 @@ drvAsynEdtPdvSerialPortConfigure(
 		ttyCleanup(tty);
 		return NULL;
 	}
-	tty->pasynUser = pasynManager->createAsynUser(0,0);
+	asynUser	*	pasynUser	= pasynManager->createAsynUser(0,0);
 	if ( EDT_PDV_DEBUG )
 		printf(  "Camera serial port: %s created!\n", tty->portName );
 
-	status = pasynManager->connectDevice( tty->pasynUser, tty->portName, tty->m_addr );
+	status = pasynManager->connectDevice( pasynUser, tty->portName, tty->m_addr );
 	if ( status != asynSuccess )
 	{
-		printf( "connectDevice failed %s\n", tty->pasynUser->errorMessage );
+		printf( "connectDevice failed %s\n", pasynUser->errorMessage );
 		ttyCleanup( tty );
 		return NULL;
 	}
@@ -537,28 +522,29 @@ drvAsynEdtPdvSerialPortConnect(
 	{
 		printf(  "tty %s Error on %s: NULL PdvDev ptr!\n", functionName, tty->portName );
 		tty->m_Connected	= false;
-
-		// Signal asynManager that we are disconnected
-		int  status	= pasynManager->exceptionDisconnect( tty->pasynUser );
-		if ( status != asynSuccess )
-			asynPrint(	tty->pasynUser, ASYN_TRACE_ERROR,
-						"asynPrint "
-						"%s %s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
-						driverName, functionName, tty->portName, tty->pasynUser->errorMessage );
 		return asynError;
 	}
 
-	tty->m_Connected	= true;
-	if ( EDT_PDV_DEBUG >= 1 )
-		printf(  "tty %s: %s connected\n", functionName, tty->portName );
+#if 0
+	port	*	pPort	= locatePort( tty->portName );
+	pPort	= locatePort( tty->portName );
+#else
+	asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
+	pAsynUserTmp->userPvt = tty;
+	pasynManager->autoConnect( pAsynUserTmp, 1 );
+#endif
+
+//	tty->m_Connected	= true;
+//	if ( EDT_PDV_DEBUG >= 1 )
+//		printf(  "tty %s: %s connected\n", functionName, tty->portName );
 
 	// Signal asynManager that we are connected
-	int  status = pasynManager->exceptionConnect( tty->pasynUser );
-	if ( status != asynSuccess )
-		asynPrint(	tty->pasynUser, ASYN_TRACE_ERROR,
-					"asynPrint "
-					"%s %s port %s: Error calling pasynManager->exceptionConnect, error=%s\n",
-					driverName, functionName, tty->portName, tty->pasynUser->errorMessage );
+//	int  status = pasynManager->exceptionConnect( pasynUser );
+//	if ( status != asynSuccess )
+//		asynPrint(	pasynUser, ASYN_TRACE_ERROR,
+//					"asynPrint "
+//					"%s %s port %s: Error calling pasynManager->exceptionConnect, error=%s\n",
+//					driverName, functionName, tty->portName, pasynUser->errorMessage );
 	return asynSuccess;
 }
 
@@ -574,15 +560,24 @@ drvAsynEdtPdvSerialPortDisconnect(
 	if ( tty == NULL )
 		return asynError;
 
-	tty->m_Connected	= false;
+	//	Keep our PdevDev ptr so we can auto-reconnect
 	//	tty->m_pPdvDev		= NULL;
+
+	tty->m_Connected	= false;
+
+	// Turn off autoconnect
+	asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
+	pAsynUserTmp->userPvt = tty;
+	pasynManager->autoConnect( pAsynUserTmp, 0 );
+
 	// Signal asynManager that we are disconnected
-	int  status = pasynManager->exceptionDisconnect( tty->pasynUser );
+	int  status = pasynManager->exceptionDisconnect( pAsynUserTmp );
 	if ( status != asynSuccess )
-		asynPrint(	tty->pasynUser, ASYN_TRACE_ERROR,
+		asynPrint(	pAsynUserTmp, ASYN_TRACE_ERROR,
 					"asynPrint "
 					"%s %s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
-					driverName, functionName, tty->portName, tty->pasynUser->errorMessage );
+					driverName, functionName, tty->portName, pAsynUserTmp->errorMessage );
+
 	if ( EDT_PDV_DEBUG >= 1 )
 		printf(  "tty %s: %s\n", functionName, tty->portName );
 	return asynSuccess;
