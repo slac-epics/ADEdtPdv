@@ -1,4 +1,5 @@
 #
+PeekSize        = 0;
 Terminator      = CR;
 # InTerminator	= LF;
 # OutTerminator	= LF;
@@ -63,7 +64,7 @@ GetAcquireTime
 
 SetAcquireTime
 {
-	out "AET%f";
+	out "AET %f";
 }
 
 # Get Start Exposure Timing Mode
@@ -73,7 +74,7 @@ SetAcquireTime
 #	3	= Light sheet
 GetTriggerMode
 {
-	out "?AMD";			in	"AMD %{N,E,S,L}";
+	out "?AMD";			in	"AMD %{N|E|S|L}";
 }
 
 # Set Start Exposure Timing Mode
@@ -83,7 +84,7 @@ GetTriggerMode
 #	3	= Light sheet
 SetTriggerMode
 {
-	out "AMD %{N,E,S,L}";
+	out "AMD %{N|E|S|L}";
 }
 
 # Get External Trigger Exposure Mode
@@ -92,7 +93,7 @@ SetTriggerMode
 #	2	= Synchronous
 GetExtTrigMode
 {
-	out "?EMD";		in	"EMD %{E,L,S}";
+	out "?EMD";		in	"EMD %{E|L|S}";
 }
 
 # Set External Trigger Exposure Mode
@@ -101,7 +102,7 @@ GetExtTrigMode
 #	2	= Synchronous
 SetExtTrigMode
 {
-	out "EMD%{E,L,S}";
+	out "EMD %{E|L|S}";
 }
 
 # Get Scanning Mode
@@ -110,7 +111,7 @@ SetExtTrigMode
 #	2	= Sub-array (Vertical Double Scan)
 GetScanningMode
 {
-	out "?SMD";		in	"SMD %{N,S,W}";
+	out "?SMD";		in	"SMD %{N|S|W}";
 }
 
 # Set Scanning Mode
@@ -119,5 +120,5 @@ GetScanningMode
 #	2	= Sub-array (Vertical Double Scan)
 SetScanningMode
 {
-	out "SMD %{N,S,W}";
+	out "SMD %{N|S|W}";
 }
