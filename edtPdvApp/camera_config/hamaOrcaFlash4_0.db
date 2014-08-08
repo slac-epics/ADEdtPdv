@@ -66,7 +66,7 @@ record( longin, "$(P)$(R)OrcaHeight_RBV" )
 	field( EGU,  "Px" )
 	field( PINI, "YES" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
-	info( archiveFields,  "VAL" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
 
 record( longin, "$(P)$(R)OrcaWidth_RBV" )
@@ -77,7 +77,7 @@ record( longin, "$(P)$(R)OrcaWidth_RBV" )
 	field( EGU,  "Px" )
 	field( PINI, "YES" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
-	info( archiveFields,  "VAL" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
 
 # Read ORCA Actual Exposure Time
@@ -90,23 +90,36 @@ record( ai, "$(P)$(R)OrcaActualExposure_RBV" )
 	field( PREC, "5" )
 	field( PINI, "YES" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
-	info( archiveFields,  "VAL" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
 
 # Set ORCA AcquireTime (Exposure Time)
+# Note: It would be simpler if this PV could replace the
+# PV $(P)$(R)AcquireTime from ADBase.template
+# However, when I tried that, the system would hang in the dbior() call.
+# It could be because this PV uses a different asyn PORT than the
+# one it wants to replace.
+# TODO: See if there's a way to handle this in asyn
+#
+# For now, I replace the FLNK in ADBase.template's AcquireTime PV
+# and add a SerAcquireTime param to the edtPdvCamera class which
+# maps the SerAcquireTime value to ADAcquireTime
+record( ao, "$(P)$(R)AcquireTime" )
+{
+	field( FLNK, "$(P)$(R)OrcaAcquireTime" )
+}
 record( ao, "$(P)$(R)OrcaAcquireTime" )
 {
 	field( DTYP, "stream" )
 	field( OMSL, "closed_loop" )
-	field( DOL,  "$(P)$(R)AcquireTime CPP NMS"  )
+	field( DOL,  "$(P)$(R)AcquireTime NPP NMS"  )
 	field( OUT,  "@hamaOrcaFlash4_0.proto SetAcquireTime $(PORT).SER" )
 	field( EGU,  "sec" )
 	field( PREC, "5" )
 	field( FLNK, "$(P)$(R)OrcaAcquireTime_RBV" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
-	info( archiveFields,  "VAL" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
-
 # Read ORCA AcquireTime (Exposure Time)
 record( ai, "$(P)$(R)OrcaAcquireTime_RBV" )
 {
@@ -115,70 +128,60 @@ record( ai, "$(P)$(R)OrcaAcquireTime_RBV" )
 	field( EGU,  "sec" )
 	field( PREC, "5" )
 	field( PINI, "YES" )
-	field( FLNK, "$(P)$(R)OrcaAcquireTime_Fanout" )
+	field( FLNK, "$(P)$(R)SerAcquireTime_RBV" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
-	info( archiveFields,  "VAL" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
-
-# Forward AcquireTime to ADBase.template's AcquireTime_RBV
-record( dfanout, "$(P)$(R)OrcaAcquireTime_Fanout" )
+record( ao, "$(P)$(R)SerAcquireTime_RBV" )
 {
+	field( DTYP, "asynFloat64" )
 	field( OMSL, "closed_loop" )
 	field( DOL,  "$(P)$(R)OrcaAcquireTime_RBV NPP MS" )
-	field( OUTA, "$(P)$(R)AcquireTime_RBV PP NMS" )
+	field( OUT,  "@asyn($(PORT),0,1)EDT_SER_ACQUIRE_TIME" )
+	field( PREC, "3" )
 }
 
 # Set ORCA TriggerMode
-record( longout, "$(P)$(R)OrcaTriggerMode" )
+record( mbbo, "$(P)$(R)TriggerMode" )
+{
+	field( FLNK, "$(P)$(R)OrcaTriggerMode" )
+}
+record( mbbo, "$(P)$(R)OrcaTriggerMode" )
 {
 	field( DTYP, "stream" )
 	field( OMSL, "closed_loop" )
-	field( DOL,  "$(P)$(R)TriggerMode CPP NMS" )
+	field( DOL,  "$(P)$(R)TriggerMode NPP NMS" )
 	field( OUT,  "@hamaOrcaFlash4_0.proto SetTriggerMode $(PORT).SER" )
-	field( SCAN, "Passive" )
+	field( ZRST, "Internal" )
+	field( ZRVL, "0" )
+	field( ONST, "External" )
+	field( ONVL, "1" )
 	field( FLNK, "$(P)$(R)OrcaTriggerMode_RBV" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
-	info( archiveFields,  "VAL" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
 
 # Read ORCA TriggerMode
-record( longin, "$(P)$(R)OrcaTriggerMode_RBV" )
+record( mbbi, "$(P)$(R)OrcaTriggerMode_RBV" )
 {
 	field( DTYP, "stream" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetTriggerMode $(PORT).SER" )
-	field( FLNK, "$(P)$(R)OrcaTriggerMode_Fanout" )
+	field( ZRST, "Internal" )
+	field( ZRVL, "0" )
+	field( ONST, "External" )
+	field( ONVL, "1" )
+	field( FLNK, "$(P)$(R)SerTriggerMode_RBV" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
-	info( archiveFields,  "VAL" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
-
-# Forward TriggerMode to ADBase.template's TriggerMode_RBV
-record( dfanout, "$(P)$(R)OrcaTriggerMode_Fanout" )
+record( mbbo, "$(P)$(R)SerTriggerMode_RBV" )
 {
+	field( DTYP, "asynInt32" )
 	field( OMSL, "closed_loop" )
-	field( DOL,  "$(P)$(R)OrcaTriggerMode NPP MS" )
-	field( OUTA, "$(P)$(R)TriggerMode_RBV PP NMS" )
+	field( DOL,  "$(P)$(R)OrcaTriggerMode_RBV NPP MS" )
+	field( OUT,  "@asyn($(PORT),0,1)EDT_SER_TRIGGER_MODE" )
+	field( ZRST, "Internal" )
+	field( ZRVL, "0" )
+	field( ONST, "External" )
+	field( ONVL, "1" )
 }
-
-# Replace ADBase.template PV's w/ Orca specific modes as needed
-#record(mbbo, "$(P)$(R)TriggerMode" )
-#{
-#	field( PINI, "YES" )
-#	field( DTYP, "asynInt32" )
-#	field( OUT,  "@asyn($(PORT),0,0)TRIGGER_MODE" )
-#	field( ZRST, "Internal" )
-#	field( ZRVL, "0" )
-#	field( ONST, "External" )
-#	field( ONVL, "1" )
-#	field( VAL,  "0" )
-#}
-
-#record(mbbi, "$(P)$(R)TriggerMode_RBV" )
-#{
-#	field( DTYP, "asynInt32" )
-#	field( INP,  "@asyn($(PORT),0,0)TRIGGER_MODE" )
-#	field( ZRST, "Internal" )
-#	field( ZRVL, "0" )
-#	field( ONST, "External" )
-#	field( ONVL, "1" )
-#	field( SCAN, "I/O Intr" )
-#}

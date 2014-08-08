@@ -3,68 +3,77 @@ PeekSize        = 0;
 Terminator      = CR;
 # InTerminator	= LF;
 # OutTerminator	= LF;
-ReplyTimeout	= 2000;
-ReadTimeout		= 500;
-WriteTimeout	= 200;
+ReplyTimeout	= 500;
+ReadTimeout		= 100;
+WriteTimeout	= 100;
 ExtraInput		= Ignore;
 #ExtraInput		= Error;
 
 # Safe command to send to test communications
 ComTest
 {
-	out	"?CAI T";			in	"CAI T %s";
-#	@init { out	"?CAI T";	in	"CAI T %s"; }
+	out	"?CAI T";
+	in	 "CAI T %s";
 }
 
 # Get firmware version
 GetFirmware
 {
-	out	"?VER";			in	"VER %s";
+	out	"?VER";
+	in	 "VER %s";
 }
 
 # Get info string
 GetInfo
 {
-	out	"?INF";			in	"INF %s";
+	out	"?INF";
+	in	 "INF %s";
 }
 
 # Get camera model name
 GetModel
 {
-	out	"?CAI T";			in	"CAI T %s";
+	out	"?CAI T";
+	in	 "CAI T %s";
 }
 
 # Get camera serial number
 GetSerialNumber
 {
-	out	"?CAI N";			in	"CAI N %s";
+	out	"?CAI N";
+	in	 "CAI N %s";
 }
 
 # GetHeight - CCD Effective Vertical Pixel count
 GetHeight
 {
-	out	"?CAI V";			in	"CAI V %d";
+	out	"?CAI V";
+	in	 "CAI V %d";
 }
 
 # GetWidth - CCD Effective Horizontal Pixel count
 GetWidth
 {
-	out	"?CAI H";			in	"CAI H %d";
+	out	"?CAI H";
+	in	 "CAI H %d";
 }
 
 GetActualExposure
 {
-	out "?RAT";			in	"RAT %f";
+	out "?RAT";
+	in	 "RAT %f";
 }
 
 GetAcquireTime
 {
-	out "?AET";			in	"AET %f";
+	out "?AET";
+	in	 "AET %f";
 }
 
 SetAcquireTime
 {
 	out "AET %f";
+	in	"AET %*f";
 }
 
 # Get Start Exposure Timing Mode
@@ -74,7 +83,8 @@ SetAcquireTime
 #	3	= Light sheet
 GetTriggerMode
 {
-	out "?AMD";			in	"AMD %{N|E|S|L}";
+	out "?AMD";
+	in	 "AMD %{N|E|S|L}";
 }
 
 # Set Start Exposure Timing Mode
@@ -85,6 +95,7 @@ GetTriggerMode
 SetTriggerMode
 {
 	out "AMD %{N|E|S|L}";
+	in  "AMD %*{N|E|S|L}";
 }
 
 # Get External Trigger Exposure Mode
@@ -93,7 +104,8 @@ SetTriggerMode
 #	2	= Synchronous
 GetExtTrigMode
 {
-	out "?EMD";		in	"EMD %{E|L|S}";
+	out "?EMD";
+	in	 "EMD %{E|L|S}";
 }
 
 # Set External Trigger Exposure Mode
@@ -103,6 +115,7 @@ GetExtTrigMode
 SetExtTrigMode
 {
 	out "EMD %{E|L|S}";
+	in	"EMD %*{E|L|S}";
 }
 
 # Get Scanning Mode
@@ -111,7 +124,8 @@ SetExtTrigMode
 #	2	= Sub-array (Vertical Double Scan)
 GetScanningMode
 {
-	out "?SMD";		in	"SMD %{N|S|W}";
+	out "?SMD";	
+	in	 "SMD %{N|S|W}";
 }
 
 # Set Scanning Mode
@@ -121,4 +135,5 @@ GetScanningMode
 SetScanningMode
 {
 	out "SMD %{N|S|W}";
+	in  "SMD %*{N|S|W}";
 }

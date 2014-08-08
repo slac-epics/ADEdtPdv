@@ -73,6 +73,18 @@ extern "C" int showImageTiming( )
 	return 0;
 }
 
+const char * TrigLevelToString( int	trigLevel )
+{
+	const char	*	pstrTrigLevel;
+	switch( trigLevel )
+	{
+		default:	pstrTrigLevel	= "Invalid!";	break;
+		case 0:		pstrTrigLevel	= "Edge";		break;
+		case 1:		pstrTrigLevel	= "Level";		break;
+		case 2:		pstrTrigLevel	= "Sync";		break;
+	}
+	return pstrTrigLevel;
+}
 
 int edtPdvCamera::ShowAllCameras( int level )
 {
@@ -375,7 +387,8 @@ edtPdvCamera::edtPdvCamera(
 		m_height(			0					),
 		m_numOfBits(		0					),
 		m_imageSize(		0					),
-	//	m_dmaSize(			0					),
+		m_dmaSize(			0					),
+		m_trigLevel(		0					),
 		m_PdvDebugLevel(	1					),
 	//	m_PdvDebugMsgLevel(	0xFFF				),
 		m_PdvDebugMsgLevel(	0x000				),
@@ -438,20 +451,26 @@ edtPdvCamera::edtPdvCamera(
 	//	ttyController	*	tty	= (ttyController *) findAsynPortDriver( m_SerialPort.c_str() );
 
 	// Create EdtPdv parameters shared by all EDT based cameras
-	createParam( EdtPdvClassString,		asynParamOctet,		&m_PdvParamClass		);
-	createParam( EdtPdvDebugString,		asynParamInt32,		&m_PdvParamDebug		);
-	createParam( EdtPdvDebugMsgString,	asynParamInt32,		&m_PdvParamDebugMsg		);
-	createParam( EdtPdvDrvVersionString,asynParamOctet,		&m_PdvParamDrvVersion	);
-	createParam( EdtPdvLibVersionString,asynParamOctet,		&m_PdvParamLibVersion	);
-	createParam( EdtPdvMultiBufString,	asynParamInt32,		&m_PdvParamMultiBuf		);
-	createParam( EdtPdvTrigLevelString,	asynParamInt32,		&m_PdvParamTrigLevel	);
-//	createParam( EdtPdvFloat1String,	asynParamFloat64,	&m_PdvParamFloat1		);
-	createParam( EdtPdvInfoString,		asynParamOctet,		&m_PdvParamInfo			);
+	// This group gives access to PDV library values of interest
+	createParam( EdtPdvClassString,			asynParamOctet,		&PdvClass		);
+	createParam( EdtPdvDebugString,			asynParamInt32,		&PdvDebug		);
+	createParam( EdtPdvDebugMsgString,		asynParamInt32,		&PdvDebugMsg		);
+	createParam( EdtPdvDrvVersionString,	asynParamOctet,		&PdvDrvVersion	);
+	createParam( EdtPdvLibVersionString,	asynParamOctet,		&PdvLibVersion	);
+	createParam( EdtPdvMultiBufString,		asynParamInt32,		&PdvMultiBuf		);
+	createParam( EdtPdvTrigLevelString,		asynParamInt32,		&PdvTrigLevel	);
+	createParam( EdtPdvInfoString,			asynParamOctet,		&PdvInfo			);
+
+	// This group provides a way to have serial readbacks get reflected in
+	// their ADBase class equivalents, for example
+	// SerAcquireTime	=>	ADAcquireTime 
+	createParam( EdtSerAcquireTimeString,	asynParamFloat64,	&SerAcquireTime	);
+	createParam( EdtSerTriggerModeString,	asynParamInt32,		&SerTriggerMode	);
 
 	// Get the EdtPdv debug levels and multibuf number (should be in autosave)
-	getIntegerParam( m_PdvParamDebug,		&m_PdvDebugLevel	);
-	getIntegerParam( m_PdvParamDebugMsg,	&m_PdvDebugMsgLevel	);
-	getIntegerParam( m_PdvParamMultiBuf,	&m_NumMultiBuf	);
+	getIntegerParam( PdvDebug,		&m_PdvDebugLevel	);
+	getIntegerParam( PdvDebugMsg,	&m_PdvDebugMsgLevel	);
+	getIntegerParam( PdvMultiBuf,	&m_NumMultiBuf	);
 
 #if 0
 	if ( EDT_PDV_DEBUG >= 1 )
@@ -630,33 +649,35 @@ int edtPdvCamera::UpdateADConfigParams( )
 
 	// Update EdtPdv asyn parameters
     m_CameraClass	= pdv_get_camera_class(	m_pPdvDev );
-    setStringParam( m_PdvParamClass, m_CameraClass.c_str()	);
+    setStringParam( PdvClass, m_CameraClass.c_str()	);
     m_CameraInfo	= pdv_get_camera_info(	m_pPdvDev );
-    setStringParam( m_PdvParamInfo,	m_CameraInfo.c_str()	);
+    setStringParam( PdvInfo,	m_CameraInfo.c_str()	);
 
     char		buf[MAX_STRING_SIZE];
     if ( edt_get_driver_version(	m_pPdvDev, buf, MAX_STRING_SIZE ) )
 	{
         m_DrvVersion = buf;
-		setStringParam( m_PdvParamDrvVersion, m_DrvVersion.c_str()	);
+		setStringParam( PdvDrvVersion, m_DrvVersion.c_str()	);
 	}
     if ( edt_get_library_version(	m_pPdvDev, buf, MAX_STRING_SIZE ) )
 	{
         m_LibVersion = buf;
-		setStringParam( m_PdvParamLibVersion, m_LibVersion.c_str()	);
+		setStringParam( PdvLibVersion, m_LibVersion.c_str()	);
 	}
 
 	// Update AD version of PDV library Debug parameters
-	setIntegerParam(	m_PdvParamDebug,	m_PdvDebugLevel	);
-	setIntegerParam(	m_PdvParamDebugMsg,	m_PdvDebugMsgLevel	);
+	setIntegerParam(	PdvDebug,		m_PdvDebugLevel	);
+	setIntegerParam(	PdvDebugMsg,	m_PdvDebugMsgLevel	);
 
 //	m_PdvDebugLevel	= pdv_debug_level(	m_pPdvDev );
 //	pdv_setdebug(		m_pPdvDev, 		m_PdvDebugLevel	);
-//	getIntegerParam(	m_PdvParamDebug,	&m_PdvDebugLevel	);
+//	getIntegerParam(	PdvDebug,		&m_PdvDebugLevel	);
+//	getIntegerParam(	PdvDebug,		&m_PdvDebugLevel	);
 //#include edt_error.h
 //	m_PdvDebugMsgLevel	= edt_msg_default_level( );
 //	edt_msg_set_level(	edt_msg_default_handle(),	m_PdvDebugMsgLevel	);
-//	getIntegerParam(	m_PdvParamDebugMsg,	&m_PdvDebugMsgLevel	);
+//	getIntegerParam(	PdvDebugMsg,	&m_PdvDebugMsgLevel	);
+//	getIntegerParam(	PdvDebugMsg,	&m_PdvDebugMsgLevel	);
     return 0;
 }
 
@@ -690,6 +711,14 @@ asynStatus edtPdvCamera::ConnectCamera( )
         return asynError;
 
 	// Write the configuration parameters to the AreaDetector parameter PV's UpdateADConfigParams( );
+#if 0
+	status = (asynStatus) UpdateADConfigParams( );
+	if ( status != asynSuccess )
+        asynPrint(	pasynUserSelf, ASYN_TRACE_ERROR,
+					"asynPrint "
+					"%s %s: error calling UpdateADConfigParams, error=%s\n",
+					driverName, functionName, pasynUserSelf->errorMessage );
+#endif
 
 	if ( EDT_PDV_DEBUG >= 2 )
 	{
@@ -851,6 +880,7 @@ void edtPdvCamera::report( FILE * fp, int details )
         fprintf( fp, "  Sensor height:     %d\n",  m_height );
         fprintf( fp, "  Image size:        %u\n",  m_imageSize );
         fprintf( fp, "  DMA size:          %u\n",  m_dmaSize );
+        fprintf( fp, "  Trig Level:        %s\n",  TrigLevelToString( m_trigLevel ) );
         fprintf( fp, "  PDV DebugLevel:    %u\n",  m_PdvDebugLevel );
         fprintf( fp, "  PDV DebugMsgLevel: %u\n",  m_PdvDebugMsgLevel );
         fprintf( fp, "  Timestamp Event:   %u\n",  m_timeStampEvent );
@@ -895,6 +925,29 @@ Image	*	edtPdvCamera::GetNextImageBuf(unsigned int &imgqrd)
 }
 #endif
 
+#if 0
+asynStatus edtPdvCamera::readFloat64(	asynUser *	pasynUser, epicsFloat64	value )
+{
+    static const char	*	functionName	= "edtPdvCamera::readFloat64";
+    const char			*	reasonName		= "unknownReason";
+	getParamName( 0, pasynUser->reason, &reasonName );
+    epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
+					"%s: Reason %d %s, value %lf\n", functionName, pasynUser->reason, reasonName, value );
+	asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
+				"asynPrint "
+				"%s: Reason %d %s, value %lf\n", functionName, pasynUser->reason, reasonName, value );
+
+    if ( pasynUser->reason == SerAcquireTime )
+	{
+		setDoubleParam( ADAcquireTime, value );
+	}
+
+    callParamCallbacks();
+
+    return asynStatus(0);
+}
+#endif
+
 asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 {
     static const char	*	functionName	= "edtPdvCamera::writeInt32";
@@ -919,40 +972,21 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
         }
     }
 
-    if ( pasynUser->reason == ADMinX)  { setIntegerParam(ADMinX, value); }
-    if ( pasynUser->reason == ADMinY)  { setIntegerParam(ADMinY, value); }
-    if ( pasynUser->reason == ADSizeX) { setIntegerParam(ADSizeX, value); }
-    if ( pasynUser->reason == ADSizeY) { setIntegerParam(ADSizeY, value); }
+    if ( pasynUser->reason == ADMinX)  setIntegerParam( ADMinX, value );
+    if ( pasynUser->reason == ADMinY)  setIntegerParam( ADMinY, value );
+    if ( pasynUser->reason == ADSizeX) setIntegerParam( ADSizeX, value );
+    if ( pasynUser->reason == ADSizeY) setIntegerParam( ADSizeY, value );
 
-    if ( pasynUser->reason == ADImageMode)    setIntegerParam(ADImageMode,    value);
-    if ( pasynUser->reason == ADNumImages)    setIntegerParam(ADNumImages,    value);
-    if ( pasynUser->reason == NDArrayCounter) setIntegerParam(NDArrayCounter, value);
+    if ( pasynUser->reason == ADImageMode)		setIntegerParam( ADImageMode,	value );
+    if ( pasynUser->reason == ADNumImages)		setIntegerParam( ADNumImages,	value );
+    if ( pasynUser->reason == NDArrayCounter)	setIntegerParam( NDArrayCounter,value );
+    if ( pasynUser->reason == ADTriggerMode)	setIntegerParam( ADTriggerMode,	value );
+    if ( pasynUser->reason == SerTriggerMode )	setIntegerParam( ADTriggerMode,	value );
  
-    if ( pasynUser->reason == ADTriggerMode)
-	{
-//        if ( !setExposureControl(value) )
-//			setIntegerParam(ADTriggerMode, value);
-	}
- 
-#if 0
-    if ( pasynUser->reason == cameraTrg)
-	{
-//        if ( !setTriggerControl(value) )
-//			setIntegerParam(cameraTrg, value);
-	}
-
-    if ( pasynUser->reason == cameraTrgPolarity)
-	{
-//        if ( !setTriggerPolarity(value) )
-//			setIntegerParam(cameraTrgPolarity, value);
-	}
-#endif
-
     callParamCallbacks();
 
     return asynStatus(0);
 }
-
 
 asynStatus edtPdvCamera::writeFloat64(	asynUser *	pasynUser, epicsFloat64	value )
 {
@@ -961,14 +995,14 @@ asynStatus edtPdvCamera::writeFloat64(	asynUser *	pasynUser, epicsFloat64	value 
 	getParamName( 0, pasynUser->reason, &reasonName );
     epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
 					"%s: Reason %d %s, value %lf\n", functionName, pasynUser->reason, reasonName, value );
+	asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
+				"asynPrint "
+				"%s: Reason %d %s, value %lf\n", functionName, pasynUser->reason, reasonName, value );
 
-    if ( pasynUser->reason == ADAcquireTime)
+    if ( pasynUser->reason == SerAcquireTime )
 	{
-//      double tmpfloat64;
-//		setExposure(value);
-//		if ( !getActualExposure(&tmpfloat64) )
-//			setDoubleParam(ADAcquireTime, tmpfloat64);
-    }
+		setDoubleParam( ADAcquireTime, value );
+	}
 
     callParamCallbacks();
 

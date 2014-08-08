@@ -65,6 +65,9 @@ public:		//	Public member functions
     virtual asynStatus disconnect(	asynUser	* pasynUser	);
 
     /// These are the methods that we override from ADDriver
+#if 0
+    virtual asynStatus readFloat64(	asynUser	*	pasynUser,	epicsFloat64	value	);
+#endif
     virtual asynStatus writeInt32(	asynUser	*	pasynUser,	epicsInt32		value	);
     virtual asynStatus writeFloat64(asynUser	*	pasynUser,	epicsFloat64	value	);
     void	report(	FILE	*	fp,	int	details	);
@@ -300,16 +303,20 @@ private:	//	Private member variables
 	unsigned int			m_HWROI_gen;
 #endif	//	USE_EDT_ROI
 
-	#define FIRST_EDT_PDV_PARAM m_PdvParamClass
-	int		m_PdvParamClass;
-	int		m_PdvParamDebug;
-	int		m_PdvParamDebugMsg;
-	int		m_PdvParamDrvVersion;
-	int		m_PdvParamLibVersion;
-	int		m_PdvParamMultiBuf;
-	int		m_PdvParamTrigLevel;
-	int		m_PdvParamInfo;
-	#define LAST_EDT_PDV_PARAM  m_PdvParamInfo
+	#define FIRST_EDT_PDV_PARAM PdvClass
+	int		PdvClass;
+	int		PdvDebug;
+	int		PdvDebugMsg;
+	int		PdvDrvVersion;
+	int		PdvInfo;
+	int		PdvLibVersion;
+	int		PdvMultiBuf;
+	int		PdvTrigLevel;
+
+	// Serial front-end params for ADBase parameters
+	int		SerAcquireTime;
+	int		SerTriggerMode;
+	#define LAST_EDT_PDV_PARAM  SerTriggerMode
 
 	IOSCANPVT				m_ioscan;
 	asynEdtPdvSerial	*	m_pAsynSerial;
@@ -328,10 +335,16 @@ private:	//	Private class variables
 #define EdtPdvDebugString		"EDT_PDV_DEBUG"
 #define EdtPdvDebugMsgString	"EDT_PDV_DEBUG_MSG"
 #define EdtPdvDrvVersionString	"EDT_PDV_DRV_VERSION"
+#define EdtPdvInfoString		"EDT_PDV_INFO"
 #define EdtPdvLibVersionString	"EDT_PDV_LIB_VERSION"
 #define EdtPdvMultiBufString	"EDT_PDV_MULTIBUF"
 #define EdtPdvTrigLevelString	"EDT_PDV_TRIG_LEVEL"
-#define EdtPdvInfoString		"EDT_PDV_INFO"
+
+// This group provides a way to have serial readbacks get reflected in
+// their ADBase class equivalents, for example
+// SerAcquireTime	=>	ADAcquireTime 
+#define EdtSerAcquireTimeString	"EDT_SER_ACQUIRE_TIME"
+#define EdtSerTriggerModeString	"EDT_SER_TRIGGER_MODE"
 
 /*	Diagnostic variables	*/
 extern int				EDT_PDV_DEBUG;
