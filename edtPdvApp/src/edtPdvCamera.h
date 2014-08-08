@@ -68,6 +68,7 @@ public:		//	Public member functions
 #if 0
     virtual asynStatus readFloat64(	asynUser	*	pasynUser,	epicsFloat64	value	);
 #endif
+    virtual asynStatus readInt32(	asynUser	*	pasynUser,	epicsInt32		value	);
     virtual asynStatus writeInt32(	asynUser	*	pasynUser,	epicsInt32		value	);
     virtual asynStatus writeFloat64(asynUser	*	pasynUser,	epicsFloat64	value	);
     void	report(	FILE	*	fp,	int	details	);

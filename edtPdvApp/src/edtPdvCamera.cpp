@@ -454,12 +454,12 @@ edtPdvCamera::edtPdvCamera(
 	// This group gives access to PDV library values of interest
 	createParam( EdtPdvClassString,			asynParamOctet,		&PdvClass		);
 	createParam( EdtPdvDebugString,			asynParamInt32,		&PdvDebug		);
-	createParam( EdtPdvDebugMsgString,		asynParamInt32,		&PdvDebugMsg		);
+	createParam( EdtPdvDebugMsgString,		asynParamInt32,		&PdvDebugMsg	);
 	createParam( EdtPdvDrvVersionString,	asynParamOctet,		&PdvDrvVersion	);
 	createParam( EdtPdvLibVersionString,	asynParamOctet,		&PdvLibVersion	);
-	createParam( EdtPdvMultiBufString,		asynParamInt32,		&PdvMultiBuf		);
+	createParam( EdtPdvMultiBufString,		asynParamInt32,		&PdvMultiBuf	);
+	createParam( EdtPdvInfoString,			asynParamOctet,		&PdvInfo		);
 	createParam( EdtPdvTrigLevelString,		asynParamInt32,		&PdvTrigLevel	);
-	createParam( EdtPdvInfoString,			asynParamOctet,		&PdvInfo			);
 
 	// This group provides a way to have serial readbacks get reflected in
 	// their ADBase class equivalents, for example
@@ -529,7 +529,6 @@ int edtPdvCamera::InitCamera( )
     if ( m_pPdvDev == NULL )
 	{
         asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW, 
-					"asynPrint "
 					"%s %s: ERROR, Unable to open camera for EDT card %u, channel %u\n",
 					driverName,		functionName, m_unit, m_channel );
         return -1;
@@ -698,15 +697,12 @@ asynStatus edtPdvCamera::ConnectCamera( )
 		printf( "%s: %s failed to initialize PdvDev camera!\n", functionName, m_CameraName.c_str() );
         return asynError;
 	}
-//	if ( m_ttyPort == NULL )
 	if ( m_pAsynSerial == NULL )
 	{
 		printf( "%s: %s failed to initialize PdvDev camera serial port!\n", functionName, m_CameraName.c_str() );
         return asynError;
 	}
 
-//	if ( drvAsynEdtPdvSerialPortConnect( m_ttyPort, m_pPdvDev ) != asynSuccess )
- //       return asynError;
 	if ( m_pAsynSerial->pdvDevConnected( m_pPdvDev ) != asynSuccess )
         return asynError;
 
@@ -738,27 +734,6 @@ asynStatus edtPdvCamera::ConnectCamera( )
         printf( "Flushing %d bytes for %s.\n", cnt, m_SerialPort.c_str() );
         pdv_serial_read( m_pPdvDev, buf, cnt );
     }
-#endif
-
-#if 0
-// These should now be handled by asynPortDriver
-	// Signal asynManager that we are connected
-    status = pasynManager->exceptionConnect( this->pasynUserSelf );
-    if ( status != asynSuccess )
-	{
-        asynPrint(	pasynUserSelf, ASYN_TRACE_ERROR,
-					"asynPrint "
-					"%s %s: error calling pasynManager->exceptionConnect, error=%s\n",
-					driverName, functionName, pasynUserSelf->errorMessage );
-        return asynError;
-    }
-	if ( EDT_PDV_DEBUG >= 1 )
-		printf(	"%s %s: Camera %s 0 connected!\n", 
-				driverName, functionName, m_CameraName.c_str() );
-    asynPrint(	pasynUserSelf, ASYN_TRACE_FLOW, 
-				"asynPrint "
-				"%s %s: Camera %s 0 connected!\n", 
-				driverName, functionName, m_CameraName.c_str() );
 #endif
 
     return status;
@@ -830,16 +805,69 @@ asynStatus edtPdvCamera::DisconnectCamera( )
 ///	Connects driver to device
 asynStatus edtPdvCamera::connect( asynUser *	pasynUser )
 {
+    static const char	*	functionName	= "edtPdvCamera::connect";
+
 	// The guts are in ConnectCamera(), which doesn't need a pasynUser ptr
-	return ConnectCamera();
+	int	status	= ConnectCamera();
+    if ( status != asynSuccess )
+	{
+        asynPrint(	pasynUser, ASYN_TRACE_ERROR,
+					"%s: error calling pasynManager->exceptionConnect, error=%s\n",
+					functionName, pasynUser->errorMessage );
+        return asynError;
+    }
+
+	// Signal asynManager that we are connected
+    status = pasynManager->exceptionConnect( pasynUser );
+    if ( status != asynSuccess )
+	{
+        asynPrint(	pasynUser, ASYN_TRACE_ERROR,
+					"%s %s: error calling pasynManager->exceptionConnect, error=%s\n",
+					driverName, functionName, pasynUser->errorMessage );
+        return asynError;
+    }
+	if ( EDT_PDV_DEBUG >= 1 )
+		printf(	"%s %s: Camera %s 0 connected!\n", 
+				driverName, functionName, m_CameraName.c_str() );
+    asynPrint(	pasynUser, ASYN_TRACE_FLOW, 
+				"asynPrint "
+				"%s %s: Camera %s 0 connected!\n", 
+				driverName, functionName, m_CameraName.c_str() );
+    return asynSuccess;
 }
 
 /// Overriding asynPortDriver::disconnect
 ///	Disconnects driver from device
 asynStatus edtPdvCamera::disconnect( asynUser *	pasynUser )
 {
+    static const char	*	functionName	= "edtPdvCamera::disconnect";
+
 	// The guts are in DisconnectCamera(), which doesn't need a pasynUser ptr
-    return DisconnectCamera();
+	int	status	= DisconnectCamera();
+    if ( status != asynSuccess )
+	{
+        asynPrint(	pasynUser, ASYN_TRACE_ERROR,
+					"%s: error calling pasynManager->exceptionDisconnect, error=%s\n",
+					functionName, pasynUser->errorMessage );
+        return asynError;
+    }
+
+	// Signal asynManager that we are disconnected
+    status = pasynManager->exceptionDisconnect( pasynUser );
+    if ( status != asynSuccess )
+	{
+        asynPrint(	pasynUser, ASYN_TRACE_ERROR,
+					"%s %s: error calling pasynManager->exceptionDisconnect, error=%s\n",
+					driverName, functionName, pasynUser->errorMessage );
+        return asynError;
+    }
+	if ( EDT_PDV_DEBUG >= 1 )
+		printf(	"%s %s: Camera %s 0 disconnected!\n", 
+				driverName, functionName, m_CameraName.c_str() );
+    asynPrint(	pasynUser, ASYN_TRACE_FLOW, 
+				"%s %s: Camera %s 0 disconnected!\n", 
+				driverName, functionName, m_CameraName.c_str() );
+    return asynSuccess;
 }
 
 /** Report status of the driver.
@@ -931,8 +959,6 @@ asynStatus edtPdvCamera::readFloat64(	asynUser *	pasynUser, epicsFloat64	value )
     static const char	*	functionName	= "edtPdvCamera::readFloat64";
     const char			*	reasonName		= "unknownReason";
 	getParamName( 0, pasynUser->reason, &reasonName );
-    epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
-					"%s: Reason %d %s, value %lf\n", functionName, pasynUser->reason, reasonName, value );
 	asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
 				"asynPrint "
 				"%s: Reason %d %s, value %lf\n", functionName, pasynUser->reason, reasonName, value );
@@ -948,13 +974,28 @@ asynStatus edtPdvCamera::readFloat64(	asynUser *	pasynUser, epicsFloat64	value )
 }
 #endif
 
+asynStatus edtPdvCamera::readInt32(	asynUser *	pasynUser, epicsInt32	value )
+{
+    static const char	*	functionName	= "edtPdvCamera::readInt32";
+    const char			*	reasonName		= "unknownReason";
+	getParamName( 0, pasynUser->reason, &reasonName );
+	asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
+				"%s: Reason %d %s, value %d\n", functionName, pasynUser->reason, reasonName, value );
+
+    if ( pasynUser->reason == PdvTrigLevel ) setIntegerParam( PdvTrigLevel, value );
+
+    callParamCallbacks();
+
+    return asynStatus(0);
+}
+
 asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 {
     static const char	*	functionName	= "edtPdvCamera::writeInt32";
     const char			*	reasonName		= "unknownReason";
 	getParamName( 0, pasynUser->reason, &reasonName );
-    epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
-					"%s: Reason %d %s, value %d\n", functionName, pasynUser->reason, reasonName, value );
+	asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
+				"%s: Reason %d %s, value %d\n", functionName, pasynUser->reason, reasonName, value );
 
     if ( pasynUser->reason == ADAcquire )
 	{
@@ -993,8 +1034,6 @@ asynStatus edtPdvCamera::writeFloat64(	asynUser *	pasynUser, epicsFloat64	value 
     static const char	*	functionName	= "edtPdvCamera::writeFloat64";
     const char			*	reasonName		= "unknownReason";
 	getParamName( 0, pasynUser->reason, &reasonName );
-    epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
-					"%s: Reason %d %s, value %lf\n", functionName, pasynUser->reason, reasonName, value );
 	asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
 				"asynPrint "
 				"%s: Reason %d %s, value %lf\n", functionName, pasynUser->reason, reasonName, value );

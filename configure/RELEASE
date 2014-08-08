@@ -27,8 +27,8 @@ CONFIG=$(EPICS_BASE)/configure
 # Define the version(s) of any other needed modules 
 # ===============================================================
 # Example
-ADCORE_MODULE_VERSION		= R2.0-0.2.0
-ASYN_MODULE_VERSION			= R4.23-0.1.0
+ADCORE_MODULE_VERSION		= R2.0-0.3.0
+ASYN_MODULE_VERSION			= R4.23-0.2.0
 
 # ============================================================
 # External Support module path definitions
@@ -46,7 +46,7 @@ ASYN_MODULE_VERSION			= R4.23-0.1.0
 ADCORE		= $(EPICS_MODULES)/ADCore/$(ADCORE_MODULE_VERSION)
 ASYN		= $(EPICS_MODULES)/asyn/$(ASYN_MODULE_VERSION)
 
-MY_MODULES	= /reg/neh/home/bhill/wa2/trunk/pcds/epics/modules
-ADCORE		= $(MY_MODULES)/ADCore/current
-ASYN		= $(MY_MODULES)/asyn/current
+#MY_MODULES	= /reg/neh/home/bhill/wa2/trunk/pcds/epics/modules
+#ADCORE		= $(MY_MODULES)/ADCore/current
+#ASYN		= $(MY_MODULES)/asyn/current
 

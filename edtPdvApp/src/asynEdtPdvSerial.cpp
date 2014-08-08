@@ -92,7 +92,6 @@ asynStatus	asynEdtPdvSerial::connect(
     epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize, "%s:\n", functionName );
 
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
-				"asynPrint "
 				"%s port %s\n", functionName, this->portName );
 
 	if ( m_pPdvDev == NULL )
@@ -108,7 +107,6 @@ asynStatus	asynEdtPdvSerial::connect(
 	int  status = pasynManager->exceptionConnect( pasynUser );
 	if ( status != asynSuccess )
 		asynPrint(	pasynUser, ASYN_TRACE_ERROR,
-					"asynPrint "
 					"%s port %s: Error calling pasynManager->exceptionConnect, error=%s\n",
 					functionName, this->portName, pasynUser->errorMessage );
 
@@ -123,7 +121,6 @@ asynStatus	asynEdtPdvSerial::disconnect(
     epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize, "%s:\n", functionName );
 
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
-				"asynPrint "
 				"%s port %s\n", functionName, this->portName );
 
 	m_connected	= false;
@@ -132,7 +129,6 @@ asynStatus	asynEdtPdvSerial::disconnect(
 	int  status = pasynManager->exceptionDisconnect( pasynUser );
 	if ( status != asynSuccess )
 		asynPrint(	pasynUser, ASYN_TRACE_ERROR,
-					"asynPrint "
 					"%s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
 					functionName, this->portName, pasynUser->errorMessage );
 
@@ -155,28 +151,32 @@ asynEdtPdvSerial::pdvDevConnected(
 
 	if ( pPdvDev == NULL )
 	{
-		m_connected	= false;
 		pasynManager->autoConnect( pAsynUserTmp, 0 );
-
-		// Signal asynManager that we are disConnected
-		int  status = pasynManager->exceptionDisconnect( pAsynUserTmp );
-		if ( status != asynSuccess )
-			asynPrint(	pAsynUserTmp, ASYN_TRACE_ERROR,
-						"asynPrint "
-						"%s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
-						functionName, this->portName, pAsynUserTmp->errorMessage );
+#if 0
+		if ( m_connected )
+		{
+			// Signal asynManager that we are disconnecting
+			int  status = pasynManager->exceptionDisconnect( pAsynUserTmp );
+			if ( status != asynSuccess )
+				asynPrint(	pAsynUserTmp, ASYN_TRACE_ERROR,
+							"%s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
+							functionName, this->portName, pAsynUserTmp->errorMessage );
+		}
+		m_connected	= false;
+#endif
 	}
 	else
 	{
+#if 0
 		m_connected	= true;
 
 		// Signal asynManager that we are connected
 		int  status = pasynManager->exceptionConnect( pAsynUserTmp );
 		if ( status != asynSuccess )
 			asynPrint(	pAsynUserTmp, ASYN_TRACE_ERROR,
-						"asynPrint "
 						"%s port %s: Error calling pasynManager->exceptionConnect, error=%s\n",
 						functionName, this->portName, pAsynUserTmp->errorMessage );
+#endif
 
 		pasynManager->autoConnect( pAsynUserTmp, 1 );
 	}
@@ -198,17 +198,22 @@ asynEdtPdvSerial::pdvDevDisconnected(
 	asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
 	pAsynUserTmp->userPvt = this;
 
-	m_connected	= false;
 	status		= pasynManager->autoConnect( pAsynUserTmp, 0 );
-
-	// Signal asynManager that we are disConnected
-	status = pasynManager->exceptionDisconnect( pAsynUserTmp );
 	if ( status != asynSuccess )
 		asynPrint(	pAsynUserTmp, ASYN_TRACE_ERROR,
-					"asynPrint "
-					"%s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
+					"%s port %s: Error calling pasynManager->autoConnect, error=%s\n",
 					functionName, this->portName, pAsynUserTmp->errorMessage );
 
+	if ( m_connected )
+	{
+		// Signal asynManager that we are disconnecting
+		status = pasynManager->exceptionDisconnect( pAsynUserTmp );
+		if ( status != asynSuccess )
+			asynPrint(	pAsynUserTmp, ASYN_TRACE_ERROR,
+						"%s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
+						functionName, this->portName, pAsynUserTmp->errorMessage );
+	}
+	m_connected	= false;
 	return status;
 }
 
@@ -223,14 +228,11 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	asynStatus				status			= asynSuccess;
     static const char	*	functionName	= "asynEdtPdvSerial::readOctet";
     const char			*	reasonName		= "unknownReason";
-	getParamName( 0, pasynUser->reason, &reasonName );
-    epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
-					"%s: Reason %d %s\n", functionName, pasynUser->reason, reasonName );
 
+	getParamName( 0, pasynUser->reason, &reasonName );
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
-				"asynPrint "
-				"%s: %s nBytesReadMax %zu\n",
-				functionName, this->portName, nBytesReadMax );
+				"%s: %s nBytesReadMax %zu, reason %d %s\n",
+				functionName, this->portName, nBytesReadMax, pasynUser->reason, reasonName );
 
 	if ( pnRead )
 		*pnRead = 0;
@@ -292,7 +294,6 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		if( nRead > 0 )
 		{
 			asynPrintIO(	pasynUser, ASYN_TRACEIO_DRIVER, value, nRead,
-							"asynPrint "
 							"%s: %s read %zu of %d\n", functionName, this->portName,
 							nRead, nAvailToRead );
 			break;			/* If we have something, we're done. */
@@ -337,7 +338,6 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	}
 
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
-				"asynPrint "
 				"%s: %s read %zu, status %d, value %s\n",
 				functionName, this->portName, nRead, status, value	);
 
@@ -356,9 +356,11 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 	asynStatus				status			= asynSuccess;
     static const char	*	functionName	= "asynEdtPdvSerial::writeOctet";
     const char			*	reasonName		= "unknownReason";
+	
 	getParamName( 0, pasynUser->reason, &reasonName );
-    epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
-					"%s: Reason %d %s, value %s\n", functionName, pasynUser->reason, reasonName, value );
+	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
+				"%s: %s maxChars %zu, reason %d %s\n",
+				functionName, this->portName, maxChars, pasynUser->reason, reasonName );
 
 	if ( pnWritten )
 		*pnWritten = 0;
@@ -393,9 +395,10 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 		*pnWritten = maxChars;
 
 		asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
-					"asynPrint "
 					"%s: wrote %zu to %s: %s\n",
 					functionName, *pnWritten, this->portName, value	);
+		asynPrintIO(	pasynUser, ASYN_TRACEIO_DRIVER, value, *pnWritten,
+						"%s: %s wrote %zu\n", functionName, this->portName, *pnWritten );
 	}
 	else if ( pdv_status != 0 )
 	{
