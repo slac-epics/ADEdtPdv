@@ -4,7 +4,7 @@ major 4
 minor 0
 release 1
 x 1924
-y 552
+y 41
 w 700
 h 508
 font "helvetica-medium-r-12.0"
@@ -1542,11 +1542,11 @@ x 472
 y 160
 w 120
 h 20
-fgColor index 14
-bgColor index 63
-inconsistentColor index 12
+fgColor index 25
+bgColor index 5
+inconsistentColor index 40
 topShadowColor index 2
-botShadowColor index 12
+botShadowColor index 13
 controlPv "$(P)$(R)TriggerMode"
 indicatorPv "$(P)$(R)TriggerMode"
 font "helvetica-medium-r-14.0"

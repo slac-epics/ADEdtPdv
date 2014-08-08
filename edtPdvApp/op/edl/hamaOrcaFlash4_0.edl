@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 2293
-y 579
+x 2416
+y 221
 w 700
 h 506
 font "helvetica-medium-r-8.0"
@@ -420,7 +420,6 @@ w 160
 h 20
 controlPv "$(P)$(R)OrcaHeight_RBV"
 font "helvetica-medium-r-12.0"
-fontAlign "center"
 fgColor index 15
 fgAlarm
 bgColor index 12
@@ -445,7 +444,6 @@ w 160
 h 20
 controlPv "$(P)$(R)OrcaWidth_RBV"
 font "helvetica-medium-r-12.0"
-fontAlign "center"
 fgColor index 15
 fgAlarm
 bgColor index 12
