@@ -15,6 +15,7 @@ LIBRARY_IOC_Darwin += edtPdv
 #LIB_SRCS += drvAsynEdtPdvSerial.cpp
 LIB_SRCS += asynEdtPdvSerial.cpp
 LIB_SRCS += edtPdvCamera.cpp
+LIB_SRCS += edtSync.cpp
 
 LIB_LIBS += pdv
 

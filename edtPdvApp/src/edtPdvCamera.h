@@ -189,13 +189,13 @@ public:		//	Public member functions
 	/// Get last fiducial timestamp id
     int				GetFiducial( ) const
 	{
-		return m_Fiducial;
+		return m_fiducial;
 	}
 
 	/// Set fiducial timestamp id
     void			SetFiducial( int fiducial )
 	{
-		m_Fiducial	= fiducial;
+		m_fiducial	= fiducial;
 	}
 
 	IOSCANPVT		GetIoScan( ) const
@@ -208,6 +208,12 @@ public:		//	Public member functions
 
 	///	Start Camera
 	int						CameraStart( );
+
+	///	Acquire images from camera
+	void					acquireLoop( );
+
+	///	Reconfigure camera (reread config file and re-initialize connection)
+	int						Reconfigure( );
 
 public:		//	Public class functions
 	static int				CreateCamera( const char * cameraName, int unit, int channel, const char * modelName );
@@ -233,7 +239,8 @@ private:	//	Private class functions
 public:		//	Public member variables	(Make these private!)
 
 protected:	//	Protected member variables
-	bool			m_reconfig;			// Are we currently reconfiguring the ROI?
+	bool			m_fExitApp;			// Set true to shutdown ioc
+	bool			m_fReconfig;		// Are we currently reconfiguring the ROI?
 	int				m_NumMultiBuf;		// Number of pdv multi buffers configured
 
 private:	//	Private member variables
@@ -282,11 +289,15 @@ private:	//	Private member variables
 	unsigned int	m_timeStampEvent;	// Event number to use for timestamping images
 	int				m_frameCounts;		// debug information to show trigger frequency
 	int				m_acquireCount;		// How many images to acquire
-	unsigned int	m_Fiducial;			// Fiducial ID from last timestamped image
+	unsigned int	m_fiducial;			// Fiducial ID from last timestamped image
 
-	epicsMutexId	m_waitLock;			// Acquire thread is running lock (used during reconfig)
-	epicsThreadId	m_ThreadId;			// Thread identifier for polling thread
-	epicsEventId	m_dataEvent;
+//	epicsMutexId	m_resetLock;		// From edt_unix HW ROI support
+//	epicsMutexId	m_waitLock;			// From edt_unix HW ROI support
+	epicsThreadId	m_threadId;			// Thread identifier for polling thread
+	epicsEventId	m_acquireEvent;		// Used to signal when image acquisition is needed
+
+	double			m_acquireTimeout;	// Timeout in seconds for image acquisition (will retry after cking for reconfig)
+	double			m_reconfigDelay;	// Delay in seconds after failed reconfiguration before retry
 
 #define IMGQBUFSIZ				4
 #define IMGQBUFMASK				3

@@ -2,7 +2,8 @@
 // Filename: edtPdvCamera.cpp
 // Description: EPICS device support for cameras using EDT framegrabbers
 //              via EDT's PDV software library
-// Author: Bruce Hill, SLAC National Accelerator Lab, July 11 2014
+// Author:
+//		Bruce Hill, SLAC National Accelerator Lab, July 2014
 /////////////////////////////////////////////////////////////////////////////
 
 //	Standard headers
@@ -14,12 +15,13 @@
 #include <dbScan.h>
 #include <dbAccess.h>
 #include <cantProceed.h>
-#include <epicsThread.h>
+#include <epicsEvent.h>
 #include <epicsExit.h>
 #include <epicsExport.h>
-#include <registryFunction.h>
-#include <errlog.h>
+#include <epicsThread.h>
 #include <epicsVersion.h>
+#include <errlog.h>
+#include <registryFunction.h>
 #include <unistd.h>
 
 // AreaDetector headers
@@ -27,7 +29,7 @@
 
 // ADEdtPdv headers
 #include "edtPdvCamera.h"
-//#include "drvAsynEdtPdvSerial.h"
+#include "edtSync.h"
 #include "asynEdtPdvSerial.h"
 
 //	PCDS headers
@@ -211,15 +213,131 @@ int edtPdvCamera::ThreadStart(edtPdvCamera * pCamera)
         	    		driverName, functionName );
         return -1;
     }
+	pCamera->acquireLoop( );
+	return 0;
+}
 
-	errlogPrintf(	"%s %s: ERROR, Camera polling loop not implemented yet!\n",
-					driverName, functionName );
-	return -1;
 
-#if 0
-    edtSyncObject *sobj = new edtSyncObject(pCamera);
-    return sobj->poll();
-#endif
+void edtPdvCamera::acquireLoop( )
+{
+//	Here's what edt_unix does.
+//	edtSyncObject *sobj = new edtSyncObject(pCamera);
+//	return sobj->poll();
+//	That doesn't work here as we need to start/stop acquisition as needed,
+//	including acquiring N images and reconfiguring camera as needed.
+
+	// Create an EDT Sync object
+	edtSyncObject	syncObj;
+
+	// Also create a data object for EDT image data
+	edtSyncData		edtImageObject;
+	edtSyncData	*	pImage	= &edtImageObject;
+
+	//	Forever loop until app exits
+	while ( m_fExitApp == false )
+	{
+	try
+		{
+	#if 0
+			int	status = epicsEventWaitWithTimeout( m_configEvent, m_configTimeout );
+			if ( status == epicsEventWaitTimeout )
+				continue;
+	#endif
+			// Wait till camera is not being configured
+
+			// See if the camera needs to be configured
+			if ( m_fReconfig )
+			{
+	#if 0
+				// Signal the configure event and sleep to let the configure thread run
+				int	status = epicsEventSignal( m_configEvent, m_configTimeout );
+				epicsThreadSleep( m_ReconfigSleep );
+				continue;
+	#else
+				//	or do the reconfigure here
+				Reconfigure();
+				if ( m_fReconfig )
+				{
+					// Reconfigure failed!
+					// Wait a bit and try again
+					epicsThreadSleep( m_reconfigDelay );
+					continue;
+				}
+	#endif
+			}
+
+			// Wait till we have something to do
+			// Use a timeout so we check periodically to see if we need to reconfigure
+			int status = epicsEventWaitWithTimeout( m_acquireEvent, m_acquireTimeout );
+			if ( status == epicsEventWaitTimeout )
+				continue;
+
+			if ( m_acquireCount <= 0 || m_fReconfig )
+				continue;
+
+			//	Start camera
+			status = CameraStart();
+			if ( status != 0 )
+				continue;
+
+			//	Keep grabbing images while the acquire flag is true and
+			//	we don't need to reconfigure the camera
+			while ( m_acquireCount > 0 && !m_fReconfig )
+			{
+				syncObj.ReleaseData( pImage );
+
+				// Wait for a new image
+				int	status = syncObj.AcquireData( pImage, m_acquireTimeout );
+				if ( status != syncObject::SYNC_OBJ_OK )
+					continue;
+
+				// Check for image errors
+				status	=	syncObj.CheckData( pImage );
+				if ( status != syncObject::SYNC_OBJ_OK )
+					continue;
+
+				// Check for sync
+				bool	isSynced = syncObj.IsSynced( pImage );
+				if ( isSynced == false )
+				{
+					if ( syncObj.GetPolicyUnsynced() == syncObject::SKIP_OBJECT )
+						continue;
+				}
+
+				//	Get image timestamp
+				epicsTimeStamp	tsEvent;
+				int				pulseID;
+				status = syncObj.GetTimeStampAndPulse( pImage, m_timeStampEvent, &tsEvent, &pulseID );
+				if ( status != 0 )
+				{
+					if ( syncObj.GetPolicyBadTimeStamp() == syncObject::SKIP_OBJECT )
+						continue;
+				}
+
+				// Queue up the image data
+				syncObj.QueueData( pImage, &tsEvent, pulseID );
+	#if 0	// Move this to QueueData()
+				// Do callbacks
+				doCallbacksGenericPointer( pArray, NDArrayData, 0 );
+
+				// Update image counter and other stats
+				IncrementImageCount( );
+
+				// Call parameter callbacks
+				callParamCallbacks();
+	#endif
+			}
+		}
+	catch ( exception & e )
+		{
+		// What to do?
+		printf( "Acquire loop handling exception: %s\n", e.what() );
+		continue;
+		}
+	}	// End of acquire loop
+
+	// We only return if the app is exiting
+	return;
 }
 
 
@@ -231,9 +349,9 @@ int edtPdvCamera::CameraStart( )
 #endif
 
     /* Create thread */
-    m_ThreadId	= epicsThreadMustCreate(	m_CameraName.c_str(), CAMERA_THREAD_PRIORITY, CAMERA_THREAD_STACK,
+    m_threadId		= epicsThreadMustCreate( m_CameraName.c_str(), CAMERA_THREAD_PRIORITY, CAMERA_THREAD_STACK,
 											(EPICSTHREADFUNC)edtPdvCamera::ThreadStart, (void *) this );
-    m_dataEvent  = epicsEventMustCreate( epicsEventEmpty );
+    m_acquireEvent  = epicsEventMustCreate(	epicsEventEmpty );
 
     return 0;
 }
@@ -369,7 +487,8 @@ edtPdvCamera::edtPdvCamera(
 							asynOctetMask,	0,	// Supports an asynOctect interface w/ no interrupts
 							ASYN_CANBLOCK,	1,	// ASYN_CANBLOCK=1, ASYN_MULTIDEVICE=0, autoConnect=1
 							priority, stackSize	),
-		m_reconfig(			FALSE			    ),
+		m_fExitApp(			FALSE			    ),
+		m_fReconfig(		FALSE			    ),
 		m_NumMultiBuf(		N_PDV_MULTIBUF_DEF	),
 		m_pPdvDev(			NULL				),
 		m_unit(				unit				),
@@ -392,16 +511,23 @@ edtPdvCamera::edtPdvCamera(
 		m_PdvDebugLevel(	1					),
 	//	m_PdvDebugMsgLevel(	0xFFF				),
 		m_PdvDebugMsgLevel(	0x000				),
+		// Do we need ADBase ROI values here?  m_binX, m_binY, m_minX, m_sizeY, ...
 #ifdef USE_EDT_GAIN
 		m_gain(				0					),
 #endif //	USE_EDT_GAIN
 		m_timeStampEvent(	0					),
 		m_frameCounts(		0					),
-		m_Fiducial(			0					),
-		m_ThreadId(			NULL				),
+		m_acquireCount(		0					),
+		m_fiducial(			0					),
+//		m_resetLock(		NULL				),
+//		m_waitLock(			NULL				),
+		m_threadId(			NULL				),
+		m_acquireEvent(		NULL				),
 //		m_imgqrd(			0					),
 //		m_imgqwr(			0					),
 //		m_imgqBuf(								),
+		m_acquireTimeout(	1.0					),
+		m_reconfigDelay(	2.0					),
 #ifdef USE_EDT_ROI
 		m_serial_init(      NULL                ),
 		m_HWROI_X(          0         			),
@@ -417,7 +543,7 @@ edtPdvCamera::edtPdvCamera(
 	static const char	*	functionName = "edtPdvCamera:edtPdvCamera";
 
 	// Create mutexes
-    m_waitLock	= epicsMutexMustCreate();
+//	m_waitLock	= epicsMutexMustCreate();
 
     // Initialize I/O Intr processing
     scanIoInit( &m_ioscan );
@@ -498,7 +624,7 @@ edtPdvCamera::edtPdvCamera(
 edtPdvCamera::~edtPdvCamera( )
 {
 	DisconnectCamera();
-	epicsMutexDestroy( m_waitLock );
+//	epicsMutexDestroy( m_waitLock );
 }
 
 int edtPdvCamera::InitCamera( )
@@ -1003,7 +1129,7 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 		{
             m_acquireCount = 1;
             setIntegerParam( ADNumImagesCounter, 0 );
-            epicsEventSignal( m_dataEvent );
+            epicsEventSignal( m_acquireEvent );
         }
         if ( !value && m_acquireCount )
 		{
@@ -1189,7 +1315,7 @@ int edtPdvCamera::SetHWROI(int x, int y, int xnp, int ynp)
 
     if (SetHWROIinit(x, y, xnp, ynp)) {
         epicsMutexLock(m_resetLock);
-        m_reconfig = TRUE;
+        m_fReconfig = TRUE;
 
         /*
          * The resetLock serves two purposes:
@@ -1216,7 +1342,7 @@ int edtPdvCamera::SetHWROI(int x, int y, int xnp, int ynp)
         for (int loop = 0; loop < IMGQBUFSIZ; loop++ )
             m_imgqBuf[loop]->SetPtrImageData(NULL);
 
-        m_reconfig = FALSE;
+        m_fReconfig = FALSE;
         epicsMutexUnlock(m_waitLock);
         epicsMutexUnlock(m_resetLock);
     }
