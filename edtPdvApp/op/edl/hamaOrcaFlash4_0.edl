@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 2416
-y 221
+x 2410
+y 24
 w 700
 h 506
 font "helvetica-medium-r-8.0"
@@ -548,7 +548,7 @@ setPosition {
   0 "button"
 }
 symbols {
-  0 "P=$(P),R=$(R):SER:AsynIO"
+  0 "P=$(P),R=$(R)SER:AsynIO"
 }
 replaceSymbols {
   0 1

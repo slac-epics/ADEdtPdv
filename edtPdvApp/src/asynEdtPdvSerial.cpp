@@ -141,7 +141,6 @@ asynEdtPdvSerial::pdvDevConnected(
 	PdvDev			*	pPdvDev	)
 {
 	asynStatus			status			= asynSuccess;
-	const char		*	functionName	= "asynEdtPdvSerial::pdvDevConnected";
 
 	m_pPdvDev	= pPdvDev;
 
@@ -153,6 +152,7 @@ asynEdtPdvSerial::pdvDevConnected(
 	{
 		pasynManager->autoConnect( pAsynUserTmp, 0 );
 #if 0
+	const char		*	functionName	= "asynEdtPdvSerial::pdvDevConnected";
 		if ( m_connected )
 		{
 			// Signal asynManager that we are disconnecting

@@ -20,6 +20,8 @@
 //	#include "HiResTime.h"
 //	#include "timesync.h"
 
+//class	dataObject;
+class	edtImage;
 class	asynEdtPdvSerial;
 //	struct	ttyController;
 
@@ -44,9 +46,6 @@ public:		//	Public member functions
 
 	/// Destructor
 	virtual ~edtPdvCamera();
-
-	///	Initialize camera with EDT PDV lib functions
-	int InitCamera( );
 
 	///	Update AreaDetector params related to camera configuration
 	int UpdateADConfigParams( );
@@ -115,19 +114,58 @@ public:		//	Public member functions
 //	Image		*	GetCurImageBuf( );
 //	Image		*	GetNextImageBuf(unsigned int &);
 
-#undef USE_EDT_GAIN
-#ifdef USE_EDT_GAIN
-	int				GetGain( );
+	int				SetGain( double gain );
+	double			GetGain( ) const
+	{
+		return m_Gain;
+	}
 
-	int				SetGain( int gain );
-#endif //	USE_EDT_GAIN
+	int				SetBinX(	unsigned int	value	);
+	unsigned int	GetBinX( ) const
+	{
+		return m_BinX;
+	}
 
-	unsigned int	GetWidth( ) const
+	int				SetBinY(	unsigned int	value	);
+	unsigned int	GetBinY( ) const
+	{
+		return m_BinY;
+	}
+
+	int		SetMinX(	size_t	value	);
+	size_t	GetMinX( ) const
+	{
+		return m_MinX;
+	}
+
+	int		SetMinY(	size_t	value	);
+	size_t	GetMinY( ) const
+	{
+		return m_MinY;
+	}
+
+	int		SetSizeX(	size_t	value	);
+	size_t	GetSizeX( ) const
+	{
+		if ( m_SizeX <= 0 )
+			return 1;
+		return m_SizeX;
+	}
+
+	int		SetSizeY(	size_t	value	);
+	size_t	GetSizeY( ) const
+	{
+		if ( m_SizeY <= 0 )
+			return 1;
+		return m_SizeY;
+	}
+
+	size_t	GetWidth( ) const
 	{
 		return m_width;
 	}
 
-	unsigned int	GetHeight( ) const
+	size_t	GetHeight( ) const
 	{
 		return m_height;
 	}
@@ -138,7 +176,7 @@ public:		//	Public member functions
 	}
 
 	/// Get frame count
-	int				GetFrameCount( ) const
+	int		GetFrameCount( ) const
 	{
 		return m_frameCounts;
 	}
@@ -151,13 +189,13 @@ public:		//	Public member functions
 	}
 
 	/// Return camera image size in bytes
-	unsigned int	GetImageSize( ) const
+	size_t	GetImageSize( ) const
 	{
 		return m_imageSize;
 	}
 
 	/// Return camera pixel count
-	unsigned int	GetNumPixels( ) const
+	size_t	GetNumPixels( ) const
 	{
 		return m_width * m_height;
 	}
@@ -209,13 +247,31 @@ public:		//	Public member functions
 	///	Start Camera
 	int						CameraStart( );
 
+	///	Acquire next image from the camera
+	int						AcquireData(	edtImage	*	pImage	);
+
 	///	Acquire images from camera
-	void					acquireLoop( );
+	void					acquireLoop(	);
 
 	///	Reconfigure camera (reread config file and re-initialize connection)
-	int						Reconfigure( );
+	int						Reconfigure(	);
+
+	bool					IsSynced(		edtImage		*	);
+
+	void					ReleaseData(	edtImage		*	);
+
+	int						ProcessData(	edtImage		*	pImage,
+											epicsTimeStamp	*	pTimeStamp,
+											int					pulseID		);
+
+	int						TimeStampImage(	edtImage		*	pImage,
+											int					eventNumber,
+											epicsTimeStamp	*	pDest,
+											int				*	pPulseNumRet	);
+
 
 public:		//	Public class functions
+
 	static int				CreateCamera( const char * cameraName, int unit, int channel, const char * modelName );
 
 	static edtPdvCamera	*	CameraFindByName( const std::string & name );
@@ -230,6 +286,11 @@ public:		//	Public class functions
 	static	int				StartAllCameras( );
 
 	static bool				IsCameraChannelUsed( unsigned int unit,  unsigned int channel );
+
+private:	//	Private member functions
+	//	Internal version of reconfigure
+	//	Don't call without holding m_reconfigLock!
+	int						_Reconfigure( );
 
 private:	//	Private class functions
 	static	void			CameraAdd(		edtPdvCamera * pCamera );
@@ -259,12 +320,12 @@ private:	//	Private member variables
 	std::string		m_ModelName;	// Configuration model name for camera (selected in st.cmd)
 	std::string		m_SerialPort;	// name of camera's serial port
 
-	unsigned int	m_width;		// number of column of this camera
-	unsigned int	m_height;		// number of row of this camera
+	size_t			m_width;		// number of column of this camera
+	size_t			m_height;		// number of row of this camera
 	unsigned int	m_numOfBits;	// number of bits of this camera
 
-	unsigned int	m_imageSize;	// image size in byte
-	unsigned int	m_dmaSize;		// dma size of image in byte, usually same as imageSize
+	size_t			m_imageSize;	// image size in byte
+	size_t			m_dmaSize;		// dma size of image in byte, usually same as imageSize
 
 	unsigned int	m_trigLevel;		// Ext. Trigger Mode (0=Edge,1=Level,2=Sync)
 
@@ -272,25 +333,22 @@ private:	//	Private member variables
 	int				m_PdvDebugMsgLevel;	// PDV library debug msg level
 
 	// HW ROI and binning parameters from ADBase
-	int				m_binX;
-	int				m_binY;
-	int				m_minX;
-	int				m_minY;
-	int				m_sizeX;
-	int				m_sizeY;
-	int				m_maxSizeX;
-	int				m_maxSizeY;
+	int				m_BinX;
+	int				m_BinY;
+	int				m_MinX;
+	int				m_MinY;
+	int				m_SizeX;
+	int				m_SizeY;
 
-#ifdef USE_EDT_GAIN
 	// Gain value for camera
-	int				m_gain;
-#endif //	USE_EDT_GAIN
+	double			m_Gain;
 
 	unsigned int	m_timeStampEvent;	// Event number to use for timestamping images
 	int				m_frameCounts;		// debug information to show trigger frequency
 	int				m_acquireCount;		// How many images to acquire
 	unsigned int	m_fiducial;			// Fiducial ID from last timestamped image
 
+	epicsMutexId	m_reconfigLock;		// Protect against more than one thread trying to reconfigure the device
 //	epicsMutexId	m_resetLock;		// From edt_unix HW ROI support
 //	epicsMutexId	m_waitLock;			// From edt_unix HW ROI support
 	epicsThreadId	m_threadId;			// Thread identifier for polling thread

@@ -137,3 +137,6 @@ SetScanningMode
 	out "SMD %{N|S|W}";
 	in  "SMD %*{N|S|W}";
 }
+
+# SPX {1|2|4} Set binning factor
+# PEC {F|O} Pixel Error Corr Off|On

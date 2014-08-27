@@ -93,6 +93,10 @@ record( ai, "$(P)$(R)OrcaActualExposure_RBV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
 
+# Disable these records from ADBase.template as the Orca doesn't support them
+record( ao, "$(P)$(R)Gain"			) { field( DISA, "1" ) }
+record( ai, "$(P)$(R)Gain_RBV"		) { field( DISA, "1" ) }
+
 # Set ORCA AcquireTime (Exposure Time)
 # Note: It would be simpler if this PV could replace the
 # PV $(P)$(R)AcquireTime from ADBase.template

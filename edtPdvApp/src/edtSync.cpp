@@ -11,13 +11,25 @@
 // #include <unistd.h>
 
 #include "edtSync.h"
+#include "edtPdvCamera.h"
 // #include "evrTime.h"
 
 using namespace		std;
 
-edtSyncObject::edtSyncObject( void )
-	:	syncObject(				)
+// Forward declarations
+class		edtPdvCamera;
+
+edtSyncObject::edtSyncObject(	edtPdvCamera	* 	pCam	)
+	:	syncObject(				),
+		m_pCam(			pCam	)
 {
 }
 
+
+int edtSyncObject::AcquireData(
+	edtImage		*	pDataObject,
+	double				timeOutSec	)
+{
+	return m_pCam->AcquireData( pDataObject );
+}
 
