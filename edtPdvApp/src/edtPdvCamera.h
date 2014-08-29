@@ -111,6 +111,16 @@ public:		//	Public member functions
 		return m_LibVersion;
 	}
 
+	bool	InAcquireMode()
+	{
+		return m_fAcquireMode;
+	}
+	asynStatus	SetAcquireMode( int fAcquireMode );
+	bool	GetAcquireMode() const
+	{
+		return m_fAcquireMode;
+	}
+
 //	Image		*	GetCurImageBuf( );
 //	Image		*	GetNextImageBuf(unsigned int &);
 
@@ -302,6 +312,7 @@ public:		//	Public member variables	(Make these private!)
 protected:	//	Protected member variables
 	bool			m_fExitApp;			// Set true to shutdown ioc
 	bool			m_fReconfig;		// Are we currently reconfiguring the ROI?
+	bool			m_fAcquireMode;		// Set true to start acquiring images, false to halt
 	int				m_NumMultiBuf;		// Number of pdv multi buffers configured
 
 private:	//	Private member variables
