@@ -218,7 +218,6 @@ void edtPdvCamera::acquireLoop( )
 	// Create an EDT Sync object
 	// syncDataAcq	*	pAcquirer	= new syncDataAcq<edtPdvCamera, edtImage>( this );
 	// pAcquirer->acquireSyncData( );
-#else
 #endif
 
 	// Also create a data object for EDT image data
@@ -231,7 +230,7 @@ void edtPdvCamera::acquireLoop( )
 
 	if ( EDT_PDV_DEBUG >= 1 )
         printf(	"%s: Entering forever loop in thread %s\n", functionName, epicsThreadGetNameSelf() );
-	asynPrint(	pasynUserSelf, ASYN_TRACE_FLOW,
+	asynPrint(	this->pasynUserSelf, ASYN_TRACE_FLOW,
         		"%s: Entering forever loop in thread %s\n", functionName, epicsThreadGetNameSelf() );
 	//	Forever loop until app exits
 	while ( m_fExitApp == false )
@@ -239,33 +238,22 @@ void edtPdvCamera::acquireLoop( )
 	try
 		{
 			int	status	= 0;
-	#if 0
-			status = epicsEventWaitWithTimeout( m_configEvent, m_configTimeout );
-			if ( status == epicsEventWaitTimeout )
-				continue;
-	#endif
-			// Wait till camera is not being configured
 
 			// See if the camera needs to be configured
 			if ( m_fReconfig )
 			{
-	#if 0
-				// Signal the configure event and sleep to let the configure thread run
-				int	status = epicsEventSignal( m_configEvent, m_configTimeout );
-				epicsThreadSleep( m_ReconfigSleep );
-				continue;
-	#else	//	or do the reconfigure here
-				// Wait a bit before configuring in case multiple params are being changed
-				// Also keeps from chewing up cpu time on failed reconfigure attempts.
+				//	Wait a bit before configuring in case multiple
+				//	params are being changed.
+				//	Also keeps from chewing up cpu time on failed
+				//	reconfigure attempts.
 				epicsThreadSleep( m_reconfigDelay );
-				Reconfigure();
+				if ( m_pPdvDev != NULL )
+					Reconfigure();
 				if ( m_fReconfig )
-				{
 					continue;
-				}
-	#endif
 			}
 
+			// Make sure we have a valid device ptr
 			if ( m_pPdvDev == NULL )
 			{
 				m_fReconfig	= true;
@@ -273,7 +261,6 @@ void edtPdvCamera::acquireLoop( )
 			}
 
 			// Update the sync object w/ the latest pdvDev ptr
-			assert( m_pPdvDev != NULL );
 			//	pSyncObj->SetPdvDev( m_pPdvDev );
 
 			// Wait till we have something to do
@@ -304,7 +291,7 @@ void edtPdvCamera::acquireLoop( )
 			{
 				if ( EDT_PDV_DEBUG >= 1 )
 					printf(	"%s: Image acquisition requested in thread %s\n", functionName, epicsThreadGetNameSelf() );
-				asynPrint(	pasynUserSelf, ASYN_TRACE_FLOW,
+				asynPrint(	this->pasynUserSelf, ASYN_TRACE_FLOW,
 							"%s: Image acquisition requested in thread %s\n", functionName, epicsThreadGetNameSelf() );
 
 				//	Start camera
@@ -317,6 +304,8 @@ void edtPdvCamera::acquireLoop( )
 				printf(	"%s: Entering acquire loop: Acquire Mode %d, Acquire Count %d\n", functionName, m_fAcquireMode, m_acquireCount );
 			while ( InAcquireMode() )
 			{
+				m_fAcquiring	= true;
+
 				//	Release the image data at the top so error handling can
 				//	just bail w/ a continue.  NULL pImage is OK.
 				//	pSyncObj->ReleaseData( pImage );
@@ -397,6 +386,7 @@ void edtPdvCamera::acquireLoop( )
 				// Process the image data
 				ProcessData( pImage, &tsEvent, pulseID );
 			}
+			m_fAcquiring = false;
 			setIntegerParam( ADStatus, ADStatusIdle );
 			SetAcquireMode( false );
 		}
@@ -493,7 +483,7 @@ int edtPdvCamera::CameraStart( )
 
 	if ( EDT_PDV_DEBUG >= 1 )
         printf(	"%s: Acquire count = %d, thread %s\n", functionName, m_acquireCount, epicsThreadGetNameSelf() );
-	asynPrint(	pasynUserSelf, ASYN_TRACE_FLOW,
+	asynPrint(	this->pasynUserSelf, ASYN_TRACE_FLOW,
 				"%s: Acquire count = %d\n", functionName, m_acquireCount );
     return 0;
 }
@@ -508,13 +498,16 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 	//	pdv_set_timeout( m_pPdvDev, static_cast<int>(timeOutSec * 1000) );
 	//	Using default timeout based on exposure time
 	//	pdv_set_timeout( m_pPdvDev, -1 );
-	setIntegerParam( ADStatus, ADStatusReadout );
+	setIntegerParam( ADStatus, ADStatusWaiting );
 
 	// Wait for a new image
 	//	unsigned char	*	pRawImage	= pdv_wait_images( m_pPdvDev );
 	u_int				pdvTimestamp[2];
 	unsigned char	*	pRawImage	= pdv_wait_image_timed( m_pPdvDev, pdvTimestamp );
 	NDArray			*	pRawNDArray	= reinterpret_cast<NDArray *>( pRawImage );
+
+	if ( !InAcquireMode() || pRawImage == NULL )
+		return asynError;
 
 	//	Caution, this raw image will get over-written if we're not done processing it
 	//	before the edt ring buffer wraps.
@@ -562,7 +555,7 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 	//	to supply the buffers, which ADProsilica does w/ NDArrayPool managed buffers.
 	//	This may not be worth the trouble, as the memcpy is probably not going to make
 	//	or break your processing pipeline as it will be dominated by other bottlenecks.
-	setIntegerParam( ADStatus, ADStatusSaving );
+	setIntegerParam( ADStatus, ADStatusReadout );
 	//	Lock NDArrayPool update
 	lock();
 	// TODO: Handle color images!
@@ -580,9 +573,6 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
     dims[1]			= m_height;	// GetSizeY()
 	assert( dims[0] != 0 );
 	assert( dims[1] != 0 );
-#if USE_ZERO_COPY
-    NDArray	*	pNDArray = pNDArrayPool->alloc( ndims, dims, pixelType, 0, pRawImage );
-#else
     NDArray	*	pNDArray = pNDArrayPool->alloc( ndims, dims, pixelType, 0, NULL );
 	if ( pNDArray == NULL )
 	{
@@ -601,7 +591,7 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 		printf(	"%s: memcpy %zu bytes from DMA buf %p to NDArray buf %p\n",
 				functionName, m_imageSize * bytesPerPixel, pRawNDArray, pNDArray->pData );
 	memcpy( pNDArray->pData, pRawNDArray, m_imageSize * bytesPerPixel );
-#endif
+
 	pNDArray->ndims				= ndims;
 	pNDArray->dims[0].size		= GetSizeX();
 	pNDArray->dims[0].offset	= GetMinX();
@@ -634,7 +624,7 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 		SetAcquireMode( false );
 		if ( EDT_PDV_DEBUG >= 1 )
 			printf(	"%s: Image acquisition completed in thread %s\n", functionName, epicsThreadGetNameSelf() );
-		asynPrint(	pasynUserSelf, ASYN_TRACE_FLOW,
+		asynPrint(	this->pasynUserSelf, ASYN_TRACE_FLOW,
 					"%s: Image acquisition completed in thread %s\n", functionName, epicsThreadGetNameSelf() );
 		pdv_timeout_restart( m_pPdvDev, 0 );
 	}
@@ -669,13 +659,12 @@ int	edtPdvCamera::ProcessData(
 		// tries to lock the driver.
 		doCallbacksGenericPointer( pNDArray, NDArrayData, 0 );
 		this->lock();
-#if 1
+
 		if ( EDT_PDV_DEBUG >= 4 )
 			printf(	"%s: Processing parameter callbacks ...\n", functionName );
 
 		// Call parameter callbacks
 		callParamCallbacks();
-#endif
 	}
 	this->unlock();
 	return 0;
@@ -846,6 +835,8 @@ edtPdvCamera::edtPdvCamera(
 							asynOctetMask,	0,	// Supports an asynOctect interface w/ no interrupts
 							ASYN_CANBLOCK,	1,	// ASYN_CANBLOCK=1, ASYN_MULTIDEVICE=0, autoConnect=1
 							priority, stackSize	),
+		m_fAcquireMode(		FALSE			    ),
+		m_fAcquiring(		FALSE			    ),
 		m_fExitApp(			FALSE			    ),
 		m_fReconfig(		true			    ),
 		m_NumMultiBuf(		N_PDV_MULTIBUF_DEF	),
@@ -907,7 +898,7 @@ edtPdvCamera::edtPdvCamera(
     // Initialize I/O Intr processing
     scanIoInit( &m_ioscan );
     if ( m_ioscan == NULL )
-        asynPrint( pasynUserSelf, ASYN_TRACE_FLOW,
+        asynPrint( this->pasynUserSelf, ASYN_TRACE_FLOW,
 			"asynPrint "
             "%s %s: ERROR, scanIoInit failed!\n",
             driverName, functionName );
@@ -925,7 +916,7 @@ edtPdvCamera::edtPdvCamera(
 //    if ( m_ttyPort == NULL )
 //	{
 //       printf( "Error: Unable to configure asyn serial port for %s.\n", m_SerialPort.c_str() );
-//      asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW, 
+//      asynPrint(	this->pasynUserSelf,	ASYN_TRACE_FLOW, 
 //					"asynPrint "
 //					"%s %s: ERROR, drvAsynEdtPdvSerialPortConfigure failed!\n",
 //					driverName,		functionName );
@@ -1013,6 +1004,8 @@ int edtPdvCamera::Reconfigure( )
 	epicsMutexLock(		m_reconfigLock );
 	if ( m_fReconfig )
 	{
+		setIntegerParam( ADStatus, ADStatusInitializing );
+
 		// Clear reconfig flag up front so it can be set again by another thread if needed
 		m_fReconfig = false;
 
@@ -1036,13 +1029,13 @@ int edtPdvCamera::Reconfigure( )
 
 	if ( status != 0 )
 	{
-        asynPrint(	pasynUserSelf, ASYN_TRACE_ERROR,
+        asynPrint(	this->pasynUserSelf, ASYN_TRACE_ERROR,
 					"%s %s: Reconfigure error! errorMsg=%s\n",
-					driverName, functionName, pasynUserSelf->errorMessage );
+					driverName, functionName, this->pasynUserSelf->errorMessage );
 	}
 	else if ( m_fReconfig )
 	{
-        asynPrint(	pasynUserSelf, ASYN_TRACE_ERROR,
+        asynPrint(	this->pasynUserSelf, ASYN_TRACE_ERROR,
 					"%s %s: Reconfigure succeeded, but Reconfig flag has already been set again!\n",
 					driverName, functionName );
 	}
@@ -1069,7 +1062,7 @@ int edtPdvCamera::_Reconfigure( )
     m_pPdvDev = pdv_open_channel( "pdv", m_unit, m_channel );
     if ( m_pPdvDev == NULL )
 	{
-        asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW, 
+        asynPrint(	this->pasynUserSelf,	ASYN_TRACE_FLOW, 
 					"%s %s: ERROR, Unable to open camera for EDT card %u, channel %u\n",
 					driverName,		functionName, m_unit, m_channel );
         return -1;
@@ -1081,7 +1074,7 @@ int edtPdvCamera::_Reconfigure( )
     pDD = pdv_alloc_dependent();
     if ( pDD == NULL )
 	{
-        asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW, 
+        asynPrint(	this->pasynUserSelf,	ASYN_TRACE_FLOW, 
 					"asynPrint "
 					"%s %s: ERROR, Cannot allocate PDV Dependent structure!\n",
 					driverName,		functionName );
@@ -1099,7 +1092,7 @@ int edtPdvCamera::_Reconfigure( )
 	// Read the config file
     if ( pdv_readcfg( m_ConfigFile.c_str(), pDD, &edtinfo ) )
 	{
-        asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW, 
+        asynPrint(	this->pasynUserSelf,	ASYN_TRACE_FLOW, 
 					"asynPrint "
 					"%s %s: ERROR, Invalid camera config file %s!\n",
 					driverName,		functionName,	m_ConfigFile.c_str() );
@@ -1114,7 +1107,7 @@ int edtPdvCamera::_Reconfigure( )
 	assert( m_pPdvDev->dd_p != pDD  );
     if ( pdv_initcam( m_pPdvDev, pDD, m_unit, &edtinfo, m_ConfigFile.c_str(), NULL, 1 ) )
 	{
-        asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW,
+        asynPrint(	this->pasynUserSelf,	ASYN_TRACE_FLOW,
 					"asynPrint "
 					"%s %s: ERROR, pdv_initcam failed!\n",
 					driverName,		functionName	);
@@ -1124,7 +1117,7 @@ int edtPdvCamera::_Reconfigure( )
 
     if ( pdv_multibuf( m_pPdvDev, m_NumMultiBuf ) )
 	{
-        asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW,
+        asynPrint(	this->pasynUserSelf,	ASYN_TRACE_FLOW,
 					"asynPrint "
 					"%s %s: ERROR, pdv_multibuf() failed for %s\n",
 					driverName,		functionName,	m_CameraName.c_str() );
@@ -1154,131 +1147,12 @@ int edtPdvCamera::_Reconfigure( )
 		printf(	"%s %s: Camera %s ready on card %u, ch %u, %zu x %zu pixels, %u bits/pixel\n",
 				driverName, functionName, m_CameraName.c_str(),
 				m_unit, m_channel, m_width, m_height, m_numOfBits );
-	asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW,
+	asynPrint(	this->pasynUserSelf,	ASYN_TRACE_FLOW,
 				"%s %s: Camera %s ready on card %u, ch %u, %zu x %zu pixels, %u bits/pixel\n",
 				driverName, functionName, m_CameraName.c_str(),
 				m_unit, m_channel, m_width, m_height, m_numOfBits );
     return 0;
 }
-
-#if 0
-{
-    if ( m_pPdvDev )
-	{
-		if ( EDT_PDV_DEBUG >= 1 )
-			printf( "%s: %s Closing old PdvDev prior to reconfig\n", functionName, m_CameraName.c_str() );
-		pdv_close( m_pPdvDev );
-		m_pPdvDev	= NULL;
-	}
-
-	// Set the EDT PDV debug levels
-	pdv_setdebug(		NULL,				 		m_PdvDebugLevel	);
-	edt_msg_set_level(	edt_msg_default_handle(),	m_PdvDebugMsgLevel	);
-
-	// Open the camera channel
-	// Note: Do not use edt_open_channel() here!
-	// Although pdv_open_channel() and edt_open_channel() both return ptrs
-	// to the same underlying C structure, they behave differently in regards
-	// to what memory they allocate and free and how some of the fields
-	// are initialized.
-    m_pPdvDev = pdv_open_channel( "pdv", m_unit, m_channel );
-    if ( m_pPdvDev == NULL )
-	{
-        asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW, 
-					"%s %s: ERROR, Unable to open camera for EDT card %u, channel %u\n",
-					driverName,		functionName, m_unit, m_channel );
-		epicsMutexUnlock(	m_reconfigLock );
-        return -1;
-    }
-
-	// Read the config file
-    Edtinfo			edtinfo;
-	Dependent	*	pDD;			// Pointer to PDV dependent information.
-    pDD = pdv_alloc_dependent();
-    if ( pDD == NULL )
-	{
-        asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW, 
-					"asynPrint "
-					"%s %s: ERROR, Cannot allocate PDV Dependent structure!\n",
-					driverName,		functionName );
-		pdv_close( m_pPdvDev );
-		m_pPdvDev = NULL;
-		epicsMutexUnlock(	m_reconfigLock );
-        return -1;
-    }
-
-	// If no config file selected yet, start with free run
-	if ( m_ConfigFile.empty() )
-	{
-		m_ConfigFile = "db/";
-		m_ConfigFile += m_ModelName;
-		m_ConfigFile += "f.cfg";
-	}
-
-	// Read the config file
-    if ( pdv_readcfg( m_ConfigFile.c_str(), pDD, &edtinfo ) )
-	{
-        asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW, 
-					"asynPrint "
-					"%s %s: ERROR, Invalid camera config file %s!\n",
-					driverName,		functionName,	m_ConfigFile.c_str() );
-		pdv_close( m_pPdvDev );
-		m_pPdvDev = NULL;
-		epicsMutexUnlock(	m_reconfigLock );
-        return -1;
-    }
-
-	// Initialize the camera
-	// m_pPdvDev should already have it's own Dependent data in dd_p,
-	// but because of how pdv_initcam() works, we must suppy a different one
-	// with the new configuration information.
-	assert( m_pPdvDev->dd_p != NULL );
-	assert( m_pPdvDev->dd_p != pDD  );
-    if ( pdv_initcam( m_pPdvDev, pDD, m_unit, &edtinfo, m_ConfigFile.c_str(), NULL, 1 ) )
-	{
-        asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW,
-					"asynPrint "
-					"%s %s: ERROR, pdv_initcam failed!\n",
-					driverName,		functionName	);
-		pdv_close( m_pPdvDev );
-		m_pPdvDev = NULL;
-		epicsMutexUnlock(	m_reconfigLock );
-        return -1;
-    }
-	free( pDD );
-
-    if ( pdv_multibuf( m_pPdvDev, m_NumMultiBuf ) )
-	{
-        asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW,
-					"asynPrint "
-					"%s %s: ERROR, pdv_multibuf() failed for %s\n",
-					driverName,		functionName,	m_CameraName.c_str() );
-		pdv_close( m_pPdvDev );
-		m_pPdvDev = NULL;
-		epicsMutexUnlock(	m_reconfigLock );
-        return -1;
-	}
-
-	// Camera is reconfigured and ready to use!
-	m_fReconfig		= false;
-    m_width			= pdv_get_width(	m_pPdvDev );
-    m_height		= pdv_get_height(	m_pPdvDev );
-    m_numOfBits		= pdv_get_depth(	m_pPdvDev );
-    m_CameraClass	= pdv_get_camera_class(	m_pPdvDev );
-    m_CameraModel	= pdv_get_camera_model(	m_pPdvDev );
-    m_CameraInfo	= pdv_get_camera_info(	m_pPdvDev );
-    if ( EDT_PDV_DEBUG >= 1 )
-		printf(	"%s %s: Camera %s ready on card %u, ch %u, %zu x %zu pixels, %u bits/pixel\n",
-				driverName, functionName, m_CameraName.c_str(),
-				m_unit, m_channel, m_width, m_height, m_numOfBits );
-	asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW,
-				"%s %s: Camera %s ready on card %u, ch %u, %zu x %zu pixels, %u bits/pixel\n",
-				driverName, functionName, m_CameraName.c_str(),
-				m_unit, m_channel, m_width, m_height, m_numOfBits );
-	epicsMutexUnlock(	m_reconfigLock );
-    return 0;
-}
-#endif
 
 int	edtPdvCamera::SetSizeX(	size_t	value	)
 {
@@ -1484,15 +1358,15 @@ asynStatus edtPdvCamera::ConnectCamera( )
 	if ( m_pAsynSerial->pdvDevConnected( m_pPdvDev ) != asynSuccess )
         return asynError;
 
+	setIntegerParam( ADStatus, ADStatusIdle );
+
 	// Write the configuration parameters to the AreaDetector parameter PV's UpdateADConfigParams( );
-#if 1
 	status = (asynStatus) UpdateADConfigParams( );
 	if ( status != asynSuccess )
-        asynPrint(	pasynUserSelf, ASYN_TRACE_ERROR,
+        asynPrint(	this->pasynUserSelf, ASYN_TRACE_ERROR,
 					"asynPrint "
 					"%s %s: error calling UpdateADConfigParams, error=%s\n",
-					driverName, functionName, pasynUserSelf->errorMessage );
-#endif
+					driverName, functionName, this->pasynUserSelf->errorMessage );
 
 	if ( EDT_PDV_DEBUG >= 2 )
 	{
@@ -1526,14 +1400,19 @@ asynStatus edtPdvCamera::DisconnectCamera( )
 	if ( EDT_PDV_DEBUG >= 1 )
 		printf(	"%s %s: disconnecting camera %s\n", 
 				driverName, functionName, m_CameraName.c_str() );
-    asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW,
+    asynPrint(	this->pasynUserSelf,	ASYN_TRACE_FLOW,
 				"asynPrint "
           		"%s %s: disconnecting camera %s\n", 
 				driverName, functionName, m_CameraName.c_str() );
 
-	setIntegerParam( ADStatus, ADStatusDisconnected );
-//	if ( m_ttyPort )
-//		drvAsynEdtPdvSerialPortDisconnect( m_ttyPort );
+	SetAcquireMode( false );
+	// Wait for acquire loop to terminate
+	while ( IsAcquiring() )
+	{
+		epicsThreadSleep(0.1);
+	}
+
+	// TODO: Do we need to use a lock to protect against crashes here?
 	m_pAsynSerial->pdvDevDisconnected( NULL );
 
     if ( m_pPdvDev )
@@ -1563,20 +1442,21 @@ asynStatus edtPdvCamera::DisconnectCamera( )
 #endif
 
 	// Signal asynManager that we are disconnected
+	setIntegerParam( ADStatus, ADStatusDisconnected );
     status = pasynManager->exceptionDisconnect( this->pasynUserSelf );
     if ( status != asynSuccess )
 	{
-        asynPrint(	pasynUserSelf, ASYN_TRACE_ERROR,
-					"asynPrint "
+        asynPrint(	this->pasynUserSelf, ASYN_TRACE_ERROR,
 					"%s %s: error calling pasynManager->exceptionDisconnect, error=%s\n",
-					driverName, functionName, pasynUserSelf->errorMessage );
-        return asynError;
+					driverName, functionName, this->pasynUserSelf->errorMessage );
+        // return asynError;
     }
-    asynPrint(	pasynUserSelf, ASYN_TRACE_FLOW, 
+    asynPrint(	this->pasynUserSelf, ASYN_TRACE_FLOW, 
 				"asynPrint "
 				"%s %s: Camera disconnected %s\n", 
 				driverName, functionName, m_CameraName.c_str() );
-    return asynSuccess;
+    return static_cast<asynStatus>( status );
+    //	return asynSuccess;
 }
 
 /// Overriding asynPortDriver::connect
@@ -1625,11 +1505,12 @@ asynStatus edtPdvCamera::disconnect( asynUser *	pasynUser )
     if ( status != asynSuccess )
 	{
         asynPrint(	pasynUser, ASYN_TRACE_ERROR,
-					"%s: error calling pasynManager->exceptionDisconnect, error=%s\n",
+					"%s: error calling DisconnectCamera, error=%s\n",
 					functionName, pasynUser->errorMessage );
         return asynError;
     }
 
+#if 0	// Already done
 	// Signal asynManager that we are disconnected
     status = pasynManager->exceptionDisconnect( pasynUser );
     if ( status != asynSuccess )
@@ -1639,6 +1520,8 @@ asynStatus edtPdvCamera::disconnect( asynUser *	pasynUser )
 					driverName, functionName, pasynUser->errorMessage );
         return asynError;
     }
+#endif
+
 	if ( EDT_PDV_DEBUG >= 1 )
 		printf(	"%s %s: Camera %s 0 disconnected!\n", 
 				driverName, functionName, m_CameraName.c_str() );
@@ -1701,16 +1584,6 @@ void edtPdvCamera::report( FILE * fp, int details )
 
 
 #if 0
-Image	*	edtPdvCamera::GetCurImageBuf( )
-{
-    Image	*	pImage;
-//	epicsMutexLock(m_historyBufMutexLock);
-    /* current image is from image queue buffer */
-    pImage = m_imgqBuf[ (m_imgqwr - 1) & IMGQBUFMASK ];
-//	epicsMutexUnlock(m_historyBufMutexLock);
-	return pImage;
-}
-
 Image	*	edtPdvCamera::GetNextImageBuf(unsigned int &imgqrd)
 {
     Image	*	pImage;	/* current image buffer, could be image queue or circular buffer */
@@ -1780,21 +1653,12 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 		return SetAcquireMode( value );
     }
 
-#if 0
-    if ( pasynUser->reason == ADBinX)  setIntegerParam( ADBinX, value );
-    if ( pasynUser->reason == ADBinY)  setIntegerParam( ADBinY, value );
-    if ( pasynUser->reason == ADMinX)  setIntegerParam( ADMinX, value );
-    if ( pasynUser->reason == ADMinY)  setIntegerParam( ADMinY, value );
-    if ( pasynUser->reason == ADSizeX) setIntegerParam( ADSizeX, value );
-    if ( pasynUser->reason == ADSizeY) setIntegerParam( ADSizeY, value );
-#else
     if ( pasynUser->reason == ADBinX)	SetBinX(	value	);
     if ( pasynUser->reason == ADBinY)	SetBinY(	value	);
     if ( pasynUser->reason == ADMinX)	SetMinX(	value	);
     if ( pasynUser->reason == ADMinY)	SetMinY(	value	);
     if ( pasynUser->reason == ADSizeX)	SetSizeX(	value	);
     if ( pasynUser->reason == ADSizeY)	SetSizeY(	value	);
-#endif
 
     if ( pasynUser->reason == ADImageMode)
 	{

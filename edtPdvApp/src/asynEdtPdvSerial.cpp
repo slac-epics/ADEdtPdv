@@ -56,7 +56,7 @@ asynEdtPdvSerial::asynEdtPdvSerial(
 	m_inputEosLenOctet(		0			),
 	m_outputEosOctet(		NULL		),
 	m_outputEosLenOctet(	0			),
-	m_connected(			false		)
+	m_fConnected(			false		)
 {
 	const char		*	functionName	= "asynEdtPdvSerial::asynEdtPdvSerial";
 	//	asynStatus			status;
@@ -97,11 +97,11 @@ asynStatus	asynEdtPdvSerial::connect(
 	if ( m_pPdvDev == NULL )
 	{
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
-						"%s: %s disconnected!\n", functionName, this->portName );
+						"%s: %s pdvDev disconnected!\n", functionName, this->portName );
 		return asynError;
 	}
 
-	m_connected	= true;
+	m_fConnected	= true;
 
 	// Signal asynManager that we are connected
 	int  status = pasynManager->exceptionConnect( pasynUser );
@@ -123,7 +123,7 @@ asynStatus	asynEdtPdvSerial::disconnect(
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
 				"%s port %s\n", functionName, this->portName );
 
-	m_connected	= false;
+	m_fConnected	= false;
 
 	// Signal asynManager that we are disconnected
 	int  status = pasynManager->exceptionDisconnect( pasynUser );
@@ -141,6 +141,11 @@ asynEdtPdvSerial::pdvDevConnected(
 	PdvDev			*	pPdvDev	)
 {
 	asynStatus			status			= asynSuccess;
+	const char		*	functionName	= "asynEdtPdvSerial::pdvDevConnected";
+
+	if ( EDT_PDV_DEBUG >= 1 )
+		printf( "%s: %s Connecting %s\n", functionName, this->portName,
+				(pPdvDev != NULL ? pdv_get_camera_model( pPdvDev ) : "NULL") );
 
 	m_pPdvDev	= pPdvDev;
 
@@ -150,10 +155,9 @@ asynEdtPdvSerial::pdvDevConnected(
 
 	if ( pPdvDev == NULL )
 	{
-		pasynManager->autoConnect( pAsynUserTmp, 0 );
 #if 0
-	const char		*	functionName	= "asynEdtPdvSerial::pdvDevConnected";
-		if ( m_connected )
+		pasynManager->autoConnect( pAsynUserTmp, 0 );
+		if ( m_fConnected )
 		{
 			// Signal asynManager that we are disconnecting
 			int  status = pasynManager->exceptionDisconnect( pAsynUserTmp );
@@ -162,14 +166,14 @@ asynEdtPdvSerial::pdvDevConnected(
 							"%s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
 							functionName, this->portName, pAsynUserTmp->errorMessage );
 		}
-		m_connected	= false;
 #endif
+		m_fConnected	= false;
 	}
 	else
 	{
-#if 0
-		m_connected	= true;
+		m_fConnected	= true;
 
+#if 0
 		// Signal asynManager that we are connected
 		int  status = pasynManager->exceptionConnect( pAsynUserTmp );
 		if ( status != asynSuccess )
@@ -191,29 +195,31 @@ asynEdtPdvSerial::pdvDevDisconnected(
 {
 	asynStatus			status			= asynSuccess;
 	const char		*	functionName	= "asynEdtPdvSerial::pdvDevDisconnected";
-
-	m_pPdvDev	= pPdvDev;
+	if ( EDT_PDV_DEBUG >= 1 )
+		printf( "%s: %s Disconnecting\n", functionName, this->portName );
 
 	// Create a temporary asynUser for autoConnect control
-	asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
-	pAsynUserTmp->userPvt = this;
+//	asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
+//	pAsynUserTmp->userPvt = this;
 
-	status		= pasynManager->autoConnect( pAsynUserTmp, 0 );
-	if ( status != asynSuccess )
-		asynPrint(	pAsynUserTmp, ASYN_TRACE_ERROR,
-					"%s port %s: Error calling pasynManager->autoConnect, error=%s\n",
-					functionName, this->portName, pAsynUserTmp->errorMessage );
+	//	status		= pasynManager->autoConnect( pAsynUserTmp, 0 );
+	//	if ( status != asynSuccess )
+	//		asynPrint(	pAsynUserTmp, ASYN_TRACE_ERROR,
+	//					"%s port %s: Error calling pasynManager->autoConnect, error=%s\n",
+	//					functionName, this->portName, pAsynUserTmp->errorMessage );
 
-	if ( m_connected )
+	if ( m_fConnected )
 	{
 		// Signal asynManager that we are disconnecting
-		status = pasynManager->exceptionDisconnect( pAsynUserTmp );
-		if ( status != asynSuccess )
-			asynPrint(	pAsynUserTmp, ASYN_TRACE_ERROR,
-						"%s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
-						functionName, this->portName, pAsynUserTmp->errorMessage );
+	//	status = pasynManager->exceptionDisconnect( pAsynUserTmp );
+	//	if ( status != asynSuccess )
+	//		asynPrint(	pAsynUserTmp, ASYN_TRACE_ERROR,
+	//					"%s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
+	//					functionName, this->portName, pAsynUserTmp->errorMessage );
+		m_fConnected	= false;
 	}
-	m_connected	= false;
+
+	m_pPdvDev	= pPdvDev;
 	return status;
 }
 
@@ -242,10 +248,10 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	if ( m_pPdvDev == NULL )
 	{
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
-						"%s: %s disconnected!\n", functionName, this->portName );
+						"%s: %s pdvDev disconnected!\n", functionName, this->portName );
 		return asynError;
 	}
-	if ( !m_connected )
+	if ( !m_fConnected )
 	{
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
 						"%s Error: %s disconnected:", functionName, this->portName );
@@ -368,7 +374,13 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 	if ( m_pPdvDev == NULL )
 	{
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
-						"%s: %s disconnected!\n", functionName, this->portName );
+						"%s: %s pdvDev disconnected!\n", functionName, this->portName );
+		return asynError;
+	}
+	if ( !m_fConnected )
+	{
+		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
+						"%s Error: %s disconnected:", functionName, this->portName );
 		return asynError;
 	}
 
@@ -459,5 +471,34 @@ asynStatus	asynEdtPdvSerial::getOutputEosOctet(
 	int					eosSize,
 	int				*	eosLen	)
 #endif
+
+void asynEdtPdvSerial::report( FILE * fp, int details )
+{
+    fprintf(	fp, "EDT PDV camera serial port %s: %s\n",
+				this->portName, m_fConnected ? "Connected" : "Disconnected" );
+    fprintf(	fp, "EDT PDV camera serial port %s: camera model %s\n",
+				this->portName,
+				(m_pPdvDev != NULL ? pdv_get_camera_model( m_pPdvDev ) : "None") );
+
+	int			connected	= 0;
+	pasynManager->isConnected( this->pasynUserSelf, &connected );
+	if ( m_fConnected && !connected )
+	{
+		fprintf(	fp, "Warning, Camera serial port %s thinks it's %s, but asynManager says %s\n",
+					portName,
+					m_fConnected	? "Connected" : "Disconnected",
+					connected		? "Connected" : "Disconnected"	);
+	}
+
+#if 0
+    if ( details > 0 )
+	{
+        fprintf( fp, "\n" );
+    }
+#endif
+
+    /* Call the base class method */
+    asynPortDriver::report( fp, details );
+}
 
 //	Private member variables

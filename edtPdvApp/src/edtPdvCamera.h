@@ -111,6 +111,11 @@ public:		//	Public member functions
 		return m_LibVersion;
 	}
 
+	bool	IsAcquiring()
+	{
+		return m_fAcquiring;
+	}
+
 	bool	InAcquireMode()
 	{
 		return m_fAcquireMode;
@@ -310,9 +315,10 @@ private:	//	Private class functions
 public:		//	Public member variables	(Make these private!)
 
 protected:	//	Protected member variables
+	bool			m_fAcquireMode;		// Set true to start acquiring images, false to halt
+	bool			m_fAcquiring;		// True while acquiring images, false when idle
 	bool			m_fExitApp;			// Set true to shutdown ioc
 	bool			m_fReconfig;		// Are we currently reconfiguring the ROI?
-	bool			m_fAcquireMode;		// Set true to start acquiring images, false to halt
 	int				m_NumMultiBuf;		// Number of pdv multi buffers configured
 
 private:	//	Private member variables

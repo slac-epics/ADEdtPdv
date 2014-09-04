@@ -51,6 +51,8 @@ public:		//	Public member functions
 		size_t				maxChars,
 		size_t			*	nActual	);
 
+    void	report(	FILE	*	fp,	int	details	);
+
 	asynStatus	pdvDevConnected(
 		PdvDev			*	pPdvDev	);
 
@@ -92,11 +94,10 @@ public:		//	Public member functions
 	int					m_inputEosLenOctet;
 	char			*	m_outputEosOctet;
 	int					m_outputEosLenOctet;
-	bool				m_connected;
+	bool				m_fConnected;
 
 #if 0
 
-    void	report(	FILE	*	fp,	int	details	);
  
 	char			*	portName;
 	int					m_addr;

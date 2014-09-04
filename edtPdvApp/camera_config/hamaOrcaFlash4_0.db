@@ -93,6 +93,33 @@ record( ai, "$(P)$(R)OrcaActualExposure_RBV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
 
+record( mbbo, "$(P)$(R)OrcaExtTrigMode" )
+{
+	field( DTYP, "stream" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)ExtTrigMode NPP NMS" )
+	field( OUT,  "@hamaOrcaFlash4_0.proto SetExtTrigMode $(PORT).SER" )
+	field( ZRVL, "0" )	field( ZRST, "Edge" )
+	field( ONVL, "1" )	field( ONST, "Level" )
+	field( TWVL, "2" )	field( TWST, "Sync" )
+	field( FLNK, "$(P)$(R)OrcaExtTrigMode_RBV" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
+}
+
+# Read ORCA ExtTrigMode
+record( mbbi, "$(P)$(R)OrcaExtTrigMode_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@hamaOrcaFlash4_0.proto GetExtTrigMode $(PORT).SER" )
+	field( ZRVL, "0" )	field( ZRST, "Edge" )
+	field( ONVL, "1" )	field( ONST, "Level" )
+	field( TWVL, "2" )	field( TWST, "Sync" )
+	field( PINI, "YES" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
+}
+
 # Disable these records from ADBase.template as the Orca doesn't support them
 record( ao, "$(P)$(R)Gain"			) { field( DISA, "1" ) }
 record( ai, "$(P)$(R)Gain_RBV"		) { field( DISA, "1" ) }
@@ -156,10 +183,8 @@ record( mbbo, "$(P)$(R)OrcaTriggerMode" )
 	field( OMSL, "closed_loop" )
 	field( DOL,  "$(P)$(R)TriggerMode NPP NMS" )
 	field( OUT,  "@hamaOrcaFlash4_0.proto SetTriggerMode $(PORT).SER" )
-	field( ZRST, "Internal" )
-	field( ZRVL, "0" )
-	field( ONST, "External" )
-	field( ONVL, "1" )
+	field( ZRVL, "0" )	field( ZRST, "Internal" )
+	field( ONVL, "1" )	field( ONST, "External" )
 	field( FLNK, "$(P)$(R)OrcaTriggerMode_RBV" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
@@ -170,10 +195,8 @@ record( mbbi, "$(P)$(R)OrcaTriggerMode_RBV" )
 {
 	field( DTYP, "stream" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetTriggerMode $(PORT).SER" )
-	field( ZRST, "Internal" )
-	field( ZRVL, "0" )
-	field( ONST, "External" )
-	field( ONVL, "1" )
+	field( ZRVL, "0" )	field( ZRST, "Internal" )
+	field( ONVL, "1" )	field( ONST, "External" )
 	field( FLNK, "$(P)$(R)SerTriggerMode_RBV" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
@@ -184,8 +207,6 @@ record( mbbo, "$(P)$(R)SerTriggerMode_RBV" )
 	field( OMSL, "closed_loop" )
 	field( DOL,  "$(P)$(R)OrcaTriggerMode_RBV NPP MS" )
 	field( OUT,  "@asyn($(PORT),0,1)EDT_SER_TRIGGER_MODE" )
-	field( ZRST, "Internal" )
-	field( ZRVL, "0" )
-	field( ONST, "External" )
-	field( ONVL, "1" )
+	field( ZRVL, "0" )	field( ZRST, "Internal" )
+	field( ONVL, "1" )	field( ONST, "External" )
 }
