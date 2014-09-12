@@ -3,15 +3,15 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 101
-y 97
+x 1923
+y 1395
 w 700
 h 506
 font "helvetica-medium-r-8.0"
 ctlFont "helvetica-medium-r-8.0"
 btnFont "helvetica-medium-r-8.0"
 fgColor index 14
-bgColor index 5
+bgColor index 3
 textColor index 14
 ctlFgColor1 index 15
 ctlFgColor2 index 25
@@ -168,38 +168,10 @@ h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
 fgColor index 14
-bgColor index 5
+bgColor index 3
 value {
   "Model"
 }
-endObjectProperties
-
-# (Text Control)
-object activeXTextDspClass
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 500
-y 184
-w 60
-h 18
-controlPv "$(P)$(R)OrcaAcquireTime"
-format "decimal"
-font "helvetica-medium-r-12.0"
-fgColor index 25
-fgAlarm
-bgColor index 5
-editable
-autoHeight
-motifWidget
-nullColor index 40
-smartRefresh
-fastUpdate
-useHexPrefix
-newPos
-objType "controls"
-noExecuteClipMask
 endObjectProperties
 
 # (Static Text)
@@ -208,14 +180,14 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 332
+x 416
 y 184
 w 155
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
 fgColor index 14
-bgColor index 5
+bgColor index 3
 value {
   "Orca Exposure Time"
 }
@@ -234,7 +206,7 @@ h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
 fgColor index 14
-bgColor index 5
+bgColor index 3
 value {
   "Information"
 }
@@ -253,7 +225,7 @@ h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
 fgColor index 14
-bgColor index 5
+bgColor index 3
 value {
   "Firmware"
 }
@@ -272,7 +244,7 @@ h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
 fgColor index 14
-bgColor index 5
+bgColor index 3
 value {
   "Serial Number"
 }
@@ -291,7 +263,7 @@ h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
 fgColor index 14
-bgColor index 5
+bgColor index 3
 value {
   "Height"
 }
@@ -310,7 +282,7 @@ h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
 fgColor index 14
-bgColor index 5
+bgColor index 3
 value {
   "Width"
 }
@@ -493,7 +465,7 @@ h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
 fgColor index 14
-bgColor index 5
+bgColor index 3
 value {
   "Acquire Time"
 }
@@ -624,36 +596,15 @@ propagateMacros {
 icon
 endObjectProperties
 
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 568
-y 184
-w 40
-h 18
-controlPv "$(P)$(R)OrcaAcquireTime.EGU"
-font "helvetica-medium-r-12.0"
-fgColor index 14
-bgColor index 5
-limitsFromDb
-nullColor index 25
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
 # (Menu Button)
 object activeMenuButtonClass
 beginObjectProperties
 major 4
 minor 0
 release 0
-x 428
-y 212
-w 120
+x 480
+y 240
+w 92
 h 20
 fgColor index 25
 bgColor index 5
@@ -671,15 +622,14 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 332
-y 212
-w 88
+x 340
+y 240
+w 120
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
 fgColor index 14
-bgColor index 0
-useDisplayBg
+bgColor index 3
 value {
   "Ext Trigger type"
 }
@@ -691,8 +641,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 556
-y 212
+x 580
+y 240
 w 88
 h 20
 controlPv "$(P)$(R)OrcaExtTrigMode_RBV"
@@ -708,5 +658,448 @@ useHexPrefix
 newPos
 objType "monitors"
 noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 480
+y 296
+w 92
+h 20
+controlPv "$(P)$(R)VertDblScanTop"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 340
+y 296
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "VertDblScanTop"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 580
+y 296
+w 88
+h 20
+controlPv "$(P)$(R)VertDblScanTop_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 580
+y 328
+w 88
+h 20
+controlPv "$(P)$(R)VertDblScanBot_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 480
+y 328
+w 92
+h 20
+controlPv "$(P)$(R)VertDblScanBot"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 340
+y 328
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "VertDblScanBot"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 580
+y 356
+w 88
+h 20
+controlPv "$(P)$(R)VertDblScanSize_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 480
+y 356
+w 92
+h 20
+controlPv "$(P)$(R)VertDblScanSize"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 340
+y 356
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "VertDblScanSize"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 580
+y 184
+w 88
+h 20
+controlPv "$(P)$(R)OrcaAcquireTime_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 580
+y 216
+w 88
+h 20
+controlPv "$(P)$(R)OrcaExtTrigPolarity_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Menu Button)
+object activeMenuButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 480
+y 216
+w 92
+h 20
+fgColor index 25
+bgColor index 5
+inconsistentColor index 40
+topShadowColor index 2
+botShadowColor index 13
+controlPv "$(P)$(R)OrcaExtTrigPolarity"
+indicatorPv "$(P)$(R)OrcaExtTrigPolarity_RBV"
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 340
+y 216
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Ext Trigger Polarity"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 580
+y 268
+w 88
+h 20
+controlPv "$(P)$(R)ExtTrigDelay_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 480
+y 268
+w 92
+h 18
+controlPv "$(P)$(R)ExtTrigDelay"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 340
+y 268
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Ext Trigger Delay"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 580
+y 384
+w 88
+h 20
+controlPv "$(P)$(R)OrcaScanMode_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Menu Button)
+object activeMenuButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 480
+y 384
+w 92
+h 20
+fgColor index 25
+bgColor index 5
+inconsistentColor index 40
+topShadowColor index 2
+botShadowColor index 13
+controlPv "$(P)$(R)OrcaScanMode"
+indicatorPv "$(P)$(R)OrcaScanMode_RBV"
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 340
+y 384
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Scanning Mode"
+}
 endObjectProperties
 

@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1937
-y 313
+x 54
+y 74
 w 700
 h 508
 font "helvetica-medium-r-12.0"
@@ -521,7 +521,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 44
+x 20
 y 212
 w 120
 h 20
@@ -541,9 +541,9 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 260
+x 236
 y 212
-w 80
+w 100
 h 20
 controlPv "$(P)$(R)MaxSizeY_RBV"
 font "helvetica-medium-r-12.0"
@@ -566,7 +566,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 172
+x 148
 y 212
 w 80
 h 20
@@ -818,7 +818,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 44
+x 20
 y 272
 w 120
 h 20
@@ -838,7 +838,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 44
+x 20
 y 360
 w 120
 h 20
@@ -858,7 +858,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 44
+x 20
 y 244
 w 120
 h 20
@@ -878,7 +878,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 44
+x 20
 y 332
 w 120
 h 20
@@ -898,7 +898,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 172
+x 148
 y 360
 w 80
 h 20
@@ -918,7 +918,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 172
+x 148
 y 332
 w 80
 h 20
@@ -938,9 +938,9 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 260
+x 236
 y 244
-w 80
+w 100
 h 20
 controlPv "$(P)$(R)ArraySizeY_RBV"
 font "helvetica-medium-r-12.0"
@@ -963,9 +963,9 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 172
+x 148
 y 272
-w 168
+w 188
 h 20
 controlPv "$(P)$(R)ArraySize_RBV"
 font "helvetica-medium-r-12.0"
@@ -988,9 +988,9 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 260
+x 236
 y 332
-w 80
+w 100
 h 20
 controlPv "$(P)$(R)DataType_RBV"
 font "helvetica-medium-r-12.0"
@@ -1013,9 +1013,9 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 260
+x 236
 y 360
-w 80
+w 100
 h 20
 controlPv "$(P)$(R)ColorMode_RBV"
 font "helvetica-medium-r-12.0"
@@ -1038,7 +1038,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 172
+x 148
 y 244
 w 80
 h 20
@@ -1155,7 +1155,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 44
+x 20
 y 184
 w 120
 h 20
@@ -1175,7 +1175,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 44
+x 20
 y 156
 w 120
 h 20
@@ -1195,9 +1195,9 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 172
+x 148
 y 184
-w 168
+w 188
 h 20
 controlPv "$(P)$(R)Model_RBV"
 format "decimal"
@@ -1220,9 +1220,9 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 172
+x 148
 y 156
-w 168
+w 188
 h 20
 controlPv "$(P)$(R)Manufacturer_RBV"
 format "decimal"
@@ -1302,6 +1302,7 @@ bgColor index 5
 editable
 autoHeight
 motifWidget
+limitsFromDb
 nullColor index 40
 smartRefresh
 fastUpdate
@@ -1623,9 +1624,9 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 172
+x 148
 y 300
-w 168
+w 188
 h 20
 controlPv "$(P)$(R)PSPacketSize_RBV"
 font "helvetica-medium-r-12.0"
@@ -1648,7 +1649,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 44
+x 20
 y 300
 w 120
 h 20
@@ -1890,7 +1891,7 @@ buttonLabel "EVR"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "evrScreens/evrSLAC.edl"
+  0 "evrScreens/evrPmc230.edl"
 }
 symbols {
   0 "EVR=$(EVR)"

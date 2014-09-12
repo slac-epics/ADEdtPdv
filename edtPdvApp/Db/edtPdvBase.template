@@ -23,6 +23,22 @@ record( stringin, "$(P)$(R)EDT_PDV_INFO" )
    field( SCAN, "I/O Intr" )
 }
 
+record( longout, "$(P)$(R)EDT_PDV_DEBUG_LEVEL" )
+{
+   field( DTYP, "asynInt32" )
+   field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_PDV_DEBUG" )
+   field( PINI, "YES" )
+   field( DOL,	"0" )
+}
+
+record( longout, "$(P)$(R)EDT_PDV_DEBUG_MSG_LEVEL" )
+{
+   field( DTYP, "asynInt32" )
+   field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_PDV_DEBUG_MSG" )
+   field( PINI, "YES" )
+   field( DOL,	"0" )
+}
+
 record( mbbo, "$(P)$(R)EDT_PDV_TRIG_LEVEL" )
 {
    field( DTYP, "asynInt32" )

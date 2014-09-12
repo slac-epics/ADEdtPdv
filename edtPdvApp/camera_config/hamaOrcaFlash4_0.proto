@@ -79,8 +79,9 @@ SetAcquireTime
 # Get Start Exposure Timing Mode
 #	0	= Normal free run
 #	1	= External trigger
-#	2	= Start
-#	3	= Light sheet
+#	2	= Start (Ext trig initiates free run)
+#	3	= Light sheet (Like a copy machine, readout follows
+#                      a sheet of light across the sample)
 GetTriggerMode
 {
 	out "?AMD";
@@ -90,18 +91,33 @@ GetTriggerMode
 # Set Start Exposure Timing Mode
 #	0	= Normal free run
 #	1	= External trigger
-#	2	= Start
-#	3	= Light sheet
+#	2	= Start (Ext trig initiates free run)
+#	3	= Light sheet (Like a copy machine, readout follows
+#                      a sheet of light across the sample)
 SetTriggerMode
 {
 	out "AMD %{N|E|S|L}";
 	in  "AMD %*{N|E|S|L}";
 }
 
+# Get External Trigger Delay
+GetExtTrigDelay
+{
+	out "?ATD";
+	in	 "ATD %f";
+}
+
+# Set External Trigger Delay
+SetExtTrigDelay
+{
+	out "ATD %f";
+	in	"ATD %*f";
+}
+
 # Get External Trigger Exposure Mode
-#	0	= Edge
-#	1	= Level
-#	2	= Synchronous
+#	0	= Edge, Exposure time from AET
+#	1	= Level, Exposure time from pulse duration
+#	2	= Synchronous, Exposes from trigger to trigger
 GetExtTrigMode
 {
 	out "?EMD";
@@ -118,11 +134,29 @@ SetExtTrigMode
 	in	"EMD %*{E|L|S}";
 }
 
+# Get External Trigger Polarity
+#	0	= Negative
+#	1	= Positive
+GetExtTrigPolarity
+{
+	out "?ATP";
+	in	 "ATP %{N|P}";
+}
+
+# Set External Trigger Exposure Polarity
+#	0	= Negative
+#	1	= Positive
+SetExtTrigPolarity
+{
+	out "ATP %{N|P}";
+	in	"ATP %*{N|P}";
+}
+
 # Get Scanning Mode
 #	0	= Normal
 #	1	= Binning
 #	2	= Sub-array (Vertical Double Scan)
-GetScanningMode
+GetScanMode
 {
 	out "?SMD";	
 	in	 "SMD %{N|S|W}";
@@ -132,10 +166,42 @@ GetScanningMode
 #	0	= Normal
 #	1	= Binning
 #	2	= Sub-array (Vertical Double Scan)
-SetScanningMode
+SetScanMode
 {
 	out "SMD %{N|S|W}";
 	in  "SMD %*{N|S|W}";
+}
+
+# ROI Control
+# ROI is implemented via Vertical Double Scan, or Sub-Array scanning mode, SMD W
+# Vertical Double Scan parameters are:
+#	Top Offset:	Same as AreaDetector MinX
+#	Bot Offset: Should be zero unless you want a gap between top and bottom regions
+#	Vert Size:	Should be 1024 - VertDblScanTop to readout a symmetrical region around the center
+# Constraints:
+#	All params must be multiples of 4
+#	vert size + either offset <= 1024
+# Matt says it's
+# SDV bo,to,size
+# where:
+# bo	- # lines offset from bottom
+# to	- # lines offset from center
+# size	- # lines to readout in each half (ROI size/2)
+# so SDV 924,0,100 for 200 line readout starting at line 924
+GetVertDblScan
+{
+	out "?SDV";
+	in	"SDV %(\$1VertDblScanTop_RBV)u,%(\$1VertDblScanBot_RBV)u,%u";
+}
+
+# Vertical Double Scan parameters are:
+#	Top Offset:	Same as AreaDetector MinX
+#	Bot Offset: Should be zero unless you want a gap between top and bottom regions
+#	Vert Size:	Should be 1024 - VertDblScanTop to readout a symmetrical region around the center
+SetVertDblScan
+{
+	out	"SDV %(\$1VertDblScanTop)u,%(\$1VertDblScanBot)u,%u";
+	in  "SDV %*u,%*u,%*u";
 }
 
 # SPX {1|2|4} Set binning factor

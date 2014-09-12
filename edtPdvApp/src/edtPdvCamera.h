@@ -47,6 +47,8 @@ public:		//	Public member functions
 	/// Destructor
 	virtual ~edtPdvCamera();
 
+	enum TriggerMode_t { TRIGMODE_FREERUN, TRIGMODE_EXT, TRIGMODE_PULSE };
+
 	///	Update AreaDetector params related to camera configuration
 	int UpdateADConfigParams( );
 
@@ -162,18 +164,25 @@ public:		//	Public member functions
 	int		SetSizeX(	size_t	value	);
 	size_t	GetSizeX( ) const
 	{
-		if ( m_SizeX <= 0 )
-			return 1;
+		if ( m_SizeX == 0 )
+			return m_width;
 		return m_SizeX;
 	}
 
 	int		SetSizeY(	size_t	value	);
 	size_t	GetSizeY( ) const
 	{
-		if ( m_SizeY <= 0 )
-			return 1;
+		if ( m_SizeY == 0 )
+			return m_height;
 		return m_SizeY;
 	}
+
+	int				SetTriggerMode(	int	value	);
+	TriggerMode_t	GetTriggerMode( ) const
+	{
+		return m_TriggerMode;
+	}
+
 
 	size_t	GetWidth( ) const
 	{
@@ -349,13 +358,15 @@ private:	//	Private member variables
 	int				m_PdvDebugLevel;	// PDV library debug level
 	int				m_PdvDebugMsgLevel;	// PDV library debug msg level
 
+	TriggerMode_t	m_TriggerMode;
+
 	// HW ROI and binning parameters from ADBase
-	int				m_BinX;
-	int				m_BinY;
-	int				m_MinX;
-	int				m_MinY;
-	int				m_SizeX;
-	int				m_SizeY;
+	size_t			m_BinX;
+	size_t			m_BinY;
+	size_t			m_MinX;
+	size_t			m_MinY;
+	size_t			m_SizeX;
+	size_t			m_SizeY;
 
 	// Gain value for camera
 	double			m_Gain;
@@ -402,6 +413,10 @@ private:	//	Private member variables
 
 	// Serial front-end params for ADBase parameters
 	int		SerAcquireTime;
+	int		SerMinX;
+	int		SerMinY;
+	int		SerSizeX;
+	int		SerSizeY;
 	int		SerTriggerMode;
 	#define LAST_EDT_PDV_PARAM  SerTriggerMode
 
@@ -431,6 +446,10 @@ private:	//	Private class variables
 // their ADBase class equivalents, for example
 // SerAcquireTime	=>	ADAcquireTime 
 #define EdtSerAcquireTimeString	"EDT_SER_ACQUIRE_TIME"
+#define EdtSerMinXString		"EDT_MIN_X"
+#define EdtSerMinYString		"EDT_MIN_Y"
+#define EdtSerSizeXString		"EDT_SIZE_X"
+#define EdtSerSizeYString		"EDT_SIZE_Y"
 #define EdtSerTriggerModeString	"EDT_SER_TRIGGER_MODE"
 
 /*	Diagnostic variables	*/

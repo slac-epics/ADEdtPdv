@@ -114,6 +114,13 @@ edtPdvCamera::edtPdvCamera(
 		m_PdvDebugLevel(	1					),
 	//	m_PdvDebugMsgLevel(	0xFFF				),
 		m_PdvDebugMsgLevel(	0x000				),
+		m_TriggerMode(		TRIGMODE_FREERUN	),
+		m_BinX(				1					),
+		m_BinY(				1					),
+		m_MinX(				0					),
+		m_MinY(				0					),
+		m_SizeX(			0					),
+		m_SizeY(			0					),
 		// Do we need ADBase ROI values here?  m_BinX, m_BinY, m_MinX, m_SizeY, ...
 		m_Gain(				0					),
 		m_timeStampEvent(	0					),
@@ -194,6 +201,10 @@ edtPdvCamera::edtPdvCamera(
 	// their ADBase class equivalents, for example
 	// SerAcquireTime	=>	ADAcquireTime 
 	createParam( EdtSerAcquireTimeString,	asynParamFloat64,	&SerAcquireTime	);
+	createParam( EdtSerMinXString,			asynParamInt32,		&SerMinX		);
+	createParam( EdtSerMinYString,			asynParamInt32,		&SerMinY		);
+	createParam( EdtSerSizeXString,			asynParamInt32,		&SerSizeX		);
+	createParam( EdtSerSizeYString,			asynParamInt32,		&SerSizeY		);
 	createParam( EdtSerTriggerModeString,	asynParamInt32,		&SerTriggerMode	);
 
 	// Get the EdtPdv debug levels and multibuf number (should be in autosave)
@@ -679,12 +690,27 @@ int edtPdvCamera::_Reconfigure( )
         return -1;
     }
 
-	// If no config file selected yet, start with free run
-	if ( m_ConfigFile.empty() )
+	//	Update m_ConfigFile based on TriggerMode, changing the current
+	//	Internal/External choices to FreeRun (f.cfg), Trigger (t.cfg), or Pulse (p.cfg)
+	m_ConfigFile = "db/";
+	m_ConfigFile += m_ModelName;
+	switch( m_TriggerMode )
 	{
-		m_ConfigFile = "db/";
-		m_ConfigFile += m_ModelName;
+	default:
+	case TRIGMODE_FREERUN:
 		m_ConfigFile += "f.cfg";
+		break;
+	case TRIGMODE_EXT:
+		m_ConfigFile += "t.cfg";
+		break;
+	case TRIGMODE_PULSE:
+		m_ConfigFile += "p.cfg";
+		break;
+	}
+
+	if ( EDT_PDV_DEBUG >= 1 )
+	{
+		printf( "%s: %s Reconfiguring from %s ...\n", functionName, m_CameraName.c_str(), m_ConfigFile.c_str() );
 	}
 
 	// Read the config file
@@ -733,22 +759,20 @@ int edtPdvCamera::_Reconfigure( )
     m_CameraClass	= pdv_get_camera_class(	m_pPdvDev );
     m_CameraModel	= pdv_get_camera_model(	m_pPdvDev );
 	m_CameraInfo	= pdv_get_camera_info(	m_pPdvDev );
-    m_SizeX			= m_width;
-    m_SizeY			= m_height;
-    m_MinX			= 0;
-    m_MinY			= 0;
-    m_BinX			= 1;
-    m_BinY			= 1;
+    m_SizeX			= GetSizeX();
+    m_SizeY			= GetSizeY();
+    m_BinX			= GetBinX();
+    m_BinY			= GetBinY();
 
 	// Diagnostics
 	if ( EDT_PDV_DEBUG >= 1 )
 		printf(	"%s %s: Camera %s ready on card %u, ch %u, %zu x %zu pixels, %u bits/pixel\n",
 				driverName, functionName, m_CameraName.c_str(),
-				m_unit, m_channel, m_width, m_height, m_numOfBits );
+				m_unit, m_channel, GetSizeX(), GetSizeY(), m_numOfBits );
 	asynPrint(	this->pasynUserSelf,	ASYN_TRACE_FLOW,
 				"%s %s: Camera %s ready on card %u, ch %u, %zu x %zu pixels, %u bits/pixel\n",
 				driverName, functionName, m_CameraName.c_str(),
-				m_unit, m_channel, m_width, m_height, m_numOfBits );
+				m_unit, m_channel, GetSizeX(), GetSizeY(), m_numOfBits );
     return 0;
 }
 
@@ -784,8 +808,8 @@ int edtPdvCamera::UpdateADConfigParams( )
 	setIntegerParam( NDArrayCallbacks,	1	);
 
 	// TODO: Move these to SetSizeX(), ...
-	setIntegerParam( NDArraySizeX,		GetSizeX()	);
-	setIntegerParam( NDArraySizeY,		GetSizeY()	);
+	setIntegerParam( NDArraySizeX,		GetSizeX()	);	// TODO: Fix for ROI
+	setIntegerParam( NDArraySizeY,		GetSizeY()	);	// TODO: Fix for ROI
 	m_imageSize		= GetSizeX() * GetSizeY();
 	setIntegerParam( NDArraySize,		m_imageSize );
 
@@ -811,15 +835,16 @@ int edtPdvCamera::UpdateADConfigParams( )
 		setStringParam( PdvLibVersion, m_LibVersion.c_str()	);
 	}
 
-	// Update AD version of PDV library Debug parameters
+	// Update PDV library Debug parameters
 	setIntegerParam(	PdvDebug,		m_PdvDebugLevel	);
+	pdv_setdebug(		m_pPdvDev, 		m_PdvDebugLevel	);
 	setIntegerParam(	PdvDebugMsg,	m_PdvDebugMsgLevel	);
+	edt_msg_set_level(	edt_msg_default_handle(),	m_PdvDebugMsgLevel	);
 
 //	m_PdvDebugLevel	= pdv_debug_level(	m_pPdvDev );
 //	pdv_setdebug(		m_pPdvDev, 		m_PdvDebugLevel	);
 //	getIntegerParam(	PdvDebug,		&m_PdvDebugLevel	);
 //	getIntegerParam(	PdvDebug,		&m_PdvDebugLevel	);
-//#include edt_error.h
 //	m_PdvDebugMsgLevel	= edt_msg_default_level( );
 //	edt_msg_set_level(	edt_msg_default_handle(),	m_PdvDebugMsgLevel	);
 //	getIntegerParam(	PdvDebugMsg,	&m_PdvDebugMsgLevel	);
@@ -1110,11 +1135,32 @@ int edtPdvCamera::CameraStart( )
 		printf(	"%s: Delaying %f sec\n", functionName, cameraStartDelay );
 	epicsThreadSleep( cameraStartDelay );
 
-#if 0
-	// Setup ROI
-	pdv_set_roi(	m_pPdvDev, minX, sizeX, minY, sizeY	);
-	pdv_enable_roi(	m_pPdvDev, 1	);
-#endif
+	if ( EDT_PDV_DEBUG >= 2 )
+		printf(	"%s: Acquire image from %zu,%zu size %zux%zu\n", functionName,
+				GetMinX(), GetMinY(), GetSizeX(), GetSizeY()	);
+	if (	(	GetSizeX() < GetWidth() )
+		||	(	GetSizeY() < GetHeight() )	)
+	{
+		// Setup PDV ROI image transfer
+		// Note: We don't use MinY in setting up the PDV image grab as
+		// the ORCA handles the Y offset and Y size, always transfers full rows,
+		// and reads the resulting image to row 0
+		int		hskip	= GetMinX();
+		int		vskip	= 0;
+		int		hactv	= GetSizeX();
+		int		vactv	= GetSizeY();
+		if ( EDT_PDV_DEBUG >= 2 )
+			printf(	"%s: Setting PDV ROI to hskip %d, hactv %d, vskip %d, vactv %d\n",
+					functionName,	hskip, hactv, vskip, vactv );
+		pdv_set_roi(	m_pPdvDev,	hskip, hactv, vskip, vactv );
+		pdv_enable_roi(	m_pPdvDev, 1	);
+	}
+	else
+	{
+		if ( EDT_PDV_DEBUG >= 2 )
+			printf(	"%s: Disabling ROI\n", functionName );
+		pdv_enable_roi(	m_pPdvDev, 0	);
+	}
 
 	int framesync = pdv_enable_framesync(	m_pPdvDev, PDV_FRAMESYNC_ON	);
 	if ( EDT_PDV_DEBUG >= 2 )
@@ -1185,11 +1231,7 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 	/* Got a new frame */
 	m_frameCounts++;
 
-	//	Continue the pipeline by starting the next image
-	pdv_start_image( m_pPdvDev );
-
 	//	Saving the image to the NDArrayPool 
-#undef USE_ZERO_COPY
 	//	Note: Prior version had NDArrayPool point to the EDT raw image buffer
 	//	for zero-copy image handling.
 	//	However, since AreaDetector is based on plugins, I don't think it's safe
@@ -1220,8 +1262,8 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 		bytesPerPixel	= 2;
 	}
 	m_imageSize		= GetSizeX() * GetSizeY();
-    dims[0]			= m_width;	// GetSizeX()
-    dims[1]			= m_height;	// GetSizeY()
+    dims[0]			= GetSizeX();	//	m_width;
+    dims[1]			= GetSizeY();	//	m_height;
 	assert( dims[0] != 0 );
 	assert( dims[1] != 0 );
     NDArray	*	pNDArray = pNDArrayPool->alloc( ndims, dims, pixelType, 0, NULL );
@@ -1250,6 +1292,8 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 	pNDArray->dims[1].size		= GetSizeY();
 	pNDArray->dims[1].offset	= GetMinY();
 	pNDArray->dims[1].binning	= GetBinY();
+//	updateTimeStamp(&pNDArray->epicsTS);
+//	pArray->uniqueId = PULSEID(pNDArray->epicsTS);
 	pImage->SetNDArrayPtr( pNDArray );
 	unlock();
 
@@ -1270,7 +1314,12 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 		numImagesCounter++;
 		setIntegerParam(	ADNumImagesCounter,	numImagesCounter	);
 	}
-	if ( m_acquireCount == 0 )
+	if ( m_acquireCount != 0 )
+	{
+		//	Continue the pipeline by starting the next image
+		pdv_start_image( m_pPdvDev );
+	}
+	else
 	{
 		SetAcquireMode( false );
 		if ( EDT_PDV_DEBUG >= 1 )
@@ -1375,6 +1424,7 @@ int	edtPdvCamera::SetSizeX(	size_t	value	)
 	}
 	m_SizeX = value;
 	setIntegerParam( NDArraySizeX,	m_SizeX	);
+    setIntegerParam( ADSizeX,		value );
 	return asynSuccess;
 }
 
@@ -1395,6 +1445,7 @@ int	edtPdvCamera::SetSizeY(	size_t	value	)
 	}
 	m_SizeY = value;
 	setIntegerParam( NDArraySizeY,	m_SizeY	);
+    setIntegerParam( ADSizeY,		m_SizeY );
 	return asynSuccess;
 }
 
@@ -1459,6 +1510,31 @@ int	edtPdvCamera::SetBinY(	unsigned int	value	)
 	}
 	m_BinY = value;
 	setIntegerParam( ADBinY,	m_BinY	);
+	return asynSuccess;
+}
+
+int	edtPdvCamera::SetTriggerMode(	int	value	)
+{
+    static const char	*	functionName	= "edtPdvCamera::SetTriggerMode";
+	if ( value == 0 )
+	{
+        errlogPrintf(	"%s: ERROR, ROI bin %u == 0!\n",
+        	    		functionName, value );
+		return asynError;
+	}
+	TriggerMode_t	tyTriggerMode	= static_cast<TriggerMode_t>( value );
+	switch ( tyTriggerMode )
+	{
+	default:
+		m_TriggerMode = TRIGMODE_FREERUN;
+		break;
+	case TRIGMODE_FREERUN:
+	case TRIGMODE_EXT:
+	case TRIGMODE_PULSE:
+		m_TriggerMode = tyTriggerMode;
+		break;
+	}
+	setIntegerParam( ADTriggerMode,	m_TriggerMode	);
 	return asynSuccess;
 }
 
@@ -1730,6 +1806,8 @@ asynStatus edtPdvCamera::readInt32(	asynUser *	pasynUser, epicsInt32	value )
     static const char	*	functionName	= "edtPdvCamera::readInt32";
     const char			*	reasonName		= "unknownReason";
 	getParamName( 0, pasynUser->reason, &reasonName );
+	if ( EDT_PDV_DEBUG >= 3 )
+		printf(	"%s: Reason %d %s, value %d\n", functionName, pasynUser->reason, reasonName, value );
 	asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
 				"%s: Reason %d %s, value %d\n", functionName, pasynUser->reason, reasonName, value );
 
@@ -1745,6 +1823,8 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
     static const char	*	functionName	= "edtPdvCamera::writeInt32";
     const char			*	reasonName		= "unknownReason";
 	getParamName( 0, pasynUser->reason, &reasonName );
+	if ( EDT_PDV_DEBUG >= 3 )
+		printf(	"%s: Reason %d %s, value %d\n", functionName, pasynUser->reason, reasonName, value );
 	asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
 				"%s: Reason %d %s, value %d\n", functionName, pasynUser->reason, reasonName, value );
 
@@ -1827,9 +1907,22 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 		}
 	}
 
-    if ( pasynUser->reason == NDArrayCounter)	setIntegerParam( NDArrayCounter,value );
-    if ( pasynUser->reason == ADTriggerMode)	setIntegerParam( ADTriggerMode,	value );
-    if ( pasynUser->reason == SerTriggerMode )	setIntegerParam( ADTriggerMode,	value );
+    if ( pasynUser->reason == NDArrayCounter	)	setIntegerParam( NDArrayCounter,value );
+#if 0
+    if ( pasynUser->reason == ADTriggerMode		)	setIntegerParam( ADTriggerMode,	value );
+    if ( pasynUser->reason == SerTriggerMode	)	setIntegerParam( ADTriggerMode,	value );
+    if ( pasynUser->reason == SerMinX			)	setIntegerParam( ADMinX,		value );
+    if ( pasynUser->reason == SerMinY			)	setIntegerParam( ADMinY,		value );
+    if ( pasynUser->reason == SerSizeX			)	setIntegerParam( ADSizeX,		value );
+    if ( pasynUser->reason == SerSizeY			)	setIntegerParam( ADSizeY,		value );
+#else
+    if ( pasynUser->reason == ADTriggerMode		)	SetTriggerMode(	value );
+    if ( pasynUser->reason == SerTriggerMode	)	SetTriggerMode(	value );
+    if ( pasynUser->reason == SerMinX			)	SetMinX(	value );
+    if ( pasynUser->reason == SerMinY			)	SetMinY(	value );
+    if ( pasynUser->reason == SerSizeX			)	SetSizeX(	value );
+    if ( pasynUser->reason == SerSizeY			)	SetSizeY(	value );
+#endif
  
     callParamCallbacks( 0, 0 );
 
