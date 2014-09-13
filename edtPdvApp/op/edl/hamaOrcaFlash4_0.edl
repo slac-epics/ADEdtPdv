@@ -670,7 +670,7 @@ x 480
 y 296
 w 92
 h 20
-controlPv "$(P)$(R)VertDblScanTop"
+controlPv "$(P)$(R)OrcaScanTop"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
@@ -703,7 +703,7 @@ fontAlign "right"
 fgColor index 14
 bgColor index 3
 value {
-  "VertDblScanTop"
+  "OrcaScanTop"
 }
 endObjectProperties
 
@@ -717,7 +717,7 @@ x 580
 y 296
 w 88
 h 20
-controlPv "$(P)$(R)VertDblScanTop_RBV"
+controlPv "$(P)$(R)OrcaScanTop_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -742,7 +742,7 @@ x 580
 y 328
 w 88
 h 20
-controlPv "$(P)$(R)VertDblScanBot_RBV"
+controlPv "$(P)$(R)OrcaScanBot_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -767,7 +767,7 @@ x 480
 y 328
 w 92
 h 20
-controlPv "$(P)$(R)VertDblScanBot"
+controlPv "$(P)$(R)OrcaScanBot"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
@@ -800,7 +800,7 @@ fontAlign "right"
 fgColor index 14
 bgColor index 3
 value {
-  "VertDblScanBot"
+  "OrcaScanBot"
 }
 endObjectProperties
 
@@ -814,7 +814,7 @@ x 580
 y 356
 w 88
 h 20
-controlPv "$(P)$(R)VertDblScanSize_RBV"
+controlPv "$(P)$(R)OrcaScanSize_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -839,7 +839,7 @@ x 480
 y 356
 w 92
 h 20
-controlPv "$(P)$(R)VertDblScanSize"
+controlPv "$(P)$(R)OrcaScanSize"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
@@ -872,7 +872,7 @@ fontAlign "right"
 fgColor index 14
 bgColor index 3
 value {
-  "VertDblScanSize"
+  "OrcaScanSize"
 }
 endObjectProperties
 
@@ -976,7 +976,7 @@ x 580
 y 268
 w 88
 h 20
-controlPv "$(P)$(R)ExtTrigDelay_RBV"
+controlPv "$(P)$(R)OrcaExtTrigDelay_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -1002,7 +1002,7 @@ x 480
 y 268
 w 92
 h 18
-controlPv "$(P)$(R)ExtTrigDelay"
+controlPv "$(P)$(R)OrcaExtTrigDelay"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25

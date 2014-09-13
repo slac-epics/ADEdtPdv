@@ -83,7 +83,7 @@ edtPdvCamera::edtPdvCamera(
 	int						stackSize			)	// 0 = default 1 MB
 	:	ADDriver(			cameraName,	
 							N_PDV_DRV_ADDR_MAX,
-							NUM_EDT_PDV_PARAMS,
+							NUM_EDT_PARAMS,
 							maxBuffers, maxMemory,
 							asynOctetMask,	0,	// Supports an asynOctect interface w/ no interrupts
 							ASYN_CANBLOCK,	1,	// ASYN_CANBLOCK=1, ASYN_MULTIDEVICE=0, autoConnect=1
@@ -111,9 +111,13 @@ edtPdvCamera::edtPdvCamera(
 		m_imageSize(		0					),
 		m_dmaSize(			0					),
 		m_trigLevel(		0					),
-		m_PdvDebugLevel(	1					),
-	//	m_PdvDebugMsgLevel(	0xFFF				),
-		m_PdvDebugMsgLevel(	0x000				),
+		m_EdtDebugLevel(	1					),
+	//	m_EdtDebugMsgLevel(	0xFFF				),
+		m_EdtDebugMsgLevel(	0x000				),
+		m_EdtHSkip(			0					),
+		m_EdtHSize(			0					),
+		m_EdtVSkip(			0					),
+		m_EdtVSize(			0					),
 		m_TriggerMode(		TRIGMODE_FREERUN	),
 		m_BinX(				1					),
 		m_BinY(				1					),
@@ -186,16 +190,20 @@ edtPdvCamera::edtPdvCamera(
     // NOTE: If we needed to, could we get the ttyController ptr via findAsynPortDriver()?
 	//	ttyController	*	tty	= (ttyController *) findAsynPortDriver( m_SerialPort.c_str() );
 
-	// Create EdtPdv parameters shared by all EDT based cameras
+	// Create EDT parameters shared by all EDT based cameras
 	// This group gives access to PDV library values of interest
-	createParam( EdtPdvClassString,			asynParamOctet,		&PdvClass		);
-	createParam( EdtPdvDebugString,			asynParamInt32,		&PdvDebug		);
-	createParam( EdtPdvDebugMsgString,		asynParamInt32,		&PdvDebugMsg	);
-	createParam( EdtPdvDrvVersionString,	asynParamOctet,		&PdvDrvVersion	);
-	createParam( EdtPdvLibVersionString,	asynParamOctet,		&PdvLibVersion	);
-	createParam( EdtPdvMultiBufString,		asynParamInt32,		&PdvMultiBuf	);
-	createParam( EdtPdvInfoString,			asynParamOctet,		&PdvInfo		);
-	createParam( EdtPdvTrigLevelString,		asynParamInt32,		&PdvTrigLevel	);
+	createParam( EdtClassString,		asynParamOctet,		&EdtClass		);
+	createParam( EdtDebugString,		asynParamInt32,		&EdtDebug		);
+	createParam( EdtDebugMsgString,		asynParamInt32,		&EdtDebugMsg	);
+	createParam( EdtDrvVersionString,	asynParamOctet,		&EdtDrvVersion	);
+	createParam( EdtHSkipString,		asynParamInt32,		&EdtHSkip		);
+	createParam( EdtHSizeString,		asynParamInt32,		&EdtHSize		);
+	createParam( EdtVSkipString,		asynParamInt32,		&EdtVSkip		);
+	createParam( EdtVSizeString,		asynParamInt32,		&EdtVSize		);
+	createParam( EdtLibVersionString,	asynParamOctet,		&EdtLibVersion	);
+	createParam( EdtMultiBufString,		asynParamInt32,		&EdtMultiBuf	);
+	createParam( EdtInfoString,			asynParamOctet,		&EdtInfo		);
+	createParam( EdtTrigLevelString,	asynParamInt32,		&EdtTrigLevel	);
 
 	// This group provides a way to have serial readbacks get reflected in
 	// their ADBase class equivalents, for example
@@ -207,10 +215,10 @@ edtPdvCamera::edtPdvCamera(
 	createParam( EdtSerSizeYString,			asynParamInt32,		&SerSizeY		);
 	createParam( EdtSerTriggerModeString,	asynParamInt32,		&SerTriggerMode	);
 
-	// Get the EdtPdv debug levels and multibuf number (should be in autosave)
-	getIntegerParam( PdvDebug,		&m_PdvDebugLevel	);
-	getIntegerParam( PdvDebugMsg,	&m_PdvDebugMsgLevel	);
-	getIntegerParam( PdvMultiBuf,	&m_NumMultiBuf	);
+	// Get the EDT PDV debug levels and multibuf number (should be in autosave)
+	getIntegerParam( EdtDebug,		&m_EdtDebugLevel	);
+	getIntegerParam( EdtDebugMsg,	&m_EdtDebugMsgLevel	);
+	getIntegerParam( EdtMultiBuf,	&m_NumMultiBuf	);
 
     // Create acquisition thread
     m_threadId		= epicsThreadMustCreate( m_CameraName.c_str(), CAMERA_THREAD_PRIORITY, CAMERA_THREAD_STACK,
@@ -659,8 +667,8 @@ int edtPdvCamera::_Reconfigure( )
     static const char	*	functionName = "edtPdvCamera::_Reconfigure";
 
 	// Set the EDT PDV debug levels
-	pdv_setdebug(		NULL,				 		m_PdvDebugLevel	);
-	edt_msg_set_level(	edt_msg_default_handle(),	m_PdvDebugMsgLevel	);
+	pdv_setdebug(		NULL,				 		m_EdtDebugLevel	);
+	edt_msg_set_level(	edt_msg_default_handle(),	m_EdtDebugMsgLevel	);
 
 	// Open the camera channel
 	// Note: Do not use edt_open_channel() here!
@@ -753,12 +761,16 @@ int edtPdvCamera::_Reconfigure( )
 
 	// Camera is reconfigured and ready to use!
 	m_fReconfig		= false;
-    m_width			= pdv_get_width(	m_pPdvDev );
-    m_height		= pdv_get_height(	m_pPdvDev );
-    m_numOfBits		= pdv_get_depth(	m_pPdvDev );
     m_CameraClass	= pdv_get_camera_class(	m_pPdvDev );
     m_CameraModel	= pdv_get_camera_model(	m_pPdvDev );
 	m_CameraInfo	= pdv_get_camera_info(	m_pPdvDev );
+    m_width			= pdv_get_width(		m_pPdvDev );
+    m_height		= pdv_get_height(		m_pPdvDev );
+    m_numOfBits		= pdv_get_depth(		m_pPdvDev );
+    m_EdtHSkip		= 0;
+    m_EdtHSize		= m_width;
+    m_EdtVSkip		= 0;
+    m_EdtVSize		= m_height;
     m_SizeX			= GetSizeX();
     m_SizeY			= GetSizeY();
     m_BinX			= GetBinX();
@@ -817,38 +829,38 @@ int edtPdvCamera::UpdateADConfigParams( )
     //	m_Gain			= pdv_get_gain(			m_pPdvDev );
     //	m_dmaSize		= pdv_get_dmasize(		m_pPdvDev );
 
-	// Update EdtPdv asyn parameters
+	// Update EDT PDV asyn parameters
     m_CameraClass	= pdv_get_camera_class(	m_pPdvDev );
-    setStringParam( PdvClass, m_CameraClass.c_str()	);
+    setStringParam( EdtClass, m_CameraClass.c_str()	);
     m_CameraInfo	= pdv_get_camera_info(	m_pPdvDev );
-    setStringParam( PdvInfo,	m_CameraInfo.c_str()	);
+    setStringParam( EdtInfo,	m_CameraInfo.c_str()	);
 
     char		buf[MAX_STRING_SIZE];
     if ( edt_get_driver_version(	m_pPdvDev, buf, MAX_STRING_SIZE ) )
 	{
         m_DrvVersion = buf;
-		setStringParam( PdvDrvVersion, m_DrvVersion.c_str()	);
+		setStringParam( EdtDrvVersion, m_DrvVersion.c_str()	);
 	}
     if ( edt_get_library_version(	m_pPdvDev, buf, MAX_STRING_SIZE ) )
 	{
         m_LibVersion = buf;
-		setStringParam( PdvLibVersion, m_LibVersion.c_str()	);
+		setStringParam( EdtLibVersion, m_LibVersion.c_str()	);
 	}
 
 	// Update PDV library Debug parameters
-	setIntegerParam(	PdvDebug,		m_PdvDebugLevel	);
-	pdv_setdebug(		m_pPdvDev, 		m_PdvDebugLevel	);
-	setIntegerParam(	PdvDebugMsg,	m_PdvDebugMsgLevel	);
-	edt_msg_set_level(	edt_msg_default_handle(),	m_PdvDebugMsgLevel	);
+	setIntegerParam(	EdtDebug,		m_EdtDebugLevel	);
+	pdv_setdebug(		m_pPdvDev, 		m_EdtDebugLevel	);
+	setIntegerParam(	EdtDebugMsg,	m_EdtDebugMsgLevel	);
+	edt_msg_set_level(	edt_msg_default_handle(),	m_EdtDebugMsgLevel	);
 
-//	m_PdvDebugLevel	= pdv_debug_level(	m_pPdvDev );
-//	pdv_setdebug(		m_pPdvDev, 		m_PdvDebugLevel	);
-//	getIntegerParam(	PdvDebug,		&m_PdvDebugLevel	);
-//	getIntegerParam(	PdvDebug,		&m_PdvDebugLevel	);
-//	m_PdvDebugMsgLevel	= edt_msg_default_level( );
-//	edt_msg_set_level(	edt_msg_default_handle(),	m_PdvDebugMsgLevel	);
-//	getIntegerParam(	PdvDebugMsg,	&m_PdvDebugMsgLevel	);
-//	getIntegerParam(	PdvDebugMsg,	&m_PdvDebugMsgLevel	);
+//	m_EdtDebugLevel	= pdv_debug_level(	m_pPdvDev );
+//	pdv_setdebug(		m_pPdvDev, 		m_EdtDebugLevel	);
+//	getIntegerParam(	EdtDebug,		&m_EdtDebugLevel	);
+//	getIntegerParam(	EdtDebug,		&m_EdtDebugLevel	);
+//	m_EdtDebugMsgLevel	= edt_msg_default_level( );
+//	edt_msg_set_level(	edt_msg_default_handle(),	m_EdtDebugMsgLevel	);
+//	getIntegerParam(	EdtDebugMsg,	&m_EdtDebugMsgLevel	);
+//	getIntegerParam(	EdtDebugMsg,	&m_EdtDebugMsgLevel	);
     return 0;
 }
 
@@ -917,10 +929,8 @@ void edtPdvCamera::acquireLoop( )
 				//	Also keeps from chewing up cpu time on failed
 				//	reconfigure attempts.
 				epicsThreadSleep( m_reconfigDelay );
-				if ( m_pPdvDev != NULL )
-					Reconfigure();
-				if ( m_fReconfig )
-					continue;
+				Reconfigure();
+				continue;
 			}
 
 			// Make sure we have a valid device ptr
@@ -947,13 +957,6 @@ void edtPdvCamera::acquireLoop( )
 			{
 				if ( EDT_PDV_DEBUG >= 1 )
 					printf(	"%s: Reconfig pending in thread %s\n", functionName, epicsThreadGetNameSelf() );
-				continue;
-			}
-
-			if ( !InAcquireMode() )
-			{
-				if ( EDT_PDV_DEBUG >= 1 )
-					printf(	"%s: AcquireMode canceled in thread %s\n", functionName, epicsThreadGetNameSelf() );
 				continue;
 			}
 
@@ -1157,8 +1160,14 @@ int edtPdvCamera::CameraStart( )
 	}
 	else
 	{
+		int		hskip	= 0;
+		int		vskip	= 0;
+		int		hactv	= GetWidth();
+		int		vactv	= GetHeight();
 		if ( EDT_PDV_DEBUG >= 2 )
-			printf(	"%s: Disabling ROI\n", functionName );
+			printf(	"%s: Disabling PDV ROI, restoring hskip %d, hactv %d, vskip %d, vactv %d\n",
+					functionName,	hskip, hactv, vskip, vactv );
+		pdv_set_roi(	m_pPdvDev,	hskip, hactv, vskip, vactv );
 		pdv_enable_roi(	m_pPdvDev, 0	);
 	}
 
@@ -1201,8 +1210,19 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 	unsigned char	*	pRawImage	= pdv_wait_image_timed( m_pPdvDev, pdvTimestamp );
 	NDArray			*	pRawNDArray	= reinterpret_cast<NDArray *>( pRawImage );
 
-	if ( !InAcquireMode() || pRawImage == NULL )
+	if ( !InAcquireMode() )
+	{
+		if ( EDT_PDV_DEBUG >= 1 )
+			printf(	"%s: AcquireMode cancelled in thread %s\n", functionName, epicsThreadGetNameSelf() );
 		return asynError;
+	}
+
+	if ( pRawImage == NULL )
+	{
+		if ( EDT_PDV_DEBUG >= 1 )
+			printf(	"%s: Failed to acquire image!\n", functionName );
+		return asynError;
+	}
 
 	//	Caution, this raw image will get over-written if we're not done processing it
 	//	before the edt ring buffer wraps.
@@ -1515,13 +1535,7 @@ int	edtPdvCamera::SetBinY(	unsigned int	value	)
 
 int	edtPdvCamera::SetTriggerMode(	int	value	)
 {
-    static const char	*	functionName	= "edtPdvCamera::SetTriggerMode";
-	if ( value == 0 )
-	{
-        errlogPrintf(	"%s: ERROR, ROI bin %u == 0!\n",
-        	    		functionName, value );
-		return asynError;
-	}
+//	static const char	*	functionName	= "edtPdvCamera::SetTriggerMode";
 	TriggerMode_t	tyTriggerMode	= static_cast<TriggerMode_t>( value );
 	switch ( tyTriggerMode )
 	{
@@ -1745,9 +1759,13 @@ void edtPdvCamera::report( FILE * fp, int details )
         fprintf( fp, "  Sensor height:     %zd\n",	m_height );
         fprintf( fp, "  Image size:        %zu\n",	m_imageSize );
         fprintf( fp, "  DMA size:          %zu\n",	m_dmaSize );
+        fprintf( fp, "  ROI Horiz skip:    %d\n",	m_EdtHSkip );
+        fprintf( fp, "  ROI Horiz size:    %d\n",	m_EdtHSize );
+        fprintf( fp, "  ROI Vert  skip:    %d\n",	m_EdtVSkip );
+        fprintf( fp, "  ROI Vert  size:    %d\n",	m_EdtVSize );
         fprintf( fp, "  Trig Level:        %s\n",	TrigLevelToString( m_trigLevel ) );
-        fprintf( fp, "  PDV DebugLevel:    %u\n",	m_PdvDebugLevel );
-        fprintf( fp, "  PDV DebugMsgLevel: %u\n",	m_PdvDebugMsgLevel );
+        fprintf( fp, "  PDV DebugLevel:    %u\n",	m_EdtDebugLevel );
+        fprintf( fp, "  PDV DebugMsgLevel: %u\n",	m_EdtDebugMsgLevel );
         fprintf( fp, "  Timestamp Event:   %u\n",	m_timeStampEvent );
         fprintf( fp, "  Frame Count:       %u\n",	m_frameCounts );
 
@@ -1801,21 +1819,22 @@ asynStatus edtPdvCamera::readFloat64(	asynUser *	pasynUser, epicsFloat64	value )
 }
 #endif
 
-asynStatus edtPdvCamera::readInt32(	asynUser *	pasynUser, epicsInt32	value )
+// TODO: Don't think we need this function as it's main purpose is to query params from ADCore
+asynStatus edtPdvCamera::readInt32(	asynUser *	pasynUser, epicsInt32	* pValueRet )
 {
     static const char	*	functionName	= "edtPdvCamera::readInt32";
     const char			*	reasonName		= "unknownReason";
 	getParamName( 0, pasynUser->reason, &reasonName );
-	if ( EDT_PDV_DEBUG >= 3 )
-		printf(	"%s: Reason %d %s, value %d\n", functionName, pasynUser->reason, reasonName, value );
+	if ( EDT_PDV_DEBUG >= 4 )
+		printf(	"%s: Reason %d %s\n", functionName, pasynUser->reason, reasonName );
 	asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
-				"%s: Reason %d %s, value %d\n", functionName, pasynUser->reason, reasonName, value );
+				"%s: Reason %d %s\n", functionName, pasynUser->reason, reasonName );
 
-    if ( pasynUser->reason == PdvTrigLevel ) setIntegerParam( PdvTrigLevel, value );
+//	if ( pasynUser->reason == EdtTrigLevel ) setIntegerParam( EdtTrigLevel, *pValueRet );
 
-    callParamCallbacks();
-
-    return asynStatus(0);
+	// Call base class
+	asynStatus	status	= asynPortDriver::readInt32( pasynUser, pValueRet );
+    return status;
 }
 
 asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
@@ -1823,7 +1842,7 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
     static const char	*	functionName	= "edtPdvCamera::writeInt32";
     const char			*	reasonName		= "unknownReason";
 	getParamName( 0, pasynUser->reason, &reasonName );
-	if ( EDT_PDV_DEBUG >= 3 )
+	if ( EDT_PDV_DEBUG >= 2 )
 		printf(	"%s: Reason %d %s, value %d\n", functionName, pasynUser->reason, reasonName, value );
 	asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
 				"%s: Reason %d %s, value %d\n", functionName, pasynUser->reason, reasonName, value );
@@ -1832,6 +1851,7 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 	{
 		return SetAcquireMode( value );
     }
+
 
     if ( pasynUser->reason == ADBinX)	SetBinX(	value	);
     if ( pasynUser->reason == ADBinY)	SetBinY(	value	);
@@ -1908,6 +1928,7 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 	}
 
     if ( pasynUser->reason == NDArrayCounter	)	setIntegerParam( NDArrayCounter,value );
+    if ( pasynUser->reason == EdtTrigLevel		)	setIntegerParam( EdtTrigLevel, value );
 #if 0
     if ( pasynUser->reason == ADTriggerMode		)	setIntegerParam( ADTriggerMode,	value );
     if ( pasynUser->reason == SerTriggerMode	)	setIntegerParam( ADTriggerMode,	value );

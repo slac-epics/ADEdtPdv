@@ -67,9 +67,9 @@ public:		//	Public member functions
 
     /// These are the methods that we override from ADDriver
 #if 0
-    virtual asynStatus readFloat64(	asynUser	*	pasynUser,	epicsFloat64	value	);
+    virtual asynStatus readFloat64(	asynUser	*	pasynUser,	epicsFloat64 *	value	);
 #endif
-    virtual asynStatus readInt32(	asynUser	*	pasynUser,	epicsInt32		value	);
+    virtual asynStatus readInt32(	asynUser	*	pasynUser,	epicsInt32	 *	value	);
     virtual asynStatus writeInt32(	asynUser	*	pasynUser,	epicsInt32		value	);
     virtual asynStatus writeFloat64(asynUser	*	pasynUser,	epicsFloat64	value	);
     void	report(	FILE	*	fp,	int	details	);
@@ -355,8 +355,14 @@ private:	//	Private member variables
 
 	unsigned int	m_trigLevel;		// Ext. Trigger Mode (0=Edge,1=Level,2=Sync)
 
-	int				m_PdvDebugLevel;	// PDV library debug level
-	int				m_PdvDebugMsgLevel;	// PDV library debug msg level
+	int				m_EdtDebugLevel;	// PDV library debug level
+	int				m_EdtDebugMsgLevel;	// PDV library debug msg level
+
+	// Framegrabber ROI settings
+	int				m_EdtHSkip;			// # of horiz lines to skip
+	int				m_EdtHSize;			// # of horiz lines to read
+	int				m_EdtVSkip;			// # of vert  lines to skip
+	int				m_EdtVSize;			// # of vert  lines to read
 
 	TriggerMode_t	m_TriggerMode;
 
@@ -401,15 +407,19 @@ private:	//	Private member variables
 	unsigned int			m_HWROI_gen;
 #endif	//	USE_EDT_ROI
 
-	#define FIRST_EDT_PDV_PARAM PdvClass
-	int		PdvClass;
-	int		PdvDebug;
-	int		PdvDebugMsg;
-	int		PdvDrvVersion;
-	int		PdvInfo;
-	int		PdvLibVersion;
-	int		PdvMultiBuf;
-	int		PdvTrigLevel;
+	#define FIRST_EDT_PARAM EdtClass
+	int		EdtClass;
+	int		EdtDebug;
+	int		EdtDebugMsg;
+	int		EdtDrvVersion;
+	int		EdtHSkip;
+	int		EdtHSize;
+	int		EdtVSkip;
+	int		EdtVSize;
+	int		EdtInfo;
+	int		EdtLibVersion;
+	int		EdtMultiBuf;
+	int		EdtTrigLevel;
 
 	// Serial front-end params for ADBase parameters
 	int		SerAcquireTime;
@@ -418,7 +428,7 @@ private:	//	Private member variables
 	int		SerSizeX;
 	int		SerSizeY;
 	int		SerTriggerMode;
-	#define LAST_EDT_PDV_PARAM  SerTriggerMode
+	#define LAST_EDT_PARAM  SerTriggerMode
 
 	IOSCANPVT				m_ioscan;
 	asynEdtPdvSerial	*	m_pAsynSerial;
@@ -429,18 +439,22 @@ private:	//	Private class variables
 };
 
 /* EDT PDV Parameters, common to all EDT PDV cameras */
-#define NUM_EDT_PDV_PARAMS ((int)(&LAST_EDT_PDV_PARAM - &FIRST_EDT_PDV_PARAM + 1))
+#define NUM_EDT_PARAMS ((int)(&LAST_EDT_PARAM - &FIRST_EDT_PARAM + 1))
 
 #endif /* __cplusplus */
 
-#define EdtPdvClassString		"EDT_PDV_CLASS"
-#define EdtPdvDebugString		"EDT_PDV_DEBUG"
-#define EdtPdvDebugMsgString	"EDT_PDV_DEBUG_MSG"
-#define EdtPdvDrvVersionString	"EDT_PDV_DRV_VERSION"
-#define EdtPdvInfoString		"EDT_PDV_INFO"
-#define EdtPdvLibVersionString	"EDT_PDV_LIB_VERSION"
-#define EdtPdvMultiBufString	"EDT_PDV_MULTIBUF"
-#define EdtPdvTrigLevelString	"EDT_PDV_TRIG_LEVEL"
+#define EdtClassString		"EDT_CLASS"
+#define EdtDebugString		"EDT_DEBUG"
+#define EdtDebugMsgString	"EDT_DEBUG_MSG"
+#define EdtDrvVersionString	"EDT_DRV_VERSION"
+#define EdtHSkipString		"EDT_HSKIP"
+#define EdtHSizeString		"EDT_HSIZE"
+#define EdtVSkipString		"EDT_VSKIP"
+#define EdtVSizeString		"EDT_VSIZE"
+#define EdtInfoString		"EDT_INFO"
+#define EdtLibVersionString	"EDT_LIB_VERSION"
+#define EdtMultiBufString	"EDT_MULTIBUF"
+#define EdtTrigLevelString	"EDT_TRIG_LEVEL"
 
 // This group provides a way to have serial readbacks get reflected in
 // their ADBase class equivalents, for example

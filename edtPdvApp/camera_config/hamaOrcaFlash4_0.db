@@ -6,7 +6,7 @@
 # Protocol root must match db filename root
 # i.e. hamaOrcaFlash4_0.proto
 
-record( stringin, "$(P)$(R)COM_TEST" )
+record( stringin, "$(P)$(R)OrcaComTest" )
 {
 	field( DESC, "Communication Test" )
 	field( DTYP, "stream" )
@@ -22,7 +22,6 @@ record( stringin, "$(P)$(R)OrcaInfo_RBV" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetInfo $(PORT).SER" )
 	field( SCAN, "Passive" )
 	field( PINI, "YES" )
-#  info( autosaveFields, "VAL" )
 	info( archiveFields,  "VAL" )
 }
 
@@ -33,7 +32,6 @@ record( stringin, "$(P)$(R)OrcaModel_RBV" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetModel $(PORT).SER" )
 	field( SCAN, "Passive" )
 	field( PINI, "YES" )
-#  info( autosaveFields, "VAL" )
 	info( archiveFields,  "VAL" )
 }
 
@@ -44,7 +42,6 @@ record( stringin, "$(P)$(R)OrcaSerialNumber_RBV" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetSerialNumber $(PORT).SER" )
 	field( SCAN, "Passive" )
 	field( PINI, "YES" )
-#  info( autosaveFields, "VAL" )
 	info( archiveFields,  "VAL" )
 }
 
@@ -54,7 +51,6 @@ record( stringin, "$(P)$(R)OrcaFirmware_RBV" )
 	field( DTYP, "stream" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetFirmware $(PORT).SER" )
 	field( PINI, "YES" )
-#  info( autosaveFields, "VAL" )
 	info( archiveFields,  "VAL" )
 }
 
@@ -103,8 +99,8 @@ record( mbbo, "$(P)$(R)OrcaExtTrigMode" )
 	field( ONVL, "1" )	field( ONST, "Level" )
 	field( TWVL, "2" )	field( TWST, "Sync" )
 	field( FLNK, "$(P)$(R)OrcaExtTrigMode_RBV" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
-	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
+	info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
 }
 
 # Read ORCA ExtTrigMode
@@ -116,8 +112,7 @@ record( mbbi, "$(P)$(R)OrcaExtTrigMode_RBV" )
 	field( ONVL, "1" )	field( ONST, "Level" )
 	field( TWVL, "2" )	field( TWST, "Sync" )
 	field( PINI, "YES" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
-	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
+	info( archiveFields,  "VAL" )
 }
 
 record( mbbo, "$(P)$(R)OrcaExtTrigPolarity" )
@@ -129,8 +124,8 @@ record( mbbo, "$(P)$(R)OrcaExtTrigPolarity" )
 	field( ZRVL, "0" )	field( ZRST, "Neg" )
 	field( ONVL, "1" )	field( ONST, "Pos" )
 	field( FLNK, "$(P)$(R)OrcaExtTrigPolarity_RBV" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
-	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
+	info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
 }
 
 # Read ORCA ExtTrigPolarity
@@ -141,8 +136,7 @@ record( mbbi, "$(P)$(R)OrcaExtTrigPolarity_RBV" )
 	field( ZRVL, "0" )	field( ZRST, "Neg" )
 	field( ONVL, "1" )	field( ONST, "Pos" )
 	field( PINI, "YES" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
-	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
+	info( archiveFields,  "VAL" )
 }
 
 record( mbbo, "$(P)$(R)OrcaScanMode" )
@@ -155,8 +149,8 @@ record( mbbo, "$(P)$(R)OrcaScanMode" )
 	field( ONVL, "1" )	field( ONST, "Binning" )
 	field( TWVL, "2" )	field( TWST, "VertDbl" )
 	field( FLNK, "$(P)$(R)OrcaScanMode_RBV" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
-	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
+	info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
 }
 
 # Read ORCA ScanMode
@@ -168,12 +162,11 @@ record( mbbi, "$(P)$(R)OrcaScanMode_RBV" )
 	field( ONVL, "1" )	field( ONST, "Binning" )
 	field( TWVL, "2" )	field( TWST, "VertDbl" )
 	field( PINI, "YES" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
-	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
+	info( archiveFields,  "VAL" )
 }
 
 # Set Orca Ext Trigger Delay
-record( ao, "$(P)$(R)ExtTrigDelay" )
+record( ao, "$(P)$(R)OrcaExtTrigDelay" )
 {
 	field( DTYP, "stream" )
 	field( OUT,  "@hamaOrcaFlash4_0.proto SetExtTrigDelay $(PORT).SER" )
@@ -181,12 +174,12 @@ record( ao, "$(P)$(R)ExtTrigDelay" )
 	field( LOPR, "0" )
 	field( HOPR, "10" )
 	field( PREC, "5" )
-	field( FLNK, "$(P)$(R)ExtTrigDelay_RBV" )
+	field( FLNK, "$(P)$(R)OrcaExtTrigDelay_RBV" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
 # Read ORCA External Trigger Delay
-record( ai, "$(P)$(R)ExtTrigDelay_RBV" )
+record( ai, "$(P)$(R)OrcaExtTrigDelay_RBV" )
 {
 	field( DTYP, "stream" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetExtTrigDelay $(PORT).SER" )
@@ -200,8 +193,6 @@ record( ai, "$(P)$(R)ExtTrigDelay_RBV" )
 # Disable these records from ADBase.template as the Orca doesn't support them
 record( ao, "$(P)$(R)Gain"			) { field( DISA, "1" ) }
 record( ai, "$(P)$(R)Gain_RBV"		) { field( DISA, "1" ) }
-record( longout, "$(P)$(R)MinX"		) { field( DISA, "1" ) }
-record( longout, "$(P)$(R)SizeX"	) { field( DISA, "1" ) }
 record( longout, "$(P)$(R)SizeY"	) { field( DISA, "1" ) }
 
 # Set ORCA AcquireTime (Exposure Time)
@@ -213,8 +204,8 @@ record( longout, "$(P)$(R)SizeY"	) { field( DISA, "1" ) }
 # TODO: See if there's a way to handle this in asyn
 #
 # For now, I replace the FLNK in ADBase.template's AcquireTime PV
-# and add a SerAcquireTime param to the edtPdvCamera class which
-# maps the SerAcquireTime value to ADAcquireTime
+# and add an EdtAcquireTime param to the edtPdvCamera class which
+# maps the EdtAcquireTime value to ADAcquireTime
 record( ao, "$(P)$(R)AcquireTime" )
 {
 	field( FLNK, "$(P)$(R)OrcaAcquireTime" )
@@ -248,14 +239,14 @@ record( ai, "$(P)$(R)OrcaAcquireTime_RBV" )
 	field( EGU,  "sec" )
 	field( PREC, "5" )
 	field( PINI, "YES" )
-	field( FLNK, "$(P)$(R)SerAcquireTime_RBV" )
+	field( FLNK, "$(P)$(R)EdtAcquireTime_RBV" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
 # Readback ORCA AcquireTime (Exposure Time)
-# This record updates the asyn serial driver
+# This record updates the EDT asyn serial driver
 # which maps it to ADCore's ADAcquireTime parameter
-record( ao, "$(P)$(R)SerAcquireTime_RBV" )
+record( ao, "$(P)$(R)EdtAcquireTime_RBV" )
 {
 	field( DTYP, "asynFloat64" )
 	field( OMSL, "closed_loop" )
@@ -289,8 +280,7 @@ record( mbbo, "$(P)$(R)OrcaTriggerMode" )
 	field( ONVL, "1" )	field( ONST, "External" )
 	field( TWVL, "2" )	field( TWST, "Pulse" )
 	field( FLNK, "$(P)$(R)OrcaTriggerMode_RBV" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
-	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
+	info( archiveFields,  "VAL" )
 }
 
 # Read ORCA TriggerMode
@@ -301,11 +291,10 @@ record( mbbi, "$(P)$(R)OrcaTriggerMode_RBV" )
 	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
 	field( ONVL, "1" )	field( ONST, "External" )
 	field( TWVL, "2" )	field( TWST, "Pulse" )
-	field( FLNK, "$(P)$(R)SerTriggerMode_RBV" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
-	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
+	field( FLNK, "$(P)$(R)EdtTriggerMode_RBV" )
+	info( archiveFields,  "VAL" )
 }
-record( mbbo, "$(P)$(R)SerTriggerMode_RBV" )
+record( mbbo, "$(P)$(R)EdtTriggerMode_RBV" )
 {
 	field( DTYP, "asynInt32" )
 	field( OMSL, "closed_loop" )
@@ -313,74 +302,84 @@ record( mbbo, "$(P)$(R)SerTriggerMode_RBV" )
 	field( OUT,  "@asyn($(PORT),0,1)EDT_SER_TRIGGER_MODE" )
 	field( ZRVL, "0" )	field( ZRST, "Internal" )
 	field( ONVL, "1" )	field( ONST, "External" )
+	info( archiveFields,  "VAL" )
 }
 
 # Set ORCA ROI (Vertical Double Scan Parameters)
 record( longout, "$(P)$(R)MinY" )
 {
-	field( FLNK, "$(P)$(R)VertDblScanTop" )
+	field( FLNK, "$(P)$(R)OrcaScanTop" )
 }
-record( longout, "$(P)$(R)VertDblScanTop" )
+record( calc,	"$(P)$(R)OrcaScanTop" )
 {
-#	field( OMSL, "closed_loop" )
-#	field( DOL,  "$(P)$(R)MinY NPP NMS" )
-	field( FLNK, "$(P)$(R)VertDblScanCalc" )
+	field( INPA, "$(P)$(R)MinY NPP NMS" )
+#	field( CALC, "(A/4)*4" )
+	field( CALC, "A&~3" )
+	field( LOPR, "0" )
+	field( HOPR, "1020" )
+	field( FLNK, "$(P)$(R)OrcaScanCalc" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
-record( longout, "$(P)$(R)VertDblScanBot" )
+record( longout, "$(P)$(R)OrcaScanBot" )
 {
 	field( DOL, "0" )
+	field( LOPR, "0" )
+	field( HOPR, "1020" )
+	field( HIGH, "4" )
+	field( HSV,  "MINOR" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
-record( calcout, "$(P)$(R)VertDblScanCalc" )
+record( calcout, "$(P)$(R)OrcaScanCalc" )
 {
-	field( INPA, "$(P)$(R)VertDblScanTop NPP MS" )
+	field( INPA, "$(P)$(R)OrcaScanTop NPP MS" )
 	field( INPB, "1024" )
 	field( CALC, "B-A" )
-	field( OUT,	 "$(P)$(R)VertDblScanSize PP MS" )
+	field( OUT,	 "$(P)$(R)OrcaScanSize PP MS" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
-record( longout, "$(P)$(R)VertDblScanSize" )
+record( longout, "$(P)$(R)OrcaScanSize" )
 {
 	field( DOL,  "1024" )
 	field( DTYP, "stream" )
+	field( LOPR, "4" )
+	field( HOPR, "1024" )
 	field( OUT,  "@hamaOrcaFlash4_0.proto SetVertDblScan($(P)$(R)) $(PORT).SER" )
-	field( FLNK, "$(P)$(R)VertDblScanSize_RBV" )
+	field( FLNK, "$(P)$(R)OrcaScanSize_RBV" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
 
 # Read ORCA ROI (Vertical Double Scan Parameters)
-record( longin, "$(P)$(R)VertDblScanBot_RBV" )
+record( longin, "$(P)$(R)OrcaScanBot_RBV" )
 {
 	field( VAL,  "0" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
-record( longin, "$(P)$(R)VertDblScanTop_RBV" )
+record( longin, "$(P)$(R)OrcaScanTop_RBV" )
 {
 	field( VAL, "0" )
 	field( FLNK, "$(P)$(R)EDT_MinY_RBV" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
-record( longin, "$(P)$(R)VertDblScanSize_RBV" )
+record( longin, "$(P)$(R)OrcaScanSize_RBV" )
 {
 	field( DTYP, "stream" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetVertDblScan($(P)$(R)) $(PORT).SER" )
-	field( FLNK, "$(P)$(R)VertDblScan_RBV_Calc" )
+	field( FLNK, "$(P)$(R)OrcaScan_RBV_Calc" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
-record( calcout, "$(P)$(R)VertDblScan_RBV_Calc" )
+record( calcout, "$(P)$(R)OrcaScan_RBV_Calc" )
 {
-#	field( INPA, "$(P)$(R)VertDblScanTop_RBV NPP MS" )
+#	field( INPA, "$(P)$(R)OrcaScanTop_RBV NPP MS" )
 #	field( INPB, "1024" )
 #	field( CALC, "(B-A)*2" )
-	field( INPA, "$(P)$(R)VertDblScanSize_RBV NPP MS" )
+	field( INPA, "$(P)$(R)OrcaScanSize_RBV NPP MS" )
 	field( CALC, "A*2" )
 	field( OUT,	 "$(P)$(R)EDT_SizeY_RBV PP MS" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
@@ -390,7 +389,7 @@ record( longout, "$(P)$(R)EDT_MinY_RBV" )
 {
 	field( DTYP, "asynInt32" )
 	field( OMSL, "closed_loop" )
-	field( DOL,  "$(P)$(R)VertDblScanTop_RBV NPP MS" )
+	field( DOL,  "$(P)$(R)OrcaScanTop_RBV NPP MS" )
 	field( OUT,  "@asyn($(PORT),0,1)EDT_MIN_Y" )
 #	field( SCAN, "I/O Intr" )
 }

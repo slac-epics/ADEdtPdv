@@ -191,7 +191,7 @@ SetScanMode
 GetVertDblScan
 {
 	out "?SDV";
-	in	"SDV %(\$1VertDblScanTop_RBV)u,%(\$1VertDblScanBot_RBV)u,%u";
+	in	"SDV %(\$1OrcaScanTop_RBV)u,%(\$1OrcaScanBot_RBV)u,%u";
 }
 
 # Vertical Double Scan parameters are:
@@ -200,7 +200,7 @@ GetVertDblScan
 #	Vert Size:	Should be 1024 - VertDblScanTop to readout a symmetrical region around the center
 SetVertDblScan
 {
-	out	"SDV %(\$1VertDblScanTop)u,%(\$1VertDblScanBot)u,%u";
+	out	"SDV %(\$1OrcaScanTop)u,%(\$1OrcaScanBot)u,%u";
 	in  "SDV %*u,%*u,%*u";
 }
 

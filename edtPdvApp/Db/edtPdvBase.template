@@ -2,67 +2,105 @@
 # Base record set common to all EDT PDV based cameras
 #
 
-record( stringin, "$(P)$(R)EDT_PDV_CLASS" )
+record( stringin, "$(P)$(R)EdtClass" )
 {
-   field( DTYP, "asynOctetRead" )
-   field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_PDV_CLASS" )
-   field( SCAN, "I/O Intr" )
+	field( DTYP, "asynOctetRead" )
+	field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_CLASS" )
+	field( SCAN, "I/O Intr" )
+	info( archiveFields,  "VAL" )
 }
 
-record( stringin, "$(P)$(R)EDT_PDV_DRV_VERSION" )
+record( stringin, "$(P)$(R)EdtDrvVersion" )
 {
-   field( DTYP, "asynOctetRead" )
-   field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_PDV_DRV_VERSION" )
-   field( SCAN, "I/O Intr" )
+	field( DTYP, "asynOctetRead" )
+	field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_DRV_VERSION" )
+	field( SCAN, "I/O Intr" )
+	info( archiveFields,  "VAL" )
 }
 
-record( stringin, "$(P)$(R)EDT_PDV_INFO" )
+record( stringin, "$(P)$(R)EdtInfo" )
 {
-   field( DTYP, "asynOctetRead" )
-   field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_PDV_INFO" )
-   field( SCAN, "I/O Intr" )
+	field( DTYP, "asynOctetRead" )
+	field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_INFO" )
+	field( SCAN, "I/O Intr" )
+	info( archiveFields,  "VAL" )
 }
 
-record( longout, "$(P)$(R)EDT_PDV_DEBUG_LEVEL" )
+record( longout, "$(P)$(R)EdtDebugLevel" )
 {
-   field( DTYP, "asynInt32" )
-   field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_PDV_DEBUG" )
-   field( PINI, "YES" )
-   field( DOL,	"0" )
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_DEBUG" )
+	field( PINI, "YES" )
+	field( DOL,	"0" )
+	info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
 }
 
-record( longout, "$(P)$(R)EDT_PDV_DEBUG_MSG_LEVEL" )
+record( longout, "$(P)$(R)EdtDebugMsgLevel" )
 {
-   field( DTYP, "asynInt32" )
-   field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_PDV_DEBUG_MSG" )
-   field( PINI, "YES" )
-   field( DOL,	"0" )
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_DEBUG_MSG" )
+	field( PINI, "YES" )
+	field( DOL,	"0" )
+	info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
 }
 
-record( mbbo, "$(P)$(R)EDT_PDV_TRIG_LEVEL" )
+record( longout, "$(P)$(R)EdtHSkip" )
 {
-   field( DTYP, "asynInt32" )
-   field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_PDV_TRIG_LEVEL" )
-   field( PINI, "YES" )
-   field( ZRST, "Edge" )
-   field( ZRVL, "0" )
-   field( ONST, "Level" )
-   field( ONVL, "1" )
-   field( TWST, "Sync" )
-   field( TWVL, "2" )
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_HSKIP" )
+	info( archiveFields,  "VAL" )
 }
 
-record( mbbi, "$(P)$(R)EDT_PDV_TRIG_LEVEL_RBV" )
+record( longout, "$(P)$(R)EdtHSize" )
 {
-   field( DTYP, "asynInt32" )
-   field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_PDV_TRIG_LEVEL" )
-   field( PINI, "YES" )
-   field( ZRST, "Edge" )
-   field( ZRVL, "0" )
-   field( ONST, "Level" )
-   field( ONVL, "1" )
-   field( TWST, "Sync" )
-   field( TWVL, "2" )
-   field( SCAN, "I/O Intr" )
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_HSIZE" )
+	info( archiveFields,  "VAL" )
 }
+
+record( longout, "$(P)$(R)EdtVSkip" )
+{
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_VSKIP" )
+	info( archiveFields,  "VAL" )
+}
+
+record( longout, "$(P)$(R)EdtVSize" )
+{
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_VSIZE" )
+	info( archiveFields,  "VAL" )
+}
+
+record( mbbo, "$(P)$(R)EdtTrigLevel" )
+{
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_TRIG_LEVEL" )
+	field( PINI, "YES" )
+	field( ZRST, "Edge" )
+	field( ZRVL, "0" )
+	field( ONST, "Level" )
+	field( ONVL, "1" )
+	field( TWST, "Sync" )
+	field( TWVL, "2" )
+	info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
+}
+
+#record( mbbi, "$(P)$(R)EdtTrigLevel_RBV" )
+#{
+#	field( DTYP, "asynInt32" )
+#	field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_TRIG_LEVEL" )
+#	field( PINI, "YES" )
+#	field( ZRST, "Edge" )
+#	field( ZRVL, "0" )
+#	field( ONST, "Level" )
+#	field( ONVL, "1" )
+#	field( TWST, "Sync" )
+#	field( TWVL, "2" )
+#	field( SCAN, "I/O Intr" )
+#	info( archiveFields,  "VAL" )
+#}
 
