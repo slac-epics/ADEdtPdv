@@ -1306,14 +1306,42 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 	memcpy( pNDArray->pData, pRawNDArray, m_imageSize * bytesPerPixel );
 
 	pNDArray->ndims				= ndims;
+	// TODO: These should use the RBV values!
 	pNDArray->dims[0].size		= GetSizeX();
 	pNDArray->dims[0].offset	= GetMinX();
 	pNDArray->dims[0].binning	= GetBinX();
 	pNDArray->dims[1].size		= GetSizeY();
 	pNDArray->dims[1].offset	= GetMinY();
 	pNDArray->dims[1].binning	= GetBinY();
-//	updateTimeStamp(&pNDArray->epicsTS);
-//	pArray->uniqueId = PULSEID(pNDArray->epicsTS);
+
+	// This call to asynPortDriver::updateTimeStamp causes
+	// asyn to call the registered timeStampSource function.
+	// defaultTimeStampSource just calls epicsTimeGetCurrent.
+	// Use asyn's registerTimeStampSource to register a new
+	// timeStampSource function from code, or Kukhee's
+	// registerUserTimeStampSource function from areaDetectorSupp
+	// to register one from iocsh using the function's name.
+	updateTimeStamp(&pNDArray->epicsTS);
+	pNDArray->uniqueId = PULSEID(pNDArray->epicsTS);
+	//
+	// asynPortDriver also allows us to provide custom routines:
+	//	getTimeStamp(epicsTimeStamp * pTS)
+	//	setTimeStamp(const epicsTimeStamp * pTS)
+	// Not sure if these will be needed.
+	//
+	// NDArray has two timestamps.
+	//	double			NDArray::timeStamp	is seconds since 1970
+	//	epicsTimeStamp	NDArray::epicsTS	is epics sec and ns relative to 1990
+	//
+	// asyn PV's normally get their timestamp from
+	//	epicsTimeStamp	asynUser::timestamp
+	//
+	// In AD plugins such as StdArray, pasynUser->timestamp is set from pNDArray->epicsTS
+	// before calling the interrupt callback, which appears to
+	// set pwf->time = pasynUser->timestamp in devAsynXXXArray.h
+	//
+	// NDArray::timeStamp is used to set double param NDTimeStamp
+
 	pImage->SetNDArrayPtr( pNDArray );
 	unlock();
 
@@ -1929,21 +1957,13 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 
     if ( pasynUser->reason == NDArrayCounter	)	setIntegerParam( NDArrayCounter,value );
     if ( pasynUser->reason == EdtTrigLevel		)	setIntegerParam( EdtTrigLevel, value );
-#if 0
-    if ( pasynUser->reason == ADTriggerMode		)	setIntegerParam( ADTriggerMode,	value );
-    if ( pasynUser->reason == SerTriggerMode	)	setIntegerParam( ADTriggerMode,	value );
-    if ( pasynUser->reason == SerMinX			)	setIntegerParam( ADMinX,		value );
-    if ( pasynUser->reason == SerMinY			)	setIntegerParam( ADMinY,		value );
-    if ( pasynUser->reason == SerSizeX			)	setIntegerParam( ADSizeX,		value );
-    if ( pasynUser->reason == SerSizeY			)	setIntegerParam( ADSizeY,		value );
-#else
+
     if ( pasynUser->reason == ADTriggerMode		)	SetTriggerMode(	value );
     if ( pasynUser->reason == SerTriggerMode	)	SetTriggerMode(	value );
     if ( pasynUser->reason == SerMinX			)	SetMinX(	value );
     if ( pasynUser->reason == SerMinY			)	SetMinY(	value );
     if ( pasynUser->reason == SerSizeX			)	SetSizeX(	value );
     if ( pasynUser->reason == SerSizeY			)	SetSizeY(	value );
-#endif
  
     callParamCallbacks( 0, 0 );
 
