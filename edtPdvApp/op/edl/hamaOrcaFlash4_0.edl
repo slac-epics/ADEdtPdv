@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1923
-y 1395
+x 24
+y 40
 w 700
 h 506
 font "helvetica-medium-r-8.0"
@@ -162,7 +162,7 @@ major 4
 minor 1
 release 1
 x 32
-y 185
+y 184
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -180,9 +180,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 416
+x 400
 y 184
-w 155
+w 172
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -200,7 +200,7 @@ major 4
 minor 1
 release 1
 x 32
-y 214
+y 212
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -219,7 +219,7 @@ major 4
 minor 1
 release 1
 x 32
-y 243
+y 240
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -238,7 +238,7 @@ major 4
 minor 1
 release 1
 x 32
-y 271
+y 268
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -257,7 +257,7 @@ major 4
 minor 1
 release 1
 x 32
-y 300
+y 296
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -276,7 +276,7 @@ major 4
 minor 1
 release 1
 x 32
-y 328
+y 324
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -459,7 +459,7 @@ major 4
 minor 1
 release 1
 x 32
-y 356
+y 352
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -536,9 +536,9 @@ beginObjectProperties
 major 4
 minor 4
 release 0
-x 180
+x 160
 y 440
-w 156
+w 136
 h 20
 fgColor index 14
 bgColor index 3
@@ -571,7 +571,7 @@ minor 4
 release 0
 x 20
 y 440
-w 152
+w 132
 h 20
 fgColor index 14
 bgColor index 3
@@ -603,7 +603,7 @@ major 4
 minor 0
 release 0
 x 480
-y 240
+y 292
 w 92
 h 20
 fgColor index 25
@@ -623,7 +623,7 @@ major 4
 minor 1
 release 1
 x 340
-y 240
+y 292
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -642,7 +642,7 @@ major 4
 minor 7
 release 0
 x 580
-y 240
+y 292
 w 88
 h 20
 controlPv "$(P)$(R)OrcaExtTrigMode_RBV"
@@ -667,7 +667,7 @@ major 4
 minor 7
 release 0
 x 480
-y 296
+y 348
 w 92
 h 20
 controlPv "$(P)$(R)OrcaScanTop"
@@ -695,7 +695,7 @@ major 4
 minor 1
 release 1
 x 340
-y 296
+y 348
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -714,7 +714,7 @@ major 4
 minor 7
 release 0
 x 580
-y 296
+y 348
 w 88
 h 20
 controlPv "$(P)$(R)OrcaScanTop_RBV"
@@ -739,7 +739,7 @@ major 4
 minor 7
 release 0
 x 580
-y 328
+y 380
 w 88
 h 20
 controlPv "$(P)$(R)OrcaScanBot_RBV"
@@ -764,7 +764,7 @@ major 4
 minor 7
 release 0
 x 480
-y 328
+y 380
 w 92
 h 20
 controlPv "$(P)$(R)OrcaScanBot"
@@ -792,7 +792,7 @@ major 4
 minor 1
 release 1
 x 340
-y 328
+y 380
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -811,7 +811,7 @@ major 4
 minor 7
 release 0
 x 580
-y 356
+y 408
 w 88
 h 20
 controlPv "$(P)$(R)OrcaScanSize_RBV"
@@ -836,7 +836,7 @@ major 4
 minor 7
 release 0
 x 480
-y 356
+y 408
 w 92
 h 20
 controlPv "$(P)$(R)OrcaScanSize"
@@ -864,7 +864,7 @@ major 4
 minor 1
 release 1
 x 340
-y 356
+y 408
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -909,7 +909,7 @@ major 4
 minor 7
 release 0
 x 580
-y 216
+y 268
 w 88
 h 20
 controlPv "$(P)$(R)OrcaExtTrigPolarity_RBV"
@@ -934,7 +934,7 @@ major 4
 minor 0
 release 0
 x 480
-y 216
+y 268
 w 92
 h 20
 fgColor index 25
@@ -954,7 +954,7 @@ major 4
 minor 1
 release 1
 x 340
-y 216
+y 268
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -973,7 +973,7 @@ major 4
 minor 7
 release 0
 x 580
-y 268
+y 320
 w 88
 h 20
 controlPv "$(P)$(R)OrcaExtTrigDelay_RBV"
@@ -999,7 +999,7 @@ major 4
 minor 7
 release 0
 x 480
-y 268
+y 320
 w 92
 h 18
 controlPv "$(P)$(R)OrcaExtTrigDelay"
@@ -1027,7 +1027,7 @@ major 4
 minor 1
 release 1
 x 340
-y 268
+y 320
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -1046,7 +1046,7 @@ major 4
 minor 7
 release 0
 x 580
-y 384
+y 436
 w 88
 h 20
 controlPv "$(P)$(R)OrcaScanMode_RBV"
@@ -1071,7 +1071,7 @@ major 4
 minor 0
 release 0
 x 480
-y 384
+y 436
 w 92
 h 20
 fgColor index 25
@@ -1091,7 +1091,7 @@ major 4
 minor 1
 release 1
 x 340
-y 384
+y 436
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -1100,6 +1100,140 @@ fgColor index 14
 bgColor index 3
 value {
   "Scanning Mode"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 160
+y 380
+w 160
+h 20
+controlPv "$(P)$(R)OrcaLineDelay"
+format "exponential"
+font "helvetica-medium-r-12.0"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 25
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 32
+y 380
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Rolling Line Delay"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 580
+y 212
+w 88
+h 20
+controlPv "$(P)$(R)OrcaMinExposure"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 400
+y 212
+w 172
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Min Exp for scan size"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 580
+y 240
+w 88
+h 20
+controlPv "$(P)$(R)OrcaMaxRate"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 400
+y 240
+w 172
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Max rate for scan size & exp"
 }
 endObjectProperties
 

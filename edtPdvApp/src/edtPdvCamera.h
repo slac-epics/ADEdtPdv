@@ -17,7 +17,8 @@
 #include <dbScan.h>
 #include "ADDriver.h"
 #include "edtinc.h"
-//	#include "HiResTime.h"
+#include "HiResTime.h"
+#include "ContextTimerMax.h"
 //	#include "timesync.h"
 
 //class	dataObject;
@@ -433,6 +434,10 @@ private:	//	Private member variables
 	IOSCANPVT				m_ioscan;
 	asynEdtPdvSerial	*	m_pAsynSerial;
 	//	ttyController	*	m_ttyPort;
+
+	ContextTimerMax			m_ReAcquireTimer;
+	ContextTimerMax			m_ReArmTimer;
+	ContextTimerMax			m_ProcessImageTimer;
 
 private:	//	Private class variables
 	static	std::map<std::string, edtPdvCamera *>	ms_cameraMap;

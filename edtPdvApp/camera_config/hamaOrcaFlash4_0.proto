@@ -172,6 +172,24 @@ SetScanMode
 	in  "SMD %*{N|S|W}";
 }
 
+# Get Scanning Speed
+#	0	= Std speed
+#	1	= Slow speed
+GetScanSpeed
+{
+	out "?SMD";	
+	in	 "SMD %{H|S}";
+}
+
+# Set Scanning Speed
+#	0	= Std speed
+#	1	= Slow speed
+SetScanSpeed
+{
+	out "SMD %{H|S}";
+	in  "SMD %*{H|S}";
+}
+
 # ROI Control
 # ROI is implemented via Vertical Double Scan, or Sub-Array scanning mode, SMD W
 # Vertical Double Scan parameters are:
@@ -201,7 +219,7 @@ GetVertDblScan
 SetVertDblScan
 {
 	out	"SDV %(\$1OrcaScanTop)u,%(\$1OrcaScanBot)u,%u";
-	in  "SDV %*u,%*u,%*u";
+	in	"SDV %(\$1OrcaScanTop_RBV)u,%(\$1OrcaScanBot_RBV)u,%(\$1OrcaScanSize_RBV)u";
 }
 
 # SPX {1|2|4} Set binning factor
