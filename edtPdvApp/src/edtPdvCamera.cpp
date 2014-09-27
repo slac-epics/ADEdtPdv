@@ -263,7 +263,7 @@ edtPdvCamera::edtPdvCamera(
 ///	edtPdvCamera Destructor
 edtPdvCamera::~edtPdvCamera( )
 {
-	DisconnectCamera();
+	disconnect( this->pasynUserSelf );
 	epicsMutexDestroy(	m_reconfigLock );
 //	epicsMutexDestroy(	m_waitLock );
 }
@@ -306,13 +306,10 @@ int edtPdvCamera::CreateCamera( const char * cameraName, int unit, int channel, 
         cout << "Creating edtPdvCamera: " << string(cameraName) << endl;
     edtPdvCamera	* pCamera = new edtPdvCamera( cameraName, unit, channel, modelName );
     assert( pCamera != NULL );
+
     int	status	= pCamera->ConnectCamera( );
 	if ( status != 0 )
-    {
         errlogPrintf( "edtPdvConfig failed for camera %s!\n", cameraName );
-		delete pCamera;
-        return -1;
-    }
 
 	CameraAdd( pCamera );
     return 0;
@@ -419,12 +416,13 @@ asynStatus edtPdvCamera::ConnectCamera( )
     asynStatus				status			= asynSuccess;
 
 	if ( EDT_PDV_DEBUG >= 1 )
-		printf( "%s: %s ...\n", functionName, m_CameraName.c_str() );
+		printf( "%s: %s in thread %s ...\n", functionName, m_CameraName.c_str(), epicsThreadGetNameSelf() );
 
 	// Initialize (or re-initialize) camera
+	m_fReconfig	= true;
 	Reconfigure( );
 
-	if ( m_pPdvDev == NULL )
+	if ( m_pPdvDev == NULL || m_fReconfig )
 	{
 		printf( "%s: %s failed to initialize PdvDev camera!\n", functionName, m_CameraName.c_str() );
         return asynError;
@@ -508,34 +506,6 @@ asynStatus edtPdvCamera::DisconnectCamera( )
 		m_pPdvDev	= NULL;
 	}
  
-#if 0
-    /* If we have allocated frame buffers, free them. */
-    /* Must first free any image buffers they point to */
-    for (int i = 0; i < maxPvAPIFrames_; i++) {
-        pFrame = &(this->PvFrames[i]);
-        if (! pFrame ) continue;
-
-        pImage = (NDArray *)pFrame->Context[1];
-        if (pImage) pImage->release();
-        pFrame->Context[1] = 0;
-    }
-#endif
-
-	// Signal asynManager that we are disconnected
-	setIntegerParam( ADStatus, ADStatusDisconnected );
-    status = pasynManager->exceptionDisconnect( this->pasynUserSelf );
-    if ( status != asynSuccess )
-	{
-        asynPrint(	this->pasynUserSelf, ASYN_TRACE_ERROR,
-					"%s %s: error calling pasynManager->exceptionDisconnect, error=%s\n",
-					driverName, functionName, this->pasynUserSelf->errorMessage );
-        // return asynError;
-    }
-    asynPrint(	this->pasynUserSelf, ASYN_TRACE_FLOW, 
-				"asynPrint "
-				"%s %s: Camera disconnected %s\n", 
-				driverName, functionName, m_CameraName.c_str() );
-    callParamCallbacks( 0, 0 );
     return static_cast<asynStatus>( status );
     //	return asynSuccess;
 }
@@ -546,14 +516,27 @@ asynStatus edtPdvCamera::connect( asynUser *	pasynUser )
 {
     static const char	*	functionName	= "edtPdvCamera::connect";
 
+	if ( EDT_PDV_DEBUG >= 1 )
+		printf( "%s: %s in thread %s ...\n", functionName, m_CameraName.c_str(), epicsThreadGetNameSelf() );
+
 	// The guts are in ConnectCamera(), which doesn't need a pasynUser ptr
-	int	status	= ConnectCamera();
+	asynStatus	status	= ConnectCamera();
     if ( status != asynSuccess )
 	{
-        asynPrint(	pasynUser, ASYN_TRACE_ERROR,
-					"%s: error calling pasynManager->exceptionConnect, error=%s\n",
-					functionName, pasynUser->errorMessage );
-        return asynError;
+		int			connected	= 0;
+		pasynManager->isConnected( pasynUser, &connected );
+		if ( connected )
+		{
+			// Signal asynManager that we are disconnected
+			setIntegerParam( ADStatus, ADStatusDisconnected );
+			if ( pasynManager->exceptionDisconnect( pasynUser ) != asynSuccess )
+			{
+				asynPrint(	pasynUser, ASYN_TRACE_ERROR,
+							"%s %s: error calling pasynManager->exceptionDisconnect, error=%s\n",
+							driverName, functionName, pasynUser->errorMessage );
+			}
+		}
+    	return status;
     }
 
 	// Signal asynManager that we are connected
@@ -588,10 +571,22 @@ asynStatus edtPdvCamera::disconnect( asynUser *	pasynUser )
         asynPrint(	pasynUser, ASYN_TRACE_ERROR,
 					"%s: error calling DisconnectCamera, error=%s\n",
 					functionName, pasynUser->errorMessage );
-        return asynError;
     }
 
-#if 0	// Already done
+	// Set ADStatus to ADStatusDisconnected
+	setIntegerParam( ADStatus, ADStatusDisconnected );
+
+    asynPrint(	pasynUser, ASYN_TRACE_FLOW, 
+				"asynPrint "
+				"%s %s: Camera disconnected %s\n", 
+				driverName, functionName, m_CameraName.c_str() );
+	if ( EDT_PDV_DEBUG >= 1 )
+		printf(	"%s %s: Camera %s 0 disconnected!\n", 
+				driverName, functionName, m_CameraName.c_str() );
+
+	// Process callbacks to update status
+    callParamCallbacks( 0, 0 );
+
 	// Signal asynManager that we are disconnected
     status = pasynManager->exceptionDisconnect( pasynUser );
     if ( status != asynSuccess )
@@ -599,16 +594,8 @@ asynStatus edtPdvCamera::disconnect( asynUser *	pasynUser )
         asynPrint(	pasynUser, ASYN_TRACE_ERROR,
 					"%s %s: error calling pasynManager->exceptionDisconnect, error=%s\n",
 					driverName, functionName, pasynUser->errorMessage );
-        return asynError;
     }
-#endif
 
-	if ( EDT_PDV_DEBUG >= 1 )
-		printf(	"%s %s: Camera %s 0 disconnected!\n", 
-				driverName, functionName, m_CameraName.c_str() );
-    asynPrint(	pasynUser, ASYN_TRACE_FLOW, 
-				"%s %s: Camera %s 0 disconnected!\n", 
-				driverName, functionName, m_CameraName.c_str() );
     return asynSuccess;
 }
 
@@ -647,6 +634,11 @@ int edtPdvCamera::Reconfigure( )
 		{
 			// Reconfigure failed, request another
 			m_fReconfig	= true;
+		}
+		else
+		{
+			setIntegerParam( ADStatus, ADStatusIdle );
+			callParamCallbacks( 0, 0 );
 		}
 	}
 	epicsMutexUnlock(	m_reconfigLock );
@@ -779,10 +771,18 @@ int edtPdvCamera::_Reconfigure( )
     m_EdtHSize		= m_width;
     m_EdtVSkip		= 0;
     m_EdtVSize		= m_height;
-    m_SizeX			= GetSizeX();
-    m_SizeY			= GetSizeY();
-    m_BinX			= GetBinX();
-    m_BinY			= GetBinY();
+
+	// Update AreaDetector parameters
+	// For many cameras, this will trigger serial commands
+	// to update camera or EDT ROI settings
+	setIntegerParam( ADBinX,		m_BinX	);
+	setIntegerParam( ADBinY,		m_BinY	);
+	setIntegerParam( ADMinX,		m_MinX	);
+	setIntegerParam( ADMinY,		m_MinY	);
+	setIntegerParam( ADSizeX,		m_SizeX );
+	setIntegerParam( ADSizeY,		m_SizeY );
+	setIntegerParam( NDArraySizeX,	m_SizeX	);
+	setIntegerParam( NDArraySizeY,	m_SizeY	);
 
 	// Diagnostics
 	if ( EDT_PDV_DEBUG >= 1 )
@@ -1542,9 +1542,11 @@ int	edtPdvCamera::SetSizeX(	size_t	value	)
         	    		functionName, value, m_width );
 		return asynError;
 	}
-	m_SizeX = value;
-	setIntegerParam( NDArraySizeX,	m_SizeX	);
-    setIntegerParam( ADSizeX,		value );
+	if ( m_SizeX != value )
+	{
+		m_SizeX		= value;
+		m_fReconfig	= true;
+	}
 	return asynSuccess;
 }
 
@@ -1563,9 +1565,11 @@ int	edtPdvCamera::SetSizeY(	size_t	value	)
         	    		functionName, value, m_height );
 		return asynError;
 	}
-	m_SizeY = value;
-	setIntegerParam( NDArraySizeY,	m_SizeY	);
-    setIntegerParam( ADSizeY,		m_SizeY );
+	if ( m_SizeY != value )
+	{
+		m_SizeY		= value;
+		m_fReconfig	= true;
+	}
 	return asynSuccess;
 }
 
@@ -1578,10 +1582,9 @@ int	edtPdvCamera::SetMinX(	size_t	value	)
         	    		functionName, value, (m_width - 1) );
 		return asynError;
 	}
-	if ( static_cast<size_t>(m_MinX) != value )
+	if ( m_MinX != value )
 	{
 		m_MinX	= value;
-		setIntegerParam( ADMinX,	m_MinX	);
 		m_fReconfig	= true;
 	}
 	return asynSuccess;
@@ -1596,10 +1599,9 @@ int	edtPdvCamera::SetMinY(	size_t	value	)
         	    		functionName, value, (m_height - 1) );
 		return asynError;
 	}
-	if ( static_cast<size_t>(m_MinY) != value )
+	if ( m_MinY != value )
 	{
-		m_MinY =  value;
-		setIntegerParam( ADMinY,	m_MinY	);
+		m_MinY		=  value;
 		m_fReconfig	= true;
 	}
 	return asynSuccess;
@@ -1614,8 +1616,11 @@ int	edtPdvCamera::SetBinX(	unsigned int	value	)
         	    		functionName, value );
 		return asynError;
 	}
-	m_BinX = value;
-	setIntegerParam( ADBinX,	m_BinX	);
+	if ( m_BinX != value )
+	{
+		m_BinX		= value;
+		m_fReconfig	= true;
+	}
 	return asynSuccess;
 }
 
@@ -1628,8 +1633,11 @@ int	edtPdvCamera::SetBinY(	unsigned int	value	)
         	    		functionName, value );
 		return asynError;
 	}
-	m_BinY = value;
-	setIntegerParam( ADBinY,	m_BinY	);
+	if ( m_BinY != value )
+	{
+		m_BinY		= value;
+		m_fReconfig	= true;
+	}
 	return asynSuccess;
 }
 
