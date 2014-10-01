@@ -828,9 +828,9 @@ int edtPdvCamera::UpdateADConfigParams( )
 	setIntegerParam( NDArrayCallbacks,	1	);
 
 	// TODO: Move these to SetSizeX(), ...
-	setIntegerParam( NDArraySizeX,		GetSizeX()	);	// TODO: Fix for ROI
-	setIntegerParam( NDArraySizeY,		GetSizeY()	);	// TODO: Fix for ROI
-	m_imageSize		= GetSizeX() * GetSizeY();
+	setIntegerParam( NDArraySizeX,		m_width		);	// TODO: Fix for ROI
+	setIntegerParam( NDArraySizeY,		m_height	);	// TODO: Fix for ROI
+	m_imageSize		= m_width * m_height;
 	setIntegerParam( NDArraySize,		m_imageSize );
 
 	//	TODO: Do we need these?
