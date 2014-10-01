@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 390
-y 574
+x 1973
+y 760
 w 700
 h 595
 font "helvetica-medium-r-12.0"
@@ -145,36 +145,6 @@ beginObjectProperties
 major 4
 minor 4
 release 0
-x 304
-y 8
-w 88
-h 24
-fgColor index 14
-bgColor index 3
-topShadowColor index 1
-botShadowColor index 13
-font "helvetica-medium-r-12.0"
-buttonLabel "Live Image"
-numPvs 4
-numDsps 1
-displayFileName {
-  0 "edtScreens/liveImage.edl"
-}
-setPosition {
-  0 "parentWindow"
-}
-symbols {
-  0 "CAM=$(CAM),IOC=$(IOC)"
-}
-icon
-endObjectProperties
-
-# (Related Display)
-object relatedDisplayClass
-beginObjectProperties
-major 4
-minor 4
-release 0
 x 584
 y 8
 w 32
@@ -217,31 +187,6 @@ useHexPrefix
 newPos
 objType "monitors"
 noExecuteClipMask
-endObjectProperties
-
-# (Shell Command)
-object shellCmdClass
-beginObjectProperties
-major 4
-minor 3
-release 0
-x 488
-y 8
-w 92
-h 24
-fgColor index 14
-bgColor index 3
-topShadowColor index 1
-botShadowColor index 14
-font "helvetica-medium-r-12.0"
-buttonLabel "Python Viewer"
-numCmds 1
-commandLabel {
-  0 "Color Viewer"
-}
-command {
-  0 "gigeScreens/gigeViewer.sh --camerapv $(CAM) --instr $(HUTCH) --pvlist $(PVLIST) &"
-}
 endObjectProperties
 
 # (Related Display)
@@ -341,31 +286,6 @@ bgColor index 1
 useDisplayBg
 value {
   "PCDS Plugins"
-}
-endObjectProperties
-
-# (Shell Command)
-object shellCmdClass
-beginObjectProperties
-major 4
-minor 3
-release 0
-x 396
-y 8
-w 88
-h 24
-fgColor index 14
-bgColor index 3
-topShadowColor index 1
-botShadowColor index 14
-font "helvetica-medium-r-12.0"
-buttonLabel "MPEG Stream"
-numCmds 1
-commandLabel {
-  0 "View MPEG stream in browser"
-}
-command {
-  0 "firefox --no-remote `caget -t -S $(CAM):MJPG1:MJPG_URL_RBV`"
 }
 endObjectProperties
 
@@ -1689,32 +1609,6 @@ propagateMacros {
 icon
 endObjectProperties
 
-# (Related Display)
-object relatedDisplayClass
-beginObjectProperties
-major 4
-minor 4
-release 0
-x 620
-y 8
-w 36
-h 24
-fgColor index 14
-bgColor index 3
-topShadowColor index 0
-botShadowColor index 14
-font "helvetica-medium-r-12.0"
-buttonLabel "EVR"
-numPvs 4
-numDsps 1
-displayFileName {
-  0 "evrScreens/evrPmc230.edl"
-}
-symbols {
-  0 "EVR=$(EVR)"
-}
-endObjectProperties
-
 # (Static Text)
 object activeXTextClass
 beginObjectProperties
@@ -1920,36 +1814,6 @@ endGroup
 visPv "$(P)$(R)Gain_RBV.DISA"
 visMin "0"
 visMax "1"
-endObjectProperties
-
-# (Related Display)
-object relatedDisplayClass
-beginObjectProperties
-major 4
-minor 4
-release 0
-x 212
-y 8
-w 88
-h 24
-fgColor index 14
-bgColor index 3
-topShadowColor index 1
-botShadowColor index 13
-font "helvetica-medium-r-12.0"
-buttonLabel "Full Image"
-numPvs 4
-numDsps 1
-displayFileName {
-  0 "edtScreens/fullImage.edl"
-}
-setPosition {
-  0 "parentWindow"
-}
-symbols {
-  0 "CAM=$(CAM),IOC=$(IOC)"
-}
-icon
 endObjectProperties
 
 # (Static Text)
