@@ -411,6 +411,7 @@ record( ao, "$(P)$(R)OrcaLineDelay" )
 	field( PREC, "5" )
 	field( EGU,  "sec" )
 	field( PINI, "YES" )
+	info( autosaveFields, "PREC" )
 }
 record( calcout, "$(P)$(R)OrcaMinExposure" )
 {
@@ -419,8 +420,8 @@ record( calcout, "$(P)$(R)OrcaMinExposure" )
 	field( CALC, "(A+1)*B" )
 	field( PREC, "2" )
 	field( EGU,  "sec" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
-	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
 record( calcout, "$(P)$(R)OrcaMaxRate" )
 {
@@ -430,6 +431,6 @@ record( calcout, "$(P)$(R)OrcaMaxRate" )
 	field( CALC, "1/(C+(A+10)*B)" )
 	field( PREC, "2" )
 	field( EGU,  "Hz" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
-	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
