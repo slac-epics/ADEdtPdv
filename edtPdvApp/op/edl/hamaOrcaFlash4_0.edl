@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 24
-y 40
+x 2
+y 26
 w 700
 h 506
 font "helvetica-medium-r-8.0"
@@ -62,15 +62,14 @@ minor 1
 release 1
 x 5
 y 55
-w 73
-h 14
+w 72
+h 20
 font "helvetica-medium-r-12.0"
 fgColor index 14
 bgColor index 5
 value {
-  "  Messages  "
+  "Messages"
 }
-autoSize
 border
 endObjectProperties
 
@@ -83,14 +82,13 @@ release 1
 x 5
 y 130
 w 68
-h 14
+h 20
 font "helvetica-medium-r-12.0"
 fgColor index 14
 bgColor index 5
 value {
   "  Attributes  "
 }
-autoSize
 border
 endObjectProperties
 
@@ -100,10 +98,10 @@ beginObjectProperties
 major 4
 minor 4
 release 0
-x 20
+x 32
 y 468
-w 110
-h 25
+w 120
+h 24
 fgColor index 14
 bgColor index 3
 topShadowColor index 1
@@ -496,7 +494,7 @@ beginObjectProperties
 major 4
 minor 4
 release 0
-x 152
+x 160
 y 468
 w 140
 h 24
@@ -538,8 +536,8 @@ minor 4
 release 0
 x 160
 y 440
-w 136
-h 20
+w 140
+h 24
 fgColor index 14
 bgColor index 3
 topShadowColor index 0
@@ -569,10 +567,10 @@ beginObjectProperties
 major 4
 minor 4
 release 0
-x 20
+x 32
 y 440
-w 132
-h 20
+w 120
+h 24
 fgColor index 14
 bgColor index 3
 topShadowColor index 0
@@ -1158,6 +1156,7 @@ y 212
 w 88
 h 20
 controlPv "$(P)$(R)OrcaMinExposure"
+format "exponential"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
