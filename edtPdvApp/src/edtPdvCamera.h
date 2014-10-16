@@ -2,9 +2,6 @@
 #define	EDT_PDV_CAMERA_H
 /** ADDriver for cameras using EDT framegrabbers via EDT's PDV software library **/
 
-/*	Macro declarations */
-#define CAMERA_THREAD_PRIORITY	(epicsThreadPriorityMedium)
-#define CAMERA_THREAD_STACK		(0x20000)
 
 
 #ifdef __cplusplus
@@ -19,7 +16,7 @@
 #include "edtinc.h"
 #include "HiResTime.h"
 #include "ContextTimerMax.h"
-//	#include "timesync.h"
+#include "syncDataAcq.h"
 
 //class	dataObject;
 class	edtImage;
@@ -61,6 +58,16 @@ public:		//	Public member functions
 
 	/// Close the EDT PDV camera connections
     asynStatus DisconnectCamera( );
+
+    asynUser	* GetAsynUser()
+	{
+		return pasynUserSelf;	// TODO: Is this safe?
+	}
+
+    int	GetAcquireCount()
+	{
+		return m_acquireCount;
+	}
 
     /// These methods are overwritten from asynPortDriver
     virtual asynStatus connect(		asynUser	* pasynUser	);
@@ -114,9 +121,16 @@ public:		//	Public member functions
 		return m_LibVersion;
 	}
 
+#define	USING_SYNC_DATA_ACQ	1
 	bool	IsAcquiring()
 	{
+#ifdef	USING_SYNC_DATA_ACQ
+		if ( m_pSyncDataAcquirer == NULL )
+			return false;
+		return m_pSyncDataAcquirer->IsAcquiring();
+#else
 		return m_fAcquiring;
+#endif	//	USING_SYNC_DATA_ACQ
 	}
 
 	bool	InAcquireMode()
@@ -225,30 +239,6 @@ public:		//	Public member functions
 		return m_width * m_height;
 	}
 
-#undef	USE_EDT_ROI
-#ifdef	USE_EDT_ROI
-	///	Enable/disable ROI
-	void			SetEnableROI( bool	fEnableROI );
-	int SetHWROI(int, int, int, int);
-	int SetHWROIinit(int, int, int, int);
-	int HWROI_X(void)   { return m_HWROI_X; }
-	int HWROI_XNP(void) { return m_HWROI_XNP; }
-	int HWROI_Y(void)   { return m_HWROI_Y; }
-	int HWROI_YNP(void) { return m_HWROI_YNP; }
-#endif	//	USE_EDT_ROI
-
-	/// Get event number to use for timestamping camera images
-    int				GetTimeStampEvent( ) const
-	{
-		return m_timeStampEvent;
-	}
-
-	/// Set event number to use for timestamping camera images
-    void			SetTimeStampEvent( int timeStampEvent )
-	{
-		m_timeStampEvent	= timeStampEvent;
-	}
-
 	/// Get last fiducial timestamp id
     int				GetFiducial( ) const
 	{
@@ -275,9 +265,17 @@ public:		//	Public member functions
 	///	Acquire next image from the camera
 	int						AcquireData(	edtImage	*	pImage	);
 
+#ifndef	USING_SYNC_DATA_ACQ
 	///	Acquire images from camera
 	void					acquireLoop(	);
+#endif	// USING_SYNC_DATA_ACQ
 
+	///	Returns true if device needs reconfiguring
+	bool					NeedsReconfigure(	)
+	{
+		return m_fReconfig;
+	}
+	
 	///	Reconfigure camera (reread config file and re-initialize connection)
 	int						Reconfigure(	);
 
@@ -290,10 +288,15 @@ public:		//	Public member functions
 											int					pulseID		);
 
 	int						TimeStampImage(	edtImage		*	pImage,
-											int					eventNumber,
 											epicsTimeStamp	*	pDest,
 											int				*	pPulseNumRet	);
 
+	unsigned int GetTraceLevel()
+	{
+		return pasynTrace->getTraceMask( this->pasynUserSelf );
+	}
+
+	int		traceVPrint( const char	*	pFormat, va_list pvar );
 
 public:		//	Public class functions
 
@@ -320,15 +323,13 @@ private:	//	Private member functions
 private:	//	Private class functions
 	static	void			CameraAdd(		edtPdvCamera * pCamera );
 	static	void			CameraRemove(	edtPdvCamera * pCamera );
-	static	int				ThreadStart(	edtPdvCamera * pCamera );
 
 public:		//	Public member variables	(Make these private!)
 
 protected:	//	Protected member variables
 	bool			m_fAcquireMode;		// Set true to start acquiring images, false to halt
-	bool			m_fAcquiring;		// True while acquiring images, false when idle
 	bool			m_fExitApp;			// Set true to shutdown ioc
-	bool			m_fReconfig;		// Are we currently reconfiguring the ROI?
+	bool			m_fReconfig;		// True when we need to reconfigure the ROI or other camera parameters
 	int				m_NumMultiBuf;		// Number of pdv multi buffers configured
 
 private:	//	Private member variables
@@ -336,6 +337,8 @@ private:	//	Private member variables
 
 	unsigned int	m_unit;			// index of EDT DV C-LINK PMC card
 	unsigned int	m_channel;		// channel on  EDT DV C-LINK PMC card
+
+	epicsTime		m_priorTimeStamp;	// Last timestamp for this event number
 
 	std::string		m_CameraClass;	// Manufacturer of camera
 	std::string		m_CameraInfo;	// camera info string
@@ -378,7 +381,6 @@ private:	//	Private member variables
 	// Gain value for camera
 	double			m_Gain;
 
-	unsigned int	m_timeStampEvent;	// Event number to use for timestamping images
 	int				m_frameCounts;		// debug information to show trigger frequency
 	int				m_acquireCount;		// How many images to acquire
 	unsigned int	m_fiducial;			// Fiducial ID from last timestamped image
@@ -386,27 +388,22 @@ private:	//	Private member variables
 	epicsMutexId	m_reconfigLock;		// Protect against more than one thread trying to reconfigure the device
 //	epicsMutexId	m_resetLock;		// From edt_unix HW ROI support
 //	epicsMutexId	m_waitLock;			// From edt_unix HW ROI support
+#ifdef	USING_SYNC_DATA_ACQ
+	syncDataAcq<edtPdvCamera, edtImage>		*	m_pSyncDataAcquirer;
+#else
+	bool			m_fAcquiring;		// True while acquiring images, false when idle
 	epicsThreadId	m_threadId;			// Thread identifier for polling thread
 	epicsEventId	m_acquireEvent;		// Used to signal when image acquisition is needed
 
 	double			m_acquireTimeout;	// Timeout in seconds for image acquisition (will retry after cking for reconfig)
 	double			m_reconfigDelay;	// Delay in seconds after failed reconfiguration before retry
+#endif	//	USING_SYNC_DATA_ACQ
 
 #define IMGQBUFSIZ				4
 #define IMGQBUFMASK				3
 //	std::vector<Image *>	m_imgqBuf;	// image queue buffer
 //	unsigned int			m_imgqrd;	// Image Queue Read pointer
 //	unsigned int			m_imgqwr;	// Image Queue Write pointer
-
-#ifdef	USE_EDT_ROI
-	char				*	m_serial_init;	// The serial command to put us in the current HWROI mode.
-											// (This is in the PdvDev->dd_p->serial_init buffer!)
-	unsigned int			m_HWROI_X;
-	unsigned int			m_HWROI_XNP;
-	unsigned int			m_HWROI_Y;
-	unsigned int			m_HWROI_YNP;
-	unsigned int			m_HWROI_gen;
-#endif	//	USE_EDT_ROI
 
 	#define FIRST_EDT_PARAM EdtClass
 	int		EdtClass;

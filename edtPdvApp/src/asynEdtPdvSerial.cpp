@@ -387,20 +387,17 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 	if ( maxChars == 0 )
 		return asynSuccess;
 
-	// Note: We wouldn't need this serialLock if we could avoid
-	// trying to use pdv_serial_command from the edtPdv driver code.
-	// This driver is designed to be used from DTYP "stream" PV's, and
-	// the streamdevice asynDriver owns the pdv serial channel
+	// Note: 
+	// This driver is designed to be used from DTYP "stream" PV's.
+	// The streamdevice asynDriver owns the pdv serial channel
 	// and manages any bytes read from that channel, using it's
 	// own layer of mutex protection.
 	//
-	// Calling pdv_serial_command from the driver is also wrong as
-	// it requires finding another way besides streamdevice via this
-	// asynEdtPdvSerial driver to handle protocol differences between
+	// Calling pdv_serial functions from outside this driver is dangerous
+	// and also wrong as it requires finding another way besides
+	// streamdevice to handle protocol differences between
 	// the many camera models we may need to support.
-	//	epicsMutexLock( tty->m_serialLock );
 	int		pdv_status	= pdv_serial_write( m_pPdvDev, value, maxChars );
-	//	epicsMutexUnlock( tty->m_serialLock );
 
 	if ( pdv_status == 0 )
 	{
@@ -440,7 +437,7 @@ while(1) {
 nbytesTransfered = 0;
 readOctet(pasynUser, buffer, sizeof(buffer), &nbytesTransfered, 0);
 if (nbytesTransfered==0) break;
-asynPrintIO(pasynUser, ASYN_TRACEIO_DEVICE,
+asynPrintIO(pasynUser, ASYN_TRACEIO_DRIVER,
 buffer, nbytesTransfered, "%s:%s\n", driverName, functionName);
 }
 pasynUser->timeout = savetimeout;
