@@ -26,6 +26,8 @@ class	asynEdtPdvSerial;
 #define N_PDV_DRV_ADDR_MAX		4
 #define N_PDV_MULTIBUF_DEF		4
 
+#define	PDV_INTLV_IN_PDV_LIB	-1
+
 // Camera operation data structure definition
 class edtPdvCamera : public ADDriver
 {
@@ -59,7 +61,9 @@ public:		//	Public member functions
 	/// Close the EDT PDV camera connections
     asynStatus DisconnectCamera( );
 
-    asynUser	* GetAsynUser()
+	asynStatus		UpdateStatus( int	newStatus	);
+
+    asynUser	*	GetAsynUser()
 	{
 		return pasynUserSelf;	// TODO: Is this safe?
 	}
@@ -121,16 +125,11 @@ public:		//	Public member functions
 		return m_LibVersion;
 	}
 
-#define	USING_SYNC_DATA_ACQ	1
 	bool	IsAcquiring()
 	{
-#ifdef	USING_SYNC_DATA_ACQ
 		if ( m_pSyncDataAcquirer == NULL )
 			return false;
 		return m_pSyncDataAcquirer->IsAcquiring();
-#else
-		return m_fAcquiring;
-#endif	//	USING_SYNC_DATA_ACQ
 	}
 
 	bool	InAcquireMode()
@@ -215,17 +214,16 @@ public:		//	Public member functions
 	}
 
 	/// Get frame count
-	int		GetFrameCount( ) const
+	int		GetArrayCounter( ) const
 	{
-		return m_frameCounts;
+		return m_ArrayCounter;
 	}
 
+	/// Increment frame count
+	asynStatus		IncrArrayCounter( );
+
 	/// Set frame count
-	int		SetFrameCount( int count )
-	{
-		m_frameCounts	= 0;
-		return 0;
-	}
+	asynStatus		SetArrayCounter( int value );
 
 	/// Return camera image size in bytes
 	size_t	GetImageSize( ) const
@@ -264,11 +262,6 @@ public:		//	Public member functions
 
 	///	Acquire next image from the camera
 	int						AcquireData(	edtImage	*	pImage	);
-
-#ifndef	USING_SYNC_DATA_ACQ
-	///	Acquire images from camera
-	void					acquireLoop(	);
-#endif	// USING_SYNC_DATA_ACQ
 
 	///	Returns true if device needs reconfiguring
 	bool					NeedsReconfigure(	)
@@ -356,6 +349,7 @@ private:	//	Private member variables
 
 	size_t			m_imageSize;	// image size in byte
 	size_t			m_dmaSize;		// dma size of image in byte, usually same as imageSize
+	int				m_tyInterlace;	// dma size of image in byte, usually same as imageSize
 
 	unsigned int	m_trigLevel;		// Ext. Trigger Mode (0=Edge,1=Level,2=Sync)
 
@@ -381,30 +375,14 @@ private:	//	Private member variables
 	// Gain value for camera
 	double			m_Gain;
 
-	int				m_frameCounts;		// debug information to show trigger frequency
+	int				m_ArrayCounter;		// Frame count
 	int				m_acquireCount;		// How many images to acquire
 	unsigned int	m_fiducial;			// Fiducial ID from last timestamped image
 
 	epicsMutexId	m_reconfigLock;		// Protect against more than one thread trying to reconfigure the device
-//	epicsMutexId	m_resetLock;		// From edt_unix HW ROI support
-//	epicsMutexId	m_waitLock;			// From edt_unix HW ROI support
-#ifdef	USING_SYNC_DATA_ACQ
 	syncDataAcq<edtPdvCamera, edtImage>		*	m_pSyncDataAcquirer;
-#else
-	bool			m_fAcquiring;		// True while acquiring images, false when idle
-	epicsThreadId	m_threadId;			// Thread identifier for polling thread
-	epicsEventId	m_acquireEvent;		// Used to signal when image acquisition is needed
 
-	double			m_acquireTimeout;	// Timeout in seconds for image acquisition (will retry after cking for reconfig)
-	double			m_reconfigDelay;	// Delay in seconds after failed reconfiguration before retry
-#endif	//	USING_SYNC_DATA_ACQ
-
-#define IMGQBUFSIZ				4
-#define IMGQBUFMASK				3
-//	std::vector<Image *>	m_imgqBuf;	// image queue buffer
-//	unsigned int			m_imgqrd;	// Image Queue Read pointer
-//	unsigned int			m_imgqwr;	// Image Queue Write pointer
-
+	// These variables hold the asyn parameter index numbers for each parameter
 	#define FIRST_EDT_PARAM EdtClass
 	int		EdtClass;
 	int		EdtDebug;
