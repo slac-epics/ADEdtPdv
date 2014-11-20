@@ -3,10 +3,10 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1136
-y 1367
-w 780
-h 977
+x 1100
+y 1307
+w 816
+h 820
 font "helvetica-medium-r-8.0"
 ctlFont "helvetica-medium-r-8.0"
 btnFont "helvetica-medium-r-8.0"
@@ -24,72 +24,140 @@ snapToGrid
 gridSize 4
 endScreenProperties
 
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 1
+x 104
+y 100
+w 0
+h 52
+lineColor index 14
+fillColor index 12
+lineStyle "dash"
+numPoints 2
+xPoints {
+  0 104
+  1 104
+}
+yPoints {
+  0 152
+  1 100
+}
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 1
+x 504
+y 376
+w 0
+h 64
+lineColor index 14
+fillColor index 12
+lineStyle "dash"
+numPoints 2
+xPoints {
+  0 504
+  1 504
+}
+yPoints {
+  0 440
+  1 376
+}
+endObjectProperties
+
 # (Rectangle)
 object activeRectangleClass
 beginObjectProperties
 major 4
 minor 0
 release 0
-x 12
-y 904
-w 685
-h 35
-lineColor index 14
+x 592
+y 384
+w 184
+h 92
+lineColor index 6
 fill
-fillColor index 3
+fillColor index 6
+lineWidth 0
 endObjectProperties
 
-# (Rectangle)
-object activeRectangleClass
+# (Lines)
+object activeLineClass
 beginObjectProperties
 major 4
 minor 0
-release 0
-x 12
-y 828
-w 685
-h 65
+release 1
+x 476
+y 276
+w 0
+h 76
 lineColor index 14
-fill
-fillColor index 3
+fillColor index 12
+lineStyle "dash"
+numPoints 2
+xPoints {
+  0 476
+  1 476
+}
+yPoints {
+  0 352
+  1 276
+}
 endObjectProperties
 
-# (Static Text)
-object activeXTextClass
+# (Lines)
+object activeLineClass
 beginObjectProperties
 major 4
-minor 1
+minor 0
 release 1
-x 12
-y 824
-w 72
-h 20
-font "helvetica-medium-r-12.0"
-fgColor index 14
-bgColor index 5
-value {
-  "Messages"
+x 668
+y 268
+w 0
+h 96
+lineColor index 14
+fillColor index 12
+lineStyle "dash"
+numPoints 2
+xPoints {
+  0 668
+  1 668
 }
-border
+yPoints {
+  0 364
+  1 268
+}
 endObjectProperties
 
-# (Static Text)
-object activeXTextClass
+# (Lines)
+object activeLineClass
 beginObjectProperties
 major 4
-minor 1
+minor 0
 release 1
-x 12
-y 900
-w 68
-h 20
-font "helvetica-medium-r-12.0"
-fgColor index 14
-bgColor index 5
-value {
-  "  Attributes  "
+x 300
+y 268
+w 0
+h 96
+lineColor index 14
+fillColor index 12
+lineStyle "dash"
+numPoints 2
+xPoints {
+  0 300
+  1 300
 }
-border
+yPoints {
+  0 364
+  1 268
+}
 endObjectProperties
 
 # (Related Display)
@@ -98,7 +166,7 @@ beginObjectProperties
 major 4
 minor 4
 release 0
-x 32
+x 48
 y 780
 w 120
 h 24
@@ -140,7 +208,7 @@ minor 1
 release 1
 x 0
 y 0
-w 780
+w 816
 h 44
 font "helvetica-medium-r-12.0"
 fontAlign "center"
@@ -159,7 +227,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 24
+x 40
 y 496
 w 128
 h 20
@@ -178,7 +246,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 400
+x 416
 y 496
 w 172
 h 20
@@ -197,7 +265,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 24
+x 40
 y 524
 w 128
 h 20
@@ -216,7 +284,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 24
+x 40
 y 552
 w 128
 h 20
@@ -235,7 +303,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 24
+x 40
 y 580
 w 128
 h 20
@@ -254,7 +322,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 24
+x 40
 y 608
 w 128
 h 20
@@ -273,7 +341,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 24
+x 40
 y 636
 w 128
 h 20
@@ -292,7 +360,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 160
+x 176
 y 496
 w 160
 h 20
@@ -315,7 +383,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 160
+x 176
 y 524
 w 160
 h 20
@@ -338,7 +406,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 160
+x 176
 y 552
 w 160
 h 20
@@ -361,7 +429,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 160
+x 176
 y 580
 w 160
 h 20
@@ -384,7 +452,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 160
+x 176
 y 608
 w 160
 h 20
@@ -408,7 +476,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 160
+x 176
 y 636
 w 160
 h 20
@@ -432,7 +500,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 160
+x 176
 y 664
 w 160
 h 20
@@ -456,7 +524,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 24
+x 40
 y 664
 w 128
 h 20
@@ -475,7 +543,7 @@ beginObjectProperties
 major 4
 minor 1
 release 0
-x 628
+x 720
 y 12
 w 56
 h 24
@@ -494,7 +562,7 @@ beginObjectProperties
 major 4
 minor 4
 release 0
-x 160
+x 176
 y 780
 w 140
 h 24
@@ -534,7 +602,7 @@ beginObjectProperties
 major 4
 minor 4
 release 0
-x 160
+x 176
 y 752
 w 140
 h 24
@@ -567,7 +635,7 @@ beginObjectProperties
 major 4
 minor 4
 release 0
-x 32
+x 48
 y 752
 w 120
 h 24
@@ -600,7 +668,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 480
+x 496
 y 604
 w 92
 h 20
@@ -620,7 +688,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
+x 356
 y 604
 w 120
 h 20
@@ -639,7 +707,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
+x 596
 y 604
 w 88
 h 20
@@ -664,7 +732,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 480
+x 496
 y 660
 w 92
 h 20
@@ -692,7 +760,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
+x 356
 y 660
 w 120
 h 20
@@ -711,7 +779,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
+x 596
 y 660
 w 88
 h 20
@@ -736,7 +804,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
+x 596
 y 692
 w 88
 h 20
@@ -761,7 +829,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 480
+x 496
 y 692
 w 92
 h 20
@@ -789,7 +857,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
+x 356
 y 692
 w 120
 h 20
@@ -808,7 +876,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
+x 596
 y 720
 w 88
 h 20
@@ -833,7 +901,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 480
+x 496
 y 720
 w 92
 h 20
@@ -861,7 +929,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
+x 356
 y 720
 w 120
 h 20
@@ -880,7 +948,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
+x 596
 y 496
 w 88
 h 20
@@ -906,7 +974,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
+x 596
 y 580
 w 88
 h 20
@@ -931,7 +999,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 480
+x 496
 y 580
 w 92
 h 20
@@ -951,7 +1019,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
+x 356
 y 580
 w 120
 h 20
@@ -970,7 +1038,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
+x 596
 y 632
 w 88
 h 20
@@ -996,7 +1064,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 480
+x 496
 y 632
 w 92
 h 18
@@ -1024,7 +1092,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
+x 356
 y 632
 w 120
 h 20
@@ -1043,7 +1111,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
+x 596
 y 748
 w 88
 h 20
@@ -1068,7 +1136,7 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 480
+x 496
 y 748
 w 92
 h 20
@@ -1088,7 +1156,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
+x 356
 y 748
 w 120
 h 20
@@ -1107,7 +1175,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 160
+x 176
 y 692
 w 160
 h 20
@@ -1132,7 +1200,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 24
+x 40
 y 692
 w 128
 h 20
@@ -1151,7 +1219,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
+x 596
 y 524
 w 88
 h 20
@@ -1178,7 +1246,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 400
+x 416
 y 524
 w 172
 h 20
@@ -1197,7 +1265,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
+x 596
 y 552
 w 88
 h 20
@@ -1223,7 +1291,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 400
+x 416
 y 552
 w 172
 h 20
@@ -1242,8 +1310,8 @@ beginObjectProperties
 major 4
 minor 0
 release 1
-x 32
-y 136
+x 48
+y 152
 w 324
 h 104
 lineColor index 14
@@ -1251,18 +1319,18 @@ fill
 fillColor index 6
 numPoints 5
 xPoints {
-  0 32
-  1 156
-  2 356
-  3 232
-  4 32
+  0 48
+  1 172
+  2 372
+  3 248
+  4 48
 }
 yPoints {
-  0 240
-  1 136
-  2 136
-  3 240
-  4 240
+  0 256
+  1 152
+  2 152
+  3 256
+  4 256
 }
 endObjectProperties
 
@@ -1272,8 +1340,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 156
-y 136
+x 172
+y 152
 w 76
 h 104
 lineColor index 14
@@ -1287,8 +1355,8 @@ beginObjectProperties
 major 4
 minor 0
 release 1
-x 396
-y 136
+x 412
+y 152
 w 324
 h 104
 lineColor index 14
@@ -1296,18 +1364,18 @@ fill
 fillColor index 6
 numPoints 5
 xPoints {
-  0 396
-  1 520
-  2 720
-  3 596
-  4 396
+  0 412
+  1 536
+  2 736
+  3 612
+  4 412
 }
 yPoints {
-  0 240
-  1 136
-  2 136
-  3 240
-  4 240
+  0 256
+  1 152
+  2 152
+  3 256
+  4 256
 }
 endObjectProperties
 
@@ -1317,8 +1385,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 520
-y 136
+x 536
+y 152
 w 76
 h 104
 lineColor index 14
@@ -1332,7 +1400,7 @@ beginObjectProperties
 major 4
 minor 0
 release 1
-x 520
+x 536
 y 120
 w 76
 h 0
@@ -1341,8 +1409,8 @@ fillColor index 4
 arrows "both"
 numPoints 2
 xPoints {
-  0 520
-  1 596
+  0 536
+  1 612
 }
 yPoints {
   0 120
@@ -1356,16 +1424,16 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 156
-y 316
-w 52
+x 160
+y 344
+w 80
 h 20
 font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 14
 bgColor index 3
 value {
-  "Beam"
+  "TS4 120Hz"
 }
 endObjectProperties
 
@@ -1375,9 +1443,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 12
-y 240
-w 676
+x 28
+y 256
+w 800
 h 4
 font "helvetica-medium-r-10.0"
 fgColor index 14
@@ -1390,8 +1458,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 180
-y 128
+x 196
+y 152
 w 4
 h 176
 font "helvetica-medium-r-12.0"
@@ -1405,7 +1473,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 520
+x 536
 y 52
 w 84
 h 36
@@ -1425,8 +1493,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 236
-y 260
+x 252
+y 288
 w 96
 h 20
 controlPv "$(P)$(R)EdtCamTrigDelay_RBV"
@@ -1452,8 +1520,8 @@ beginObjectProperties
 major 4
 minor 0
 release 1
-x 180
-y 252
+x 196
+y 268
 w 216
 h 0
 lineColor index 14
@@ -1461,12 +1529,12 @@ fillColor index 4
 arrows "both"
 numPoints 2
 xPoints {
-  0 180
-  1 396
+  0 196
+  1 412
 }
 yPoints {
-  0 252
-  1 252
+  0 268
+  1 268
 }
 endObjectProperties
 
@@ -1476,8 +1544,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 520
-y 316
+x 536
+y 344
 w 52
 h 20
 font "helvetica-medium-r-14.0"
@@ -1495,8 +1563,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 544
-y 128
+x 560
+y 152
 w 4
 h 176
 font "helvetica-medium-r-12.0"
@@ -1510,8 +1578,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 236
-y 288
+x 252
+y 316
 w 96
 h 18
 controlPv "$(P)$(R)EdtCamTrigDelay"
@@ -1538,8 +1606,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 236
-y 316
+x 252
+y 344
 w 96
 h 20
 font "helvetica-medium-r-14.0"
@@ -1557,8 +1625,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 356
-y 136
+x 372
+y 152
 w 40
 h 104
 lineColor index 14
@@ -1572,9 +1640,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 316
+x 328
 y 52
-w 92
+w 96
 h 36
 font "helvetica-medium-r-14.0"
 fontAlign "center"
@@ -1582,7 +1650,7 @@ fgColor index 14
 bgColor index 3
 value {
   "Prep time"
-  "must be > 0.0"
+  "> 160us"
 }
 endObjectProperties
 
@@ -1592,7 +1660,7 @@ beginObjectProperties
 major 4
 minor 0
 release 1
-x 356
+x 372
 y 120
 w 40
 h 0
@@ -1601,8 +1669,8 @@ fillColor index 4
 arrows "both"
 numPoints 2
 xPoints {
-  0 356
-  1 396
+  0 372
+  1 412
 }
 yPoints {
   0 120
@@ -1616,8 +1684,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 412
-y 260
+x 428
+y 288
 w 96
 h 20
 controlPv "$(P)$(R)AcquireTime_RBV"
@@ -1643,8 +1711,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 412
-y 316
+x 428
+y 344
 w 96
 h 20
 font "helvetica-medium-r-14.0"
@@ -1662,8 +1730,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 412
-y 288
+x 428
+y 316
 w 96
 h 18
 controlPv "$(P)$(R)AcquireTime"
@@ -1690,8 +1758,8 @@ beginObjectProperties
 major 4
 minor 0
 release 1
-x 396
-y 252
+x 412
+y 276
 w 200
 h 0
 lineColor index 14
@@ -1699,12 +1767,12 @@ fillColor index 4
 arrows "both"
 numPoints 2
 xPoints {
-  0 396
-  1 596
+  0 412
+  1 612
 }
 yPoints {
-  0 252
-  1 252
+  0 276
+  1 276
 }
 endObjectProperties
 
@@ -1714,7 +1782,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 520
+x 536
 y 92
 w 84
 h 20
@@ -1741,7 +1809,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 312
+x 328
 y 92
 w 96
 h 20
@@ -1768,7 +1836,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 612
+x 628
 y 52
 w 96
 h 36
@@ -1788,7 +1856,7 @@ beginObjectProperties
 major 4
 minor 0
 release 1
-x 596
+x 612
 y 120
 w 124
 h 0
@@ -1797,8 +1865,8 @@ fillColor index 4
 arrows "both"
 numPoints 2
 xPoints {
-  0 596
-  1 720
+  0 612
+  1 736
 }
 yPoints {
   0 120
@@ -1812,7 +1880,7 @@ beginObjectProperties
 major 4
 minor 0
 release 1
-x 396
+x 412
 y 120
 w 124
 h 0
@@ -1821,36 +1889,12 @@ fillColor index 4
 arrows "both"
 numPoints 2
 xPoints {
-  0 396
-  1 520
+  0 412
+  1 536
 }
 yPoints {
   0 120
   1 120
-}
-endObjectProperties
-
-# (Lines)
-object activeLineClass
-beginObjectProperties
-major 4
-minor 0
-release 1
-x 32
-y 120
-w 0
-h 120
-lineColor index 14
-fillColor index 4
-arrows "both"
-numPoints 2
-xPoints {
-  0 32
-  1 32
-}
-yPoints {
-  0 120
-  1 240
 }
 endObjectProperties
 
@@ -1860,8 +1904,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 40
-y 176
+x 56
+y 180
 w 44
 h 20
 controlPv "$(P)$(R)OrcaScanSize_RBV"
@@ -1886,9 +1930,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 40
-y 136
-w 44
+x 0
+y 176
+w 48
 h 36
 font "helvetica-medium-r-14.0"
 fontAlign "center"
@@ -1906,8 +1950,8 @@ beginObjectProperties
 major 4
 minor 0
 release 1
-x 32
-y 120
+x 48
+y 152
 w 124
 h 0
 lineColor index 14
@@ -1915,12 +1959,12 @@ fillColor index 4
 arrows "both"
 numPoints 2
 xPoints {
-  0 32
-  1 156
+  0 48
+  1 172
 }
 yPoints {
-  0 120
-  1 120
+  0 152
+  1 152
 }
 endObjectProperties
 
@@ -1930,7 +1974,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 52
+x 60
 y 92
 w 100
 h 20
@@ -1955,7 +1999,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 52
+x 60
 y 52
 w 100
 h 36
@@ -1975,8 +2019,8 @@ beginObjectProperties
 major 4
 minor 0
 release 1
-x 180
-y 352
+x 196
+y 376
 w 364
 h 0
 lineColor index 14
@@ -1984,12 +2028,12 @@ fillColor index 4
 arrows "both"
 numPoints 2
 xPoints {
-  0 180
-  1 544
+  0 196
+  1 560
 }
 yPoints {
-  0 352
-  1 352
+  0 376
+  1 376
 }
 endObjectProperties
 
@@ -1999,8 +2043,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 352
-y 372
+x 368
+y 396
 w 88
 h 20
 controlPv "$(P)$(R)EdtCamRepRate_RBV"
@@ -2025,8 +2069,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 296
-y 372
+x 312
+y 396
 w 48
 h 20
 controlPv "$(P)$(R)EdtCamEventCode"
@@ -2053,8 +2097,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 188
-y 372
+x 204
+y 396
 w 100
 h 20
 font "helvetica-medium-r-12.0"
@@ -2072,8 +2116,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 448
-y 372
+x 464
+y 396
 w 88
 h 20
 controlPv "$(P)$(R)EdtCamRepDur"
@@ -2099,8 +2143,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 352
-y 400
+x 368
+y 424
 w 88
 h 20
 controlPv "$(P)$(R)EdtBeamRepRate_RBV"
@@ -2125,8 +2169,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 296
-y 400
+x 312
+y 424
 w 48
 h 18
 controlPv "$(P)$(R)EdtBeamEventCode"
@@ -2153,8 +2197,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 188
-y 400
+x 204
+y 424
 w 100
 h 20
 font "helvetica-medium-r-12.0"
@@ -2172,8 +2216,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 448
-y 400
+x 464
+y 424
 w 88
 h 20
 controlPv "$(P)$(R)EdtBeamRepDur"
@@ -2199,8 +2243,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 336
-y 288
+x 352
+y 316
 w 28
 h 18
 controlPv "$(P)$(R)EdtCamTrigDelay.EGU"
@@ -2222,8 +2266,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 512
-y 288
+x 528
+y 316
 w 28
 h 20
 controlPv "$(P)$(R)AcquireTime.EGU"
@@ -2245,7 +2289,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 416
+x 432
 y 92
 w 96
 h 20
@@ -2270,7 +2314,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 416
+x 432
 y 52
 w 96
 h 36
@@ -2290,12 +2334,12 @@ beginObjectProperties
 major 4
 minor 1
 release 0
-x 620
-y 320
+x 616
+y 404
 w 124
 h 28
 fgColor index 14
-onColor index 6
+onColor index 5
 offColor index 3
 topShadowColor index 1
 botShadowColor index 11
@@ -2313,12 +2357,12 @@ beginObjectProperties
 major 4
 minor 1
 release 0
-x 620
-y 360
+x 616
+y 440
 w 124
 h 28
 fgColor index 14
-onColor index 6
+onColor index 5
 offColor index 3
 topShadowColor index 1
 botShadowColor index 11
@@ -2336,7 +2380,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 612
+x 628
 y 92
 w 96
 h 20
@@ -2353,5 +2397,409 @@ useHexPrefix
 showUnits
 newPos
 objType "monitors"
+endObjectProperties
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 736
+y 152
+w 40
+h 104
+lineColor index 14
+fill
+fillColor index 40
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 1
+x 776
+y 152
+w 324
+h 104
+lineColor index 14
+fill
+fillColor index 6
+numPoints 5
+xPoints {
+  0 776
+  1 900
+  2 1100
+  3 976
+  4 776
+}
+yPoints {
+  0 256
+  1 152
+  2 152
+  3 256
+  4 256
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 620
+y 344
+w 96
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "Trig Delay"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 620
+y 288
+w 96
+h 20
+controlPv "$(P)$(R)EdtCamTrigDelay_RBV"
+format "exponential"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 1
+x 564
+y 268
+w 216
+h 0
+lineColor index 14
+fillColor index 4
+arrows "both"
+numPoints 2
+xPoints {
+  0 564
+  1 780
+}
+yPoints {
+  0 268
+  1 268
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 4
+release 0
+x 676
+y 12
+w 36
+h 24
+fgColor index 14
+bgColor index 3
+topShadowColor index 0
+botShadowColor index 14
+font "helvetica-medium-r-12.0"
+buttonLabel "EVR"
+numPvs 4
+numDsps 1
+displayFileName {
+  0 "evrScreens/evrPmc230.edl"
+}
+symbols {
+  0 "EVR=$(EVR)"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 24
+y 292
+w 167
+h 42
+font "helvetica-medium-r-12.0"
+fgColor index 14
+bgColor index 3
+value {
+  "Min. Exp = "
+  "RollingShutterLineDelay"
+  "* NumScanLinesAboveCenter"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 188
+y 128
+w 20
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 6
+value {
+  "1"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 404
+y 128
+w 20
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 6
+value {
+  "2"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 528
+y 128
+w 20
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 6
+value {
+  "3"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 552
+y 128
+w 20
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 6
+value {
+  "4"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 608
+y 128
+w 20
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 6
+value {
+  "5"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 728
+y 128
+w 20
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 6
+value {
+  "6"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 768
+y 128
+w 20
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 6
+value {
+  "7"
+}
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 4
+release 0
+x 12
+y 8
+w 140
+h 24
+fgColor index 14
+bgColor index 3
+topShadowColor index 1
+botShadowColor index 11
+font "helvetica-medium-r-12.0"
+xPosOffset 400
+yPosOffset 44
+buttonLabel "Show Timeline Help"
+numPvs 4
+numDsps 1
+displayFileName {
+  0 "edtPdvScreens/RollingShutterTimelineHelp.edl"
+}
+setPosition {
+  0 "button"
+}
+icon
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 592
+y 376
+w 152
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 6
+value {
+  "Preconfigured Shortcuts"
+}
+endObjectProperties
+
+# (Lines)
+object activeLineClass
+beginObjectProperties
+major 4
+minor 0
+release 1
+x 48
+y 152
+w 0
+h 104
+lineColor index 14
+fillColor index 4
+arrows "both"
+numPoints 2
+xPoints {
+  0 48
+  1 48
+}
+yPoints {
+  0 152
+  1 256
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 368
+y 452
+w 88
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "Rate"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 464
+y 452
+w 88
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "Interval"
+}
 endObjectProperties
 

@@ -39,6 +39,7 @@ public:		//	Public member functions
 					int						unit,
 					int						channel,
 					const char			*	modelName,
+					const char			*	edtMode,
 					int						maxBuffers	= 0,	// 0 = unlimited
 					size_t					maxMemory	= 0,	// 0 = unlimited
 					int						priority	= 0,	// 0 = default 50, high is 90
@@ -48,6 +49,8 @@ public:		//	Public member functions
 	virtual ~edtPdvCamera();
 
 	enum TriggerMode_t { TRIGMODE_FREERUN, TRIGMODE_EXT, TRIGMODE_PULSE };
+
+	enum EdtMode_t { EDTMODE_BASE, EDTMODE_MEDIUM, EDTMODE_FULL };
 
 	///	Update AreaDetector params related to camera configuration
 	int UpdateADConfigParams( );
@@ -191,6 +194,12 @@ public:		//	Public member functions
 		return m_SizeY;
 	}
 
+	EdtMode_t GetEdtMode( ) const
+	{
+		return m_EdtMode;
+	}
+
+	int				RequestTriggerMode(	int	value	);
 	int				SetTriggerMode(	int	value	);
 	TriggerMode_t	GetTriggerMode( ) const
 	{
@@ -293,7 +302,8 @@ public:		//	Public member functions
 
 public:		//	Public class functions
 
-	static int				CreateCamera( const char * cameraName, int unit, int channel, const char * modelName );
+	static int				CreateCamera(	const char *	cameraName, int unit, int channel,
+											const char *	modelName,	const char * edtMode );
 
 	static edtPdvCamera	*	CameraFindByName( const std::string & name );
 
@@ -346,6 +356,8 @@ private:	//	Private member variables
 	size_t			m_width;		// number of column of this camera
 	size_t			m_height;		// number of row of this camera
 	unsigned int	m_numOfBits;	// number of bits of this camera
+	int				m_HTaps;		// number of horiz taps for this camera
+	int				m_VTaps;		// number of vert  taps for this camera
 
 	size_t			m_imageSize;	// image size in byte
 	size_t			m_dmaSize;		// dma size of image in byte, usually same as imageSize
@@ -362,7 +374,10 @@ private:	//	Private member variables
 	int				m_EdtVSkip;			// # of vert  lines to skip
 	int				m_EdtVSize;			// # of vert  lines to read
 
+	EdtMode_t		m_EdtMode;
+
 	TriggerMode_t	m_TriggerMode;
+	TriggerMode_t	m_TriggerModeReq;
 
 	// HW ROI and binning parameters from ADBase
 	size_t			m_BinX;
@@ -390,8 +405,11 @@ private:	//	Private member variables
 	int		EdtDrvVersion;
 	int		EdtHSkip;
 	int		EdtHSize;
+	int		EdtHTaps;
+	int		EdtMode;
 	int		EdtVSkip;
 	int		EdtVSize;
+	int		EdtVTaps;
 	int		EdtInfo;
 	int		EdtLibVersion;
 	int		EdtMultiBuf;
@@ -429,8 +447,11 @@ private:	//	Private class variables
 #define EdtDrvVersionString	"EDT_DRV_VERSION"
 #define EdtHSkipString		"EDT_HSKIP"
 #define EdtHSizeString		"EDT_HSIZE"
+#define EdtHTapsString		"EDT_HTAPS"
+#define EdtModeString		"EDT_MODE"
 #define EdtVSkipString		"EDT_VSKIP"
 #define EdtVSizeString		"EDT_VSIZE"
+#define EdtVTapsString		"EDT_VTAPS"
 #define EdtInfoString		"EDT_INFO"
 #define EdtLibVersionString	"EDT_LIB_VERSION"
 #define EdtMultiBufString	"EDT_MULTIBUF"
@@ -455,12 +476,14 @@ extern "C" int	edtPdvConfig(
 	const char	*	cameraName,
 	int				unit,
 	int				channel,
-	const char	*	modelName		);
+	const char	*	modelName,
+	const char	*	edtMode		);
 extern "C" int	edtPdvConfigFull(
 	const char	*	cameraName,
 	int				unit,
 	int				channel,
 	const char	*	modelName,
+	const char	*	edtMode,
 	int				maxBuffers,		// 0 = unlimited
 	size_t			maxMemory,		// 0 = unlimited
 	int				priority,		// 0 = default 50, high is 90

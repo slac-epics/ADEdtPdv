@@ -32,6 +32,11 @@
 //#include "edtSync.h"
 #include "syncDataAcq.h"
 #include "asynEdtPdvSerial.h"
+#include "promheader.h"
+
+// These headers not ready for use yet
+// #include "syncDataAcq2.h"
+// #include "syncDataDev.h"
 
 //	PCDS headers
 #include "evrTime.h"
@@ -57,18 +62,45 @@ int		EDT_PDV_DEBUG	= 2;
 ///	Camera map - Stores ptr to all edtPdvCamera instances indexed by name
 map<string, edtPdvCamera *>	edtPdvCamera::ms_cameraMap;
 
+const char * EdtModeToString( edtPdvCamera::EdtMode_t	edtMode )
+{
+	const char	*	pstrEdtMode;
+	switch( edtMode )
+	{
+	default:							pstrEdtMode	= "Invalid!";	break;
+	case edtPdvCamera::EDTMODE_BASE:	pstrEdtMode	= "Base";		break;
+	case edtPdvCamera::EDTMODE_MEDIUM:	pstrEdtMode	= "Medium";		break;
+	case edtPdvCamera::EDTMODE_FULL:	pstrEdtMode	= "Full";		break;
+	}
+	return pstrEdtMode;
+}
+
 const char * TrigLevelToString( int	trigLevel )
 {
 	const char	*	pstrTrigLevel;
 	switch( trigLevel )
 	{
-		default:	pstrTrigLevel	= "Invalid!";	break;
-		case 0:		pstrTrigLevel	= "Edge";		break;
-		case 1:		pstrTrigLevel	= "Level";		break;
-		case 2:		pstrTrigLevel	= "Sync";		break;
+	default:	pstrTrigLevel	= "Invalid!";	break;
+	case 0:		pstrTrigLevel	= "Edge";		break;
+	case 1:		pstrTrigLevel	= "Level";		break;
+	case 2:		pstrTrigLevel	= "Sync";		break;
 	}
 	return pstrTrigLevel;
 }
+
+const char * TriggerModeToString( edtPdvCamera::TriggerMode_t	tyTriggerMode )
+{
+	const char	*	pstrTriggerMode;
+	switch( tyTriggerMode )
+	{
+	default:								pstrTriggerMode	= "Invalid!";	break;
+	case edtPdvCamera::TRIGMODE_FREERUN:	pstrTriggerMode	= "FreeRun";	break;
+	case edtPdvCamera::TRIGMODE_EXT:		pstrTriggerMode	= "External";	break;
+	case edtPdvCamera::TRIGMODE_PULSE:		pstrTriggerMode	= "Pulse";		break;
+	}
+	return pstrTriggerMode;
+}
+
 //
 // edtPdvCamera functions
 //
@@ -79,6 +111,7 @@ edtPdvCamera::edtPdvCamera(
 	int						unit,
 	int						channel,
 	const char			*	modelName,
+	const char			*	edtMode,
 	int						maxBuffers,				// 0 = unlimited
 	size_t					maxMemory,				// 0 = unlimited
 	int						priority,				// 0 = default 50, high is 90
@@ -109,6 +142,8 @@ edtPdvCamera::edtPdvCamera(
 		m_width(			0					),
 		m_height(			0					),
 		m_numOfBits(		0					),
+		m_HTaps(			0					),
+		m_VTaps(			0					),
 		m_imageSize(		0					),
 		m_dmaSize(			0					),
 		m_tyInterlace(	PDV_INTLV_IN_PDV_LIB	),
@@ -120,7 +155,9 @@ edtPdvCamera::edtPdvCamera(
 		m_EdtHSize(			0					),
 		m_EdtVSkip(			0					),
 		m_EdtVSize(			0					),
+		m_EdtMode(			EDTMODE_BASE		),
 		m_TriggerMode(		TRIGMODE_FREERUN	),
+		m_TriggerModeReq(	TRIGMODE_FREERUN	),
 		m_BinX(				1					),
 		m_BinY(				1					),
 		m_MinX(				0					),
@@ -158,6 +195,11 @@ edtPdvCamera::edtPdvCamera(
 	m_SerialPort	=	m_CameraName;
 	m_SerialPort	+=	".SER";
 
+	if ( strcmp( edtMode, "Medium" ) == 0 )
+		m_EdtMode	= EDTMODE_MEDIUM;
+	else if ( strcmp( edtMode, "Full" ) == 0 )
+		m_EdtMode	= EDTMODE_FULL;
+
     // Configure an asyn port for serial commands
 	unsigned int		serPriority		= 0;
 	int					autoConnect		= 0;
@@ -185,8 +227,11 @@ edtPdvCamera::edtPdvCamera(
 	createParam( EdtDrvVersionString,	asynParamOctet,		&EdtDrvVersion	);
 	createParam( EdtHSkipString,		asynParamInt32,		&EdtHSkip		);
 	createParam( EdtHSizeString,		asynParamInt32,		&EdtHSize		);
+	createParam( EdtHTapsString,		asynParamInt32,		&EdtHTaps		);
+	createParam( EdtModeString,			asynParamInt32,		&EdtMode		);
 	createParam( EdtVSkipString,		asynParamInt32,		&EdtVSkip		);
 	createParam( EdtVSizeString,		asynParamInt32,		&EdtVSize		);
+	createParam( EdtVTapsString,		asynParamInt32,		&EdtVTaps		);
 	createParam( EdtLibVersionString,	asynParamOctet,		&EdtLibVersion	);
 	createParam( EdtMultiBufString,		asynParamInt32,		&EdtMultiBuf	);
 	createParam( EdtInfoString,			asynParamOctet,		&EdtInfo		);
@@ -201,6 +246,10 @@ edtPdvCamera::edtPdvCamera(
 	createParam( EdtSerSizeXString,			asynParamInt32,		&SerSizeX		);
 	createParam( EdtSerSizeYString,			asynParamInt32,		&SerSizeY		);
 	createParam( EdtSerTriggerModeString,	asynParamInt32,		&SerTriggerMode	);
+
+	// Get the EDT mode from the mbbo PV
+	int		paramValue	= static_cast<int>( m_EdtMode );
+	setIntegerParam( EdtMode,		paramValue );
 
 	// Get the EDT PDV debug levels and multibuf number (should be in autosave)
 	getIntegerParam( EdtDebug,		&m_EdtDebugLevel	);
@@ -235,7 +284,12 @@ edtPdvCamera::~edtPdvCamera( )
 }
 
 
-int edtPdvCamera::CreateCamera( const char * cameraName, int unit, int channel, const char * modelName	)
+int edtPdvCamera::CreateCamera(
+	const char *	cameraName,
+	int				unit,
+	int				channel,
+	const char *	modelName,
+	const char *	edtMode		)
 {
     static const char	*	functionName = "edtPdvCamera::CreateCamera";
 
@@ -247,7 +301,7 @@ int edtPdvCamera::CreateCamera( const char * cameraName, int unit, int channel, 
         return  -1;
     }
 
-    if ( edtPdvCamera::CameraFindByName(cameraName) != NULL )
+    if ( CameraFindByName(cameraName) != NULL )
     {
         errlogPrintf(	"%s %s: ERROR, Camera name %s already in use!\n",
 						driverName, functionName, cameraName );
@@ -270,13 +324,15 @@ int edtPdvCamera::CreateCamera( const char * cameraName, int unit, int channel, 
 
     if ( EDT_PDV_DEBUG )
         cout << "Creating edtPdvCamera: " << string(cameraName) << endl;
-    edtPdvCamera	* pCamera = new edtPdvCamera( cameraName, unit, channel, modelName );
+    edtPdvCamera	* pCamera = new edtPdvCamera( cameraName, unit, channel, modelName, edtMode );
     assert( pCamera != NULL );
 
     int	status	= pCamera->ConnectCamera( );
 	if ( status != 0 )
         errlogPrintf( "edtPdvConfig failed for camera %s!\n", cameraName );
 
+	// TODO: This should be in the constructor and add call
+	//	to CameraRemove in the destructor
 	CameraAdd( pCamera );
     return 0;
 }
@@ -619,6 +675,11 @@ int edtPdvCamera::_Reconfigure( )
 	CONTEXT_TIMER( "_Reconfigure" );
 
 	// Set the EDT PDV debug levels
+	if ( EDT_PDV_DEBUG >= 1 )
+	{
+		printf( "%s: %s Setting Pdv_debug = %d, Edt msg level debug = %d\n",
+				functionName, m_EdtDebugLevel, m_EdtDebugMsgLevel );
+	}
 	pdv_setdebug(		NULL,				 		m_EdtDebugLevel	);
 	edt_msg_set_level(	edt_msg_default_handle(),	m_EdtDebugMsgLevel	);
 
@@ -637,6 +698,14 @@ int edtPdvCamera::_Reconfigure( )
         return -1;
     }
 
+    char    fpga_name[128];
+    printf( "Unit %d, Mode: %s\n",
+			m_unit, EdtModeToString( m_EdtMode ) );
+    printf( "Boot sector FPGA header: \"%s\"\n",
+			get_pci_fpga_header( m_pPdvDev , fpga_name));
+	if ( m_EdtMode == EDTMODE_FULL && !strstr( fpga_name, "_fm" ) )
+	    printf( "\nWARNING: Need to use full-mode FPGA version for this camera!\n\n" );
+
 	// Read the config file
     Edtinfo			edtinfo;
 	Dependent	*	pDD;			// Pointer to PDV dependent information.
@@ -654,7 +723,7 @@ int edtPdvCamera::_Reconfigure( )
 	//	Internal/External choices to FreeRun (f.cfg), Trigger (t.cfg), or Pulse (p.cfg)
 	m_ConfigFile = "db/";
 	m_ConfigFile += m_ModelName;
-	switch( m_TriggerMode )
+	switch( m_TriggerModeReq )
 	{
 	default:
 	case TRIGMODE_FREERUN:
@@ -711,6 +780,14 @@ int edtPdvCamera::_Reconfigure( )
 		m_tyInterlace = PDV_INTLV_IN_PDV_LIB;
 		break;
 	}
+	
+	// Save the number of horiz and vert taps
+    m_HTaps		= pDD->htaps == NOT_SET ? 1 : pDD->htaps;
+    m_VTaps		= pDD->vtaps == NOT_SET ? 1 : pDD->vtaps;
+
+	// Set the number of horizontal and vertical taps
+	setIntegerParam( EdtHTaps,		m_HTaps	);
+	setIntegerParam( EdtVTaps,		m_VTaps	);
 
 	free( pDD );
 
@@ -725,6 +802,9 @@ int edtPdvCamera::_Reconfigure( )
 
 	//	Using default timeout based on exposure time
 	pdv_set_timeout( m_pPdvDev, -1 );
+
+	// Send the serial trigger mode request
+	setIntegerParam( SerTriggerMode,	m_TriggerModeReq	);
 
 	// Camera is reconfigured and ready to use!
 	m_fReconfig		= false;
@@ -885,7 +965,6 @@ asynStatus	edtPdvCamera::SetAcquireMode( int fAcquire )
 		m_acquireCount = 0;
 		// TODO: Is this the right place to call pdv_timeout_restart?
 		pdv_timeout_restart( m_pPdvDev, 0 );
-		//	edt_abort_dma( m_pPdvDev ); done by pdv_timeout_restart
 
 		UpdateStatus( ADStatusIdle	);
 	}
@@ -1355,8 +1434,9 @@ int	edtPdvCamera::SetSizeY(	size_t	value	)
 	}
 	if ( m_SizeY != value )
 	{
-		m_SizeY		= value;
 		m_fReconfig	= true;
+		// TODO: Do we need an interlock here?
+		m_SizeY		= value;
 	}
 	return asynSuccess;
 }
@@ -1431,8 +1511,11 @@ int	edtPdvCamera::SetBinY(	unsigned int	value	)
 
 int	edtPdvCamera::SetTriggerMode(	int	value	)
 {
-//	static const char	*	functionName	= "edtPdvCamera::SetTriggerMode";
+	static const char	*	functionName	= "edtPdvCamera::SetTriggerMode";
 	TriggerMode_t	tyTriggerMode	= static_cast<TriggerMode_t>( value );
+	if ( EDT_PDV_DEBUG >= 1 )
+		printf(	"%s: Setting trigger mode to %s ...\n",
+				functionName, TriggerModeToString( tyTriggerMode ) );
 	switch ( tyTriggerMode )
 	{
 	default:
@@ -1445,6 +1528,28 @@ int	edtPdvCamera::SetTriggerMode(	int	value	)
 		break;
 	}
 	setIntegerParam( ADTriggerMode,	m_TriggerMode	);
+	return asynSuccess;
+}
+
+int	edtPdvCamera::RequestTriggerMode(	int	value	)
+{
+	static const char	*	functionName	= "edtPdvCamera::RequestTriggerMode";
+	TriggerMode_t	tyTriggerMode	= static_cast<TriggerMode_t>( value );
+	m_fReconfig	= true;
+	if ( EDT_PDV_DEBUG >= 1 )
+		printf(	"%s: Requesting trigger mode %s ...\n",
+				functionName, TriggerModeToString( tyTriggerMode ) );
+	switch ( tyTriggerMode )
+	{
+	default:
+		m_TriggerModeReq = TRIGMODE_FREERUN;
+		break;
+	case TRIGMODE_FREERUN:
+	case TRIGMODE_EXT:
+	case TRIGMODE_PULSE:
+		m_TriggerModeReq = tyTriggerMode;
+		break;
+	}
 	return asynSuccess;
 }
 
@@ -1497,6 +1602,9 @@ void edtPdvCamera::report( FILE * fp, int details )
         fprintf( fp, "  Sensor bits:       %u\n",	m_numOfBits );
         fprintf( fp, "  Sensor width:      %zd\n",	m_width );
         fprintf( fp, "  Sensor height:     %zd\n",	m_height );
+        fprintf( fp, "  Horiz taps:        %d\n",	m_HTaps );
+        fprintf( fp, "  Vert  taps:        %d\n",	m_VTaps );
+        fprintf( fp, "  Mode:              %s\n",	EdtModeToString( m_EdtMode ) );
         fprintf( fp, "  Image size:        %zu\n",	m_imageSize );
         fprintf( fp, "  DMA size:          %zu\n",	m_dmaSize );
         fprintf( fp, "  ROI Horiz skip:    %d\n",	m_EdtHSkip );
@@ -1568,7 +1676,6 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 	{
 		return SetAcquireMode( value );
     }
-
 
     if ( pasynUser->reason == ADBinX)	SetBinX(	value	);
     if ( pasynUser->reason == ADBinY)	SetBinY(	value	);
@@ -1650,7 +1757,7 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 	}
     if ( pasynUser->reason == EdtTrigLevel		)	setIntegerParam( EdtTrigLevel, value );
 
-    if ( pasynUser->reason == ADTriggerMode		)	SetTriggerMode(	value );
+    if ( pasynUser->reason == ADTriggerMode		)	RequestTriggerMode(	value );
     if ( pasynUser->reason == SerTriggerMode	)	SetTriggerMode(	value );
     if ( pasynUser->reason == SerMinX			)	SetMinX(	value );
     if ( pasynUser->reason == SerMinY			)	SetMinY(	value );
@@ -1717,7 +1824,8 @@ edtPdvConfig(
 	const char	*	cameraName,
 	int				unit,
 	int				channel,
-	const char	*	modelName	)
+	const char	*	modelName,
+	const char	*	edtMode	)
 {
     if (  cameraName == NULL || strlen(cameraName) == 0 )
     {
@@ -1729,9 +1837,14 @@ edtPdvConfig(
         errlogPrintf( "NULL or zero length config name.\nUsage: edtPdvConfig(name,unit,chan,config)\n");
         return  -1;
     }
-    if ( edtPdvCamera::CreateCamera( cameraName, unit, channel, modelName ) != 0 )
+    if (  edtMode == NULL || strlen(edtMode) == 0 )
     {
-        errlogPrintf( "edtPdvConfig failed for camera %s, config %s!\n", cameraName, modelName );
+        errlogPrintf( "NULL or zero length EDT mode.\nUsage: edtPdvConfig(name,unit,chan,config,mode)\n");
+        return  -1;
+    }
+    if ( edtPdvCamera::CreateCamera( cameraName, unit, channel, modelName, edtMode ) != 0 )
+    {
+        errlogPrintf( "edtPdvConfig failed for camera %s, config %s, mode %s!\n", cameraName, modelName, edtMode );
 		if ( EDT_PDV_DEBUG >= 4 )
         	epicsThreadSuspendSelf();
         return -1;
@@ -1745,6 +1858,7 @@ edtPdvConfigFull(
 	int				unit,
 	int				channel,
 	const char	*	modelName,
+	const char	*	edtMode,
 	int				maxBuffers,				// 0 = unlimited
 	size_t			maxMemory,				// 0 = unlimited
 	int				priority,				// 0 = default 50, high is 90
@@ -1760,13 +1874,13 @@ edtPdvConfigFull(
         errlogPrintf( "NULL or zero length config name.\nUsage: edtPdvConfig(name,unit,chan,config)\n");
         return  -1;
     }
-
-    if (  cameraName == NULL || strlen(cameraName) == 0 )
+    if (  edtMode == NULL || strlen(edtMode) == 0 )
     {
-        errlogPrintf( "NULL or zero length camera name. Check parameters to edtPdvConfig()!\n");
+        errlogPrintf( "NULL or zero length EDT mode.\nUsage: edtPdvConfig(name,unit,chan,config,mode)\n");
         return  -1;
     }
-    if ( edtPdvCamera::CreateCamera( cameraName, unit, channel, modelName ) != 0 )
+
+    if ( edtPdvCamera::CreateCamera( cameraName, unit, channel, modelName, edtMode ) != 0 )
     {
         errlogPrintf( "edtPdvConfig failed for camera %s!\n", cameraName );
 		if ( EDT_PDV_DEBUG >= 4 )
@@ -1812,14 +1926,15 @@ static const iocshArg		edtPdvConfigArg0	= { "name",			iocshArgString };
 static const iocshArg		edtPdvConfigArg1	= { "unit",			iocshArgInt };
 static const iocshArg		edtPdvConfigArg2	= { "channel",		iocshArgInt };
 static const iocshArg		edtPdvConfigArg3	= { "modelName",	iocshArgString };
-static const iocshArg	*	edtPdvConfigArgs[4]	=
+static const iocshArg		edtPdvConfigArg4	= { "edtMode",		iocshArgString };
+static const iocshArg	*	edtPdvConfigArgs[5]	=
 {
-	&edtPdvConfigArg0, &edtPdvConfigArg1, &edtPdvConfigArg2, &edtPdvConfigArg3
+	&edtPdvConfigArg0, &edtPdvConfigArg1, &edtPdvConfigArg2, &edtPdvConfigArg3, &edtPdvConfigArg4
 };
-static const iocshFuncDef   edtPdvConfigFuncDef	= { "edtPdvConfig", 4, edtPdvConfigArgs };
+static const iocshFuncDef   edtPdvConfigFuncDef	= { "edtPdvConfig", 5, edtPdvConfigArgs };
 static int  edtPdvConfigCallFunc( const iocshArgBuf * args )
 {
-    return edtPdvConfig( args[0].sval, args[1].ival, args[2].ival, args[3].sval );
+    return edtPdvConfig( args[0].sval, args[1].ival, args[2].ival, args[3].sval, args[4].sval );
 }
 void edtPdvConfigRegister(void)
 {
@@ -1832,25 +1947,27 @@ static const iocshArg		edtPdvConfigFullArg0	= { "name",			iocshArgString };
 static const iocshArg		edtPdvConfigFullArg1	= { "unit",			iocshArgInt };
 static const iocshArg		edtPdvConfigFullArg2	= { "channel",		iocshArgInt };
 static const iocshArg		edtPdvConfigFullArg3	= { "cfgFile",		iocshArgString };
-static const iocshArg		edtPdvConfigFullArg4	= { "maxBuffers",	iocshArgInt };
-static const iocshArg		edtPdvConfigFullArg5	= { "maxMemory",	iocshArgInt };
-static const iocshArg		edtPdvConfigFullArg6	= { "priority",		iocshArgInt };
-static const iocshArg		edtPdvConfigFullArg7	= { "stackSize",	iocshArgInt };
+static const iocshArg		edtPdvConfigFullArg4	= { "edtMode",		iocshArgString };
+static const iocshArg		edtPdvConfigFullArg5	= { "maxBuffers",	iocshArgInt };
+static const iocshArg		edtPdvConfigFullArg6	= { "maxMemory",	iocshArgInt };
+static const iocshArg		edtPdvConfigFullArg7	= { "priority",		iocshArgInt };
+static const iocshArg		edtPdvConfigFullArg8	= { "stackSize",	iocshArgInt };
 // There has to be a better way to handle triggerPV, delayPV, and syncPV
 //static const iocshArg		edtPdvConfigFullArgX	= { "triggerPV",	iocshArgString };
 //static const iocshArg		edtPdvConfigFullArgX	= { "delayPV",		iocshArgString };
 //static const iocshArg		edtPdvConfigFullArgX	= { "syncPV",		iocshArgString };
-static const iocshArg	*	edtPdvConfigFullArgs[8]	=
+static const iocshArg	*	edtPdvConfigFullArgs[9]	=
 {
 	&edtPdvConfigFullArg0, &edtPdvConfigFullArg1, &edtPdvConfigFullArg2, &edtPdvConfigFullArg3,
-	&edtPdvConfigFullArg4, &edtPdvConfigFullArg5, &edtPdvConfigFullArg6, &edtPdvConfigFullArg7
+	&edtPdvConfigFullArg4, &edtPdvConfigFullArg5, &edtPdvConfigFullArg6, &edtPdvConfigFullArg7,
+	&edtPdvConfigFullArg8
 };
-static const iocshFuncDef   edtPdvConfigFullFuncDef	= { "edtPdvConfigFull", 8, edtPdvConfigFullArgs };
+static const iocshFuncDef   edtPdvConfigFullFuncDef	= { "edtPdvConfigFull", 9, edtPdvConfigFullArgs };
 static int  edtPdvConfigFullCallFunc( const iocshArgBuf * args )
 {
     return edtPdvConfigFull(
-		args[0].sval, args[1].ival, args[2].ival, args[3].sval,
-		args[4].ival, args[5].ival, args[6].ival, args[7].ival	);
+		args[0].sval, args[1].ival, args[2].ival, args[3].sval, args[4].sval,
+		args[5].ival, args[6].ival, args[7].ival, args[8].ival	);
 }
 void edtPdvConfigFullRegister(void)
 {
@@ -1859,7 +1976,7 @@ void edtPdvConfigFullRegister(void)
 
 // Register Function:
 //	int edt_set_verbosity( int level )
-static const iocshArg		edt_set_verbosityArg0	= { "level",	iocshArgInt };
+static const iocshArg		edt_set_verbosityArg0		= { "level",	iocshArgInt };
 static const iocshArg	*	edt_set_verbosityArgs[1]	= { &edt_set_verbosityArg0 };
 static const iocshFuncDef   edt_set_verbosityFuncDef	= { "edt_set_verbosity", 1, edt_set_verbosityArgs };
 static int  edt_set_verbosityCallFunc( const iocshArgBuf * args )

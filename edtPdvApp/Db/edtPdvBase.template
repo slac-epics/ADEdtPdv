@@ -7,6 +7,7 @@
 #	PORT			- Asyn port name
 # Optional macros
 #	TIMEOUT			- Defaults to 1 sec
+#	CAM_MODE		- Base, Medium, or Full. Defaults to Base
 #
 # These are needed only if you want to use Edt PV's to set
 # and monitor event code trigger timing.
@@ -15,11 +16,47 @@
 #	CAM_DLY			- PV to set camera event delay in sec
 #	CAM_DLY_EGU		- EGU for   camera event delay values, defaults to sec
 #	CAM_DLY_RBV		- PV to get camera event delay in sec
-#	CAM_DLY_SCALE	- Scale factor for delay to seconds, default 1, 1000 for ms
 #	CAM_RATE_RBV	- PV to get camera event code rep rate in Hz
+#	EVR_DLY_SCALE	- Scale factor for cam delay to evr delay, default 1000000000 for ns
+#	EVR_DLY_EGU		- EGU for   camera event delay values, defaults to ns
 #	BEAM_EC			- PV to set beam   event code
 #	BEAM_RATE_RBV	- PV to get beam   event code rep rate in Hz
 #
+
+# Disable these records from ADBase.template as they are readback only based
+# on the current configuration and can only be changed by changing the config file
+record( mbbo,   "$(P)$(R)DataType"			) { field( DISA, "1" ) }
+record( mbbo, "$(P)$(R)ColorMode"			) { field( DISA, "1" ) }
+
+record( longin, "$(P)$(R)HTaps_RBV" )
+{
+	field( DTYP,  "asynInt32" )
+	field( INP,   "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_HTAPS" )
+	field( SCAN,  "I/O Intr" )
+	info( archiveFields,  "VAL" )
+}
+
+record( longin, "$(P)$(R)VTaps_RBV" )
+{
+	field( DTYP,  "asynInt32" )
+	field( INP,   "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_VTAPS" )
+	field( SCAN,  "I/O Intr" )
+	info( archiveFields,  "VAL" )
+}
+
+record( mbbi, "$(P)$(R)EdtMode_RBV" )
+{
+	field( DTYP, "asynInt32" )
+	field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_MODE" )
+	field( ZRST, "Base" )
+	field( ZRVL, "0" )
+	field( ONST, "Medium" )
+	field( ONVL, "1" )
+	field( TWST, "Full" )
+	field( TWVL, "2" )
+	field( SCAN, "I/O Intr" )
+	info( archiveFields,  "VAL" )
+}
 
 record( stringin, "$(P)$(R)EdtClass" )
 {
@@ -131,14 +168,15 @@ record( mbbo, "$(P)$(R)EdtTrigLevel" )
 #	CAM_DLY			- PV to set camera event delay in sec
 #	CAM_DLY_EGU		- EGU for   camera event delay values, defaults to sec
 #	CAM_DLY_RBV		- PV to get camera event delay in sec
-#	CAM_DLY_SCALE	- Scale factor for delay to seconds, default 1, 1000 for ms
 #	CAM_RATE_RBV	- PV to get camera event code rep rate in Hz
+#	EVR_DLY_SCALE	- Scale factor for cam delay to evr delay, default 1000000000 for ns
+#	EVR_DLY_EGU		- EGU for   camera event delay values, defaults to ns
 #	BEAM_EC			- PV to set beam   event code
 #	BEAM_RATE_RBV	- PV to get camera event code rep rate in Hz
 record( longout, "$(P)$(R)EdtDelayScale" )
 {
-	field( DOL,  "$(CAM_DLY_SCALE=1)" )
-	field( EGU,  "$(CAM_DLY_EGU=sec)" )
+	field( DOL,  "$(EVR_DLY_SCALE=1000000000)" )
+	field( EGU,  "$(EVR_DLY_EGU=ns)" )
 	field( PINI, "YES" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
@@ -182,7 +220,7 @@ record( calc, "$(P)$(R)EdtCamTrigDelay_RBV" )
 {
 	field( INPA, "$(CAM_DLY_RBV=Unused) CPP MS" )
 	field( INPB, "$(P)$(R)EdtDelayScale CPP MS" )
-	field( CALC, "A==0?10:(B/A)" )
+	field( CALC, "B==0?A:(A/B)" )
 	field( EGU,  "$(CAM_DLY_EGU=sec)" )
 	field( PREC, "4" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC" )

@@ -8,6 +8,7 @@
 #registrar(	resetImageTimingRegister	)
 #registrar(	showImageTimingRegister		)
 registrar(	edtPdvConfigRegister		)
+registrar(	edtPdvConfigFullRegister	)
 registrar(	edt_set_verbosityRegister	)
 variable(	EDT_PDV_DEBUG,	int	)
 

@@ -65,39 +65,6 @@ private:
 // TODO: Morph into a template class
 // Possible approach could be:
 //	class syncDataAcq< devClass, dataClass >
-//	{
-//		syncDataAcq<devClass,dataClass>( devClass * pDev, int eventNumber = -1 );
-//		SetUnsyncedPolicy( fRejectUnsynced );
-//		SetBadTimestampPolicy( fRejectBadTimestamp );
-//		SetEventNumber( eventNumber );
-//		Shutdown( ) { m_fExitThread = true; }
-//		AcquireData( )	// In high priority thread
-//		{
-//		  while( !m_fExitThread )
-//		  {
-//			if ( pDev->NeedReconfig() )
-//			{  pDev->Reconfigure(); continue; }
-//			pData = pDev->AcquireData( );
-//			pData->CheckData(	);
-//			pDev->CheckSync(	pData );
-//			pDev->Timestamp(	pData );
-//			QueueData(	pData );
-//		  }
-//		}
-//		ProcessData( )	// In med-high priority thread
-//		{
-//		  while( !m_fExitThread )
-//		  {
-//			pConfigGenSub->Process();
-//			pData = DequeData( );
-//			pDev->ProcessData(	m_pData );
-//			pDev->ReleaseData(	m_pData );
-//		  }
-//		}
-//	  private:
-//		dataClass	*	m_pData;
-//		devClass	*	m_pDev;
-//	}
 //	with instantiations like
 //	syncDataAcq	edtSyncDataAcq< edtImage, edtCamera >
 //	or

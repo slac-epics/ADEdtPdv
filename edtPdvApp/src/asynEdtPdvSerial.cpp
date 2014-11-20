@@ -148,40 +148,17 @@ asynEdtPdvSerial::pdvDevConnected(
 				(pPdvDev != NULL ? pdv_get_camera_model( pPdvDev ) : "NULL") );
 
 	m_pPdvDev	= pPdvDev;
-
-	// Create a temporary asynUser for autoConnect control
-	asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
-	pAsynUserTmp->userPvt = this;
-
 	if ( pPdvDev == NULL )
 	{
-#if 0
-		pasynManager->autoConnect( pAsynUserTmp, 0 );
-		if ( m_fConnected )
-		{
-			// Signal asynManager that we are disconnecting
-			int  status = pasynManager->exceptionDisconnect( pAsynUserTmp );
-			if ( status != asynSuccess )
-				asynPrint(	pAsynUserTmp, ASYN_TRACE_ERROR,
-							"%s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
-							functionName, this->portName, pAsynUserTmp->errorMessage );
-		}
-#endif
 		m_fConnected	= false;
 	}
 	else
 	{
 		m_fConnected	= true;
 
-#if 0
-		// Signal asynManager that we are connected
-		int  status = pasynManager->exceptionConnect( pAsynUserTmp );
-		if ( status != asynSuccess )
-			asynPrint(	pAsynUserTmp, ASYN_TRACE_ERROR,
-						"%s port %s: Error calling pasynManager->exceptionConnect, error=%s\n",
-						functionName, this->portName, pAsynUserTmp->errorMessage );
-#endif
-
+		// Create a temporary asynUser for autoConnect control
+		asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
+		pAsynUserTmp->userPvt = this;
 		pasynManager->autoConnect( pAsynUserTmp, 1 );
 	}
 
@@ -198,28 +175,8 @@ asynEdtPdvSerial::pdvDevDisconnected(
 	if ( EDT_PDV_DEBUG >= 1 )
 		printf( "%s: %s Disconnecting\n", functionName, this->portName );
 
-	// Create a temporary asynUser for autoConnect control
-//	asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
-//	pAsynUserTmp->userPvt = this;
-
-	//	status		= pasynManager->autoConnect( pAsynUserTmp, 0 );
-	//	if ( status != asynSuccess )
-	//		asynPrint(	pAsynUserTmp, ASYN_TRACE_ERROR,
-	//					"%s port %s: Error calling pasynManager->autoConnect, error=%s\n",
-	//					functionName, this->portName, pAsynUserTmp->errorMessage );
-
-	if ( m_fConnected )
-	{
-		// Signal asynManager that we are disconnecting
-	//	status = pasynManager->exceptionDisconnect( pAsynUserTmp );
-	//	if ( status != asynSuccess )
-	//		asynPrint(	pAsynUserTmp, ASYN_TRACE_ERROR,
-	//					"%s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
-	//					functionName, this->portName, pAsynUserTmp->errorMessage );
-		m_fConnected	= false;
-	}
-
-	m_pPdvDev	= pPdvDev;
+	m_fConnected	= false;
+	m_pPdvDev		= pPdvDev;
 	return status;
 }
 

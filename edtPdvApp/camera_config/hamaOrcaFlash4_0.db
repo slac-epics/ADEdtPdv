@@ -194,6 +194,8 @@ record( ai, "$(P)$(R)OrcaExtTrigDelay_RBV" )
 # Disable these records from ADBase.template as the Orca doesn't support them
 record( ao, "$(P)$(R)Gain"			) { field( DISA, "1" ) }
 record( ai, "$(P)$(R)Gain_RBV"		) { field( DISA, "1" ) }
+
+# SizeY is derived from (MaxSizeY_RBV - MinY)
 record( longout, "$(P)$(R)SizeY"	) { field( DISA, "1" ) }
 
 # Set ORCA AcquireTime (Exposure Time)
@@ -264,19 +266,42 @@ record( ai, "$(P)$(R)AcquireTime_RBV" )
 	field( PREC, "5" )
 }
 
+#
 # Set ORCA TriggerMode
+#
+# Replace ADBase TriggerMode mbbo fields w/ Orca specific versions
 record( mbbo, "$(P)$(R)TriggerMode" )
 {
 	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
 	field( ONVL, "1" )	field( ONST, "External" )
 	field( TWVL, "2" )	field( TWST, "Pulse" )
+#	field( FLNK, "$(P)$(R)OrcaTriggerMode" )
+}
+
+# Replace ADBase TriggerMode_RBV mbbo fields w/ Orca specific versions
+record( mbbi, "$(P)$(R)TriggerMode_RBV" )
+{
+	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
+	field( ONVL, "1" )	field( ONST, "External" )
+	field( TWVL, "2" )	field( TWST, "Pulse" )
+}
+record( mbbi, "$(P)$(R)EdtTriggerMode" )
+{
+	field( DTYP, "asynInt32" )
+	field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_SER_TRIGGER_MODE" )
+	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
+	field( ONVL, "1" )	field( ONST, "External" )
+	field( TWVL, "2" )	field( TWST, "Pulse" )
+	field( SCAN, "I/O Intr" )
+	info( archiveFields,  "VAL" )
 	field( FLNK, "$(P)$(R)OrcaTriggerMode" )
 }
+# Send Orca serial trigger mode command
 record( mbbo, "$(P)$(R)OrcaTriggerMode" )
 {
 	field( DTYP, "stream" )
 	field( OMSL, "closed_loop" )
-	field( DOL,  "$(P)$(R)TriggerMode NPP NMS" )
+	field( DOL,  "$(P)$(R)EdtTriggerMode NPP NMS" )
 	field( OUT,  "@hamaOrcaFlash4_0.proto SetTriggerMode $(PORT).SER" )
 	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
 	field( ONVL, "1" )	field( ONST, "External" )
@@ -285,7 +310,7 @@ record( mbbo, "$(P)$(R)OrcaTriggerMode" )
 	info( archiveFields,  "VAL" )
 }
 
-# Read ORCA TriggerMode
+# Read Orca serial trigger mode command
 record( mbbi, "$(P)$(R)OrcaTriggerMode_RBV" )
 {
 	field( DTYP, "stream" )
@@ -296,14 +321,16 @@ record( mbbi, "$(P)$(R)OrcaTriggerMode_RBV" )
 	field( FLNK, "$(P)$(R)EdtTriggerMode_RBV" )
 	info( archiveFields,  "VAL" )
 }
+# Update asyn EDTPdv driver SerTriggerMode value
 record( mbbo, "$(P)$(R)EdtTriggerMode_RBV" )
 {
 	field( DTYP, "asynInt32" )
 	field( OMSL, "closed_loop" )
 	field( DOL,  "$(P)$(R)OrcaTriggerMode_RBV NPP MS" )
 	field( OUT,  "@asyn($(PORT),0,1)EDT_SER_TRIGGER_MODE" )
-	field( ZRVL, "0" )	field( ZRST, "Internal" )
+	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
 	field( ONVL, "1" )	field( ONST, "External" )
+	field( TWVL, "2" )	field( TWST, "Pulse" )
 	info( archiveFields,  "VAL" )
 }
 
@@ -403,6 +430,7 @@ record( longout, "$(P)$(R)EdtSizeY_RBV" )
 	field( OUT,  "@asyn($(PORT),0,1)EDT_SIZE_Y" )
 #	field( SCAN, "I/O Intr" )
 }
+
 record( ao, "$(P)$(R)OrcaLineDelay" )
 {
 	field( OMSL, "closed_loop" )
@@ -412,27 +440,30 @@ record( ao, "$(P)$(R)OrcaLineDelay" )
 	field( PINI, "YES" )
 	info( autosaveFields, "PREC" )
 }
+
 record( calcout, "$(P)$(R)OrcaMinExposure" )
 {
-	field( INPA, "$(P)$(R)OrcaScanSize_RBV CP MS" )
-	field( INPB, "$(P)$(R)OrcaLineDelay CP MS" )
+	field( INPA, "$(P)$(R)OrcaScanSize_RBV CPP MS" )
+	field( INPB, "$(P)$(R)OrcaLineDelay    CPP MS" )
 	field( CALC, "(A+1)*B" )
 	field( PREC, "2" )
 	field( EGU,  "sec" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
+
 record( calcout, "$(P)$(R)OrcaMaxRate" )
 {
-	field( INPA, "$(P)$(R)OrcaScanSize_RBV CP MS" )
-	field( INPB, "$(P)$(R)OrcaLineDelay NPP MS" )
-	field( INPC, "$(P)$(R)OrcaAcquireTime_RBV CP MS" )
+	field( INPA, "$(P)$(R)OrcaScanSize_RBV    CPP MS" )
+	field( INPB, "$(P)$(R)OrcaLineDelay       CPP MS" )
+	field( INPC, "$(P)$(R)OrcaAcquireTime_RBV CPP MS" )
 	field( CALC, "1/(C+(A+10)*B)" )
 	field( PREC, "2" )
 	field( EGU,  "Hz" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
+
 record( calc,	"$(P)$(R)OrcaFullExpWindow" )
 {
 	field( INPA, "$(P)$(R)AcquireTime_RBV CPP MS" )
@@ -441,22 +472,23 @@ record( calc,	"$(P)$(R)OrcaFullExpWindow" )
 	field( PREC, "2" )
 	field( EGU,  "sec" )
 	field( LOLO, "0" )
-	field( LOW,  "20e-6" )
+	field( LOW,  "100e-6" )
 	field( LLSV, "MAJOR" )
 	field( LSV,  "MINOR" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC VAL" )
 }
+
 record( calc,	"$(P)$(R)OrcaPrepTime" )
 {
-	field( INPA, "$(P)$(R)EdtCamRepDur CPP MS" )
+	field( INPA, "$(P)$(R)EdtCamRepDur    CPP MS" )
 	field( INPB, "$(P)$(R)OrcaMinExposure CPP MS" )
-	field( INPC, "$(P)$(R)OrcaFullExpWindow" )
-	field( CALC, "A-(2*B)-C" )
+	field( INPC, "$(P)$(R)AcquireTime_RBV CPP MS" )
+	field( CALC, "A-B-C" )
 	field( PREC, "2" )
 	field( EGU,  "sec" )
-	field( LOLO, "0" )
-	field( LOW,  "20e-6" )
+	field( LOLO, "158e-6" )
+	field( LOW,  "180e-6" )
 	field( LLSV, "MAJOR" )
 	field( LSV,  "MINOR" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC" )

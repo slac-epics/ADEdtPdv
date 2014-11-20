@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1973
-y 760
+x 1977
+y 784
 w 700
 h 595
 font "helvetica-medium-r-12.0"
@@ -1444,36 +1444,6 @@ bgColor index 3
 value {
   "Image Collection"
 }
-endObjectProperties
-
-# (Related Display)
-object relatedDisplayClass
-beginObjectProperties
-major 4
-minor 4
-release 0
-x 396
-y 564
-w 104
-h 24
-fgColor index 14
-bgColor index 3
-topShadowColor index 2
-botShadowColor index 12
-font "helvetica-medium-r-12.0"
-buttonLabel "Network Stats"
-numPvs 4
-numDsps 1
-displayFileName {
-  0 "areaDetectorScreens/prosilicaMore.edl"
-}
-menuLabel {
-  0 "Network Stats"
-}
-symbols {
-  0 "P=$(P),R=$(R)"
-}
-icon
 endObjectProperties
 
 # (Related Display)
