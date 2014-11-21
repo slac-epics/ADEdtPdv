@@ -677,8 +677,8 @@ int edtPdvCamera::_Reconfigure( )
 	// Set the EDT PDV debug levels
 	if ( EDT_PDV_DEBUG >= 1 )
 	{
-		printf( "%s: %s Setting Pdv_debug = %d, Edt msg level debug = %d\n",
-				functionName, m_EdtDebugLevel, m_EdtDebugMsgLevel );
+		printf( "%s: Setting Pdv_debug = %d, Edt msg level debug = %d\n",
+				functionName,  m_EdtDebugLevel, m_EdtDebugMsgLevel );
 	}
 	pdv_setdebug(		NULL,				 		m_EdtDebugLevel	);
 	edt_msg_set_level(	edt_msg_default_handle(),	m_EdtDebugMsgLevel	);
