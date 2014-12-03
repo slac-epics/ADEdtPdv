@@ -375,15 +375,15 @@ template < class Dev, class Data >	class syncDataAcq
 
 					// Check for sync
 					ACQ_TRACE( 4, "%s: Checking sync ...\n", functionName );
-	#if 0
+#if 0
 					setIntegerParam( ADStatus, ADStatusCorrect );
 					callParamCallbacks( 0, 0 );
-	#else
+#else
 					bool	isSynced = m_Device.IsSynced( pImage );
-	#endif
+#endif
 					if ( isSynced == false )
 					{
-					//	if ( pSyncObj->GetPolicyUnsynced() == syncObject::SKIP_OBJECT )
+						if ( GetPolicyUnsynced() == SKIP_OBJECT )
 							continue;
 					}
 
@@ -394,8 +394,8 @@ template < class Dev, class Data >	class syncDataAcq
 					status = m_Device.TimeStampImage( pImage, &tsEvent, &pulseID );
 					if ( status != 0 )
 					{
-					//	if ( pSyncObj->GetPolicyBadTimeStamp() == syncObject::SKIP_OBJECT )
-						continue;
+						if ( GetPolicyBadTimeStamp() == SKIP_OBJECT )
+							continue;
 					}
 
 					ACQ_TRACE( 4, "%s: ProcessData ...\n", functionName );

@@ -250,6 +250,10 @@ edtPdvCamera::edtPdvCamera(
 	// Make it available as a member variable
 	m_pSyncDataAcquirer	= pSyncDataAcquirer;
 
+	// Set our policies
+	m_pSyncDataAcquirer->SetPolicyUnsynced(		syncDataAcq<edtPdvCamera, edtImage>::SKIP_OBJECT );
+	m_pSyncDataAcquirer->SetPolicyBadTimeStamp(	syncDataAcq<edtPdvCamera, edtImage>::SKIP_OBJECT );
+
     // Install exit hook for clean shutdown
     epicsAtExit( (EPICSTHREADFUNC)edtPdvCamera::ExitHook, (void *) this );
 }
@@ -943,10 +947,10 @@ int edtPdvCamera::UpdateADConfigParams( )
     m_width		= pdv_get_width(	m_pPdvDev );
     m_height	= pdv_get_height(	m_pPdvDev );
     m_numOfBits	= pdv_get_depth(	m_pPdvDev );
-    m_EdtHSkip	= 0;
-    m_EdtHSize	= m_width;
-    m_EdtVSkip	= 0;
-    m_EdtVSize	= m_height;
+    m_EdtHSkip	= GetMinX();
+    m_EdtHSize	= GetSizeX();
+    m_EdtVSkip	= GetMinY();
+    m_EdtVSize	= GetSizeY();
 	setIntegerParam(	ADMaxSizeX,		m_width		);
 	setIntegerParam(	ADMaxSizeY,		m_height	);
 	setIntegerParam(	NDBitsPerPixel,	m_numOfBits	);
@@ -963,14 +967,10 @@ int edtPdvCamera::UpdateADConfigParams( )
 	setIntegerParam( NDArrayCallbacks,	1	);
 
 	// TODO: Move these to SetSizeX(), ...
-	setIntegerParam( NDArraySizeX,		m_width		);	// TODO: Fix for ROI
-	setIntegerParam( NDArraySizeY,		m_height	);	// TODO: Fix for ROI
-	m_imageSize		= m_width * m_height;
+	setIntegerParam( NDArraySizeX,		GetSizeX()	);
+	setIntegerParam( NDArraySizeY,		GetSizeY()	);
+	m_imageSize		= GetSizeX() * GetSizeY();
 	setIntegerParam( NDArraySize,		m_imageSize );
-
-	//	TODO: Do we need these?
-    //	m_Gain			= pdv_get_gain(			m_pPdvDev );
-    //	m_dmaSize		= pdv_get_dmasize(		m_pPdvDev );
 
     char		buf[MAX_STRING_SIZE];
     if ( edt_get_driver_version(	m_pPdvDev, buf, MAX_STRING_SIZE ) )
@@ -1482,6 +1482,9 @@ int	edtPdvCamera::TimeStampImage(
 	// needs pNDArray->uniqueId to be the pulse number
 	if ( pPulseNumRet != NULL )
 		*pPulseNumRet = pDest->nsec & 0x1FFFF;
+	if ( m_TriggerMode != TRIGMODE_FREERUN )
+		if ( (pDest->nsec & 0x1FFFF) == 0x1FFFF )
+			return -1;
 	return 0;
 }
 
