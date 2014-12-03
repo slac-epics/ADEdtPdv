@@ -88,9 +88,12 @@ public:		//	Public member functions
     virtual asynStatus writeInt32(	asynUser	*	pasynUser,	epicsInt32		value	);
     virtual asynStatus writeFloat64(asynUser	*	pasynUser,	epicsFloat64	value	);
     void	report(	FILE	*	fp,	int	details	);
- 
+
 	/// Registered with epicsAtExit() for clean disconnect
-    static void shutdown(	void	*	arg	);
+	static void ExitHook( void * pThis );
+ 
+ 	/// Shutdown driver
+	void Shutdown( );
 
 	///	Get camera class, typically the manufacturer
 	const std::string	&	GetCameraClass( ) const
@@ -154,31 +157,36 @@ public:		//	Public member functions
 		return m_Gain;
 	}
 
-	int				SetBinX(	unsigned int	value	);
+	int				RequestBinX(	unsigned int	value	);
+	int				SetBinX(		unsigned int	value	);
 	unsigned int	GetBinX( ) const
 	{
 		return m_BinX;
 	}
 
-	int				SetBinY(	unsigned int	value	);
+	int				RequestBinY(	unsigned int	value	);
+	int				SetBinY(		unsigned int	value	);
 	unsigned int	GetBinY( ) const
 	{
 		return m_BinY;
 	}
 
-	int		SetMinX(	size_t	value	);
+	int		RequestMinX(	size_t	value	);
+	int		SetMinX(		size_t	value	);
 	size_t	GetMinX( ) const
 	{
 		return m_MinX;
 	}
 
-	int		SetMinY(	size_t	value	);
+	int		RequestMinY(	size_t	value	);
+	int		SetMinY(		size_t	value	);
 	size_t	GetMinY( ) const
 	{
 		return m_MinY;
 	}
 
-	int		SetSizeX(	size_t	value	);
+	int		RequestSizeX(	size_t	value	);
+	int		SetSizeX(		size_t	value	);
 	size_t	GetSizeX( ) const
 	{
 		if ( m_SizeX == 0 )
@@ -186,7 +194,8 @@ public:		//	Public member functions
 		return m_SizeX;
 	}
 
-	int		SetSizeY(	size_t	value	);
+	int		RequestSizeY(	size_t	value	);
+	int		SetSizeY(		size_t	value	);
 	size_t	GetSizeY( ) const
 	{
 		if ( m_SizeY == 0 )
@@ -275,11 +284,17 @@ public:		//	Public member functions
 	///	Returns true if device needs reconfiguring
 	bool					NeedsReconfigure(	)
 	{
-		return m_fReconfig;
+		return m_fReconfig || m_fReopen;
 	}
-	
+
 	///	Reconfigure camera (reread config file and re-initialize connection)
+	/// Takes the reconfigure lock to make it thread safe
 	int						Reconfigure(	);
+
+	///	Reopen EDT driver (re-initialize connection)
+	/// Can be called from any thread to open or reopen the EDT driver connection
+	/// Takes the reconfigure lock to make it thread safe
+	int						Reopen(	);
 
 	bool					IsSynced(		edtImage		*	);
 
@@ -322,6 +337,7 @@ private:	//	Private member functions
 	//	Internal version of reconfigure
 	//	Don't call without holding m_reconfigLock!
 	int						_Reconfigure( );
+	int						_Reopen( );
 
 private:	//	Private class functions
 	static	void			CameraAdd(		edtPdvCamera * pCamera );
@@ -333,6 +349,7 @@ protected:	//	Protected member variables
 	bool			m_fAcquireMode;		// Set true to start acquiring images, false to halt
 	bool			m_fExitApp;			// Set true to shutdown ioc
 	bool			m_fReconfig;		// True when we need to reconfigure the ROI or other camera parameters
+	bool			m_fReopen;			// True when we need to reread the configuration file
 	int				m_NumMultiBuf;		// Number of pdv multi buffers configured
 
 private:	//	Private member variables
@@ -381,11 +398,17 @@ private:	//	Private member variables
 
 	// HW ROI and binning parameters from ADBase
 	size_t			m_BinX;
+	size_t			m_BinXReq;
 	size_t			m_BinY;
+	size_t			m_BinYReq;
 	size_t			m_MinX;
+	size_t			m_MinXReq;
 	size_t			m_MinY;
+	size_t			m_MinYReq;
 	size_t			m_SizeX;
+	size_t			m_SizeXReq;
 	size_t			m_SizeY;
+	size_t			m_SizeYReq;
 
 	// Gain value for camera
 	double			m_Gain;
@@ -417,6 +440,8 @@ private:	//	Private member variables
 
 	// Serial front-end params for ADBase parameters
 	int		SerAcquireTime;
+	int		SerBinX;
+	int		SerBinY;
 	int		SerMinX;
 	int		SerMinY;
 	int		SerSizeX;
@@ -461,6 +486,8 @@ private:	//	Private class variables
 // their ADBase class equivalents, for example
 // SerAcquireTime	=>	ADAcquireTime 
 #define EdtSerAcquireTimeString	"EDT_SER_ACQUIRE_TIME"
+#define EdtSerBinXString		"EDT_BIN_X"
+#define EdtSerBinYString		"EDT_BIN_Y"
 #define EdtSerMinXString		"EDT_MIN_X"
 #define EdtSerMinYString		"EDT_MIN_Y"
 #define EdtSerSizeXString		"EDT_SIZE_X"

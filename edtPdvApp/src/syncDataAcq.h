@@ -6,16 +6,6 @@
 
 #define	ACQ_TRACE( level, pFormat... ) if ( level > GetTraceLevel() ) tracePrint( pFormat )
 
-#define SYNC_DEBUG(n)        (sync_debug > (n) && sync_cnt > 0 && --sync_cnt)
-#define SYNC_DEBUG_ALWAYS(n) (sync_debug > (n))
-#define SYNC_ERROR(level, msg)     \
-        if (SYNC_DEBUG(level)) {   \
-            printf msg;            \
-            DebugPrint(m_pDataObject);\
-            fflush(stdout);        \
-        }                          \
-        SetSynced( false );
-
 /*	Macro declarations */
 #define ACQUIRE_THREAD_PRIORITY	(epicsThreadPriorityMedium)
 #define ACQUIRE_THREAD_STACK		(0x20000)
@@ -62,13 +52,14 @@ private:
 	NDArray		*	m_pNDArray;
 };
 
-// TODO: Morph into a template class
-// Possible approach could be:
-//	class syncDataAcq< devClass, dataClass >
-//	with instantiations like
-//	syncDataAcq	edtSyncDataAcq< edtImage, edtCamera >
-//	or
-//	syncDataAcq	rawSyncDataAcq< rawData, rawDataSource >
+///	template class syncDataAcq< devClass, dataClass >
+/// Provides a thread based acquisition and timestamping loop
+/// with common logic for thread safety, reconfiguration,
+/// timestamping, and shutdown.
+/// Policy based configuration for whether or not to reject data objects
+///	Example instantiations:
+///		syncDataAcq	edtSyncDataAcq< edtImage, edtCamera >
+///		syncDataAcq	rawSyncDataAcq< rawData, rawDataSource >
 template < class Dev, class Data >	class syncDataAcq
 {
  public:
@@ -81,6 +72,7 @@ template < class Dev, class Data >	class syncDataAcq
 		m_Name(					strName		),
 		m_fExitThread(			false		),
 		m_TraceLevel(			1			),
+		m_fEnabled(				false		),
 		m_fAcquiring(			false		),
 		m_threadId(				NULL		),
 		m_acquireEvent(			NULL		),
@@ -109,9 +101,19 @@ template < class Dev, class Data >	class syncDataAcq
 		Shutdown();
 	}
 
-	bool	IsAcquiring()
+	bool	IsAcquiring() const
 	{
 		return m_fAcquiring;
+	}
+
+	bool	IsEnabled() const
+	{
+		return m_fEnabled;
+	}
+
+	void SetEnabled( bool fEnabled = true )
+	{
+		m_fEnabled = fEnabled;
 	}
 
 	// Acquire timeout in sec, 0 = don't wait, -1 = forever
@@ -267,11 +269,19 @@ template < class Dev, class Data >	class syncDataAcq
 		//	Forever loop until app exits
 		while ( m_fExitThread == false )
 		{
+
 		try
 			{
-				int	status	= 0;
+				// Just spin till acquisition is enabled
+				if ( !m_fEnabled )
+				{
+					ACQ_TRACE(	2,	"%s: Signal Acquisition disabled\n", functionName, epicsThreadGetNameSelf() );
+					epicsThreadSleep( m_reconfigDelay * 5 );
+					continue;
+				}
 
 				// See if the camera needs to be configured
+				int	status	= 0;
 				if ( m_Device.NeedsReconfigure() )
 				{
 					//	Wait a bit before configuring in case multiple
@@ -421,13 +431,11 @@ template < class Dev, class Data >	class syncDataAcq
 
 	int		RequestResync(	void );
 
-#if 0
 	// Trace level: 0=none, 1=sparse, 2=more, 3=lots, ...
 	void	SetTraceLevel(	unsigned int level )
 	{
 		m_TraceLevel	= level;
 	}
-#endif
 	unsigned int GetTraceLevel( )
 	{
 		return m_Device.GetTraceLevel();
@@ -493,6 +501,7 @@ private:	//	Private member functions
  	std::string		m_Name;				// Name is arbitrary, used to identify thread
 	bool			m_fExitThread;		// Set true to ask the acquisition thread to exit
 	unsigned int	m_TraceLevel;		// Trace level: 0=none, 1=sparse, 2=more, 3=lots, ...
+	bool			m_fEnabled;			// True if acquisition is enabled.  Does nothing when not enabled
 	bool			m_fAcquiring;		// True while acquiring images, false when idle
 	epicsThreadId	m_threadId;			// Thread identifier for polling thread
 	epicsEventId	m_acquireEvent;		// Used to signal when image acquisition is needed

@@ -27,7 +27,7 @@ CONFIG=$(EPICS_BASE)/configure
 # Define the version(s) of any other needed modules 
 # ===============================================================
 # Example
-ADCORE_MODULE_VERSION		= R2.0-0.6.0
+ADCORE_MODULE_VERSION		= R2.0-0.7.0
 ASYN_MODULE_VERSION			= R4.23-0.3.0
 DIAG_TIMER_MODULE_VERSION	= R1.6.0
 EVENT2_MODULE_VERSION		= R4.0.0-2.7.0
@@ -56,5 +56,5 @@ MY_MODULES	= /reg/neh/home/bhill/wa2/trunk/pcds/epics/modules
 #ASYN		= $(MY_MODULES)/asyn/current
 #DIAG_TIMER	= $(MY_MODULES)/diagTimer/current
 #EVENT2		= $(MY_MODULES)/event2/current
-SYNC_OBJ	= $(MY_MODULES)/timesync/refactor
+#SYNC_OBJ	= $(MY_MODULES)/timesync/refactor
 

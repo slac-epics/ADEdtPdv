@@ -12,7 +12,6 @@ LIBRARY_IOC_WIN32 += edtPdv
 LIBRARY_IOC_Linux += edtPdv
 LIBRARY_IOC_Darwin += edtPdv
 
-#LIB_SRCS += drvAsynEdtPdvSerial.cpp
 LIB_SRCS += asynEdtPdvSerial.cpp
 LIB_SRCS += edtPdvCamera.cpp
 #LIB_SRCS += edtSync.cpp
@@ -21,18 +20,10 @@ LIB_SRCS += syncDataAcq.cpp
 # future pdv lib versions that provide it
 LIB_SRCS += promheader.c
 
-# TODO: Move to new module
-#LIB_SRCS += devTimeStampSourceFifo.c
-#LIB_SRCS += registerTimeStampSourceFifo.c
-#LIB_SRCS += timeStampSourceFifo.c
-#DBD += timeStampSourceFifo.dbd
-
 LIB_LIBS += pdv
 
-#INCLUDE += drvAsynEdtPdvSerial.h
 INCLUDE += edtPdvCamera.h
 
-# DBD += drvAsynEdtPdvSerial.dbd
 DBD += edtPdvSupport.dbd
 
 include $(ADCORE)/ADApp/commonLibraryMakefile

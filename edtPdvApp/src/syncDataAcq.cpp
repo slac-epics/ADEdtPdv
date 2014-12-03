@@ -14,5 +14,5 @@
 
 using namespace		std;
 
-int sync_debug = 2;
-int sync_cnt   = 200;
+//	int sync_debug = 2;
+//	int sync_cnt   = 200;

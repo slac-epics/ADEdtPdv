@@ -334,6 +334,30 @@ record( mbbo, "$(P)$(R)EdtTriggerMode_RBV" )
 	info( archiveFields,  "VAL" )
 }
 
+# Just pass on the MinX and SizeX
+record( longout, "$(P)$(R)MinX" )
+{
+	field( FLNK, "$(P)$(R)EdtMinX" )
+}
+record( longout, "$(P)$(R)EdtMinX" )
+{
+	field( DTYP, "asynInt32" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)MinX NPP MS" )
+	field( OUT,  "@asyn($(PORT),0,1)EDT_MIN_X" )
+}
+record( longout, "$(P)$(R)SizeX" )
+{
+	field( FLNK, "$(P)$(R)EdtSizeX" )
+}
+record( longout, "$(P)$(R)EdtSizeX" )
+{
+	field( DTYP, "asynInt32" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)SizeX NPP MS" )
+	field( OUT,  "@asyn($(PORT),0,1)EDT_SIZE_X" )
+}
+
 # Set ORCA ROI (Vertical Double Scan Parameters)
 record( longout, "$(P)$(R)MinY" )
 {
@@ -428,7 +452,6 @@ record( longout, "$(P)$(R)EdtSizeY_RBV" )
 {
 	field( DTYP, "asynInt32" )
 	field( OUT,  "@asyn($(PORT),0,1)EDT_SIZE_Y" )
-#	field( SCAN, "I/O Intr" )
 }
 
 record( ao, "$(P)$(R)OrcaLineDelay" )
