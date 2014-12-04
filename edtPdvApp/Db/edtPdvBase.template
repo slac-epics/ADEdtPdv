@@ -196,7 +196,6 @@ record( longin, "$(P)$(R)EdtCamEventCode_RBV" )
 }
 record( ao, "$(P)$(R)EdtCamTrigDelay" )
 {
-	field( OUT,  "$(CAM_DLY=Unused) CPP NMS" )
 	field( PINI, "YES" )
 	field( EGU,  "$(CAM_DLY_EGU=sec)" )
 	field( PREC, "4" )
