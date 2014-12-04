@@ -638,6 +638,10 @@ int edtPdvCamera::Reconfigure( )
 	}
 	epicsMutexUnlock(	m_reconfigLock );
 
+	// Restart acquisition if acquire mode still on
+	if ( m_fAcquireMode )
+		SetAcquireMode( m_fAcquireMode );
+
 	if ( status != 0 )
 	{
         asynPrint(	this->pasynUserSelf, ASYN_TRACE_ERROR,

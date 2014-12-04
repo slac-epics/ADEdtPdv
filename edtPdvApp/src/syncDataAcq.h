@@ -403,7 +403,7 @@ template < class Dev, class Data >	class syncDataAcq
 					m_Device.ProcessData( pImage, &tsEvent, pulseID );
 				}
 				m_fAcquiring = false;
-				m_Device.SetAcquireMode( false );
+				// Do we need to do this? m_Device.SetAcquireMode( false );
 			}
 		catch ( std::exception & e )
 			{
