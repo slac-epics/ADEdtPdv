@@ -275,11 +275,14 @@ public:		//	Public member functions
 	///	Show Camera info on stdout
 	int						CameraShow( int level );
 
-	///	Start Camera
-	int						CameraStart( );
+	///	Start Camera image acquisition
+	int						StartAcquisition( );
 
 	///	Acquire next image from the camera
 	int						AcquireData(	edtImage	*	pImage	);
+
+	///	Check for a valid image, returns 0 on success, error code on error
+	int						CheckData(		edtImage	*	pImage	);
 
 	///	Returns true if device needs reconfiguring
 	bool					NeedsReconfigure(	)
@@ -296,7 +299,9 @@ public:		//	Public member functions
 	/// Takes the reconfigure lock to make it thread safe
 	int						Reopen(	);
 
-	bool					IsSynced(		edtImage		*	);
+	bool					IsSynced(		edtImage		*	pImage,
+											epicsTimeStamp	*	pTimeStamp,
+											int					pulseID		);
 
 	void					ReleaseData(	edtImage		*	);
 
@@ -358,7 +363,7 @@ private:	//	Private member variables
 	unsigned int	m_unit;			// index of EDT DV C-LINK PMC card
 	unsigned int	m_channel;		// channel on  EDT DV C-LINK PMC card
 
-	epicsTime		m_priorTimeStamp;	// Last timestamp for this event number
+	epicsTimeStamp	m_priorTimeStamp;	// Last timestamp for this event number
 
 	std::string		m_CameraClass;	// Manufacturer of camera
 	std::string		m_CameraInfo;	// camera info string

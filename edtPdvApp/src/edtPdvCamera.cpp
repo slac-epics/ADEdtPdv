@@ -886,6 +886,7 @@ int edtPdvCamera::_Reopen( )
 	{
 		if ( EDT_PDV_DEBUG >= 1 )
 			printf( "%s: %s Closing old PdvDev prior to reopen\n", functionName, m_CameraName.c_str() );
+		pdv_timeout_restart( m_pPdvDev, 0 );
 		pdv_close( m_pPdvDev );
 		m_pPdvDev	= NULL;
 	}
@@ -1090,10 +1091,10 @@ asynStatus	edtPdvCamera::SetAcquireMode( int fAcquire )
 	return asynSuccess;
 }
 
-int edtPdvCamera::CameraStart( )
+int edtPdvCamera::StartAcquisition( )
 {
-    static const char	*	functionName = "edtPdvCamera::CameraStart";
-	CONTEXT_TIMER( "CameraStart" );
+    static const char	*	functionName = "edtPdvCamera::StartAcquisition";
+	CONTEXT_TIMER( "StartAcquisition" );
 
 	// Cleanup any pending transfers
 	// (Helps keep synchronized images if app is restarted)
@@ -1433,13 +1434,31 @@ int	edtPdvCamera::ProcessData(
 	return 0;
 }
 
-bool	 edtPdvCamera::IsSynced(	edtImage	*	pImage	)
+#ifndef	INVALID_PULSE
+#define	INVALID_PULSE	0x1FFFF
+#endif	//	INVALID_PULSE
+bool	 edtPdvCamera::IsSynced(
+	edtImage		*	pImage,
+	epicsTimeStamp	*	pTimeStamp,
+	int					pulseID		)
 {
 	if ( pImage == NULL )
+		return false;
+	if ( pTimeStamp == NULL )
+		return false;
+	if ( pulseID == INVALID_PULSE )
 		return false;
 	return true;
 }
 
+
+// CheckData returns 0 on OK, non-zero on error
+int	 edtPdvCamera::CheckData(	edtImage	*	pImage	)
+{
+	if ( pImage == NULL )
+		return -1;
+	return 0;;
+}
 
 void edtPdvCamera::ReleaseData(	edtImage	*	pImage	)
 {
@@ -1457,6 +1476,7 @@ int	edtPdvCamera::TimeStampImage(
 	epicsTimeStamp	*	pDest,
 	int				*	pPulseNumRet	)
 {
+    static const char	*	functionName = "edtPdvCamera::TimeStampImage";
 	if ( pImage == NULL )
 		return -1;
 	if ( pDest == NULL )
@@ -1475,9 +1495,22 @@ int	edtPdvCamera::TimeStampImage(
 	updateTimeStamp( &newEvrTime );
 	}
 
-	epicsTime			newTimeStamp( newEvrTime );;
-	if ( newTimeStamp == m_priorTimeStamp )
+	//	TODO:	Create a subclass of epicsTime which knows how to get
+	//			and set pulseID's in an epicsTimeStamp, i.e. SLAC's pulseId=(ts.nSec & 0x1FFFF);
+	//	We can't construct an epicsTime directly from our epicsTimeStamp as we sometimes
+	//	set the nSec field > 1e9
+	epicsTimeStamp	newTimeStamp( newEvrTime );
+	if (	newTimeStamp.secPastEpoch	== m_priorTimeStamp.secPastEpoch
+		&&	newTimeStamp.nsec			== m_priorTimeStamp.nsec )
+	{
+		char	acBuffer[32];
+		epicsTimeToStrftime( acBuffer, 32, "%02H:%02M:%02S.%3f", &newTimeStamp );
+		int	pulseId = newEvrTime.nsec & 0x1FFFF;
+		asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW,
+					"%s: Duplicate TimeStamp %s, pulseID %d\n", functionName, acBuffer, pulseId );
 		return -1;
+	}
+
 	m_priorTimeStamp	= newTimeStamp;
 	*pDest				= newTimeStamp;
 
@@ -1486,9 +1519,19 @@ int	edtPdvCamera::TimeStampImage(
 	// needs pNDArray->uniqueId to be the pulse number
 	if ( pPulseNumRet != NULL )
 		*pPulseNumRet = pDest->nsec & 0x1FFFF;
+
 	if ( m_TriggerMode != TRIGMODE_FREERUN )
+	{
 		if ( (pDest->nsec & 0x1FFFF) == 0x1FFFF )
+		{
+			char	acBuffer[32];
+			epicsTimeToStrftime( acBuffer, 32, "%H:%M:%S.%04f", pDest );
+			asynPrint(	pasynUserSelf,	ASYN_TRACE_FLOW,
+						"%s: TimeStamp %s, invalid pulseID 0x%X\n", functionName, acBuffer, pDest->nsec & 0x1FFFF );
 			return -1;
+		}
+	}
+
 	return 0;
 }
 

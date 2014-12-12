@@ -4,7 +4,17 @@
 #include <math.h>
 #include "NDArray.h"
 
-#define	ACQ_TRACE( level, pFormat... ) if ( level > GetTraceLevel() ) tracePrint( pFormat )
+//	Synchronous data acquisition trace flags
+//	Uses asynTrace mechanism, so they share the
+//	same mask parameter, currently an int.
+//	Asyn uses the first 6 bits
+//  Starting from an arbitrary bit 17 position
+//	Can be changed here if it conflicts w/ another module
+#define	ACQ_TRACE_START_STOP	0x0100	// Enables trace msgs related to stopping and starting acquisition
+#define	ACQ_TRACE_SYNC_UNSYNC	0x0200	// Enables trace msgs related to changes in sync status
+#define	ACQ_TRACE_DETAIL		0x0400	// Enables capture by capture trace details at up to 120hz
+
+#define	ACQ_TRACE( level, pFormat... ) if ( (level) & GetTraceLevel() ) tracePrint( pFormat )
 
 /*	Macro declarations */
 #define ACQUIRE_THREAD_PRIORITY	(epicsThreadPriorityMedium)
@@ -22,12 +32,6 @@ class edtImage
 	{
 	}
 
-	int				CheckData( )
-	{
-		if ( m_pNDArray == NULL )
-			return -1;
-		return 0;
-	}
 	NDArray		*	GetNDArrayPtr(	)
 	{
 		return m_pNDArray;
@@ -101,66 +105,16 @@ template < class Dev, class Data >	class syncDataAcq
 		Shutdown();
 	}
 
-	bool	IsAcquiring() const
-	{
-		return m_fAcquiring;
-	}
-
-	bool	IsEnabled() const
-	{
-		return m_fEnabled;
-	}
-
 	void SetEnabled( bool fEnabled = true )
 	{
 		m_fEnabled = fEnabled;
 	}
 
-	// Acquire timeout in sec, 0 = don't wait, -1 = forever
-	virtual int		AcquireData(	edtImage		*	pDataObject,
-									double				acquireTimeout )
+	bool	IsAcquiring() const
 	{
-		if ( pDataObject == NULL || isnan(acquireTimeout) )
-		{
-			SetSynced( false );
-			return SYNC_OBJ_ERROR;
-		}
-		return SYNC_OBJ_OK;
-	};
-	virtual int		QueueData(		edtImage		*	pDataObject,
-									epicsTimeStamp	*	pTimeStamp,
-									int					pulseID )
-	{
-		if ( pDataObject == NULL )
-			return SYNC_OBJ_ERROR;
-		return SYNC_OBJ_OK;
-	};
-	virtual void	ReleaseData(	edtImage		*	)
-	{
-	};
-	virtual int				CheckData(	edtImage	*	pDataObject )
-	{
-		if ( pDataObject == NULL )
-		{
-			SetSynced( false );
-			return SYNC_OBJ_ERROR;
-		}
-		return SYNC_OBJ_OK;
-	};
+		return m_fAcquiring;
+	}
 
-	// See if we're synced
-	virtual bool				CheckSync(	edtImage	*	pDataObject )
-	{
-		// Stubbed implementation has no specific sync criteria
-		SetSynced( true );
-		return m_fSynced;
-	};
-
-	bool IsSynced( edtImage * pDataObject )
-	{
-		return m_fSynced;
-	};
-	
 	virtual void SetSynced( bool fSynced )	// TODO: Make this private
 	{
 		m_fSynced = fSynced;
@@ -170,17 +124,6 @@ template < class Dev, class Data >	class syncDataAcq
 	virtual int				CountIncr(	edtImage	*	)	{ return -1; };
 	virtual int				FidDiff(	edtImage	*	)	{ return -1; };
 	virtual int				Attributes( void)				{ return CanSkip; };
-
-	virtual void DebugPrint(	edtImage	*	)
-	{
-	};
-
-	int		GetEventNumber( ) const
-	{
-		return m_EventNumber;
-	}
-
-	int		SetEventNumber( int	eventNumber );
 
 	enum SyncBehaviour GetPolicyBadTimeStamp( ) const
 	{
@@ -207,43 +150,10 @@ template < class Dev, class Data >	class syncDataAcq
 	}
 
 
-
-#if 0
-	//	Returns status: 0 = OK, -1 on error
-	//	If status is OK and a pulse number is found,
-	//	the pulse number number is returned via pPulseNumRet
-	template < class Dev, class Data > int syncDataAcq< Dev, Data >::TimeStampImage(
-		edtImage		*	pDataObject,
-		epicsTimeStamp	*	pDest,
-		int				*	pPulseNumRet )
-	{
-		if ( pDest == NULL )
-		{
-			SetSynced( false );
-			return -1;
-		}
-		if ( pPulseNumRet != NULL )
-			*pPulseNumRet  = -1;
-
-		// Just get the latest timestamp for the specified event code
-		int	status	= epicsTimeGetEvent( pDest, m_EventNumber );
-		if ( pPulseNumRet )
-			*pPulseNumRet  = GetPulseID( pDataObject, pDest );
-
-		if ( status != 0 )
-		{
-			SetSynced( false );
-			return SYNC_OBJ_ERROR;
-		}
-		return SYNC_OBJ_OK;
-	}
-#endif
-
 	void	SignalAcquireEvent( )
 	{
 		static const char	*	functionName = "syncDataAcq::SignalAcquireEvent";
-		ACQ_TRACE(	1,	"%s: Signal Acquire Event in thread %s\n", functionName, epicsThreadGetNameSelf() );
-		printf( "%s: Signal Acquire Event in thread %s\n", functionName, epicsThreadGetNameSelf() );
+		ACQ_TRACE(	ACQ_TRACE_START_STOP,	"%s: Signal Acquire Event in thread %s\n", functionName, epicsThreadGetNameSelf() );
 		epicsEventSignal( m_acquireEvent );
 	}
 
@@ -263,8 +173,7 @@ template < class Dev, class Data >	class syncDataAcq
 		Data		edtImageObject;
 		Data	*	pImage	= &edtImageObject;
 
-		printf( "%s: Entering forever loop in thread %s\n", functionName, epicsThreadGetNameSelf() );
-		ACQ_TRACE(	1,	"%s: Entering forever loop in thread %s\n", functionName, epicsThreadGetNameSelf() );
+		ACQ_TRACE(	ACQ_TRACE_START_STOP,	"%s: Entering forever loop in thread %s\n", functionName, epicsThreadGetNameSelf() );
 
 		//	Forever loop until app exits
 		while ( m_fExitThread == false )
@@ -272,11 +181,11 @@ template < class Dev, class Data >	class syncDataAcq
 
 		try
 			{
-				// Just spin till acquisition is enabled
+				// Just spin on the reconfig delay till acquisition is enabled
 				if ( !m_fEnabled )
 				{
-					ACQ_TRACE(	2,	"%s: Signal Acquisition disabled\n", functionName, epicsThreadGetNameSelf() );
-					epicsThreadSleep( m_reconfigDelay * 5 );
+					ACQ_TRACE(	ACQ_TRACE_DETAIL, "%s: Signal Acquisition disabled\n", functionName );
+					epicsThreadSleep( m_reconfigDelay );
 					continue;
 				}
 
@@ -293,122 +202,110 @@ template < class Dev, class Data >	class syncDataAcq
 					continue;
 				}
 
-				// Update the sync object w/ the latest pdvDev ptr
-				//	pSyncObj->SetPdvDev( m_pPdvDev );
-
 				// Wait till we have something to do
 				// Use a timeout so we check periodically to see if we need to reconfigure
 				status = epicsEventWaitWithTimeout( m_acquireEvent, m_acquireTimeout );
 				if ( status == epicsEventWaitTimeout )
 				{
-					ACQ_TRACE(	5,	"%s: Timeout on m_acquireEvent in thread %s\n", functionName, epicsThreadGetNameSelf() );
-					continue;
+					ACQ_TRACE(	ACQ_TRACE_DETAIL,	"%s: Timeout on m_acquireEvent in thread %s\n",
+								functionName, epicsThreadGetNameSelf() );
 				}
-				printf( "%s: Acquire Loop acquiring %d images\n", functionName, m_Device.GetAcquireCount() );
 
 				if ( m_Device.NeedsReconfigure() )
 				{
-					ACQ_TRACE(	1,	"%s: Reconfig pending in thread %s\n", functionName, epicsThreadGetNameSelf() );
+					ACQ_TRACE(	ACQ_TRACE_START_STOP,	"%s: Reconfig pending in thread %s\n",
+								functionName, epicsThreadGetNameSelf() );
 					continue;
 				}
 
-				if ( m_Device.GetAcquireCount() != 0 )
-				{
-					ACQ_TRACE(	1,	"%s: Image acquisition requested in thread %s\n", functionName, epicsThreadGetNameSelf() );
+				if ( m_Device.InAcquireMode() && m_Device.GetAcquireCount() != 0 )
+				{	// TODO: Make this block of code into a function
+					ACQ_TRACE(	ACQ_TRACE_START_STOP,	"%s: Entering acquire loop: Acquire Count %d\n",
+								functionName, m_Device.GetAcquireCount() );
 
-					//	Start camera
-					status = m_Device.CameraStart();
-					if ( status != 0 )
-						continue;
-				}
-
-				if ( m_Device.InAcquireMode() )
-					ACQ_TRACE(	5,	"%s: Entering acquire loop: Acquire Count %d\n", functionName,
-									m_Device.GetAcquireCount() );
-				while ( m_Device.InAcquireMode() )
-				{
-					m_fAcquiring	= true;
-
-					//	Release the image data at the top so error handling can
-					//	just bail w/ a continue.  NULL pImage is OK.
-					//	pSyncObj->ReleaseData( pImage );
-					ACQ_TRACE(	4,	"%s: Release old image\n", functionName );
-					m_Device.ReleaseData( pImage );
-
-					// See if we should stop acquiring
-					if ( m_Device.NeedsReconfigure() )
-					{
-						ACQ_TRACE( 3, "%s: Halting acquire pending reconfiguration ...\n", functionName );
-						break;
-					}
-					if ( m_Device.GetAcquireCount() == 0 )
-					{
-						ACQ_TRACE( 3, "%s: Halting acquire as count is complete.\n", functionName );
-						break;
-					}
-
-					// TODO: Use a genSub to configure ROI, eventNum, sync params, timeouts, etc
-					// TODO: Make it SCAN "I/O Intr" and proccess it here to check params and
-					//	update status once per loop
-					//	Process( pGenSubRec );
-
-					ACQ_TRACE( 4, "%s: Acquiring new image ...\n", functionName );
-					// Wait for a new image
-					// int	status = pSyncObj->AcquireData( pImage, m_acquireTimeout );
-					// if ( status != syncObject::SYNC_OBJ_OK )
-					// 	continue;
-					status = m_Device.AcquireData( pImage );
-					if ( status != 0 )
-					{
-						ACQ_TRACE( 3, "%s: AcquireData error %d\n", functionName, status );
-						continue;
-					}
-
-					// Check for image errors
-					//	status	=	pSyncObj->CheckData( pImage );
-					//	if ( status != syncObject::SYNC_OBJ_OK )
-						//	continue;
-					ACQ_TRACE( 4, "%s: Checking data ...\n", functionName );
-					status	=	pImage->CheckData( );
+					//	Start acquisition
+					status = m_Device.StartAcquisition();
 					if ( status != 0 )
 						continue;
 
-					// Check for sync
-					ACQ_TRACE( 4, "%s: Checking sync ...\n", functionName );
-#if 0
-					setIntegerParam( ADStatus, ADStatusCorrect );
-					callParamCallbacks( 0, 0 );
-#else
-					bool	isSynced = m_Device.IsSynced( pImage );
-#endif
-					if ( isSynced == false )
+					while ( m_Device.InAcquireMode() )
 					{
+						m_fAcquiring	= true;
+
+						//	Release the image data at the top so error handling can
+						//	just bail w/ a continue.  NULL pImage is OK.
+						ACQ_TRACE(	ACQ_TRACE_DETAIL,	"%s: Release old image\n", functionName );
+						m_Device.ReleaseData( pImage );
+
+						// See if we should stop acquiring
+						if ( m_Device.NeedsReconfigure() )
+						{
+							ACQ_TRACE( ACQ_TRACE_START_STOP, "%s: Halting acquire pending reconfiguration ...\n", functionName );
+							break;
+						}
+						if ( m_Device.GetAcquireCount() == 0 )
+						{
+							ACQ_TRACE( ACQ_TRACE_START_STOP, "%s: Halting acquire as count is complete.\n", functionName );
+							break;
+						}
+
+						// TODO OR NOT TODO: Use an "I/O Intr" genSub to configure ROI, eventNum, sync params,
+						//		timeouts, etc and process it here to check params and update status once per loop
+						//	Process( pGenSubRec );
+
+						ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Acquiring new image ...\n", functionName );
+						// Wait for a new image
+						status = m_Device.AcquireData( pImage );
+						if ( status != 0 )
+						{
+							ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: AcquireData error %d\n", functionName, status );
+							continue;
+						}
+
+						// Check for image errors
+						status	= m_Device.CheckData( pImage );
+						if ( status != 0 )
+						{
+							SetSynced( false );
+							ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Rejected invalid data ...\n", functionName );
+							continue;
+						}
+
+						//	Get image timestamp
+						epicsTimeStamp	tsEvent;
+						int				pulseID;
+						status = m_Device.TimeStampImage( pImage, &tsEvent, &pulseID );
+						if ( status != 0 )
+						{
+							if ( GetPolicyBadTimeStamp() == SKIP_OBJECT )
+							{
+								ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Bad TimeStamp, skipping object ...\n", functionName );
+								continue;
+							}
+						}
+
 						if ( GetPolicyUnsynced() == SKIP_OBJECT )
-							continue;
-					}
+						{
+							// Check for sync
+							if ( m_Device.IsSynced( pImage, &tsEvent, pulseID ) == false )
+							{
+								ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Unsynced, skipping object ...\n", functionName );
+								continue;
+							}
+						}
 
-					//	Get image timestamp
-					ACQ_TRACE( 4, "%s: Getting timestamp ...\n", functionName );
-					epicsTimeStamp	tsEvent;
-					int				pulseID;
-					status = m_Device.TimeStampImage( pImage, &tsEvent, &pulseID );
-					if ( status != 0 )
-					{
-						if ( GetPolicyBadTimeStamp() == SKIP_OBJECT )
-							continue;
+						ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: ProcessData for pulse id %d ...\n", functionName, pulseID );
+						// Process the image data
+						m_Device.ProcessData( pImage, &tsEvent, pulseID );
 					}
-
-					ACQ_TRACE( 4, "%s: ProcessData ...\n", functionName );
-					// Process the image data
-					m_Device.ProcessData( pImage, &tsEvent, pulseID );
+					m_fAcquiring = false;
 				}
-				m_fAcquiring = false;
-				// Do we need to do this? m_Device.SetAcquireMode( false );
 			}
 		catch ( std::exception & e )
 			{
 			// What to do?
 			printf( "Acquire loop handling exception: %s\n", e.what() );
+			printf( "Continuing Acquire loop ...\n" );
 			continue;
 			}
 		}	// End of acquire loop
@@ -439,20 +336,6 @@ template < class Dev, class Data >	class syncDataAcq
 	unsigned int GetTraceLevel( )
 	{
 		return m_Device.GetTraceLevel();
-	}
-
-	virtual	int	GetPulseID(
-		edtImage				*,
-		const epicsTimeStamp	*	pTimeStamp )
-	{
-		int		pulseID	= -1;
-		if ( pTimeStamp != NULL )
-		{
-			// Default pulse ID is assumed to be the
-			// least 17 bits in the epicsTimeStamp nsec field
-			pulseID	= pTimeStamp->nsec & 0x1FFFF; 
-		}
-		return pulseID;
 	}
 
 	int	tracePrint( const char	*	pFormat, ... )
