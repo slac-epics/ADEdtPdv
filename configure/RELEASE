@@ -30,7 +30,7 @@ CONFIG=$(EPICS_BASE)/configure
 ADCORE_MODULE_VERSION		= R2.0-0.7.0
 ASYN_MODULE_VERSION			= R4.23-0.3.0
 DIAG_TIMER_MODULE_VERSION	= R1.6.0
-EVENT2_MODULE_VERSION		= R4.0.0-2.7.0
+EVENT2_MODULE_VERSION		= R4.0.0-2.9.0
 
 # ============================================================
 # External Support module path definitions
