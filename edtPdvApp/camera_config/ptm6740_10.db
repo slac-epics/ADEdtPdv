@@ -1,0 +1,299 @@
+#
+# EPICS database for
+# Pulnix 6740 Camera in 10 bit mode
+#
+
+# Redirect FLNK's from Gain to EdtGain to PulnixGain
+# Gain and EdtGain use range 0..100
+record( ao, "$(P)$(R)Gain" )
+{
+	field( DRVH, "100" )
+	field( DRVL, "0" )
+	field( HOPR, "100" )
+	field( LOPR, "0" )
+	field( FLNK, "$(P)$(R)EdtGain" )
+}
+record( ao, "$(P)$(R)EdtGain" )
+{
+	field( DRVH, "100" )
+	field( DRVL, "0" )
+	field( HOPR, "100" )
+	field( LOPR, "0" )
+	field( FLNK, "$(P)$(R)PulnixGain" )
+}
+#
+# The Pulnix camera has 2 gain controls, A & B
+# with range 0x042 to 0x1E8
+# For compatibility w/ ADCore's single gain control,
+# a PulnixGainCalc transform record is used
+record( dfanout, "$(P)$(R)PulnixGain" )
+{
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)EdtGain MS" )
+	field( DESC, "Set camera gain" )
+	field( HOPR, "100" )
+	field( LOPR, "0" )
+	field( OUTA, "$(P)$(R)PulnixGainCalc.G PP" )
+}
+record( dfanout, "$(P)$(R)PulnixGainA" )
+{
+	field( DESC, "Gain for side A" )
+	field( OUTA, "$(P)$(R)PulnixGainCalc.A PP" )
+	field( PINI, "YES" )
+	info( autosaveFields, "VAL" )
+}
+record( dfanout, "$(P)$(R)PulnixGainB" )
+{
+	field( DESC, "Gain for side B" )
+	field( OUTA, "$(P)$(R)PulnixGainCalc.B PP" )
+	field( PINI, "YES" )
+	info( autosaveFields, "VAL" )
+}
+record( dfanout, "$(P)$(R)PulnixGainOffset" )
+{
+	field( DESC, "Offset between gain halves" )
+	field( DOL,	 "0" )
+	field( OUTA, "$(P)$(R)PulnixGainCalc.O PP" )
+	info( autosaveFields, "VAL" )
+}
+
+#
+# Transform record to allow independent manipulation of
+# overall gain, gain for ch A, gain for ch B, and gain offset
+# between ch A and B.
+# Inputs:
+#	INPA	Gain for Ch A, range 0x
+#	INPB	Gain for Ch B
+#	INPG	Overall Gain, range 0..100
+#	INPO	Offset between A and B, -100 to 100
+# Outputs:
+#	OUTA	Gain for Ch A, range 0x42 to 0x1E8
+#	OUTB	Gain for Ch B, range 0x42 to 0x1E8
+#	OUTG	Overall Gain, range 0..100
+#	OUTO	Offset between A and B, -100 to 100
+record( transform, "$(P)$(R)PulnixGainCalc" )
+{
+	field( DESC, "Calc camera gain" )
+
+# These are commented out as calc module
+# doesn't do any calculations which have an input link.
+# See Tech-talk Sept 2011 discussion re "Transorm Record no_inlink test"
+# Thus, we use dfanout records above to write
+# to $(P)$(R)PulnixGainCalc.A, B, G, and O
+#	field( INPA, "$(P)$(R)PulnixGainA" )
+#	field( INPB, "$(P)$(R)PulnixGainB" )
+#	field( INPG, "$(P)$(R)PulnixGain" )
+#	field( INPO, "$(P)$(R)PulnixGain:Offset" )
+#
+# 	The COPT field is only supported in calc 2.6.4 or
+#	greater and it doesn't do what we want.
+#	If we set the COPT field, it will always
+#	redo every calc in the order CLCA, CLCB, CLCG, CLCO
+#	field( COPT, "Always" )
+
+	field( INPH, "0x1E8" )
+	field( INPL, "0x042" )
+	field( CLCA, "(G/100)*(H-L)+L-(O/2)" )
+	field( CLCB, "(G/100)*(H-L)+L+(O/2)" )
+	field( CLCG, "(((A+B)/2)-L)*100/(H-L)" )
+	field( CLCO, "B-A" )
+	field( OUTA, "$(P)$(R)PulnixGainA PP" )
+	field( OUTB, "$(P)$(R)PulnixGainB PP" )
+	field( OUTG, "$(P)$(R)PulnixGain PP" )
+	field( OUTO, "$(P)$(R)PulnixGain:Offset PP" )
+}
+
+# These records monitor their dfanout equivalents
+# and send the value to the camera via the serial port
+# We need this record in addition to PulnixGainA because
+# $(P)$(R)PulnixGainA needs to use an output field to
+# write to $(P)$(R)PulnixGainCalc.A
+# while this serial control record needs to use it's output
+# field to specify the protocol command
+record( longout, "$(P)$(R)PulnixSetGainA" )
+{
+	field( DESC, "Set camera gain A" )
+	field( OMSL, "closed_loop" )
+	field( DOL,	 "$(P)$(R)PulnixGainA CPP" )
+	field( DTYP, "stream" )
+	field( OUT,	 "@ptm6740_10.proto SetGainA $(PORT).SER" )
+	field( DRVH, "0x1E8" )
+	field( DRVL, "0x042" )
+}
+record( longout, "$(P)$(R)PulnixSetGainB" )
+{
+	field( DESC, "Set camera gain B" )
+	field( OMSL, "closed_loop" )
+	field( DOL,	 "$(P)$(R)PulnixGainB CPP" )
+	field( DTYP, "stream" )
+	field( OUT,	 "@ptm6740_10.proto SetGainB $(PORT).SER" )
+	field( DRVH, "0x1E8" )
+	field( DRVL, "0x042" )
+}
+
+# Reference voltage commands
+record( longout, "$(P)$(R)PulnixRefVoltA" )
+{
+	field( DESC, "Set ref voltage for ch A" )
+	field( DTYP, "stream" )
+	field( OUT,	 "@ptm6740_10.proto SetRefVoltA $(PORT).SER" )
+	field( DRVL, "0x000" )
+	field( DRVH, "0x1FF" )
+	field( PINI, "YES" )
+	info( autosaveFields, "VAL" )
+}
+record( longin, "$(P)$(R)PulnixRefVoltA_RBV" )
+{
+	field( DESC, "Get ref voltage for ch A" )
+	field( DTYP, "stream" )
+	field( INP,	 "@ptm6740_10.proto GetRefVoltA $(PORT).SER" )
+	field( PINI, "YES" )
+	info( autosaveFields, "VAL" )
+}
+
+
+record( longout, "$(P)$(R)PulnixRefVoltB" )
+{
+	field( DESC, "Set ref voltage for ch B" )
+	field( DTYP, "stream" )
+	field( OUT,	 "@ptm6740_10.proto SetRefVoltB $(PORT).SER" )
+	field( DRVL, "0x000" )
+	field( DRVH, "0x1FF" )
+	field( PINI, "YES" )
+	info( autosaveFields, "VAL" )
+}
+record( longin, "$(P)$(R)PulnixRefVoltB_RBV" )
+{
+	field( DESC, "Get ref voltage for ch B" )
+	field( DTYP, "stream" )
+	field( INP,	 "@ptm6740_10.proto GetRefVoltB $(PORT).SER" )
+	field( PINI, "YES" )
+	info( autosaveFields, "VAL" )
+}
+
+record( longin, "$(P)$(R)PulnixGetRawShutter" )
+{
+	field( DESC, "Numeric shutter value" )
+	field( DTYP, "stream" )
+	field( INP,	 "@ptm6740_10.proto GetShutter $(PORT).SER " )
+#	field( SCAN, "1 second" )
+	field( PINI, "YES" )
+}
+
+# Make EdtTriggerMode FLNK to PulnixTriggerMode
+record( mbbo, "$(P)$(R)EdtTriggerMode" )
+{
+	field( FLNK, "$(P)$(R)PulnixTriggerMode" )
+}
+record( mbbo, "$(P)$(R)PulnixTriggerMode" )
+{
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)EdtTriggerMode NPP NMS" )
+	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
+	field( ONVL, "1" )	field( ONST, "External" )
+	field( TWVL, "2" )	field( TWST, "Pulse" )
+	field( FLNK, "$(P)$(R)PulnixTriggerCmdSelect" )
+}
+#
+record( mbbi, "$(P)$(R)PulnixTriggerMode_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,	 "@ptm6740_10.proto GetTriggerMode $(PORT).SER " )
+	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
+	field( ONVL, "1" )	field( ONST, "External" )
+	field( TWVL, "2" )	field( TWST, "Pulse" )
+	field( FLNK, "$(P)$(R)EdtTriggerMode_RBV" )
+}
+# Make EdtTriggerMode_RBV get it's value from PulnixTriggerMode_RBV
+record( mbbo, "$(P)$(R)EdtTriggerMode_RBV" )
+{
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)PulnixTriggerMode_RBV NPP MS" )
+}
+
+record( calc, "$(P)$(R)PulnixTriggerCmdSelect" )
+{
+	field( CALC, "A+1" )
+	field( INPA, "$(P)$(R)PulnixTriggerMode" )
+	field( FLNK, "$(P)$(R)PulnixSetRawShutter" )
+}
+
+record( dfanout, "$(P)$(R)PulnixSetRawShutter" )
+{
+	field( DESC, "Selects shutter cmd" )
+	field( OMSL, "closed_loop" )
+	field( DOL,	 "$(P)$(R)PulnixShutter" )
+	field( SELL, "$(P)$(R)PulnixTriggerCmdSelect" )
+	field( SELM, "Specified" )
+	field( OUTA, "$(P)$(R)PulnixSetAsyncShutter PP" )
+	field( OUTB, "$(P)$(R)PulnixSetManualShutter PP" )
+	field( OUTC, "$(P)$(R)PulnixSetDirectShutter PP" )
+	field( PINI, "YES" )
+	field( FLNK, "$(P)$(R)PulnixTriggerMode_RBV" )
+}
+
+record( longout, "$(P)$(R)PulnixSetAsyncShutter" )
+{
+	field( DESC, "Async shutter setting" )
+	field( DTYP, "stream" )
+	field( OUT,	 "@ptm6740_10.proto SetAsyncShutter $(PORT).SER " )
+	field( FLNK, "$(P)$(R)PulnixGetRawShutter PP" )
+}
+
+record( longout, "$(P)$(R)PulnixSetDirectShutter" )
+{
+	field( DESC, "Direct shutter setting" )
+	field( DTYP, "stream" )
+	field( OUT,	 "@ptm6740_10.proto SetDirectShutter $(PORT).SER " )
+	field( FLNK, "$(P)$(R)PulnixGetRawShutter PP" )
+}
+
+record( longout, "$(P)$(R)PulnixSetManualShutter" )
+{
+	field( DESC, "Manual shutter setting" )
+	field( DTYP, "stream" )
+	field( OUT,	 "@ptm6740_10.proto SetManualShutter $(PORT).SER " )
+	field( FLNK, "$(P)$(R)PulnixGetRawShutter PP" )
+}
+
+record( mbbi, "$(P)$(R)PulnixShutter" )
+{
+	field( DESC, "Camera shutter speed" )
+	field( ZRVL, "0"	) field( ZRST, "1/250"	)
+	field( ONVL, "1"	) field( ONST, "1/500"	)
+	field( TWVL, "2"	) field( TWST, "1/1000"	)
+	field( THVL, "3"	) field( THST, "1/2000"	)
+	field( FRVL, "4"	) field( FRST, "1/4000"	 )
+	field( FVVL, "5"	) field( FVST, "1/8000"	 )
+	field( SXVL, "6"	) field( SXST, "1/16000" )
+	field( SVVL, "7"	) field( SVST, "1/32000" )
+	field( EIVL, "8"	) field( EIST, "1/64000" )
+	field( NIVL, "9"	) field( NIST, "Pulse"	 )
+	field( FLNK, "$(P)$(R)PulnixSetRawShutter PP" )
+	field( PINI, "YES" )
+}
+
+record( bo, "$(P)$(R)PulnixAutoGain" )
+{
+	field( DESC, "Auto Gain Balance" )
+	field( DTYP, "stream" )
+	field( OUT,	 "@ptm6740_10.proto SetAutoGain $(PORT).SER" )
+	field( ZNAM, "Disabled" )
+	field( ONAM, "Enabled" )
+}
+
+record( stringin, "$(P)$(R)PulnixID" )
+{
+	field( DESC, "Camera reported model" )
+	field( DTYP, "stream" )
+	field( INP,	 "@ptm6740_10.proto GetModel $(PORT).SER" )
+	field( PINI, "YES" )
+}
+
+record( stringin, "$(P)$(R)PulnixGetRawVers" )
+{
+	field( DESC, "Camera reported vers" )
+	field( DTYP, "stream" )
+	field( INP,	 "@ptm6740_10.proto GetVers $(PORT).SER" )
+	field( PINI, "YES" )
+}
