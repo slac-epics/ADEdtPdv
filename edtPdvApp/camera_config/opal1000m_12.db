@@ -1,0 +1,666 @@
+#
+# EPICS database for
+# Adimec OPAL 1000m CamLink Camera in 12 bit mode
+#
+# Protocol root must match db filename root
+# i.e. opal1000m_12.proto
+
+# Set black level
+record( longout, "$(P)$(R).SEROp1kSetBL" )
+{
+    field( DESC, "Set The Black Level" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(BL) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kBL" )
+    field( HOPR, 4096 )
+    field( DRVH, 4096 )
+    field( LOPR, 0    )
+    field( DRVL, 0    )
+}
+
+# Read black level
+record( longin, "$(P)$(R).SEROp1kBL" )
+{
+    field( DESC, "Black Level" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(BL) $(PORT).SER" )
+}
+
+record( stringin, "$(P)$(R).SEROp1kBIT" )
+{
+    field( DESC, "Internal Status" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetStr(BIT) $(PORT).SER" )
+}
+
+# Read camera and firmware version numbers
+# Format x.xx;y.yy;z.zz
+# Where:
+#	x.xx	is the camera version
+#	y.yy	is the microcontroller firmware version
+#	z.zz	is the FPGA firmware version
+record( stringin, "$(P)$(R).SEROp1kBS" )
+{
+    field( DESC, "Build State" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetQStr(BS) $(PORT).SER" )
+}
+
+# Set Camera Control Exposure source
+#	We use source 4, the I/O connector for external trigger in Pulse mode.
+#	CCE source isn't used in FreeRun mode.
+record( mbbo, "$(P)$(R).SEROp1kSetCCE" )
+{
+    field( DESC, "Set Exposure Source & Event" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(CCE) $(PORT).SER" )
+#   field( ZRVL, 0 )
+#   field( ONVL, 1 )
+#   field( TWVL, 2 )
+#   field( THVL, 3 )
+    field( FRVL, 4 )
+#   field( ZRST, "CC1"	)
+#   field( ONST, "CC2"	)
+#   field( TWST, "CC3"	)
+#   field( THST, "CC4"	)
+    field( FRST, "I/O"	)
+    field( FLNK, "$(P)$(R).SEROp1kCCE" )
+}
+
+# Read Camera Control Exposure source
+#	We use source 4, the I/O connector for external trigger in Pulse mode.
+#	CCE source isn't used in FreeRun mode.
+record( mbbi, "$(P)$(R).SEROp1kCCE" )
+{
+    field( DESC, "Exposure Source and Event" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(CCE) $(PORT).SER" )
+    field( ZRVL, 0 )
+    field( ONVL, 1 )
+    field( TWVL, 2 )
+    field( THVL, 3 )
+    field( FRVL, 4 )
+    field( ZRST, "CC1"	)
+    field( ONST, "CC2"	)
+    field( TWST, "CC3"	)
+    field( THST, "CC4"	)
+    field( FRST, "I/O"	)
+}
+
+# Used to specific camera control frame setting
+# Only used for delayed transfer modes that we don't use
+record( mbbo, "$(P)$(R).SEROp1kSetCCFS" )
+{
+    field( DESC, "Set Trigger Source & Event" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(CCFS) $(PORT).SER" )
+    field( ZRVL, 0 )
+    field( ONVL, 1 )
+    field( TWVL, 2 )
+    field( THVL, 3 )
+    field( FRVL, 4 )
+    field( FVVL, 5 )
+    field( ZRST, "CC1"	)
+    field( ONST, "CC2"	)
+    field( TWST, "CC3"	)
+    field( THST, "CC4"	)
+    field( FRST, "I/O"	)
+    field( FVST, "Soft"	)
+    field( FLNK, "$(P)$(R).SEROp1kCCFS" )
+}
+
+record( mbbi, "$(P)$(R).SEROp1kCCFS" )
+{
+    field( DESC, "Trigger Source and Event" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(CCFS) $(PORT).SER" )
+    field( ZRVL, 0 )
+    field( ONVL, 1 )
+    field( TWVL, 2 )
+    field( THVL, 3 )
+    field( FRVL, 4 )
+    field( FVVL, 5 )
+    field( ZRST, "CC1"	)
+    field( ONST, "CC2"	)
+    field( TWST, "CC3"	)
+    field( THST, "CC4"	)
+    field( FRST, "I/O"	)
+    field( FVST, "Soft"	)
+}
+
+record( bo, "$(P)$(R).SEROp1kSetDPC" )
+{
+    field( DESC, "Set DPC On/Off" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(DPE) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kDPC" )
+    field( ZNAM, "OFF" )
+    field( ONAM, "ON"  )
+}
+
+record( bi, "$(P)$(R).SEROp1kDPC" )
+{
+    field( DESC, "Defect Pixel Correction" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(DPE) $(PORT).SER" )
+    field( ZNAM, "OFF" )
+    field( ONAM, "ON"  )
+}
+
+record( mbbo, "$(P)$(R).SEROp1kSetDPT" )
+{
+    field( DESC, "Set DPT Mode" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(DPT) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kDPT" )
+    field( ZRVL, 0 )
+    field( ONVL, 1 )
+    field( TWVL, 2 )
+    field( THVL, 3 )
+    field( ZRST, "Disable"           )
+    field( ONST, "DP White" )
+    field( TWST, "DP Black" )
+    field( THST, "DP W/B" )
+}
+
+record( mbbi, "$(P)$(R).SEROp1kDPT" )
+{
+    field( DESC, "Defect Pixel Test Mode" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(DPT) $(PORT).SER" )
+    field( ZRVL, 0 )
+    field( ONVL, 1 )
+    field( TWVL, 2 )
+    field( THVL, 3 )
+    field( ZRST, "Disable"           )
+    field( ONST, "DP White" )
+    field( TWST, "DP Black" )
+    field( THST, "DP W/B" )
+}
+
+record( longin, "$(P)$(R).SEROp1kERR" )
+{
+    field( DESC, "Latest Error Number" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(ERR) $(PORT).SER" )
+}
+
+record( stringin, "$(P)$(R).SEROp1kET" )
+{
+    field( DESC, "Elapsed Time" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetStr(ET) $(PORT).SER" )
+}
+
+# Set the acquire period, the rep rate for image capture
+# Only works in FreeRun trigger mode
+# Argument is an integer in units of 10us
+record( longout, "$(P)$(R).SEROp1kSetFP" )
+{
+    field( DESC, "Set The Frame Period" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(FP) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kAcquirePeriod_RBV" )
+    field( HOPR, 32000    )
+    field( DRVH, 32000    )
+    field( LOPR, 1        )
+    field( DRVL, 1        )
+    field( EGU,  "10 us"  )
+}
+
+
+# Read AcquirePeriod, the rep rate for image capture
+# Only relevant in FreeRun trigger mode
+# Reply value is an integer in units of 10us
+record( longin, "$(P)$(R).SEROp1kAcquirePeriod_RBV" )
+{
+    field( DESC, "Frame Period" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(FP) $(PORT).SER" )
+    field( EGU,  "10 us"  )
+}
+
+#	FSE		Set flash strobe enable
+record( bo, "$(P)$(R).SEROp1kSetFSE" )
+{
+    field( DESC, "Set Flash Strobe Enable" )
+    field( DTYP, "stream"  )
+    field( OUT,	 "@opal1000m_12.proto SetInt(FSE) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kFSE" )
+    field( ZNAM, "Disable" )
+    field( ONAM, "Enable"  )
+}
+
+record( bi, "$(P)$(R).SEROp1kFSE" )
+{
+    field( DESC, "Flash Strobe Enable" )
+    field( DTYP, "stream"  )
+    field( INP,	 "@opal1000m_12.proto GetInt(FSE) $(PORT).SER" )
+    field( ZNAM, "Disable" )
+    field( ONAM, "Enable"  )
+}
+
+#	FSP		Set flash strobe polarity
+record( bo, "$(P)$(R).SEROp1kSetFSP" )
+{
+    field( DESC, "Set Flash Strobe Polarity" )
+    field( DTYP, "stream"   )
+    field( OUT,	 "@opal1000m_12.proto SetInt(FSP) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kFSP" )
+    field( ZNAM, "Normal"   )
+    field( ONAM, "Invert" )
+}
+
+record( bi, "$(P)$(R).SEROp1kFSP" )
+{
+    field( DESC, "Flash Strobe Polarity" )
+    field( DTYP, "stream"   )
+    field( INP,	 "@opal1000m_12.proto GetInt(FSP) $(PORT).SER" )
+    field( ZNAM, "Normal"   )
+    field( ONAM, "Invert" )
+}
+
+#	FSM		Set flash strobe mode
+record( bo, "$(P)$(R).SEROp1kSetFSM" )
+{
+    field( DESC, "Set Flash Strobe Mode" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(FSM) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kFSM" )
+    field( ZNAM, "Automatic"  )
+    field( ONAM, "Programmed" )
+}
+
+record( bi, "$(P)$(R).SEROp1kFSM" )
+{
+    field( DESC, "Flash Strobe Mode" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(FSM) $(PORT).SER" )
+    field( ZNAM, "Automatic"  )
+    field( ONAM, "Programmed" )
+}
+
+#	FSM		Set flash strobe timing mode
+record( longout, "$(P)$(R).SEROp1kSetFST" )
+{
+    field( DESC, "Set Flash Strobe Timing" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(FST) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kFST" )
+}
+
+record( longin, "$(P)$(R).SEROp1kFST" )
+{
+    field( DESC, "Flash Strobe Timing" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(FST) $(PORT).SER" )
+}
+
+# TODO: Need to convert ADCore $(PORT).SERGain from float to integer units of 0.01 amplification
+# 100 is the minimum gain, i.e. no signal amplification
+record( longout, "$(P)$(R).SEROp1kGain" )
+{
+    field( DESC, "Set The Digital Gain" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(GA) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kGain_RBV" )
+    field( HOPR, 3200 )
+    field( DRVH, 3200 )
+    field( LOPR, 100  )
+    field( DRVL, 100  )
+}
+
+
+# TODO: Need to convert the Opal 1000 gain from
+# integer units of 0.01 amplification
+# to ADCore floating point $(PORT).SERGain_RBV
+# 100 is the minimum gain, i.e. no signal amplification
+record( longin, "$(P)$(R).SEROp1kGain_RBV" )
+{
+    field( DESC, "Digital Gain" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(GA) $(PORT).SER" )
+}
+
+# Read camera identification string
+# Format is a-bc/x[f] S/N:e
+# Where:
+#	a is the family name
+#	b is the detector type
+#	c is c for color, b for B/W
+#	x is D or Q for Dual or Quad sensor output
+#	[f] is optional for special customer version info
+#	e is the serial number
+record( stringin, "$(P)$(R).SEROp1kID" )
+{
+    field( DESC, "ID String" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetQStr(ID) $(PORT).SER" )
+}
+
+# Possible TODO: Add support for
+#	MID?	Read camera model ID
+#	SN?		Read camera serial number
+#	WB,WB?	Set and read white balance, Color cameras only
+#	OFS,OFS? Set and read black offset, Color cameras only
+#	USIx;y and USI?x	Set and read user defined integers
+#	USSx;y and USS?x	Set and read user defined strings
+#	RQ		Initiate soft request readout
+#	ROIx;y;w;h		Set ROI x offset, y offset, width, and height
+
+# Set AqcuireTime, the length of the exposure
+# Only works in FreeRun trigger mode
+# Argument is an integer in units of 10us
+record( longout, "$(P)$(R).SEROp1kAcquireTime" )
+{
+    field( DESC, "Set Integration Time" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(IT) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kAcquireTime_RBV" )
+    field( HOPR, 32000    )
+    field( DRVH, 32000    )
+    field( LOPR, 1        )
+    field( DRVL, 1        )
+    field( EGU,  "10 us"  )
+}
+
+# Read AqcuireTime, the length of the exposure
+# Only relevant in FreeRun trigger mode
+# Reply value is an integer in units of 10us
+record( longin, "$(P)$(R).SEROp1kAcquireTime_RBV" )
+{
+    field( DESC, "Integration Time" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(IT) $(PORT).SER" )
+    field( EGU,  "10 us"  )
+}
+
+# Recall configuration
+# Config 0 is factory default
+# Config 1..9 are available for user configurations
+record( longout, "$(P)$(R).SEROp1kSetLC" )
+{
+    field( DESC, "Set Power-up Configuration" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(LC) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kLC" )
+    field( HOPR, 9 )
+    field( DRVH, 9 )
+    field( LOPR, 0 )
+    field( DRVL, 0 )
+}
+
+# Read last selected configuration number
+record( longin, "$(P)$(R).SEROp1kLC" )
+{
+    field( DESC, "Power-up Configuration" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(LC) $(PORT).SER" )
+}
+
+record( mbbo, "$(P)$(R).SEROp1kSetMI" )
+{
+    field( DESC, "Set the Output Mirroring" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(MI) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kMI" )
+    field( ZRVL, 0 )
+    field( ONVL, 1 )
+    field( TWVL, 2 )
+    field( THVL, 3 )
+    field( ZRST, "No Mirrors"            )
+    field( ONST, "Horizontal"     )
+    field( TWST, "Vertical"       )
+    field( THST, "H & V" )
+}
+
+record( mbbi, "$(P)$(R).SEROp1kMI" )
+{
+    field( DESC, "Output Mirroring" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(MI) $(PORT).SER" )
+    field( ZRVL, 0 )
+    field( ONVL, 1 )
+    field( TWVL, 2 )
+    field( THVL, 3 )
+    field( ZRST, "No Mirrors"            )
+    field( ONST, "Horizontal"     )
+    field( TWST, "Vertical"       )
+    field( THST, "H & V" )
+}
+
+record( stringin, "$(P)$(R).SEROp1kMID" )
+{
+    field( DESC, "Model ID" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetQStr(MID) $(PORT).SER" )
+}
+
+# Set the trigger mode
+#	FreeRun mode is used for continuous acquisition, where the camera acquires images
+#		based on the AcquireTime (exposure) and AcquirePeriod (rep rate)
+#	Pulse mode is used for exposure timing via external trigger pulse.
+#		Pulse width controls exposure, readout begins approx 418us after the end of the trigger pulse
+#	The Delayed and double modes are provided for slow framegrabbers and not used by this driver
+record( mbbo, "$(P)$(R).SEROp1kTriggerMode" )
+{
+    field( DESC, "Set the Acquisition Mode" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(MO) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kMO" )
+    field( ZRVL, 0 )
+    field( ONVL, 1 )
+#   field( TWVL, 2 )
+#   field( THVL, 3 )
+#   field( FRVL, 4 )
+    field( ZRST, "FreeRun"     )
+    field( ONST, "Pulse"         )
+#   field( TWST, "Delayed"        )
+#   field( THST, "Double"         )
+#   field( FRST, "Double Delayed" )
+}
+
+# Read the trigger mode
+record( mbbi, "$(P)$(R).SEROp1kTriggerMode_RBV" )
+{
+    field( DESC, "Acquisition Mode" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(MO) $(PORT).SER" )
+    field( ZRVL, 0 )
+    field( ONVL, 1 )
+    field( TWVL, 2 )
+    field( THVL, 3 )
+    field( FRVL, 4 )
+    field( ZRST, "FreeRun"     )
+    field( ONST, "Pulse"         )
+    field( TWST, "Delayed"        )
+    field( THST, "Double"         )
+    field( FRST, "Double Delayed" )
+}
+
+record( bo, "$(P)$(R).SEROp1kSetOLUTE" )
+{
+    field( DESC, "Set Output Lookup Table" )
+    field( DTYP, "stream"  )
+    field( OUT,	 "@opal1000m_12.proto SetInt(OLUTE) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kOLUTE" )
+    field( ZNAM, "Disable" )
+    field( ONAM, "Enable"  )
+}
+
+record( bi, "$(P)$(R).SEROp1kOLUTE" )
+{
+    field( DESC, "Output Lookup Table Enable" )
+    field( DTYP, "stream"  )
+    field( INP,	 "@opal1000m_12.proto GetInt(OLUTE) $(PORT).SER" )
+    field( ZNAM, "Disable" )
+    field( ONAM, "Enable"  )
+}
+
+record( longout, "$(P)$(R).SEROp1kSetOR" )
+{
+    field( DESC, "Set The Output Resolution" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(OR) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kOR" )
+    field( HOPR, 12 )
+    field( DRVH, 12 )
+    field( LOPR,  8 )
+    field( DRVL,  8 )
+}
+
+record( longin, "$(P)$(R).SEROp1kOR" )
+{
+    field( DESC, "Output Resolution" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(OR) $(PORT).SER" )
+}
+
+record( bo, "$(P)$(R).SEROp1kSetOVL" )
+{
+    field( DESC, "Set Information Overlay" )
+    field( DTYP, "stream"  )
+    field( OUT,	 "@opal1000m_12.proto SetInt(OVL) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kOVL" )
+    field( ZNAM, "Disable" )
+    field( ONAM, "Enable"  )
+}
+
+record( bi, "$(P)$(R).SEROp1kOVL" )
+{
+    field( DESC, "Information Overlay" )
+    field( DTYP, "stream"  )
+    field( INP,	 "@opal1000m_12.proto GetInt(OVL) $(PORT).SER" )
+    field( ZNAM, "Disable" )
+    field( ONAM, "Enable"  )
+}
+
+# Save configuration
+# Config 1..9 are available for user configurations
+record( longout, "$(P)$(R).SEROp1kSaveConf" )
+{
+    field( DESC, "Save the Configuration" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetIntNoInit(SC) $(PORT).SER" )
+    field( HOPR, 9 )
+    field( DRVH, 9 )
+    field( LOPR, 1 )
+    field( DRVL, 1 )
+}
+
+record( stringin, "$(P)$(R).SEROp1kSN" )
+{
+    field( DESC, "Serial Number" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetQStr(SN) $(PORT).SER" )
+}
+
+record( stringin, "$(P)$(R).SEROp1kTM" )
+{
+    field( DESC, "Temperature of the Sensor" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetStr(TM) $(PORT).SER" )
+}
+
+record( bo, "$(P)$(R).SEROp1kSetTP" )
+{
+    field( DESC, "Test Pattern On/Off" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(TP) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kTP" )
+    field( ZNAM, "OFF" )
+    field( ONAM, "ON"  )
+}
+
+record( bi, "$(P)$(R).SEROp1kTP" )
+{
+    field( DESC, "Test Pattern Status" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(TP) $(PORT).SER" )
+    field( ZNAM, "OFF" )
+    field( ONAM, "ON"  )
+}
+
+record( stringin, "$(P)$(R).SEROp1kUFDT" )
+{
+    field( DESC, "Firmware Release Time Stamp" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetQStr(UFDT) $(PORT).SER" )
+}
+
+# Set horizontal binning
+# TODO: Use calc record to compute output value from EdtBinX
+#   EdtBinX == 1, Opal HBIN 0
+#   EdtBinX == 2, Opal HBIN 1
+record( longout, "$(P)$(R).SEROp1kBinX" )
+{
+    field( DESC, "Set The horix binning" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(HBIN) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kBinX_RBV" )
+    field( HOPR, 1 )
+    field( DRVH, 1 )
+    field( LOPR, 0 )
+    field( DRVL, 0 )
+}
+
+# TODO: Use calc record to compute EdtBinX_RBV from HBIN reply
+#   Opal HBIN 0, EdtBinX_RBV 1
+#   Opal HBIN 1, EdtBinX_RBV 2
+record( longin, "$(P)$(R).SEROp1kBinX_RBV" )
+{
+    field( DESC, "Horiz Binning" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(HBIN) $(PORT).SER" )
+}
+
+# Set vertical binning
+# TODO: Use calc record to compute output value from EdtBinX
+#   EdtBinY == 1, Opal VBIN 0
+#   EdtBinY == 2, Opal VBIN 1
+#   EdtBinY == 4, Opal VBIN 2
+#   EdtBinY == 8, Opal VBIN 3
+record( longout, "$(P)$(R).SEROp1kBinY" )
+{
+    field( DESC, "Set The Vertical Binning" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(VBIN) $(PORT).SER" )
+    field( FLNK, "$(P)$(R).SEROp1kBinY_RBV" )
+    field( HOPR, 3 )
+    field( DRVH, 3 )
+    field( LOPR, 0 )
+    field( DRVL, 0 )
+}
+
+# TODO: Use calc record to compute EdtBinX_RBY from VBIN reply
+#   Opal VBIN 0, EdtBinY_RBV 1
+#   Opal VBIN 1, EdtBinY_RBV 2
+#   Opal VBIN 2, EdtBinY_RBV 4
+#   Opal VBIN 3, EdtBinY_RBV 8
+record( longin, "$(P)$(R).SEROp1kBinY_RBV" )
+{
+    field( DESC, "Vertical Binning" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(VBIN) $(PORT).SER" )
+}
+
+# Vertical remapping is enabled by the EDT config file and should not be changed.
+#record( bo, "$(P)$(R).SEROp1kSetVR" )
+#{
+#    field( DESC, "Set Vertical Remapping" )
+#    field( DTYP, "stream"       )
+#    field( OUT,	 "@opal1000m_12.proto SetInt(VR) $(PORT).SER" )
+#    field( FLNK, "$(P)$(R).SEROp1kVR" )
+#    field( ZNAM, "No Remapping" )
+#    field( ONAM, "Remapping"    )
+#}
+
+# Vertical remapping is enabled by the EDT config file and should not be changed.
+record( bi, "$(P)$(R).SEROp1kVR" )
+{
+    field( DESC, "Vertical Remapping" )
+    field( DTYP, "stream"       )
+    field( INP,	 "@opal1000m_12.proto GetInt(VR) $(PORT).SER" )
+    field( ZNAM, "No Remapping" )
+    field( ONAM, "Remapping"    )
+}
