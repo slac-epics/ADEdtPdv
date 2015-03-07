@@ -25,7 +25,7 @@
 
 #include "edtinc.h"
 
-extern int	EDT_PDV_DEBUG;
+extern int	DEBUG_EDT_PDV;
 
 #define	MAX_ADDR		1
 #define	NUM_PARAMS		1
@@ -63,7 +63,7 @@ asynEdtPdvSerial::asynEdtPdvSerial(
 	//	int					nbytes;
 	//	asynOctet		*	pasynOctet;
 
-	if ( EDT_PDV_DEBUG >= 1 )
+	if ( DEBUG_EDT_PDV >= 1 )
 		printf(  "%s: %s\n", functionName, portName );
 
 	/*
@@ -143,7 +143,7 @@ asynEdtPdvSerial::pdvDevConnected(
 	asynStatus			status			= asynSuccess;
 	const char		*	functionName	= "asynEdtPdvSerial::pdvDevConnected";
 
-	if ( EDT_PDV_DEBUG >= 1 )
+	if ( DEBUG_EDT_PDV >= 1 )
 		printf( "%s: %s Connecting %s\n", functionName, this->portName,
 				(pPdvDev != NULL ? pdv_get_camera_model( pPdvDev ) : "NULL") );
 
@@ -172,7 +172,7 @@ asynEdtPdvSerial::pdvDevDisconnected(
 {
 	asynStatus			status			= asynSuccess;
 	const char		*	functionName	= "asynEdtPdvSerial::pdvDevDisconnected";
-	if ( EDT_PDV_DEBUG >= 1 )
+	if ( DEBUG_EDT_PDV >= 1 )
 		printf( "%s: %s Disconnecting\n", functionName, this->portName );
 
 	m_fConnected	= false;
