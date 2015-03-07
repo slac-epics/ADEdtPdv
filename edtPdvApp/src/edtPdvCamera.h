@@ -14,9 +14,12 @@
 #include <dbScan.h>
 #include "ADDriver.h"
 #include "edtinc.h"
+#include "syncDataAcq.h"
+
+#ifdef	USE_DIAG_TIMER
 #include "HiResTime.h"
 #include "ContextTimerMax.h"
-#include "syncDataAcq.h"
+#endif	//	USE_DIAG_TIMER
 
 //class	dataObject;
 class	edtImage;
@@ -54,6 +57,9 @@ public:		//	Public member functions
 
 	///	Update AreaDetector params related to camera configuration
 	int UpdateADConfigParams( );
+
+	///	Update EDT Debug params
+	int UpdateEdtDebugParams( );
 
 	/// Open a fresh connection to the camera
 	/// Closes any existing EDT objects,
@@ -190,7 +196,7 @@ public:		//	Public member functions
 	size_t	GetSizeX( ) const
 	{
 		if ( m_SizeX == 0 )
-			return m_width;
+			return m_ClMaxWidth;
 		return m_SizeX;
 	}
 
@@ -199,7 +205,7 @@ public:		//	Public member functions
 	size_t	GetSizeY( ) const
 	{
 		if ( m_SizeY == 0 )
-			return m_height;
+			return m_ClMaxHeight;
 		return m_SizeY;
 	}
 
@@ -215,20 +221,9 @@ public:		//	Public member functions
 		return m_TriggerMode;
 	}
 
-
-	size_t	GetWidth( ) const
-	{
-		return m_width;
-	}
-
-	size_t	GetHeight( ) const
-	{
-		return m_height;
-	}
-
 	unsigned int	GetNumBits( ) const
 	{
-		return m_numOfBits;
+		return m_ClNumBits;
 	}
 
 	/// Get frame count
@@ -242,18 +237,6 @@ public:		//	Public member functions
 
 	/// Set frame count
 	asynStatus		SetArrayCounter( int value );
-
-	/// Return camera image size in bytes
-	size_t	GetImageSize( ) const
-	{
-		return m_imageSize;
-	}
-
-	/// Return camera pixel count
-	size_t	GetNumPixels( ) const
-	{
-		return m_width * m_height;
-	}
 
 	/// Get last fiducial timestamp id
     int				GetFiducial( ) const
@@ -297,22 +280,47 @@ public:		//	Public member functions
 	///	Reopen EDT driver (re-initialize connection)
 	/// Can be called from any thread to open or reopen the EDT driver connection
 	/// Takes the reconfigure lock to make it thread safe
-	int						Reopen(	);
+	int		Reopen(	);
 
-	bool					IsSynced(		edtImage		*	pImage,
-											epicsTimeStamp	*	pTimeStamp,
-											int					pulseID		);
+	bool	IsSynced(		edtImage		*	pImage,
+							epicsTimeStamp	*	pTimeStamp,
+							int					pulseID		);
 
-	void					ReleaseData(	edtImage		*	);
+	void	ReleaseData(	edtImage		*	);
 
-	int						ProcessData(	edtImage		*	pImage,
-											epicsTimeStamp	*	pTimeStamp,
-											int					pulseID		);
+	int		ProcessData(	edtImage		*	pImage,
+							epicsTimeStamp	*	pTimeStamp,
+							int					pulseID		);
 
-	int						TimeStampImage(	edtImage		*	pImage,
-											epicsTimeStamp	*	pDest,
-											int				*	pPulseNumRet	);
+	int		TimeStampImage(	edtImage		*	pImage,
+							epicsTimeStamp	*	pDest,
+							int				*	pPulseNumRet	);
 
+	//
+	//	De-interleave routines to handle copying raw image data from DMA buffers
+	//  to NDArray's, cropping for HW ROI as needed.
+	//
+
+	/// De-interleave ROI line by line from the middle outwards to the top
+	/// and bottom lines w/ 16 bit pixels
+	int		DeIntlvMidTopLine16(	NDArray	*	pNDArray, void	*	pRawData	);
+
+	/// De-interleave as is from top to bottom, allowing only for HW ROI
+	int		DeIntlvRoiOnly16(		NDArray	*	pNDArray, void	*	pRawData	);
+
+	/// GetEdtDebugLevel
+	int		GetEdtDebugLevel( );
+
+	/// GetEdtDebugMsgLevel
+	int		GetEdtDebugMsgLevel( );
+
+	/// SetEdtDebugLevel
+	int		SetEdtDebugLevel( int value );
+
+	/// SetEdtDebugMsgLevel
+	int		SetEdtDebugMsgLevel( int value );
+
+	// Trace level for diagnostics
 	unsigned int GetTraceLevel()
 	{
 		return pasynTrace->getTraceMask( this->pasynUserSelf );
@@ -334,15 +342,18 @@ public:		//	Public class functions
 
 	static	int				ShowAllCameras( int level );
 
-	static	int				StartAllCameras( );
-
 	static bool				IsCameraChannelUsed( unsigned int unit,  unsigned int channel );
 
 private:	//	Private member functions
 	//	Internal version of reconfigure
 	//	Don't call without holding m_reconfigLock!
-	int						_Reconfigure( );
-	int						_Reopen( );
+	int		_Reconfigure( );
+	int		_Reopen( );
+
+	//	NDArray routines
+	//	Don't call without holding driver lock!
+	NDArray *	AllocNDArray(	);
+	int			LoadNDArray(	NDArray	*	pNDArray, void	*	pRawData	);
 
 private:	//	Private class functions
 	static	void			CameraAdd(		edtPdvCamera * pCamera );
@@ -375,26 +386,15 @@ private:	//	Private member variables
 	std::string		m_ModelName;	// Configuration model name for camera (selected in st.cmd)
 	std::string		m_SerialPort;	// name of camera's serial port
 
-	size_t			m_width;		// number of column of this camera
-	size_t			m_height;		// number of row of this camera
-	unsigned int	m_numOfBits;	// number of bits of this camera
-	int				m_HTaps;		// number of horiz taps for this camera
-	int				m_VTaps;		// number of vert  taps for this camera
+	size_t			m_ClCurWidth;	// CamLink connection cur width  in pixels
+	size_t			m_ClCurHeight;	// CamLink connection cur height in pixels
+	size_t			m_ClMaxWidth;	// CamLink connection max width  in pixels
+	size_t			m_ClMaxHeight;	// CamLink connection max height in pixels
+	unsigned int	m_ClNumBits;	// CamLink connection bits  per pixel
+	int				m_ClHTaps;		// CamLink connection horiz taps
+	int				m_ClVTaps;		// CamLink connection vert  taps
 
-	size_t			m_imageSize;	// image size in byte
-	size_t			m_dmaSize;		// dma size of image in byte, usually same as imageSize
-	int				m_tyInterlace;	// dma size of image in byte, usually same as imageSize
-
-	unsigned int	m_trigLevel;		// Ext. Trigger Mode (0=Edge,1=Level,2=Sync)
-
-	int				m_EdtDebugLevel;	// PDV library debug level
-	int				m_EdtDebugMsgLevel;	// PDV library debug msg level
-
-	// Framegrabber ROI settings
-	int				m_EdtHSkip;			// # of horiz lines to skip
-	int				m_EdtHSize;			// # of horiz lines to read
-	int				m_EdtVSkip;			// # of vert  lines to skip
-	int				m_EdtVSize;			// # of vert  lines to read
+	int				m_tyInterlace;	// Interlace type for DMA transfer
 
 	EdtMode_t		m_EdtMode;
 
@@ -402,18 +402,13 @@ private:	//	Private member variables
 	TriggerMode_t	m_TriggerModeReq;
 
 	// HW ROI and binning parameters from ADBase
-	size_t			m_BinX;
-	size_t			m_BinXReq;
-	size_t			m_BinY;
-	size_t			m_BinYReq;
-	size_t			m_MinX;
-	size_t			m_MinXReq;
-	size_t			m_MinY;
-	size_t			m_MinYReq;
-	size_t			m_SizeX;
-	size_t			m_SizeXReq;
-	size_t			m_SizeY;
-	size_t			m_SizeYReq;
+	size_t	m_BinX,		m_BinXReq,		m_BinY,		m_BinYReq;
+	size_t	m_MinX,		m_MinXReq,		m_MinY,		m_MinYReq;
+	size_t	m_SizeX,	m_SizeXReq,		m_SizeY,	m_SizeYReq;
+
+	// Holds currently alloc'd NDArray ptr
+	// Must hold NDArrayDriver lock() while != NULL
+    // NDArray		*	m_pNDArray;
 
 	// Gain value for camera
 	double			m_Gain;
@@ -425,6 +420,11 @@ private:	//	Private member variables
 	epicsMutexId	m_reconfigLock;		// Protect against more than one thread trying to reconfigure the device
 	syncDataAcq<edtPdvCamera, edtImage>		*	m_pSyncDataAcquirer;
 
+	unsigned int	m_trigLevel;		// Ext. Trigger Mode (0=Edge,1=Level,2=Sync)
+
+	int				m_EdtDebugLevel;	// PDV library debug level
+	int				m_EdtDebugMsgLevel;	// PDV library debug msg level
+
 	// These variables hold the asyn parameter index numbers for each parameter
 	#define FIRST_EDT_PARAM EdtClass
 	int		EdtClass;
@@ -435,6 +435,7 @@ private:	//	Private member variables
 	int		EdtHSize;
 	int		EdtHTaps;
 	int		EdtMode;
+	int		EdtOverrun;
 	int		EdtVSkip;
 	int		EdtVSize;
 	int		EdtVTaps;
@@ -447,6 +448,7 @@ private:	//	Private member variables
 	int		SerAcquireTime;
 	int		SerBinX;
 	int		SerBinY;
+	int		SerGain;
 	int		SerMinX;
 	int		SerMinY;
 	int		SerSizeX;
@@ -454,13 +456,15 @@ private:	//	Private member variables
 	int		SerTriggerMode;
 	#define LAST_EDT_PARAM  SerTriggerMode
 
-	IOSCANPVT				m_ioscan;
-	asynEdtPdvSerial	*	m_pAsynSerial;
-	//	ttyController	*	m_ttyPort;
-
+#ifdef	USE_DIAG_TIMER
 	ContextTimerMax			m_ReAcquireTimer;
 	ContextTimerMax			m_ReArmTimer;
 	ContextTimerMax			m_ProcessImageTimer;
+#endif	//	USE_DIAG_TIMER
+
+	IOSCANPVT				m_ioscan;
+	asynEdtPdvSerial	*	m_pAsynSerial;
+	//	ttyController	*	m_ttyPort;
 
 private:	//	Private class variables
 	static	std::map<std::string, edtPdvCamera *>	ms_cameraMap;
@@ -479,6 +483,7 @@ private:	//	Private class variables
 #define EdtHSizeString		"EDT_HSIZE"
 #define EdtHTapsString		"EDT_HTAPS"
 #define EdtModeString		"EDT_MODE"
+#define EdtOverrunString	"EDT_OVERRUN"
 #define EdtVSkipString		"EDT_VSKIP"
 #define EdtVSizeString		"EDT_VSIZE"
 #define EdtVTapsString		"EDT_VTAPS"
@@ -493,6 +498,7 @@ private:	//	Private class variables
 #define EdtSerAcquireTimeString	"EDT_SER_ACQUIRE_TIME"
 #define EdtSerBinXString		"EDT_BIN_X"
 #define EdtSerBinYString		"EDT_BIN_Y"
+#define EdtSerGainString		"EDT_GAIN"
 #define EdtSerMinXString		"EDT_MIN_X"
 #define EdtSerMinYString		"EDT_MIN_Y"
 #define EdtSerSizeXString		"EDT_SIZE_X"
@@ -500,7 +506,7 @@ private:	//	Private class variables
 #define EdtSerTriggerModeString	"EDT_SER_TRIGGER_MODE"
 
 /*	Diagnostic variables	*/
-extern int				EDT_PDV_DEBUG;
+extern int				DEBUG_EDT_PDV;
 extern unsigned long	imageCaptureCount;
 
 /* "C" linkage Configuration functions for iocsh */
