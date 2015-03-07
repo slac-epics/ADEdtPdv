@@ -10,7 +10,7 @@
 #include <epicsVersion.h>
 #include <unistd.h>
 #include "syncDataAcq.h"
-#include "evrTime.h"
+//	#include "evrTime.h"
 
 using namespace		std;
 
