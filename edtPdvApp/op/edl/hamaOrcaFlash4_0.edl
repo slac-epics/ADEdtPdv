@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1100
-y 1307
+x 675
+y 1232
 w 816
 h 820
 font "helvetica-medium-r-8.0"
@@ -236,7 +236,7 @@ fontAlign "right"
 fgColor index 14
 bgColor index 3
 value {
-  "Model"
+  "Camera Model"
 }
 endObjectProperties
 
@@ -331,7 +331,7 @@ fontAlign "right"
 fgColor index 14
 bgColor index 3
 value {
-  "Height"
+  "Detector Height"
 }
 endObjectProperties
 
@@ -350,7 +350,7 @@ fontAlign "right"
 fgColor index 14
 bgColor index 3
 value {
-  "Width"
+  "Detector Width"
 }
 endObjectProperties
 
@@ -1112,7 +1112,7 @@ major 4
 minor 7
 release 0
 x 596
-y 748
+y 776
 w 88
 h 20
 controlPv "$(P)$(R)OrcaScanMode_RBV"
@@ -1130,26 +1130,6 @@ objType "monitors"
 noExecuteClipMask
 endObjectProperties
 
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 496
-y 748
-w 92
-h 20
-fgColor index 25
-bgColor index 5
-inconsistentColor index 40
-topShadowColor index 2
-botShadowColor index 13
-controlPv "$(P)$(R)OrcaScanMode"
-indicatorPv "$(P)$(R)OrcaScanMode_RBV"
-font "helvetica-medium-r-14.0"
-endObjectProperties
-
 # (Static Text)
 object activeXTextClass
 beginObjectProperties
@@ -1157,7 +1137,7 @@ major 4
 minor 1
 release 1
 x 356
-y 748
+y 776
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -1473,9 +1453,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 536
+x 532
 y 52
-w 84
+w 88
 h 36
 font "helvetica-medium-r-14.0"
 fontAlign "center"
@@ -1640,7 +1620,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 328
+x 312
 y 52
 w 96
 h 36
@@ -1782,9 +1762,9 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 536
+x 532
 y 92
-w 84
+w 88
 h 20
 controlPv "$(P)$(R)OrcaFullExpWindow"
 format "exponential"
@@ -1809,7 +1789,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 328
+x 312
 y 92
 w 96
 h 20
@@ -1976,7 +1956,7 @@ minor 7
 release 0
 x 60
 y 92
-w 100
+w 104
 h 20
 controlPv "$(P)$(R)OrcaMinExposure"
 format "exponential"
@@ -2001,15 +1981,15 @@ minor 1
 release 1
 x 60
 y 52
-w 100
+w 104
 h 36
 font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 14
 bgColor index 3
 value {
-  "Minimum"
-  "Exposure"
+  "Rolling"
+  "Shutter Ramp"
 }
 endObjectProperties
 
@@ -2289,9 +2269,9 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 432
+x 424
 y 92
-w 96
+w 100
 h 20
 controlPv "$(P)$(R)OrcaMinExposure"
 format "exponential"
@@ -2306,26 +2286,6 @@ useHexPrefix
 showUnits
 newPos
 objType "monitors"
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 432
-y 52
-w 96
-h 36
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 14
-bgColor index 3
-value {
-  "Minimum"
-  "Exposure"
-}
 endObjectProperties
 
 # (Message Button)
@@ -2546,17 +2506,18 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 24
-y 292
-w 167
-h 42
+x 12
+y 272
+w 176
+h 60
 font "helvetica-medium-r-12.0"
 fgColor index 14
 bgColor index 3
 value {
-  "Min. Exp = "
-  "RollingShutterLineDelay"
-  "* NumScanLinesAboveCenter"
+  "Minimum exposure for "
+  "  all lines exposed = "
+  "( RollingShutterLineDelay *"
+  "  NumScanLinesAboveCenter )"
 }
 endObjectProperties
 
@@ -2801,5 +2762,181 @@ bgColor index 3
 value {
   "Interval"
 }
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 424
+y 52
+w 100
+h 36
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "Rolling"
+  "Shutter Ramp"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 596
+y 748
+w 88
+h 20
+controlPv "$(P)$(R)OrcaScanSpeed_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Menu Button)
+object activeMenuButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 496
+y 748
+w 92
+h 20
+fgColor index 25
+bgColor index 5
+inconsistentColor index 40
+topShadowColor index 2
+botShadowColor index 13
+controlPv "$(P)$(R)OrcaScanSpeed"
+indicatorPv "$(P)$(R)OrcaScanSpeed_RBV"
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 356
+y 748
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Scanning Speed"
+}
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 40
+y 496
+w 128
+h 20
+fgColor index 14
+onColor index 6
+offColor index 3
+topShadowColor index 1
+botShadowColor index 11
+controlPv "$(P)$(R)OrcaModel_RBV.PROC"
+pressValue "1"
+onLabel "Requesting Model..."
+offLabel "Camera Model"
+3d
+font "helvetica-medium-r-12.0"
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 40
+y 524
+w 128
+h 20
+fgColor index 14
+onColor index 6
+offColor index 3
+topShadowColor index 1
+botShadowColor index 11
+controlPv "$(P)$(R)OrcaInfo_RBV.PROC"
+pressValue "1"
+onLabel "Requesting Info..."
+offLabel "Camera Info"
+3d
+font "helvetica-medium-r-12.0"
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 40
+y 552
+w 128
+h 20
+fgColor index 14
+onColor index 6
+offColor index 3
+topShadowColor index 1
+botShadowColor index 11
+controlPv "$(P)$(R)OrcaFirmware_RBV.PROC"
+pressValue "1"
+onLabel "Requesting F/W..."
+offLabel "Firmware"
+3d
+font "helvetica-medium-r-12.0"
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 40
+y 580
+w 128
+h 20
+fgColor index 14
+onColor index 6
+offColor index 3
+topShadowColor index 1
+botShadowColor index 11
+controlPv "$(P)$(R)OrcaSerialNumber_RBV.PROC"
+pressValue "1"
+onLabel "Requesting S/N..."
+offLabel "Serial Number"
+3d
+font "helvetica-medium-r-12.0"
 endObjectProperties
 
