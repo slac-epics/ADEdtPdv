@@ -28,26 +28,138 @@
 record( mbbo,   "$(P)$(R)DataType"			) { field( DISA, "1" ) }
 record( mbbo, "$(P)$(R)ColorMode"			) { field( DISA, "1" ) }
 
+
+# This record should be overridden in $MODEL.db to set VAL to $MODEL, the chosen camera model
+record( stringin, "$(P)$(R)EdtModel" )
+{
+	field( VAL,  "Unknown" )
+}
+
+#
+# Propagate the gain through the EDT layer
+record( ao, "$(P)$(R)Gain" )
+{
+	field( FLNK, "$(P)$(R)EdtGain" )
+}
+record( ao, "$(P)$(R)EdtGain" )
+{
+	field( DTYP, "asynFloat64" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)Gain NPP MS" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_GAIN" )
+}
+
+# EdtAcquireTime_RBV (Exposure Time)
+# This record updates the EDT asyn serial driver
+# which maps it to ADCore's ADAcquireTime parameter
+record( ao, "$(P)$(R)EdtAcquireTime_RBV" )
+{
+	field( DTYP, "asynFloat64" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SER_ACQUIRE_TIME" )
+	field( EGU,  "sec" )
+}
+
+# Update ADCore AcquireTime_RBV from EdtAcquireTime_RBV
+# This overrides the default precision for the
+# ADCore AcquireTime readback
+record( ai, "$(P)$(R)AcquireTime_RBV" )
+{
+	field( PREC, "5" )
+
+	field( DTYP, "Soft Channel" )
+	field( INP,  "$(P)$(R)EdtAcquireTime_RBV CP MS" )
+	field( SCAN, "Passive" )
+}
+
+#
+# Handle framegrabber hardware ROI Min and Size for X and Y dimensions
+#
+# Note: EdtMinX is a longin record instead of longout, while
+# EdtMinX_RBV is longout.  This is the opposite pattern of most
+# ADCore record names, as these are used to communicate between
+# ADCore and the camera specific ROI PV's.
+# Same logic applies to the other HW ROI related PV's
+record( longin, "$(P)$(R)EdtMinX" )
+{
+	field( DTYP, "asynInt32" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_MIN_X" )
+	field( SCAN, "I/O Intr" )
+	info( autosaveFields, "" )
+}
+record( longout, "$(P)$(R)EdtMinX_RBV" )
+{
+	field( DTYP, "asynInt32" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)EdtMinX CPP MS" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_MIN_X" )
+}
+record( longin, "$(P)$(R)EdtSizeX" )
+{
+	field( DTYP, "asynInt32" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SIZE_X" )
+	field( SCAN, "I/O Intr" )
+	info( autosaveFields, "" )
+}
+record( longout, "$(P)$(R)EdtSizeX_RBV" )
+{
+	field( DTYP, "asynInt32" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)EdtSizeX CPP MS" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SIZE_X" )
+	info( autosaveFields, "" )
+}
+record( longin, "$(P)$(R)EdtMinY" )
+{
+	field( DTYP, "asynInt32" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_MIN_Y" )
+	field( SCAN, "I/O Intr" )
+	info( autosaveFields, "" )
+}
+record( longout, "$(P)$(R)EdtMinY_RBV" )
+{
+	field( DTYP, "asynInt32" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)EdtMinY CPP MS" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_MIN_Y" )
+	info( autosaveFields, "" )
+}
+record( longin, "$(P)$(R)EdtSizeY" )
+{
+	field( DTYP, "asynInt32" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SIZE_Y" )
+	field( SCAN, "I/O Intr" )
+	field( FLNK, "$(P)$(R)EdtSizeY_RBV" )
+	info( autosaveFields, "" )
+}
+record( longout, "$(P)$(R)EdtSizeY_RBV" )
+{
+	field( DTYP, "asynInt32" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)EdtSizeY NPP MS" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SIZE_Y" )
+	info( autosaveFields, "" )
+}
+
 record( longin, "$(P)$(R)HTaps_RBV" )
 {
 	field( DTYP,  "asynInt32" )
 	field( INP,   "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_HTAPS" )
-	field( SCAN,  "I/O Intr" )
+	field( SCAN, "I/O Intr" )
 	info( archiveFields,  "VAL" )
 }
 
 record( longin, "$(P)$(R)VTaps_RBV" )
 {
-	field( DTYP,  "asynInt32" )
-	field( INP,   "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_VTAPS" )
-	field( SCAN,  "I/O Intr" )
-	info( archiveFields,  "VAL" )
+	field( DTYP, "asynInt32" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_VTAPS" )
+	field( SCAN, "I/O Intr" )
+	info( archiveFields, "VAL" )
 }
 
 record( mbbi, "$(P)$(R)EdtMode_RBV" )
 {
 	field( DTYP, "asynInt32" )
-	field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_MODE" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_MODE" )
 	field( ZRST, "Base" )
 	field( ZRVL, "0" )
 	field( ONST, "Medium" )
@@ -61,7 +173,7 @@ record( mbbi, "$(P)$(R)EdtMode_RBV" )
 record( stringin, "$(P)$(R)EdtClass" )
 {
 	field( DTYP, "asynOctetRead" )
-	field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_CLASS" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_CLASS" )
 	field( SCAN, "I/O Intr" )
 	info( archiveFields,  "VAL" )
 }
@@ -69,7 +181,7 @@ record( stringin, "$(P)$(R)EdtClass" )
 record( stringin, "$(P)$(R)EdtDrvVersion" )
 {
 	field( DTYP, "asynOctetRead" )
-	field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_DRV_VERSION" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_DRV_VERSION" )
 	field( SCAN, "I/O Intr" )
 	info( archiveFields,  "VAL" )
 }
@@ -77,63 +189,94 @@ record( stringin, "$(P)$(R)EdtDrvVersion" )
 record( stringin, "$(P)$(R)EdtInfo" )
 {
 	field( DTYP, "asynOctetRead" )
-	field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_INFO" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_INFO" )
 	field( SCAN, "I/O Intr" )
 	info( archiveFields,  "VAL" )
+}
+
+record( mbbi, "$(P)$(R)EdtOverrun" )
+{
+	field( DTYP, "asynInt32" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_OVERRUN" )
+	field( ZRST, "OK"		) field( ZRVL, "0" ) field( ZRSV, "NO_ALARM" )
+	field( ONST, "Overrun"	) field( ONVL, "1" ) field( ONSV, "MAJOR" )
+	field( SCAN, "I/O Intr" )
+	info( autosaveFields,  "DESC ONSV ZRSV" )
+	info( archiveFields,  "DESC ONSV VAL ZRSV" )
 }
 
 record( longout, "$(P)$(R)EdtDebugLevel" )
 {
 	field( DTYP, "asynInt32" )
-	field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_DEBUG" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_DEBUG" )
 	field( PINI, "YES" )
 	field( DOL,	"0" )
-	info( autosaveFields, "VAL" )
+	field( FLNK, "$(P)$(R)EdtDebugLevel_RBV" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
+	info( archiveFields,  "VAL" )
+}
+
+record( longin, "$(P)$(R)EdtDebugLevel_RBV" )
+{
+	field( DTYP, "asynInt32" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_DEBUG" )
+	field( SCAN, "I/O Intr" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR" )
 	info( archiveFields,  "VAL" )
 }
 
 record( longout, "$(P)$(R)EdtDebugMsgLevel" )
 {
 	field( DTYP, "asynInt32" )
-	field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_DEBUG_MSG" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_DEBUG_MSG" )
 	field( PINI, "YES" )
 	field( DOL,	"0" )
+	field( FLNK, "$(P)$(R)EdtDebugMsgLevel_RBV" )
 	info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
+}
+
+record( longin, "$(P)$(R)EdtDebugMsgLevel_RBV" )
+{
+	field( DTYP, "asynInt32" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_DEBUG_MSG" )
+	field( SCAN, "I/O Intr" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR" )
 	info( archiveFields,  "VAL" )
 }
 
 record( longout, "$(P)$(R)EdtHSkip" )
 {
 	field( DTYP, "asynInt32" )
-	field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_HSKIP" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_HSKIP" )
 	info( archiveFields,  "VAL" )
 }
 
 record( longout, "$(P)$(R)EdtHSize" )
 {
 	field( DTYP, "asynInt32" )
-	field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_HSIZE" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_HSIZE" )
 	info( archiveFields,  "VAL" )
 }
 
 record( longout, "$(P)$(R)EdtVSkip" )
 {
 	field( DTYP, "asynInt32" )
-	field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_VSKIP" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_VSKIP" )
 	info( archiveFields,  "VAL" )
 }
 
 record( longout, "$(P)$(R)EdtVSize" )
 {
 	field( DTYP, "asynInt32" )
-	field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_VSIZE" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_VSIZE" )
 	info( archiveFields,  "VAL" )
 }
 
 record( mbbo, "$(P)$(R)EdtTrigLevel" )
 {
 	field( DTYP, "asynInt32" )
-	field( OUT,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_TRIG_LEVEL" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_TRIG_LEVEL" )
 	field( PINI, "YES" )
 	field( ZRST, "Edge" )
 	field( ZRVL, "0" )
@@ -148,7 +291,7 @@ record( mbbo, "$(P)$(R)EdtTrigLevel" )
 #record( mbbi, "$(P)$(R)EdtTrigLevel_RBV" )
 #{
 #	field( DTYP, "asynInt32" )
-#	field( INP,  "@asyn($(PORT),0,$(TIMEOUT=1))EDT_TRIG_LEVEL" )
+#	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_TRIG_LEVEL" )
 #	field( PINI, "YES" )
 #	field( ZRST, "Edge" )
 #	field( ZRVL, "0" )
@@ -159,6 +302,40 @@ record( mbbo, "$(P)$(R)EdtTrigLevel" )
 #	field( SCAN, "I/O Intr" )
 #	info( archiveFields,  "VAL" )
 #}
+
+# Replace ADBase TriggerMode fields w/ EDT specific options
+record( mbbo, "$(P)$(R)TriggerMode" )
+{
+	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
+	field( ONVL, "1" )	field( ONST, "External" )
+	field( TWVL, "2" )	field( TWST, "Pulse" )
+}
+# Replace ADBase TriggerMode_RBV fields w/ EDT options
+record( mbbi, "$(P)$(R)TriggerMode_RBV" )
+{
+	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
+	field( ONVL, "1" )	field( ONST, "External" )
+	field( TWVL, "2" )	field( TWST, "Pulse" )
+}
+record( mbbo, "$(P)$(R)EdtTriggerMode" )
+{
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SER_TRIGGER_MODE" )
+	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
+	field( ONVL, "1" )	field( ONST, "External" )
+	field( TWVL, "2" )	field( TWST, "Pulse" )
+	field( SCAN, "I/O Intr" )
+	info( archiveFields,  "VAL" )
+}
+record( mbbo, "$(P)$(R)EdtTriggerMode_RBV" )
+{
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SER_TRIGGER_MODE" )
+	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
+	field( ONVL, "1" )	field( ONST, "External" )
+	field( TWVL, "2" )	field( TWST, "Pulse" )
+	info( archiveFields,  "VAL" )
+}
 
 
 # These PV's are needed only if you want to use Edt PV's to set
