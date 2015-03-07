@@ -46,3 +46,5 @@ ifdef T_A
   -include $(AREA_DETECTOR)/configure/CONFIG_SITE.$(EPICS_HOST_ARCH).$(T_A)
 endif
 
+USR_CPPFLAGS += -DUSE_DIAG_TIMER
+
