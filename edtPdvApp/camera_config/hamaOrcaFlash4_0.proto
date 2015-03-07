@@ -177,8 +177,8 @@ SetScanMode
 #	1	= Slow speed
 GetScanSpeed
 {
-	out "?SMD";	
-	in	 "SMD %{H|S}";
+	out "?SSP";	
+	in	 "SSP %{H|S}";
 }
 
 # Set Scanning Speed
@@ -186,36 +186,30 @@ GetScanSpeed
 #	1	= Slow speed
 SetScanSpeed
 {
-	out "SMD %{H|S}";
-	in  "SMD %*{H|S}";
+	out "SSP %{H|S}";
+	in  "SSP %*{H|S}";
 }
 
 # ROI Control
 # ROI is implemented via Vertical Double Scan, or Sub-Array scanning mode, SMD W
-# Vertical Double Scan parameters are:
-#	Top Offset:	Same as AreaDetector MinX
-#	Bot Offset: Should be zero unless you want a gap between top and bottom regions
-#	Vert Size:	Should be 1024 - VertDblScanTop to readout a symmetrical region around the center
-# Constraints:
-#	All params must be multiples of 4
-#	vert size + either offset <= 1024
-# Matt says it's
-# SDV bo,to,size
-# where:
-# bo	- # lines offset from bottom
-# to	- # lines offset from center
-# size	- # lines to readout in each half (ROI size/2)
-# so SDV 924,0,100 for 200 line readout starting at line 924
+#
+# Get Vertical Double Scan command: ?SDV
+# Returns: topOffset,botOffset,vertSize
 GetVertDblScan
 {
 	out "?SDV";
 	in	"SDV %(\$1OrcaScanTop_RBV)u,%(\$1OrcaScanBot_RBV)u,%u";
 }
 
-# Vertical Double Scan parameters are:
-#	Top Offset:	Same as AreaDetector MinX
-#	Bot Offset: Should be zero unless you want a gap between top and bottom regions
-#	Vert Size:	Should be 1024 - VertDblScanTop to readout a symmetrical region around the center
+# Set Vertical Double Scan command: SDV topOffset,botOffset,vertSize
+#	topOffset: Same as AreaDetector MinX, first line of the ROI region relative to 0 for the top line
+#	botOffset: Should be zero unless you want a gap between top and bottom regions
+#	vertSize:  1/2 ROI SizeX, Normally (1024 - topOffset) to readout a symmetrical region around the center
+# Constraints:
+#	All params must be multiples of 4
+#	vert size + either offset <= 1024
+# Example: SDV 924,0,100
+#	for 200 line readout starting at line 924
 SetVertDblScan
 {
 	out	"SDV %(\$1OrcaScanTop)u,%(\$1OrcaScanBot)u,%u";
@@ -224,3 +218,14 @@ SetVertDblScan
 
 # SPX {1|2|4} Set binning factor
 # PEC {F|O} Pixel Error Corr Off|On
+
+# ACT {I,S}
+# ACquire Type: Imaging or Stop
+Start
+{
+	out	"ACT I";
+}
+Stop
+{
+	out	"ACT S";
+}
