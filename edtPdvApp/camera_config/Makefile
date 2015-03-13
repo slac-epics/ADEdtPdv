@@ -9,8 +9,17 @@ include $(TOP)/configure/CONFIG
 # Hamamatsu Orca Flash 4.0 Scientific CMOS Camera
 MODELS += hamaOrcaFlash4_0
 
+# Uniq UP685
+MODELS += up685
+
 # Uniq UP900
 MODELS += up900
+
+# Pulnix 6740 10 bit
+MODELS += ptm6740_10
+
+# Adimec Opal 1000 12bit
+MODELS += opal1000m_12
 
 # Expand to install all needed files
 # Symbolic links can be used if desired for shared files, but

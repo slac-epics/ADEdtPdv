@@ -1,47 +1,48 @@
 #
-# UNIQ UP900/UP900CL Camera Serial Command template
+# EPICS database for
+# UNIQ UP900/UP900CL Camera
 #
 
-record( seq, "$(CAM):DoReport" )
+record( seq, "$(P)$(R):DoReport" )
 {
 	field( DESC,	"Do delayed report" )
 	field( DOL1,    "0" )
 	field( DLY1,    "2" )
-	field( LNK1,    "$(CAM):Report PP" )
+	field( LNK1,    "$(P)$(R):Report PP" )
 }
 
-record( longin,	"$(CAM):Report" )
+record( longin,	"$(P)$(R):Report" )
 {
 	field( DESC,	"Report camera settings" )
 	field( DTYP,	"stream" )
-	field( INP,		"@up900.proto Report $(PORT)" )
+	field( INP,		"@up900.proto Report $(PORT).SER" )
 }
 
-record( longin,	"$(CAM):ReadGain" )
+record( longin,	"$(P)$(R):ReadGain" )
 {
 	field( DESC,	"Gain from camera report" )
 	field( DTYP,	"stream" )
-	field( INP,		"@up900.proto ReadGain $(PORT)" )
+	field( INP,		"@up900.proto ReadGain $(PORT).SER" )
 	field( SCAN,	"I/O Intr" )
 }
 
-record( longin,	"$(CAM):ReadReference" )
+record( longin,	"$(P)$(R):ReadReference" )
 {
 	field( DESC,	"Reference from camera report" )
 	field( DTYP,	"stream" )
-	field( INP,		"@up900.proto ReadReference $(PORT)" )
+	field( INP,		"@up900.proto ReadReference $(PORT).SER" )
 	field( SCAN,	"I/O Intr" )
 }
 
-record( longin,	"$(CAM):ReadDoubleSpeed" )
+record( longin,	"$(P)$(R):ReadDoubleSpeed" )
 {
 	field( DESC,	"DblSpd from camera report" )
 	field( DTYP,	"stream" )
-	field( INP,		"@up900.proto ReadDoubleSpeed $(PORT)" )
+	field( INP,		"@up900.proto ReadDoubleSpeed $(PORT).SER" )
 	field( SCAN,	"I/O Intr" )
 }
 
-record( ao, "$(CAM):Gain" )
+record( ao, "$(P)$(R):Gain" )
 {
 	field( DESC,	"Camera gain (0..1023)" )
 	field( DRVH,	"1023" )
@@ -49,23 +50,23 @@ record( ao, "$(CAM):Gain" )
 	field( HOPR,	"1023" )
 	field( LOPR,	"0" )
 	field( PINI,	"YES" )
-	field( FLNK,	"$(CAM):SetGain" )
+	field( FLNK,	"$(P)$(R):SetGain" )
 }
 
-record( ao, "$(CAM):SetGain" )
+record( ao, "$(P)$(R):SetGain" )
 {
 	field( DESC,	"Set camera gain (0..1023)" )
-	field( DOL,		"$(CAM):Gain" )
+	field( DOL,		"$(P)$(R):Gain" )
 	field( OMSL,	"closed_loop" )
 	field( DTYP,	"stream" )
-	field( OUT,		"@up900.proto SetGain $(PORT)" )
+	field( OUT,		"@up900.proto SetGain $(PORT).SER" )
 	field( DRVH,	"1023" )
 	field( DRVL,	"0" )
 	field( PINI,	"YES" )
-	field( FLNK,	"$(CAM):DoReport" )
+	field( FLNK,	"$(P)$(R):DoReport" )
 }
 
-record( mbbi,	"$(CAM):Shutter" )
+record( mbbi,	"$(P)$(R):Shutter" )
 {
 	field( DESC,	"Camera shutter speed" )
 	field( ZRVL,	"0"	)
@@ -103,43 +104,43 @@ record( mbbi,	"$(CAM):Shutter" )
 	field( PINI,	"YES" )
 }
 
-record( calcout, "$(CAM):CalcShutterOut" )
+record( calcout, "$(P)$(R):CalcShutterOut" )
 {
 	field( DESC,	"Calc shtr val" )
-	field( INPA,	"$(CAM):Shutter CPP" )
-	field( INPB,	"$(CAM):ShutterMode CPP" )
+	field( INPA,	"$(P)$(R):Shutter CPP" )
+	field( INPB,	"$(P)$(R):ShutterMode CPP" )
 	field( CALC,	"B ? A : (A>2?A-1:1)" )
-	field( OUT,		"$(CAM):SetRawShutter PP" )
+	field( OUT,		"$(P)$(R):SetRawShutter PP" )
 	field( OOPT,	"On Change" )
 }
 
-record( longout, "$(CAM):SetRawShutter" )
+record( longout, "$(P)$(R):SetRawShutter" )
 {
 	field( DESC,	"Numeric shutter value" )
 	field( DTYP,	"stream" )
-	field( OUT,		"@up900.proto SetShutter $(PORT)" )
-	field( FLNK,	"$(CAM):DoReport" )
+	field( OUT,		"@up900.proto SetShutter $(PORT).SER" )
+	field( FLNK,	"$(P)$(R):DoReport" )
 }
 
-record( longin,	"$(CAM):ReadRawShutter" )
+record( longin,	"$(P)$(R):ReadRawShutter" )
 {
 	field( DESC,	"Shutter from camera report" )
 	field( DTYP,	"stream" )
-	field( INP,		"@up900.proto ReadShutterMode $(PORT)" )
+	field( INP,		"@up900.proto ReadShutterMode $(PORT).SER" )
 	field( SCAN,	"I/O Intr" )
 }
 
-record( calcout, "$(CAM):CalcShutterIn" )
+record( calcout, "$(P)$(R):CalcShutterIn" )
 {
 	field( DESC,	"Calc shtr val" )
-	field( INPA,	"$(CAM):ReadRawShutter CPP" )
-	field( INPB,	"$(CAM):ShutterMode CPP" )
+	field( INPA,	"$(P)$(R):ReadRawShutter CPP" )
+	field( INPB,	"$(P)$(R):ShutterMode CPP" )
 	field( CALC,	"B ? A : (A+1)" )
-	field( OUT,		"$(CAM):ReadShutter PP" )
+	field( OUT,		"$(P)$(R):ReadShutter PP" )
 	field( OOPT,	"On Change" )
 }
 
-record( mbbi,	"$(CAM):ReadShutter" )
+record( mbbi,	"$(P)$(R):ReadShutter" )
 {
 	field( DESC,	"Camera shutter speed" )
 	field( ZRVL,	"0"	)
@@ -176,11 +177,11 @@ record( mbbi,	"$(CAM):ReadShutter" )
 	field( FFST,	"1/31000"	)
 }
 
-record( mbbi,	"$(CAM):ShutterMode" )
+record( mbbi,	"$(P)$(R):ShutterMode" )
 {
 	field( DESC,	"Camera shutter mode" )
 	field( DTYP,	"stream" )
-	field( INP,		"@up900.proto ReadFreeRun $(PORT) " )
+	field( INP,		"@up900.proto ReadFreeRun $(PORT).SER " )
 	field( SCAN,	"I/O Intr" )
 	field( ZRVL,	"0"	)
 	field( ONVL,	"1"	)
@@ -188,7 +189,7 @@ record( mbbi,	"$(CAM):ShutterMode" )
 	field( ONST,	"FreeRun"	)
 }
 
-record( bo,	"$(CAM):AutoGain" )
+record( bo,	"$(P)$(R):AutoGain" )
 {
 	field( DESC,	"Not supported" )
 	field( DOL,		"0" )
@@ -196,7 +197,7 @@ record( bo,	"$(CAM):AutoGain" )
 	field( ONAM,	"Enabled" )
 }
 
-record( stringin, "$(CAM):ID" )
+record( stringin, "$(P)$(R):ID" )
 {
 	field( DESC,	"Camera reported model" )
 	field( VAL,	"UP900" )
