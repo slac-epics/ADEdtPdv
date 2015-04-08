@@ -3,6 +3,12 @@
 # Pulnix 6740 Camera in 10 bit mode
 #
 
+record( stringin, "$(P)$(R)EdtModel" )
+{
+	field( VAL,  "ptm6740_10" )
+	field( PINI, "YES" )
+}
+
 # Redirect FLNK's from Gain to EdtGain to PulnixGain
 # Gain and EdtGain use range 0..100
 record( ao, "$(P)$(R)Gain" )

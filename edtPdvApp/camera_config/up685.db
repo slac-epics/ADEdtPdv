@@ -3,6 +3,12 @@
 # UNIQ UP685/UP685CL Camera
 #
 
+record( stringin, "$(P)$(R)EdtModel" )
+{
+	field( VAL,  "up685" )
+	field( PINI, "YES" )
+}
+
 record( seq, "$(P)$(R):DoReport" )
 {
 	field( DESC,	"Do delayed report" )
