@@ -397,7 +397,7 @@ int edtPdvCamera::CameraShow( int level )
 				<< ", "					<< m_ClNumBits
 				<< "bits" << endl;
 	}
-	if ( level >= 2 )
+	if ( level >= 2 && m_pPdvDev != NULL )
 	{
 		int     stat;
     	stat = edt_reg_read( m_pPdvDev, PDV_STAT );
@@ -419,10 +419,13 @@ void edtPdvCamera::Shutdown( )
 	epicsMutexLock(	m_reconfigLock );
 	m_acquireCount = 0;
 	setIntegerParam(ADAcquire, 0);
-	//	edt_abort_dma( m_pPdvDev );
-	pdv_timeout_restart( m_pPdvDev, 0 );
-	pdv_close( m_pPdvDev );
-	m_pPdvDev	= NULL;
+	if ( m_pPdvDev != NULL )
+	{
+		//	edt_abort_dma( m_pPdvDev );
+		pdv_timeout_restart( m_pPdvDev, 0 );
+		pdv_close( m_pPdvDev );
+		m_pPdvDev	= NULL;
+	}
 	epicsMutexUnlock(	m_reconfigLock );
 }
 
@@ -484,6 +487,7 @@ asynStatus edtPdvCamera::DisconnectCamera( )
 	// Note: Doesn't appear to be a problem in first few months of use.
 	m_pAsynSerial->pdvDevDisconnected( NULL );
 
+	epicsMutexLock(	m_reconfigLock );
     if ( m_pPdvDev )
 	{
 		// Halt any image acquires in progress
@@ -493,6 +497,7 @@ asynStatus edtPdvCamera::DisconnectCamera( )
 		pdv_close( m_pPdvDev );
 		m_pPdvDev	= NULL;
 	}
+	epicsMutexUnlock(	m_reconfigLock );
  
     return static_cast<asynStatus>( status );
     //	return asynSuccess;
@@ -837,6 +842,12 @@ int edtPdvCamera::_Reconfigure( )
 
 	if ( DEBUG_EDT_PDV >= 2 )
 	{
+		printf( "%s: Calling pdv_flush_fifo( ) ...\n", functionName );
+	}
+    pdv_flush_fifo( m_pPdvDev );
+
+	if ( DEBUG_EDT_PDV >= 2 )
+	{
 		printf( "%s: Calling pdv_multibuf( %d ) ...\n", functionName, m_NumMultiBuf );
 	}
     if ( pdv_multibuf( m_pPdvDev, m_NumMultiBuf ) )
@@ -903,10 +914,15 @@ int edtPdvCamera::_Reopen( )
 		pdv_timeout_restart( m_pPdvDev, 0 );
 		epicsThreadSleep( 0.1 );
 		if ( DEBUG_EDT_PDV >= 1 )
+			printf( "%s: %s pdv_stop_continuous prior to reopen\n", functionName, m_CameraName.c_str() );
+		pdv_stop_continuous( m_pPdvDev );
+		epicsThreadSleep( 0.1 );
+		if ( DEBUG_EDT_PDV >= 1 )
 			printf( "%s: %s Closing old PdvDev prior to reopen\n", functionName, m_CameraName.c_str() );
 		pdv_close( m_pPdvDev );
 		m_pPdvDev	= NULL;
-		epicsThreadSleep( 0.1 );
+		if ( DEBUG_EDT_PDV >= 1 )
+			printf( "%s: %s old PdvDev closed.\n", functionName, m_CameraName.c_str() );
 	}
 
 	// Open the camera channel
@@ -915,6 +931,8 @@ int edtPdvCamera::_Reopen( )
 	// to the same underlying C structure, they behave differently in regards
 	// to what memory they allocate and free and how some of the fields
 	// are initialized.
+	if ( DEBUG_EDT_PDV >= 1 )
+		printf( "%s: %s Reopening PdvDev ...\n", functionName, m_CameraName.c_str() );
     m_pPdvDev = pdv_open_channel( "pdv", m_unit, m_channel );
     if ( m_pPdvDev == NULL )
 	{
@@ -991,7 +1009,8 @@ int edtPdvCamera::UpdateEdtDebugParams( )
 {
 	// Update PDV library Debug parameters
 	setIntegerParam(	EdtDebug,		m_EdtDebugLevel	);
-	pdv_setdebug(		m_pPdvDev, 		m_EdtDebugLevel	);
+	if ( m_pPdvDev != NULL )
+		pdv_setdebug(		m_pPdvDev, 		m_EdtDebugLevel	);
 	setIntegerParam(	EdtDebugMsg,	m_EdtDebugMsgLevel	);
 	edt_msg_set_level(	edt_msg_default_handle(),	m_EdtDebugMsgLevel	);
 
@@ -1011,7 +1030,8 @@ int edtPdvCamera::SetEdtDebugLevel( int value )
 	// Update PDV library Debug parameters
 	m_EdtDebugLevel = value;
 	setIntegerParam(	EdtDebug,		m_EdtDebugLevel	);
-	pdv_setdebug(		m_pPdvDev, 		m_EdtDebugLevel	);
+	if ( m_pPdvDev != NULL )
+		pdv_setdebug(		m_pPdvDev, 		m_EdtDebugLevel	);
 	return 0;
 }
 
@@ -1071,7 +1091,7 @@ asynStatus	edtPdvCamera::SetAcquireMode( int fAcquire )
     static const char	*	functionName = "edtPdvCamera::SetAcquireMode";
 	if ( fAcquire == 0 )
 	{
-		if ( m_fAcquireMode && DEBUG_EDT_PDV >= 3 )
+		if ( DEBUG_EDT_PDV >= 2 )
 			printf(	"%s: Stopping acquisition on camera %s\n", 
 					functionName, m_CameraName.c_str() );
 		// Stop acquisition
@@ -1125,10 +1145,6 @@ int edtPdvCamera::StartAcquisition( )
     static const char	*	functionName = "edtPdvCamera::StartAcquisition";
 	CONTEXT_TIMER( "StartAcquisition" );
 
-	// Cleanup any pending transfers
-	// (Helps keep synchronized images if app is restarted)
-    // pdv_timeout_restart( m_pPdvDev, false );
-
 	double		cameraStartDelay	= 0.5;
 	if ( cameraStartDelay > 0.0 )
 	{
@@ -1136,6 +1152,11 @@ int edtPdvCamera::StartAcquisition( )
 			printf(	"%s: Delaying %f sec\n", functionName, cameraStartDelay );
 		epicsThreadSleep( cameraStartDelay );
 	}
+
+	// Cleanup any pending transfers
+	// (Helps keep synchronized images if app is restarted)
+    // pdv_timeout_restart( m_pPdvDev, false );
+    pdv_flush_fifo( m_pPdvDev );
 
 	if ( DEBUG_EDT_PDV >= 2 )
 		printf(	"%s: Acquire image from %zu,%zu size %zux%zu\n", functionName,
@@ -1316,6 +1337,8 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 	bool				fRaw		= ( m_tyInterlace != PDV_INTLV_IN_PDV_LIB );
 	unsigned char	*	pPdvBuffer	= pdv_wait_images_timed_raw( m_pPdvDev, 1, pdvTimestamp, fRaw );
 	//	unsigned char	*	pPdvBuffer	= pdv_wait_images_raw( m_pPdvDev, 1 );
+	//	Caution, this raw image will get over-written if we're not done processing it
+	//	before the edt ring buffer wraps.
 
 #ifdef	USE_DIAG_TIMER
 	// Update diagnostic timers
@@ -1385,28 +1408,19 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 		}
 	}
 
-	//	Caution, this raw image will get over-written if we're not done processing it
-	//	before the edt ring buffer wraps.
-
-	//	TODO:	Can we move the rest of this code to ProcessImage and avoid needless buffer
-	//			copies of dark images?
-
 	// This counts camera frames whether we're aqcuiring or not.
 	// If the camera is in freerun or being triggered, it should increment.
 	//int		nCamFramesSinceReset = pdv_cl_get_fv_counter( m_pPdvDev );
 	//pdv_cl_reset_fv_counter( m_pPdvDev );
 
-	//	Saving the image to the NDArrayPool 
-	//	Note: Prior version had NDArrayPool point to the EDT raw image buffer
-	//	for zero-copy image handling.
-	//	However, since AreaDetector is based on plugins which process the NDArrayPool
-	//	buffers at a later time, I don't think it's safe to leave the data in
-	//	the EDT buffer as they have no overrun checks like NDArrayPool does.
-
 	UpdateStatus( ADStatusReadout );
-	
+
 	// Lock NDArrayPool driver
 	lock();
+
+	//	TODO: We haven't tried to get a timestamp yet,
+	//	so we don't know yet if this is a frame we want.
+	//	Can we check timestamp before transferring image from DMA buffer?`
 
 	// Allocate an NDArray from the pool
     NDArray		*	pNDArray = AllocNDArray();
@@ -1504,10 +1518,10 @@ NDArray * edtPdvCamera::AllocNDArray( )
 	// Update each dimension's settings from the RBV values
 	pNDArray->dims[0].size		= GetSizeX();
 	pNDArray->dims[0].offset	= GetMinX();
-	pNDArray->dims[0].binning	= 1;	// GetBinX();
+	pNDArray->dims[0].binning	= GetBinX();
 	pNDArray->dims[1].size		= GetSizeY();
 	pNDArray->dims[1].offset	= GetMinY();
-	pNDArray->dims[1].binning	= 1;	// GetBinY();
+	pNDArray->dims[1].binning	= GetBinY();
 	if ( DEBUG_EDT_PDV >= 4 )
 		printf(	"%s: NDArray %zux%zu pixels from offset (%zu,%zu)\n",	functionName,
 				pNDArray->dims[0].size,		pNDArray->dims[1].size,
@@ -1624,7 +1638,7 @@ bool	 edtPdvCamera::IsSynced(
 // CheckData returns 0 on OK, non-zero on error
 int	 edtPdvCamera::CheckData(	edtImage	*	pImage	)
 {
-	if ( pImage == NULL )
+	if ( pImage == NULL || m_pPdvDev == NULL )
 		return -1;
 
 	// Check for data overruns in the framegrabber
@@ -2031,7 +2045,8 @@ int		edtPdvCamera::SetGain( double gain )
 	
 	if ( m_Gain != gain )
 	{
-		status = pdv_set_gain( m_pPdvDev, static_cast<int>(gain) );
+		if ( m_pPdvDev != NULL )
+			status = pdv_set_gain( m_pPdvDev, static_cast<int>(gain) );
     	m_Gain	= gain;
 	}
 
@@ -2265,9 +2280,12 @@ asynStatus edtPdvCamera::writeFloat64(	asynUser *	pasynUser, epicsFloat64	value 
 
 int		edtPdvCamera::traceVPrint( const char	*	pFormat, va_list pvar )
 {
-	if ( pasynTrace->getTraceMask( this->pasynUserSelf ) & ASYN_TRACEIO_DRIVER )
-		return pasynTrace->vprint( this->pasynUserSelf, ASYN_TRACEIO_DRIVER, pFormat, pvar );
-	return 0;
+	return pasynTrace->vprint( this->pasynUserSelf, GetTraceLevel(), pFormat, pvar );
+}
+
+unsigned int edtPdvCamera::GetTraceLevel()
+{
+	return pasynTrace->getTraceMask( this->pasynUserSelf );
 }
 
 

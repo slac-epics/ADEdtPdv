@@ -219,86 +219,11 @@ template < class Dev, class Data >	class syncDataAcq
 				}
 
 				if ( m_Device.InAcquireMode() && m_Device.GetAcquireCount() != 0 )
-				{	// TODO: Make this block of code into a function
-					ACQ_TRACE(	ACQ_TRACE_START_STOP,	"%s: Entering acquire loop: Acquire Count %d\n",
-								functionName, m_Device.GetAcquireCount() );
-
-					//	Start acquisition
-					status = m_Device.StartAcquisition();
+				{
+					// Go acquire some images!
+					status = acquireLoop( pImage );
 					if ( status != 0 )
 						continue;
-
-					while ( m_Device.InAcquireMode() )
-					{
-						m_fAcquiring	= true;
-
-						//	Release the image data at the top so error handling can
-						//	just bail w/ a continue.  NULL pImage is OK.
-						ACQ_TRACE(	ACQ_TRACE_DETAIL,	"%s: Release old image\n", functionName );
-						m_Device.ReleaseData( pImage );
-
-						// See if we should stop acquiring
-						if ( m_Device.NeedsReconfigure() )
-						{
-							ACQ_TRACE( ACQ_TRACE_START_STOP, "%s: Halting acquire pending reconfiguration ...\n", functionName );
-							break;
-						}
-						if ( m_Device.GetAcquireCount() == 0 )
-						{
-							ACQ_TRACE( ACQ_TRACE_START_STOP, "%s: Halting acquire as count is complete.\n", functionName );
-							break;
-						}
-
-						// TODO OR NOT TODO: Use an "I/O Intr" genSub to configure ROI, eventNum, sync params,
-						//		timeouts, etc and process it here to check params and update status once per loop
-						//	Process( pGenSubRec );
-
-						ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Acquiring new image ...\n", functionName );
-						// Wait for a new image
-						status = m_Device.AcquireData( pImage );
-						if ( status != 0 )
-						{
-							ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: AcquireData error %d\n", functionName, status );
-							continue;
-						}
-
-						// Check for image errors
-						status	= m_Device.CheckData( pImage );
-						if ( status != 0 )
-						{
-							SetSynced( false );
-							ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Rejected invalid data ...\n", functionName );
-							continue;
-						}
-
-						//	Get image timestamp
-						epicsTimeStamp	tsEvent;
-						int				pulseID;
-						status = m_Device.TimeStampImage( pImage, &tsEvent, &pulseID );
-						if ( status != 0 )
-						{
-							if ( GetPolicyBadTimeStamp() == SKIP_OBJECT )
-							{
-								ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Bad TimeStamp, skipping object ...\n", functionName );
-								continue;
-							}
-						}
-
-						if ( GetPolicyUnsynced() == SKIP_OBJECT )
-						{
-							// Check for sync
-							if ( m_Device.IsSynced( pImage, &tsEvent, pulseID ) == false )
-							{
-								ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Unsynced, skipping object ...\n", functionName );
-								continue;
-							}
-						}
-
-						ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: ProcessData for pulse id %d ...\n", functionName, pulseID );
-						// Process the image data
-						m_Device.ProcessData( pImage, &tsEvent, pulseID );
-					}
-					m_fAcquiring = false;
 				}
 			}
 		catch ( std::exception & e )
@@ -313,6 +238,101 @@ template < class Dev, class Data >	class syncDataAcq
 		printf( "%s: Exiting forever loop in thread %s\n", functionName, epicsThreadGetNameSelf() );
 		// We only return if the app is exiting
 		return;
+	}
+
+	//	syncDataAcq::acquireLoop()
+	//	Loops:
+	//		Acquires a new data object
+	//		Checks for synchronization
+	//		Timestamps and queues data object if synced
+	//	Returns when acquisition is complete or reconfig needed.
+	int	acquireLoop(  Data * pImage )
+	{
+		static const char	*	functionName = "syncDataAcq::acquireLoop";
+
+		ACQ_TRACE(	ACQ_TRACE_START_STOP,	"%s: Entering acquire loop: Acquire Count %d\n",
+					functionName, m_Device.GetAcquireCount() );
+
+		//	Start acquisition
+		int status = m_Device.StartAcquisition();
+		if ( status != 0 )
+			return -1;
+
+		while ( m_Device.InAcquireMode() )
+		{
+			m_fAcquiring	= true;
+
+			//	Release the image data at the top so error handling can
+			//	just bail w/ a continue.  NULL pImage is OK.
+			ACQ_TRACE(	ACQ_TRACE_DETAIL,	"%s: Release old image\n", functionName );
+			m_Device.ReleaseData( pImage );
+
+			// See if we should stop acquiring
+			if ( m_Device.NeedsReconfigure() )
+			{
+				ACQ_TRACE( ACQ_TRACE_START_STOP, "%s: Halting acquire pending reconfiguration ...\n", functionName );
+				return 0;
+			}
+			if ( m_Device.GetAcquireCount() == 0 )
+			{
+				ACQ_TRACE( ACQ_TRACE_START_STOP, "%s: Halting acquire as count is complete.\n", functionName );
+				return 0;
+			}
+
+			// TODO OR NOT TODO: Use an "I/O Intr" genSub for configuration and status
+			//		and process it here to check params and update status once per loop
+			//	Process( pGenSubRec );
+
+			ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Acquiring new image ...\n", functionName );
+			// Wait for a new image
+			status = m_Device.AcquireData( pImage );
+			if ( status != 0 )
+			{
+				// Failed to acquire an image!
+				ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: AcquireData error %d\n", functionName, status );
+				// Should we return here to avoid trying to acquire data too often?
+				// I think so
+				continue;
+			}
+
+			// Check for image errors
+			status	= m_Device.CheckData( pImage );
+			if ( status != 0 )
+			{
+				SetSynced( false );
+				ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Rejected invalid data ...\n", functionName );
+				continue;
+			}
+
+			//	Get image timestamp
+			epicsTimeStamp	tsEvent;
+			int				pulseID;
+			status = m_Device.TimeStampImage( pImage, &tsEvent, &pulseID );
+			if ( status != 0 )
+			{
+				if ( GetPolicyBadTimeStamp() == SKIP_OBJECT )
+				{
+					ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Bad TimeStamp, skipping object ...\n", functionName );
+					continue;
+				}
+			}
+
+			if ( GetPolicyUnsynced() == SKIP_OBJECT )
+			{
+				// Check for sync
+				if ( m_Device.IsSynced( pImage, &tsEvent, pulseID ) == false )
+				{
+					ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Unsynced, skipping object ...\n", functionName );
+					continue;
+				}
+			}
+
+			ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: ProcessData for pulse id %d ...\n", functionName, pulseID );
+			// Process the image data
+			m_Device.ProcessData( pImage, &tsEvent, pulseID );
+		}
+		m_fAcquiring = false;
+		return 0;
 	}
 
 	///	Tell acquisition loop to shutdown and exit thread

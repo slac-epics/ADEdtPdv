@@ -321,10 +321,7 @@ public:		//	Public member functions
 	int		SetEdtDebugMsgLevel( int value );
 
 	// Trace level for diagnostics
-	unsigned int GetTraceLevel()
-	{
-		return pasynTrace->getTraceMask( this->pasynUserSelf );
-	}
+	unsigned int GetTraceLevel();
 
 	int		traceVPrint( const char	*	pFormat, va_list pvar );
 
