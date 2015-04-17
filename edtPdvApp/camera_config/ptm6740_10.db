@@ -177,13 +177,151 @@ record( longin, "$(P)$(R)PulnixRefVoltB_RBV" )
 	info( autosaveFields, "VAL" )
 }
 
+record( ao, "$(P)$(R)AcquireTime" )
+{
+	field( FLNK, "$(P)$(R)PulnixFreeRunAcquireTime" )
+	field( PREC, "5" )
+}
+
+# PulnixFreeRunAcquireTime
+# Map AcquireTime in sec to Pulnix manual shutter values
+# Pulnix ManualShutter Values
+#	0	-	Manual No Shutter
+#	1-8	-	1=1/250, 2=2/500, 3=1/1000, 4=1/2000, 5=1/4000, 6=1/8000, 7=1/16000, 8=1/32000, 9=1/64000
+# Internal shutter speeds are powers of 2 relative to 1/250, so
+# A = 1/(250*2**(X-1)
+# 2**(X-1) = (0.004/A)
+# (X-1) = LN(0.004/A)/LN(2)
+# X = LN(0.004/A)/LN(2) + 1
+record( calc, "$(P)$(R)PulnixFreeRunAcquireTime" )
+{
+	field( INPA,  "$(P)$(R)AcquireTime NPP NMS"  )
+	field( CALC,  "MAX(0,MIN(9,LN(0.004/A)/LN(2)+1))" )
+	field( PREC, "0" )
+	field( TPRO, "2" )
+	field( FLNK, "$(P)$(R)PulnixExtTrigAcquireTime" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
+}
+# PulnixExtTrigAcquireTime
+# Map AcquireTime in sec to Pulnix internal shutter values
+# Pulnix InternalShutter X: 1=1/64000, 2=1/32000, 3=1/16000, 4=1/8000, 5=1/4000, 6=1/2000, 7=1/1000,8=1/500
+# Internal shutter speeds are powers of 2 relative to 1/500, so
+# A = 1/(500*2**(8-X)
+# 2**(8-X) = (0.002/A)
+# (8-X) = LN(0.002/A)/LN(2)
+# X = 8 - LN(0.002/A)/LN(2)
+record( calcout, "$(P)$(R)PulnixExtTrigAcquireTime" )
+{
+	field( INPA,  "$(P)$(R)AcquireTime NPP NMS"  )
+	field( CALC,  "MAX(1,MIN(8,8-LN(.002/A)/LN(2)))" )
+	field( PREC, "0" )
+	field( TPRO, "2" )
+	field( FLNK, "$(P)$(R)PulnixPulseAcquireTime" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
+}
+# PulnixPulseAcquireTime
+# For pulse width, we use Async setting 9 and
+# write the AcquireTime to the trigger pulse width
+record( calcout, "$(P)$(R)PulnixPulseAcquireTime" )
+{
+	field( INPA, "$(P)$(R)AcquireTime NPP NMS"  )
+	field( CALC, "9" )
+	field( PREC, "0" )
+	field( TPRO, "2" )
+	field( DOPT, "Use OCAL" )
+	field( OOPT, "On Change" )
+	field( OCAL, "A*1e9" )
+	field( OUT,  "$(PWIDTH=)" )
+	field( FLNK, "$(P)$(R)PulnixShutterCmdSelect" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
+}
+
 record( longin, "$(P)$(R)PulnixGetRawShutter" )
 {
-	field( DESC, "Numeric shutter value" )
+	field( DESC, "Raw Numeric shutter value" )
 	field( DTYP, "stream" )
 	field( INP,	 "@ptm6740_10.proto GetShutter $(PORT).SER " )
-#	field( SCAN, "1 second" )
 	field( PINI, "YES" )
+	field( FLNK, "$(P)$(R)PulnixShutterReadSelect" )
+}
+
+record( longout, "$(P)$(R)PulnixRawShutter" )
+{
+	field( DESC, "Raw Numeric shutter value" )
+	field( PINI, "YES" )
+}
+
+record( calc, "$(P)$(R)PulnixShutterReadSelect" )
+{
+	field( CALC, "A+1" )
+	field( INPA, "$(P)$(R)PulnixTriggerMode" )
+	field( FLNK, "$(P)$(R)PulnixShutterReadFanout" )
+}
+
+record( dfanout, "$(P)$(R)PulnixShutterReadFanout" )
+{
+	field( DESC, "Selects shutter read cmd" )
+	field( OMSL, "closed_loop" )
+#	field( DOL,	 "$(P)$(R)PulnixShutter" )
+	field( DOL,	 "1" )
+	field( SELL, "$(P)$(R)PulnixShutterReadSelect" )
+	field( SELM, "Specified" )
+	field( OUTA, "$(P)$(R)PulnixCalcFreeRunShutter.PROC PP" )
+	field( OUTB, "$(P)$(R)PulnixCalcExtTrigShutter.PROC PP" )
+	field( OUTC, "$(P)$(R)PulnixCalcPulseShutter.PROC PP" )
+	field( PINI, "YES" )
+}
+
+# PulnixCalcFreeRunShutter
+# Map Pulnix manual shutter values to AcquireTime in sec
+# Pulnix ManualShutter Values
+#	0	-	Manual No Shutter
+#	1-8	-	1=1/250, 2=2/500, 3=1/1000, 4=1/2000, 5=1/4000, 6=1/8000, 7=1/16000, 8=1/32000, 9=1/64000
+# Internal shutter speeds are powers of 2 relative to 1/250, so
+# X = 1/(250*2**(A-1)
+record( calcout, "$(P)$(R)PulnixCalcFreeRunShutter" )
+{
+	field( INPA,  "$(P)$(R)PulnixGetRawShutter NPP NMS" )
+	field( CALC,  "1/(250*2**(A-1))" )
+	field( PREC, "5" )
+	field( TPRO, "2" )
+	field( OOPT, "On Change" )
+	field( OUT,  "$(P)$(R)EdtAcquireTime_RBV PP MS" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
+}
+# PulnixCalcExtTrigShutter
+# Map AcquireTime in sec to Pulnix internal shutter values
+# Pulnix InternalShutter X: 1=1/64000, 2=1/32000, 3=1/16000, 4=1/8000, 5=1/4000, 6=1/2000, 7=1/1000,8=1/500
+# Internal shutter speeds are powers of 2 relative to 1/500, so
+# X = 1/(500*2**(8-A)
+record( calcout, "$(P)$(R)PulnixCalcExtTrigShutter" )
+{
+	field( INPA, "$(P)$(R)PulnixGetRawShutter NPP NMS" )
+	field( CALC, "1/(500*2**(8-A))" )
+	field( PREC, "5" )
+	field( TPRO, "2" )
+	field( OOPT, "On Change" )
+	field( OUT,  "$(P)$(R)EdtAcquireTime_RBV PP MS" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
+}
+# PulnixCalcPulseShutter
+# For pulse width, we use Async setting 9 and
+# write the AcquireTime to the trigger pulse width
+record( calcout, "$(P)$(R)PulnixCalcPulseShutter" )
+{
+	field( INPA, "$(PW_RBV) NPP NMS" )
+	field( CALC, "A/1e9" )
+	field( PREC, "5" )
+	field( TPRO, "2" )
+	field( OOPT, "On Change" )
+	field( OUT,  "$(P)$(R)EdtAcquireTime_RBV PP MS" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
 
 # Make EdtTriggerMode FLNK to PulnixTriggerMode
@@ -198,16 +336,33 @@ record( mbbo, "$(P)$(R)PulnixTriggerMode" )
 	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
 	field( ONVL, "1" )	field( ONST, "External" )
 	field( TWVL, "2" )	field( TWST, "Pulse" )
-	field( FLNK, "$(P)$(R)PulnixTriggerCmdSelect" )
+	field( FLNK, "$(P)$(R)PulnixShutterCmdSelect" )
 }
 #
-record( mbbi, "$(P)$(R)PulnixTriggerMode_RBV" )
+record( longin, "$(P)$(R)PulnixGetRawTriggerMode" )
 {
+	field( DESC, "Raw Numeric shutter value" )
 	field( DTYP, "stream" )
 	field( INP,	 "@ptm6740_10.proto GetTriggerMode $(PORT).SER " )
+	field( PINI, "YES" )
+	field( FLNK, "$(P)$(R)PulnixCalcTriggerMode" )
+}
+record( calcout, "$(P)$(R)PulnixCalcTriggerMode" )
+{
+	field( INPA,  "$(P)$(R)PulnixGetRawTriggerMode NPP NMS"  )
+	field( INPB,  "$(P)$(R)PulnixGetRawShutter PP NMS"  )
+	field( CALC,  "A==0?0:(A==1?(B!=9?1:2):3)" )
+	field( PREC, "0" )
+	field( OUT,  "$(P)$(R)PulnixTriggerMode_RBV PP MS" )
+	field( TPRO, "2" )
+	field( FLNK, "$(P)$(R)PulnixPulseAcquireTime" )
+}
+record( mbbi, "$(P)$(R)PulnixTriggerMode_RBV" )
+{
 	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
 	field( ONVL, "1" )	field( ONST, "External" )
 	field( TWVL, "2" )	field( TWST, "Pulse" )
+	field( THVL, "3" )	field( THST, "Direct" )
 	field( FLNK, "$(P)$(R)EdtTriggerMode_RBV" )
 }
 # Make EdtTriggerMode_RBV get it's value from PulnixTriggerMode_RBV
@@ -217,30 +372,33 @@ record( mbbo, "$(P)$(R)EdtTriggerMode_RBV" )
 	field( DOL,  "$(P)$(R)PulnixTriggerMode_RBV NPP MS" )
 }
 
-record( calc, "$(P)$(R)PulnixTriggerCmdSelect" )
+record( calc, "$(P)$(R)PulnixShutterCmdSelect" )
 {
 	field( CALC, "A+1" )
 	field( INPA, "$(P)$(R)PulnixTriggerMode" )
-	field( FLNK, "$(P)$(R)PulnixSetRawShutter" )
+	field( FLNK, "$(P)$(R)PulnixShutterCmdFanout" )
 }
 
-record( dfanout, "$(P)$(R)PulnixSetRawShutter" )
+record( dfanout, "$(P)$(R)PulnixShutterCmdFanout" )
 {
 	field( DESC, "Selects shutter cmd" )
 	field( OMSL, "closed_loop" )
-	field( DOL,	 "$(P)$(R)PulnixShutter" )
-	field( SELL, "$(P)$(R)PulnixTriggerCmdSelect" )
+#	field( DOL,	 "$(P)$(R)PulnixShutter" )
+	field( DOL,	 "1" )
+	field( SELL, "$(P)$(R)PulnixShutterCmdSelect" )
 	field( SELM, "Specified" )
-	field( OUTA, "$(P)$(R)PulnixSetAsyncShutter PP" )
-	field( OUTB, "$(P)$(R)PulnixSetManualShutter PP" )
-	field( OUTC, "$(P)$(R)PulnixSetDirectShutter PP" )
+	field( OUTA, "$(P)$(R)PulnixSetFreeRunShutter.PROC PP" )
+	field( OUTB, "$(P)$(R)PulnixSetExtTrigShutter.PROC PP" )
+	field( OUTC, "$(P)$(R)PulnixSetPulseShutter.PROC PP" )
 	field( PINI, "YES" )
-	field( FLNK, "$(P)$(R)PulnixTriggerMode_RBV" )
+	field( FLNK, "$(P)$(R)PulnixGetRawTriggerMode" )
 }
 
-record( longout, "$(P)$(R)PulnixSetAsyncShutter" )
+record( longout, "$(P)$(R)PulnixSetExtTrigShutter" )
 {
-	field( DESC, "Async shutter setting" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)PulnixExtTrigAcquireTime NPP NMS" )
+	field( DESC, "Select Async shutter speeds" )
 	field( DTYP, "stream" )
 	field( OUT,	 "@ptm6740_10.proto SetAsyncShutter $(PORT).SER " )
 	field( FLNK, "$(P)$(R)PulnixGetRawShutter PP" )
@@ -254,30 +412,53 @@ record( longout, "$(P)$(R)PulnixSetDirectShutter" )
 	field( FLNK, "$(P)$(R)PulnixGetRawShutter PP" )
 }
 
-record( longout, "$(P)$(R)PulnixSetManualShutter" )
+record( longout, "$(P)$(R)PulnixSetPulseShutter" )
 {
-	field( DESC, "Manual shutter setting" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)PulnixPulseAcquireTime NPP NMS" )
+	field( DESC, "Select Async pulse width shutter" )
+	field( DTYP, "stream" )
+	field( OUT,	 "@ptm6740_10.proto SetAsyncShutter $(PORT).SER " )
+	field( FLNK, "$(P)$(R)PulnixSetTrigPulseWidth" )
+}
+record( calcout, "$(P)$(R)PulnixSetTrigPulseWidth" )
+{
+	field( INPA, "$(P)$(R)AcquireTime NPP NMS"  )
+	field( CALC, "A*1e9" )
+	field( PREC, "0" )
+	field( TPRO, "2" )
+	field( OUT,  "$(PWIDTH=)" )
+	field( FLNK, "$(P)$(R)PulnixGetRawShutter" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
+}
+
+record( longout, "$(P)$(R)PulnixSetFreeRunShutter" )
+{
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)PulnixFreeRunAcquireTime NPP NMS" )
+	field( DESC, "Select FreeRun shutter speeds" )
 	field( DTYP, "stream" )
 	field( OUT,	 "@ptm6740_10.proto SetManualShutter $(PORT).SER " )
 	field( FLNK, "$(P)$(R)PulnixGetRawShutter PP" )
 }
 
-record( mbbi, "$(P)$(R)PulnixShutter" )
-{
-	field( DESC, "Camera shutter speed" )
-	field( ZRVL, "0"	) field( ZRST, "1/250"	)
-	field( ONVL, "1"	) field( ONST, "1/500"	)
-	field( TWVL, "2"	) field( TWST, "1/1000"	)
-	field( THVL, "3"	) field( THST, "1/2000"	)
-	field( FRVL, "4"	) field( FRST, "1/4000"	 )
-	field( FVVL, "5"	) field( FVST, "1/8000"	 )
-	field( SXVL, "6"	) field( SXST, "1/16000" )
-	field( SVVL, "7"	) field( SVST, "1/32000" )
-	field( EIVL, "8"	) field( EIST, "1/64000" )
-	field( NIVL, "9"	) field( NIST, "Pulse"	 )
-	field( FLNK, "$(P)$(R)PulnixSetRawShutter PP" )
-	field( PINI, "YES" )
-}
+#record( mbbi, "$(P)$(R)PulnixShutter" )
+#{
+#	field( DESC, "Camera shutter speed" )
+#	field( ZRVL, "0"	) field( ZRST, "1/250"	)
+#	field( ONVL, "1"	) field( ONST, "1/500"	)
+#	field( TWVL, "2"	) field( TWST, "1/1000"	)
+#	field( THVL, "3"	) field( THST, "1/2000"	)
+#	field( FRVL, "4"	) field( FRST, "1/4000"	 )
+#	field( FVVL, "5"	) field( FVST, "1/8000"	 )
+#	field( SXVL, "6"	) field( SXST, "1/16000" )
+#	field( SVVL, "7"	) field( SVST, "1/32000" )
+#	field( EIVL, "8"	) field( EIST, "1/64000" )
+#	field( NIVL, "9"	) field( NIST, "Pulse"	 )
+#	field( FLNK, "$(P)$(R)PulnixTriggerModeFanout PP" )
+#	field( PINI, "YES" )
+#}
 
 record( bo, "$(P)$(R)PulnixAutoGain" )
 {

@@ -9,24 +9,27 @@ ExtraInput	= Ignore;
 # Safe command to send to test communications
 ComTest
 {
-	out	":SHR?";	in	":o%*{A|M|D}S%*X";
-	@init { out	":SHR?";	in	":o%*{A|M|D}S%*X"; }
+	out	":SHR?";	in	":o%*{M|A|D}S%*X";
+	@init { out	":SHR?";	in	":o%*{M|A|D}S%*X"; }
 }
 
 
-# Get shutter speed
+# Get shutter setting
 GetShutter
 {
-	out	":SHR?";	in	":o%*{A|M|D}S%X";
-	@init { out	":SHR?";	in	":o%*{A|M|D}S%X"; }
+	out	":SHR?";	in	":o%*{M|A|D}S%X";
+	@init { out	":SHR?";	in	":o%*{M|A|D}S%X"; }
 }
 
 # Get shutter mode
 GetTriggerMode
 {
 	out ":SHR?";
-	in	":o%{A|M|D}S%*X";
-	@init { out	":SHR?";	in	":o%{A|M|D}S%*X"; }
+	in	":o%{M|A|D}S%*X";
+# or to grab the shutter setting to a PV
+# INP: @ptm6740_10.proto GetTriggerMode($(P)$(R)PulnixRawShutter)
+#	in	":o%{M|A|D}S%\$1X";
+	@init { out	":SHR?";	in	":o%{M|A|D}S%*X"; }
 }
 
 # Set direct shutter speed
@@ -40,7 +43,7 @@ SetDirectShutter
 # Set manual shutter speed
 # Internal timing - free run mode
 #	0	-	Manual No Shutter
-#	1-8	-	Manual 1/500 .. 1/64000
+#	1-8	-	1=1/250, 2=2/500, 3=1/1000, 4=1/2000, 5=1/4000, 6=1/8000, 7=1/16000, 8=1/32000, 9=1/64000
 SetManualShutter
 {
 	out	":MSH=%X";	in	":o";
@@ -50,7 +53,7 @@ SetManualShutter
 # External timing via VINIT trigger
 # Async Modes:
 #	0	-	Async No Shutter
-#	1-8	-	Async 1/500 .. 1/64000
+#	1-8	-	1=1/64000, 2=1/32000, 3=1/16000, 4=1/8000, 5=1/4000, 6=1/2000, 7=1/1000,8=1/500
 #	9	-	Async Pulse Width
 SetAsyncShutter
 {
