@@ -31,7 +31,7 @@ record( ao, "$(P)$(R)EdtGain" )
 # The Pulnix camera has 2 gain controls, A & B
 # with range 0x042 to 0x1E8
 # For compatibility w/ ADCore's single gain control,
-# a PulnixGainCalc transform record is used
+# calc records and an offset value are used to set A & B
 record( dfanout, "$(P)$(R)PulnixGain" )
 {
 	field( OMSL, "closed_loop" )
@@ -39,83 +39,37 @@ record( dfanout, "$(P)$(R)PulnixGain" )
 	field( DESC, "Set camera gain" )
 	field( HOPR, "100" )
 	field( LOPR, "0" )
-	field( OUTA, "$(P)$(R)PulnixGainCalc.G PP" )
+	field( FLNK, "$(P)$(R)PulnixGainA" )
 }
-record( dfanout, "$(P)$(R)PulnixGainA" )
-{
-	field( DESC, "Gain for side A" )
-	field( OUTA, "$(P)$(R)PulnixGainCalc.A PP" )
-	field( PINI, "YES" )
-	info( autosaveFields, "VAL" )
-}
-record( dfanout, "$(P)$(R)PulnixGainB" )
-{
-	field( DESC, "Gain for side B" )
-	field( OUTA, "$(P)$(R)PulnixGainCalc.B PP" )
-	field( PINI, "YES" )
-	info( autosaveFields, "VAL" )
-}
-record( dfanout, "$(P)$(R)PulnixGainOffset" )
+record( longout, "$(P)$(R)PulnixGainOffset" )
 {
 	field( DESC, "Offset between gain halves" )
 	field( DOL,	 "0" )
-	field( OUTA, "$(P)$(R)PulnixGainCalc.O PP" )
+	field( FLNK, "$(P)$(R)PulnixGainA" )
 	info( autosaveFields, "VAL" )
 }
-
-#
-# Transform record to allow independent manipulation of
-# overall gain, gain for ch A, gain for ch B, and gain offset
-# between ch A and B.
-# Inputs:
-#	INPA	Gain for Ch A, range 0x
-#	INPB	Gain for Ch B
-#	INPG	Overall Gain, range 0..100
-#	INPO	Offset between A and B, -100 to 100
-# Outputs:
-#	OUTA	Gain for Ch A, range 0x42 to 0x1E8
-#	OUTB	Gain for Ch B, range 0x42 to 0x1E8
-#	OUTG	Overall Gain, range 0..100
-#	OUTO	Offset between A and B, -100 to 100
-record( transform, "$(P)$(R)PulnixGainCalc" )
+record( calcout, "$(P)$(R)PulnixGainA" )
 {
-	field( DESC, "Calc camera gain" )
-
-# These are commented out as calc module
-# doesn't do any calculations which have an input link.
-# See Tech-talk Sept 2011 discussion re "Transorm Record no_inlink test"
-# Thus, we use dfanout records above to write
-# to $(P)$(R)PulnixGainCalc.A, B, G, and O
-#	field( INPA, "$(P)$(R)PulnixGainA" )
-#	field( INPB, "$(P)$(R)PulnixGainB" )
-#	field( INPG, "$(P)$(R)PulnixGain" )
-#	field( INPO, "$(P)$(R)PulnixGain:Offset" )
-#
-# 	The COPT field is only supported in calc 2.6.4 or
-#	greater and it doesn't do what we want.
-#	If we set the COPT field, it will always
-#	redo every calc in the order CLCA, CLCB, CLCG, CLCO
-#	field( COPT, "Always" )
-
+	field( DESC, "Gain for side A" )
+	field( INPD, "$(P)$(R)PulnixGainOffset" )
+	field( INPG, "$(P)$(R)PulnixGain" )
 	field( INPH, "0x1E8" )
 	field( INPL, "0x042" )
-	field( CLCA, "(G/100)*(H-L)+L-(O/2)" )
-	field( CLCB, "(G/100)*(H-L)+L+(O/2)" )
-	field( CLCG, "(((A+B)/2)-L)*100/(H-L)" )
-	field( CLCO, "B-A" )
-	field( OUTA, "$(P)$(R)PulnixGainA PP" )
-	field( OUTB, "$(P)$(R)PulnixGainB PP" )
-	field( OUTG, "$(P)$(R)PulnixGain PP" )
-	field( OUTO, "$(P)$(R)PulnixGain:Offset PP" )
+	field( CALC, "(G/100)*(H-L)+L-(D/2)" )
+	field( OUT,  "$(P)$(R)PulnixSetGainA PP" )
+	field( FLNK, "$(P)$(R)PulnixGainB" )
+}
+record( calcout, "$(P)$(R)PulnixGainB" )
+{
+	field( DESC, "Gain for side B" )
+	field( INPD, "$(P)$(R)PulnixGainOffset" )
+	field( INPG, "$(P)$(R)PulnixGain" )
+	field( INPH, "0x1E8" )
+	field( INPL, "0x042" )
+	field( CALC, "(G/100)*(H-L)+L+(D/2)" )
+	field( OUT,  "$(P)$(R)PulnixSetGainB PP" )
 }
 
-# These records monitor their dfanout equivalents
-# and send the value to the camera via the serial port
-# We need this record in addition to PulnixGainA because
-# $(P)$(R)PulnixGainA needs to use an output field to
-# write to $(P)$(R)PulnixGainCalc.A
-# while this serial control record needs to use it's output
-# field to specify the protocol command
 record( longout, "$(P)$(R)PulnixSetGainA" )
 {
 	field( DESC, "Set camera gain A" )
@@ -198,7 +152,6 @@ record( calc, "$(P)$(R)PulnixFreeRunAcquireTime" )
 	field( INPA,  "$(P)$(R)AcquireTime NPP NMS"  )
 	field( CALC,  "MAX(0,MIN(9,LN(0.004/A)/LN(2)+1))" )
 	field( PREC, "0" )
-	field( TPRO, "2" )
 	field( FLNK, "$(P)$(R)PulnixExtTrigAcquireTime" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
@@ -216,7 +169,6 @@ record( calcout, "$(P)$(R)PulnixExtTrigAcquireTime" )
 	field( INPA,  "$(P)$(R)AcquireTime NPP NMS"  )
 	field( CALC,  "MAX(1,MIN(8,8-LN(.002/A)/LN(2)))" )
 	field( PREC, "0" )
-	field( TPRO, "2" )
 	field( FLNK, "$(P)$(R)PulnixPulseAcquireTime" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
@@ -229,7 +181,6 @@ record( calcout, "$(P)$(R)PulnixPulseAcquireTime" )
 	field( INPA, "$(P)$(R)AcquireTime NPP NMS"  )
 	field( CALC, "9" )
 	field( PREC, "0" )
-	field( TPRO, "2" )
 	field( DOPT, "Use OCAL" )
 	field( OOPT, "On Change" )
 	field( OCAL, "A*1e9" )
@@ -287,7 +238,6 @@ record( calcout, "$(P)$(R)PulnixCalcFreeRunShutter" )
 	field( INPA,  "$(P)$(R)PulnixGetRawShutter NPP NMS" )
 	field( CALC,  "1/(250*2**(A-1))" )
 	field( PREC, "5" )
-	field( TPRO, "2" )
 	field( OOPT, "On Change" )
 	field( OUT,  "$(P)$(R)EdtAcquireTime_RBV PP MS" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
@@ -303,7 +253,6 @@ record( calcout, "$(P)$(R)PulnixCalcExtTrigShutter" )
 	field( INPA, "$(P)$(R)PulnixGetRawShutter NPP NMS" )
 	field( CALC, "1/(500*2**(8-A))" )
 	field( PREC, "5" )
-	field( TPRO, "2" )
 	field( OOPT, "On Change" )
 	field( OUT,  "$(P)$(R)EdtAcquireTime_RBV PP MS" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
@@ -317,7 +266,6 @@ record( calcout, "$(P)$(R)PulnixCalcPulseShutter" )
 	field( INPA, "$(PW_RBV) NPP NMS" )
 	field( CALC, "A/1e9" )
 	field( PREC, "5" )
-	field( TPRO, "2" )
 	field( OOPT, "On Change" )
 	field( OUT,  "$(P)$(R)EdtAcquireTime_RBV PP MS" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
@@ -354,7 +302,6 @@ record( calcout, "$(P)$(R)PulnixCalcTriggerMode" )
 	field( CALC,  "A==0?0:(A==1?(B!=9?1:2):3)" )
 	field( PREC, "0" )
 	field( OUT,  "$(P)$(R)PulnixTriggerMode_RBV PP MS" )
-	field( TPRO, "2" )
 	field( FLNK, "$(P)$(R)PulnixPulseAcquireTime" )
 }
 record( mbbi, "$(P)$(R)PulnixTriggerMode_RBV" )
@@ -426,8 +373,7 @@ record( calcout, "$(P)$(R)PulnixSetTrigPulseWidth" )
 	field( INPA, "$(P)$(R)AcquireTime NPP NMS"  )
 	field( CALC, "A*1e9" )
 	field( PREC, "0" )
-	field( TPRO, "2" )
-	field( OUT,  "$(PWIDTH=)" )
+	field( OUT,  "$(PWIDTH=) PP" )
 	field( FLNK, "$(P)$(R)PulnixGetRawShutter" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
