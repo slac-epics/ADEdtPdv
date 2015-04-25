@@ -47,8 +47,28 @@ record( ao, "$(P)$(R)EdtGain" )
 	field( OMSL, "closed_loop" )
 	field( DOL,  "$(P)$(R)Gain NPP MS" )
 	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_GAIN" )
+	field( TPRO, "2" )
 }
 
+record( ao, "$(P)$(R)AcquireTime" )
+{
+	field( TPRO, "2" )
+	field( FLNK, "$(P)$(R)EdtAcquireTime" )
+}
+
+# EdtAcquireTime (Exposure Time)
+# This record updates the EDT asyn serial driver
+record( ao, "$(P)$(R)EdtAcquireTime" )
+{
+	field( TPRO, 2 )
+	field( DTYP, "asynFloat64" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)AcquireTime NPP MS" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SER_ACQUIRE_TIME" )
+#	field( SCAN, "I/O Intr" )
+	field( TPRO, "2" )
+	info( archiveFields,  "VAL" )
+}
 # EdtAcquireTime_RBV (Exposure Time)
 # This record updates the EDT asyn serial driver
 # which maps it to ADCore's ADAcquireTime parameter
@@ -57,6 +77,7 @@ record( ao, "$(P)$(R)EdtAcquireTime_RBV" )
 	field( DTYP, "asynFloat64" )
 	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SER_ACQUIRE_TIME" )
 	field( EGU,  "sec" )
+	field( TPRO, "2" )
 }
 
 # Update ADCore AcquireTime_RBV from EdtAcquireTime_RBV
@@ -69,6 +90,7 @@ record( ai, "$(P)$(R)AcquireTime_RBV" )
 	field( DTYP, "Soft Channel" )
 	field( INP,  "$(P)$(R)EdtAcquireTime_RBV CP MS" )
 	field( SCAN, "Passive" )
+	field( TPRO, "2" )
 }
 
 #
@@ -306,6 +328,7 @@ record( mbbo, "$(P)$(R)EdtTrigLevel" )
 # Replace ADBase TriggerMode fields w/ EDT specific options
 record( mbbo, "$(P)$(R)TriggerMode" )
 {
+	field( TPRO, 2 )
 	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
 	field( ONVL, "1" )	field( ONST, "External" )
 	field( TWVL, "2" )	field( TWST, "Pulse" )
@@ -313,30 +336,42 @@ record( mbbo, "$(P)$(R)TriggerMode" )
 # Replace ADBase TriggerMode_RBV fields w/ EDT options
 record( mbbi, "$(P)$(R)TriggerMode_RBV" )
 {
+	field( TPRO, 2 )
 	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
 	field( ONVL, "1" )	field( ONST, "External" )
 	field( TWVL, "2" )	field( TWST, "Pulse" )
 }
-record( mbbo, "$(P)$(R)EdtTriggerMode" )
+# EdtTriggerMode should not be FLNK'd from TriggerMode, as it shouldn't
+# get processed till we've shutdown acquisition.
+# Note also it needs to be an input record so it processes via I/O Scan
+# once camera is reconfigured.
+record( mbbi, "$(P)$(R)EdtTriggerMode" )
 {
+	field( TPRO, 2 )
 	field( DTYP, "asynInt32" )
-	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SER_TRIGGER_MODE" )
+#	field( OMSL, "closed_loop" )
+#	field( DOL,  "$(P)$(R)TriggerMode NPP MS" )
+#	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SER_TRIGGER_MODE" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SER_TRIGGER_MODE" )
 	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
 	field( ONVL, "1" )	field( ONST, "External" )
 	field( TWVL, "2" )	field( TWST, "Pulse" )
 	field( SCAN, "I/O Intr" )
-	info( archiveFields,  "VAL" )
+	info( archiveFields,  "DESC" )
 }
 record( mbbo, "$(P)$(R)EdtTriggerMode_RBV" )
 {
+	field( TPRO, 2 )
 	field( DTYP, "asynInt32" )
 	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SER_TRIGGER_MODE" )
 	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
 	field( ONVL, "1" )	field( ONST, "External" )
 	field( TWVL, "2" )	field( TWST, "Pulse" )
-	info( archiveFields,  "VAL" )
+	field( FLNK, "$(P)$(R)TriggerMode_RBV" )
+	info( archiveFields,  "DESC" )
 }
 
+# TODO: Add Pulse Width based AcquireTime support here
 
 # These PV's are needed only if you want to use Edt PV's to set
 # and monitor event code trigger timing.

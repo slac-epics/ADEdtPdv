@@ -10,7 +10,7 @@
 #
 InTerminator	= CR;
 OutTerminator	= CR;
-ReplyTimeout	= 400;
+ReplyTimeout	= 800;
 ReadTimeout		= 100;
 WriteTimeout	= 500;
 ExtraInput		= Ignore;
@@ -25,6 +25,12 @@ GetInt
 {
     out "@\$1?";    in  ACK "@%d";
     @init { out "@\$1?";    in  ACK "@%d"; }
+}
+
+GetSerial
+{
+    out "@SN?";    in  ACK "@\"%d";
+    @init { out "@SN?";    in  ACK "@\"%d"; }
 }
 
 GetStr

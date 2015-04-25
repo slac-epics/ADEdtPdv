@@ -12,28 +12,29 @@ record( stringin, "$(P)$(R)EdtModel" )
 }
 
 # Set black level
-record( longout, "$(P)$(R)OpalSetBL" )
+record( longout, "$(P)$(R)OpalBlackLevel" )
 {
     field( DESC, "Set The Black Level" )
     field( DTYP, "stream" )
     field( OUT,	 "@opal1000m_12.proto SetInt(BL) $(PORT).SER" )
-    field( FLNK, "$(P)$(R)OpalBL" )
     field( HOPR, 4096 )
     field( DRVH, 4096 )
     field( LOPR, 0    )
     field( DRVL, 0    )
-	info( autosave, "DESC VAL" )
+	info( autosaveFields, "DESC VAL" )
+    field( FLNK, "$(P)$(R)OpalBlackLevel_RBV" )
 }
 
 # Read black level
-record( longin, "$(P)$(R)OpalBL" )
+record( longin, "$(P)$(R)OpalBlackLevel_RBV" )
 {
     field( DESC, "Black Level" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(BL) $(PORT).SER" )
+	field( PINI, "YES" )
 }
 
-record( stringin, "$(P)$(R)OpalBIT" )
+record( stringin, "$(P)$(R)OpalBuiltInTest_RBV" )
 {
     field( DESC, "Internal Status" )
     field( DTYP, "stream" )
@@ -46,7 +47,7 @@ record( stringin, "$(P)$(R)OpalBIT" )
 #	x.xx	is the camera version
 #	y.yy	is the microcontroller firmware version
 #	z.zz	is the FPGA firmware version
-record( stringin, "$(P)$(R)OpalBS" )
+record( stringin, "$(P)$(R)OpalBuildState_RBV" )
 {
     field( DESC, "Build State" )
     field( DTYP, "stream" )
@@ -56,10 +57,11 @@ record( stringin, "$(P)$(R)OpalBS" )
 # Set Camera Control Exposure source
 #	We use source 4, the I/O connector for external trigger in Pulse mode.
 #	CCE source isn't used in FreeRun mode.
-record( mbbo, "$(P)$(R)OpalSetCCE" )
+record( mbbo, "$(P)$(R)OpalCCE" )
 {
     field( DESC, "Set Exposure Source & Event" )
     field( DTYP, "stream" )
+	field( DOL,  "4" )
     field( OUT,	 "@opal1000m_12.proto SetInt(CCE) $(PORT).SER" )
 #   field( ZRVL, 0 )
 #   field( ONVL, 1 )
@@ -71,14 +73,16 @@ record( mbbo, "$(P)$(R)OpalSetCCE" )
 #   field( TWST, "CC3"	)
 #   field( THST, "CC4"	)
     field( FRST, "I/O"	)
-    field( FLNK, "$(P)$(R)OpalCCE" )
-	info( autosave, "DESC VAL" )
+    field( FLNK, "$(P)$(R)OpalCCE_RBV" )
+# Disabled to avoid accidental use
+	field( DISV, "0" )
+	info( autosaveFields, "DESC" )
 }
 
 # Read Camera Control Exposure source
 #	We use source 4, the I/O connector for external trigger in Pulse mode.
 #	CCE source isn't used in FreeRun mode.
-record( mbbi, "$(P)$(R)OpalCCE" )
+record( mbbi, "$(P)$(R)OpalCCE_RBV" )
 {
     field( DESC, "Exposure Source and Event" )
     field( DTYP, "stream" )
@@ -93,11 +97,12 @@ record( mbbi, "$(P)$(R)OpalCCE" )
     field( TWST, "CC3"	)
     field( THST, "CC4"	)
     field( FRST, "I/O"	)
+	field( PINI, "YES"  )
 }
 
 # Used to specific camera control frame setting
 # Only used for delayed transfer modes that we don't use
-record( mbbo, "$(P)$(R)OpalSetCCFS" )
+record( mbbo, "$(P)$(R)OpalCCFS" )
 {
     field( DESC, "Set Trigger Source & Event" )
     field( DTYP, "stream" )
@@ -114,11 +119,13 @@ record( mbbo, "$(P)$(R)OpalSetCCFS" )
     field( THST, "CC4"	)
     field( FRST, "I/O"	)
     field( FVST, "Soft"	)
-    field( FLNK, "$(P)$(R)OpalCCFS" )
-	info( autosave, "DESC VAL" )
+    field( FLNK, "$(P)$(R)OpalCCFS_RBV" )
+# Disabled to avoid accidental use
+	field( DISV, "0" )
+	info( autosaveFields, "DESC VAL" )
 }
 
-record( mbbi, "$(P)$(R)OpalCCFS" )
+record( mbbi, "$(P)$(R)OpalCCFS_RBV" )
 {
     field( DESC, "Trigger Source and Event" )
     field( DTYP, "stream" )
@@ -135,78 +142,102 @@ record( mbbi, "$(P)$(R)OpalCCFS" )
     field( THST, "CC4"	)
     field( FRST, "I/O"	)
     field( FVST, "Soft"	)
+	field( PINI, "YES"  )
 }
 
-record( bo, "$(P)$(R)OpalSetDPC" )
+record( bo, "$(P)$(R)OpalDefPixelCorr" )
 {
     field( DESC, "Def Pixel Corr. On/Off" )
     field( DTYP, "stream" )
     field( OUT,	 "@opal1000m_12.proto SetInt(DPE) $(PORT).SER" )
-    field( FLNK, "$(P)$(R)OpalDPC" )
-    field( ZNAM, "OFF" )
-    field( ONAM, "ON"  )
-	info( autosave, "DESC VAL" )
+    field( ZNAM, "Disable" )
+    field( ONAM, "Enable"  )
+    field( FLNK, "$(P)$(R)OpalDefPixelCorr_RBV" )
+	field( PINI, "YES" )
+	info( autosaveFields, "DESC VAL" )
 }
 
-record( bi, "$(P)$(R)OpalDPC" )
+record( bi, "$(P)$(R)OpalDefPixelCorr_RBV" )
 {
     field( DESC, "Defect Pixel Correction" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(DPE) $(PORT).SER" )
-    field( ZNAM, "OFF" )
-    field( ONAM, "ON"  )
+    field( ZNAM, "Disabled" )
+    field( ONAM, "Enabled"  )
+	field( PINI, "YES" )
 }
 
-record( mbbo, "$(P)$(R)OpalSetDPT" )
+record( mbbo, "$(P)$(R)OpalDefPixelTest" )
 {
-    field( DESC, "Set Defect Pixel Test Mode" )
+    field( DESC, "Defective Px TestMode" )
     field( DTYP, "stream" )
     field( OUT,	 "@opal1000m_12.proto SetInt(DPT) $(PORT).SER" )
-    field( FLNK, "$(P)$(R)OpalDPT" )
     field( ZRVL, 0 )
     field( ONVL, 1 )
     field( TWVL, 2 )
     field( THVL, 3 )
-    field( ZRST, "Disable"           )
+    field( ZRST, "Disable"  )
     field( ONST, "DP White" )
     field( TWST, "DP Black" )
     field( THST, "DP W/B" )
-	info( autosave, "DESC VAL" )
+    field( FLNK, "$(P)$(R)OpalDefPixelTest_RBV" )
+	field( PINI, "YES" )
+	info( autosaveFields, "DESC VAL" )
 }
 
-record( mbbi, "$(P)$(R)OpalDPT" )
+record( mbbi, "$(P)$(R)OpalDefPixelTest_RBV" )
 {
-    field( DESC, "Defect Pixel Test Mode" )
+    field( DESC, "Defective Px TestMode" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(DPT) $(PORT).SER" )
     field( ZRVL, 0 )
     field( ONVL, 1 )
     field( TWVL, 2 )
     field( THVL, 3 )
-    field( ZRST, "Disable"           )
+    field( ZRST, "Disabled" )
     field( ONST, "DP White" )
     field( TWST, "DP Black" )
-    field( THST, "DP W/B" )
+    field( THST, "DP W/B"   )
+	field( PINI, "YES" )
 }
 
-record( longin, "$(P)$(R)OpalERR" )
+record( mbbi, "$(P)$(R)OpalLastError_RBV" )
 {
     field( DESC, "Latest Error Number" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(ERR) $(PORT).SER" )
+    field( ZRVL, 0   ) field( ZRST, "No Error" )
+    field( ONVL, 1   ) field( ONST, "Unknown Command" )
+    field( TWVL, 2   ) field( TWST, "Missing Param" )
+    field( THVL, 3   ) field( THST, "Syntax Error"   )
+    field( FRVL, 4   ) field( FRST, "Too many param"   )
+    field( FVVL, 5   ) field( FVST, "Missing param"   )
+    field( SXVL, 100 ) field( SXST, "NVRAM Load Error"   )
+    field( SVVL, 7   ) field( SVST, "Param out of range"   )
+    field( EIVL, 8   ) field( EIST, "Internal Error"   )
+    field( NIVL, 101 ) field( NIST, "NVRAM Save Error"   )
+    field( TEVL, 102 ) field( TEST, "Def. Pixel List Full"   )
+    field( ELVL, 103 ) field( ELST, "Def. Pixel List Dup"   )
+    field( TVVL, 120 ) field( TVST, "OLUT Open Error"   )
+    field( TTVL, 121 ) field( TTST, "OLUT Not Open"   )
+    field( FTVL, 122 ) field( FTST, "Not enough LUT entries"   )
+    field( FFVL, 123 ) field( FFST, "Too many LUT entries"   )
+	field( PINI, "YES" )
 }
 
-record( stringin, "$(P)$(R)OpalET" )
+# Returns x;y, where total time is y+(x*65536) hours
+record( stringin, "$(P)$(R)OpalElapsedTime_RBV" )
 {
     field( DESC, "Elapsed Time" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetStr(ET) $(PORT).SER" )
 }
 
+# TODO: Enable/Disable based on TriggerMode, and add calc records to convert from ADCore AcquirePeriod
 # Set the acquire period, the rep rate for image capture
 # Only works in FreeRun trigger mode
 # Argument is an integer in units of 10us
-record( longout, "$(P)$(R)OpalSetFP" )
+record( longout, "$(P)$(R)OpalAcquirePeriod" )
 {
     field( DESC, "Set The Frame Period" )
     field( DTYP, "stream" )
@@ -216,8 +247,9 @@ record( longout, "$(P)$(R)OpalSetFP" )
     field( DRVH, 32000    )
     field( LOPR, 1        )
     field( DRVL, 1        )
-    field( EGU,  "10 us"  )
-	info( autosave, "DESC VAL" )
+    field( EGU,  "e-5sec"  )
+	field( TPRO, 2 )
+	info( autosaveFields, "DESC VAL" )
 }
 
 
@@ -229,7 +261,7 @@ record( longin, "$(P)$(R)OpalAcquirePeriod_RBV" )
     field( DESC, "Frame Period" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(FP) $(PORT).SER" )
-    field( EGU,  "10 us"  )
+    field( EGU,  "e-5sec"  )
 }
 
 #	FSE		Set flash strobe enable
@@ -241,7 +273,7 @@ record( bo, "$(P)$(R)OpalSetFSE" )
     field( FLNK, "$(P)$(R)OpalFSE" )
     field( ZNAM, "Disable" )
     field( ONAM, "Enable"  )
-	info( autosave, "DESC VAL" )
+	info( autosaveFields, "DESC VAL" )
 }
 
 record( bi, "$(P)$(R)OpalFSE" )
@@ -262,7 +294,7 @@ record( bo, "$(P)$(R)OpalSetFSP" )
     field( FLNK, "$(P)$(R)OpalFSP" )
     field( ZNAM, "Normal"   )
     field( ONAM, "Invert" )
-	info( autosave, "DESC VAL" )
+	info( autosaveFields, "DESC VAL" )
 }
 
 record( bi, "$(P)$(R)OpalFSP" )
@@ -283,7 +315,7 @@ record( bo, "$(P)$(R)OpalSetFSM" )
     field( FLNK, "$(P)$(R)OpalFSM" )
     field( ZNAM, "Automatic"  )
     field( ONAM, "Programmed" )
-	info( autosave, "DESC VAL" )
+	info( autosaveFields, "DESC VAL" )
 }
 
 record( bi, "$(P)$(R)OpalFSM" )
@@ -302,7 +334,7 @@ record( longout, "$(P)$(R)OpalSetFST" )
     field( DTYP, "stream" )
     field( OUT,	 "@opal1000m_12.proto SetInt(FST) $(PORT).SER" )
     field( FLNK, "$(P)$(R)OpalFST" )
-	info( autosave, "DESC VAL" )
+	info( autosaveFields, "DESC VAL" )
 }
 
 record( longin, "$(P)$(R)OpalFST" )
@@ -324,7 +356,7 @@ record( longout, "$(P)$(R)OpalGain" )
     field( DRVH, 3200 )
     field( LOPR, 100  )
     field( DRVL, 100  )
-	info( autosave, "DESC VAL" )
+	info( autosaveFields, "DESC VAL" )
 }
 
 
@@ -337,6 +369,7 @@ record( longin, "$(P)$(R)OpalGain_RBV" )
     field( DESC, "Digital Gain" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(GA) $(PORT).SER" )
+	field( PINI, "YES" )
 }
 
 # Read camera identification string
@@ -348,44 +381,97 @@ record( longin, "$(P)$(R)OpalGain_RBV" )
 #	x is D or Q for Dual or Quad sensor output
 #	[f] is optional for special customer version info
 #	e is the serial number
-record( stringin, "$(P)$(R)OpalID" )
+record( stringin, "$(P)$(R)OpalInfo_RBV" )
 {
     field( DESC, "ID String" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetQStr(ID) $(PORT).SER" )
 }
 
-# Possible TODO: Add support for
-#	MID?	Read camera model ID
-#	SN?		Read camera serial number
-#	WB,WB?	Set and read white balance, Color cameras only
-#	OFS,OFS? Set and read black offset, Color cameras only
-#	USIx;y and USI?x	Set and read user defined integers
-#	USSx;y and USS?x	Set and read user defined strings
-#	RQ		Initiate soft request readout
-#	ROIx;y;w;h		Set ROI x offset, y offset, width, and height
-
-record( ao, "$(P)$(R)AcquireTime" )
+record( ao, "$(P)$(R)EdtAcquireTime" )
 {
-	field( FLNK, "$(P)$(R)OpalAcquireTime" )
+	field( TPRO, 2 )
 	field( PREC, "5" )
+	field( FLNK, "$(P)$(R)OpalAcquireTimeFanout" )
+}
+record( calc, "$(P)$(R)OpalAcquireTimeSelect" )
+{
+	field( TPRO, 2 )
+	field( INPA, "$(P)$(R)TriggerMode CPP NMS" )
+	field( CALC, "A+1" )
+	field( PINI, "YES" )
+	field( FLNK, "$(P)$(R)OpalAcquireTimeFanout" )
+}
+record( fanout, "$(P)$(R)OpalAcquireTimeFanout" )
+{
+	field( TPRO, 2 )
+	field( DESC, "Selects AcquireTime cmd" )
+	field( SELL, "$(P)$(R)OpalAcquireTimeSelect PP" )
+	field( SELM, "Specified" )
+	field( LNK1, "$(P)$(R)OpalCalcAcquireTime" )
+	field( LNK2, "$(P)$(R)OpalCalcAcquireTime" )
+	field( LNK3, "$(P)$(R)OpalSetPulseWidth" )
+	field( FLNK, "$(P)$(R)OpalGetAcquireTimeFanout" )
+}
+
+# Calc record for Opal AcquireTime, the length of the exposure
+# as controlled by the camera electronics.
+# OpalCalcAcquireTime is an integer in units of 10us
+record( calcout, "$(P)$(R)OpalCalcAcquireTime" )
+{
+	field( TPRO, 2 )
+    field( DESC, "Calc Integration Time" )
+	field( INPA, "$(P)$(R)AcquireTime NPP NMS" )
+	field( INPB, "10e-6" )
+	field( CALC, "MAX(1,MIN(A/B,32000))" )
+    field( HOPR, 32000    )
+    field( LOPR, 1        )
+	field( OUT,  "$(P)$(R)OpalAcquireTime PP MS" )
+    field( EGU,  "e-5sec"  )
+	info( autosaveFields, "DESC" )
+}
+# OpalSetPulseWidth
+# Write the AcquireTime to the trigger pulse width
+record( calcout, "$(P)$(R)OpalSetPulseWidth" )
+{
+	field( INPA, "$(P)$(R)AcquireTime NPP NMS"  )
+	field( INPB, "$(PW_SCALE=1e9)"  )
+	field( CALC, "A*B" )
+	field( OUT,  "$(PWIDTH=)" )
+	field( PREC, "0" )
+	field( EGU,  "ns" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
 
 # Set AqcuireTime, the length of the exposure
-# Only works in FreeRun trigger mode
+# Only works in FreeRun and External trigger modes
 # Argument is an integer in units of 10us
 record( longout, "$(P)$(R)OpalAcquireTime" )
 {
+	field( TPRO, 2 )
     field( DESC, "Set Integration Time" )
     field( DTYP, "stream" )
     field( OUT,	 "@opal1000m_12.proto SetInt(IT) $(PORT).SER" )
-    field( FLNK, "$(P)$(R)OpalAcquireTime_RBV" )
     field( HOPR, 32000    )
     field( DRVH, 32000    )
     field( LOPR, 1        )
     field( DRVL, 1        )
-    field( EGU,  "10 us"  )
-	info( autosave, "DESC VAL" )
+    field( EGU,  "e-5sec"  )
+    field( FLNK, "$(P)$(R)OpalGetAcquireTimeFanout" )
+	info( autosaveFields, "DESC" )
+}
+
+record( fanout, "$(P)$(R)OpalGetAcquireTimeFanout" )
+{
+	field( TPRO, 2 )
+	field( DESC, "Selects AcquireTime read cmd" )
+	field( SELL, "$(P)$(R)OpalAcquireTimeSelect" )
+	field( SELM, "Specified" )
+	field( LNK1, "$(P)$(R)OpalAcquireTime" )
+	field( LNK2, "$(P)$(R)OpalAcquireTime_RBV" )
+	field( LNK3, "$(P)$(R)OpalGetPulseWidth" )
+	field( PINI, "YES" )
 }
 
 # Read AqcuireTime, the length of the exposure
@@ -393,83 +479,39 @@ record( longout, "$(P)$(R)OpalAcquireTime" )
 # Reply value is an integer in units of 10us
 record( longin, "$(P)$(R)OpalAcquireTime_RBV" )
 {
+	field( TPRO, 2 )
     field( DESC, "Integration Time" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(IT) $(PORT).SER" )
-    field( EGU,  "10 us"  )
-	field( FLNK, "$(P)$(R)EdtAcquireTime_RBV" )
+    field( EGU,  "e-5sec"  )
+	field( FLNK, "$(P)$(R)OpalCalcAcquireTime_RBV" )
+	info( autosaveFields, "DESC HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
+	info( archiveFields,  "DESC HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
+}
+record( calcout, "$(P)$(R)OpalCalcAcquireTime_RBV" )
+{
+	field( TPRO, 2 )
+    field( DESC, "Calc Integration Time" )
+	field( INPA, "$(P)$(R)OpalAcquireTime_RBV NPP NMS" )
+	field( INPB, "10e-6" )
+	field( CALC, "A*B" )
+	field( OUT,	 "$(P)$(R)EdtAcquireTime_RBV PP MS" )
+    field( EGU,  "sec"  )
+	info( autosaveFields, "DESC" )
+}
+
+# OpalGetPulseWidth
+record( calcout, "$(P)$(R)OpalGetPulseWidth" )
+{
+	field( INPA, "$(PW_RBV) NPP NMS" )
+	field( INPB, "$(PW_SCALE=1e9)"  )
+	field( CALC, "A/B" )
+	field( PREC, "5" )
+	field( OOPT, "On Change" )
+	field( OUT,  "$(P)$(R)EdtAcquireTime_RBV PP MS" )
+	field( EGU,  "ns" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
-}
-# Make EdtAcquireTime_RBV follow OpalAcquireTime_RBV
-# This record updates the EDT asyn serial driver
-# which maps it to ADCore's ADAcquireTime parameter
-record( ao, "$(P)$(R)EdtAcquireTime_RBV" )
-{
-	field( OMSL, "closed_loop" )
-	field( DOL,  "$(P)$(R)OpalAcquireTime_RBV NPP MS" )
-	field( PREC, "5" )
-}
-
-# Recall configuration
-# Config 0 is factory default
-# Config 1..9 are available for user configurations
-record( longout, "$(P)$(R)OpalSetLC" )
-{
-    field( DESC, "Set Power-up Configuration" )
-    field( DTYP, "stream" )
-    field( OUT,	 "@opal1000m_12.proto SetInt(LC) $(PORT).SER" )
-    field( FLNK, "$(P)$(R)OpalLC" )
-    field( HOPR, 9 )
-    field( DRVH, 9 )
-    field( LOPR, 0 )
-    field( DRVL, 0 )
-}
-
-# Read last selected configuration number
-record( longin, "$(P)$(R)OpalLC" )
-{
-    field( DESC, "Power-up Configuration" )
-    field( DTYP, "stream" )
-    field( INP,	 "@opal1000m_12.proto GetInt(LC) $(PORT).SER" )
-}
-
-record( mbbo, "$(P)$(R)OpalSetMI" )
-{
-    field( DESC, "Set the Output Mirroring" )
-    field( DTYP, "stream" )
-    field( OUT,	 "@opal1000m_12.proto SetInt(MI) $(PORT).SER" )
-    field( FLNK, "$(P)$(R)OpalMI" )
-    field( ZRVL, 0 )
-    field( ONVL, 1 )
-    field( TWVL, 2 )
-    field( THVL, 3 )
-    field( ZRST, "No Mirrors"            )
-    field( ONST, "Horizontal"     )
-    field( TWST, "Vertical"       )
-    field( THST, "H & V" )
-}
-
-record( mbbi, "$(P)$(R)OpalMI" )
-{
-    field( DESC, "Output Mirroring" )
-    field( DTYP, "stream" )
-    field( INP,	 "@opal1000m_12.proto GetInt(MI) $(PORT).SER" )
-    field( ZRVL, 0 )
-    field( ONVL, 1 )
-    field( TWVL, 2 )
-    field( THVL, 3 )
-    field( ZRST, "No Mirrors"            )
-    field( ONST, "Horizontal"     )
-    field( TWST, "Vertical"       )
-    field( THST, "H & V" )
-}
-
-record( stringin, "$(P)$(R)OpalMID" )
-{
-    field( DESC, "Model ID" )
-    field( DTYP, "stream" )
-    field( INP,	 "@opal1000m_12.proto GetQStr(MID) $(PORT).SER" )
 }
 
 # Set the trigger mode
@@ -478,50 +520,64 @@ record( stringin, "$(P)$(R)OpalMID" )
 #	Pulse mode is used for exposure timing via external trigger pulse.
 #		Pulse width controls exposure, readout begins approx 418us after the end of the trigger pulse
 #	The Delayed and double modes are provided for slow framegrabbers and not used by this driver
+record( mbbi, "$(P)$(R)EdtTriggerMode" )
+{
+	field( FLNK, "$(P)$(R)OpalCalcTriggerMode" )
+}
+record( calc, "$(P)$(R)OpalCalcTriggerMode" )
+{
+	field( TPRO, 2 )
+	field( INPA, "$(P)$(R)EdtTriggerMode NPP NMS" )
+	field( CALC, "A==0?0:(A==1?5:1)" )
+	field( FLNK, "$(P)$(R)OpalTriggerMode" )
+}
 record( mbbo, "$(P)$(R)OpalTriggerMode" )
 {
+	field( TPRO, 2 )
     field( DESC, "Set the Acquisition Mode" )
 	field( OMSL, "closed_loop" )
-	field( DOL,  "$(P)$(R)EdtTriggerMode CPP NMS" )
+	field( DOL,  "$(P)$(R)OpalCalcTriggerMode NPP NMS" )
     field( DTYP, "stream" )
     field( OUT,	 "@opal1000m_12.proto SetInt(MO) $(PORT).SER" )
-    field( ZRVL, 0 )
-    field( ONVL, 1 )
-#   field( TWVL, 2 )
-#   field( THVL, 3 )
-#   field( FRVL, 4 )
-    field( ZRST, "FreeRun"     )
-    field( ONST, "Pulse"         )
-#   field( TWST, "Delayed"        )
-#   field( THST, "Double"         )
-#   field( FRST, "Double Delayed" )
-#?	info( autosave, "DESC VAL" )
+    field( ZRVL, 0 ) field( ZRST, "FreeRun"     )
+    field( ONVL, 1 ) field( ONST, "Pulse"         )
+    field( TWVL, 2 ) field( TWST, "Delayed"        )
+    field( THVL, 3 ) field( THST, "Double"         )
+    field( FRVL, 4 ) field( FRST, "Double Delayed" )
+    field( FVVL, 5 ) field( FVST, "External"   )
 	field( FLNK, "$(P)$(R)OpalTriggerMode_RBV" )
 }
 
 # Read the trigger mode
 record( mbbi, "$(P)$(R)OpalTriggerMode_RBV" )
 {
+	field( TPRO, 2 )
     field( DESC, "Acquisition Mode" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(MO) $(PORT).SER" )
-    field( ZRVL, 0 )
-    field( ONVL, 1 )
-    field( TWVL, 2 )
-    field( THVL, 3 )
-    field( FRVL, 4 )
-    field( ZRST, "FreeRun"     )
-    field( ONST, "Pulse"         )
-    field( TWST, "Delayed"        )
-    field( THST, "Double"         )
-    field( FRST, "Double Delayed" )
+    field( ZRVL, 0 ) field( ZRST, "FreeRun"     )
+    field( ONVL, 1 ) field( ONST, "Pulse"         )
+    field( TWVL, 2 ) field( TWST, "Delayed"        )
+    field( THVL, 3 ) field( THST, "Double"         )
+    field( FRVL, 4 ) field( FRST, "Double Delayed" )
+    field( FVVL, 5 ) field( FVST, "External"   )
+	field( PINI, "YES" )
+	field( FLNK, "$(P)$(R)OpalCalcEdtTriggerMode" )
+}
+record( calc, "$(P)$(R)OpalCalcEdtTriggerMode" )
+{
+	field( TPRO, 2 )
+	field( INPA, "$(P)$(R)OpalTriggerMode_RBV NPP NMS" )
+	field( CALC, "A==0?0:(A==5?1:2)" )
 	field( FLNK, "$(P)$(R)EdtTriggerMode_RBV" )
 }
-# Make EdtTriggerMode_RBV get it's value from OpalTriggerMode_RBV
+
+# Make EdtTriggerMode_RBV get it's value from OpalCalcEdtTriggerMode
 record( mbbo, "$(P)$(R)EdtTriggerMode_RBV" )
 {
+	field( TPRO, 2 )
 	field( OMSL, "closed_loop" )
-	field( DOL,  "$(P)$(R)OpalTriggerMode_RBV NPP MS" )
+	field( DOL,  "$(P)$(R)OpalCalcEdtTriggerMode NPP MS" )
 }
 
 record( bo, "$(P)$(R)OpalSetOLUTE" )
@@ -532,7 +588,9 @@ record( bo, "$(P)$(R)OpalSetOLUTE" )
     field( FLNK, "$(P)$(R)OpalOLUTE" )
     field( ZNAM, "Disable" )
     field( ONAM, "Enable"  )
-#?	info( autosave, "DESC VAL" )
+# Disabled to avoid accidental use
+	field( DISV, "0" )
+#	info( autosaveFields, "DESC VAL" )
 }
 
 record( bi, "$(P)$(R)OpalOLUTE" )
@@ -544,42 +602,49 @@ record( bi, "$(P)$(R)OpalOLUTE" )
     field( ONAM, "Enable"  )
 }
 
-record( longout, "$(P)$(R)OpalSetOR" )
+record( longout, "$(P)$(R)OpalBitsPerPixel" )
 {
     field( DESC, "Set The Output Resolution" )
     field( DTYP, "stream" )
     field( OUT,	 "@opal1000m_12.proto SetInt(OR) $(PORT).SER" )
-    field( FLNK, "$(P)$(R)OpalOR" )
+    field( FLNK, "$(P)$(R)OpalBitsPerPixel_RBV" )
     field( HOPR, 12 )
     field( DRVH, 12 )
     field( LOPR,  8 )
     field( DRVL,  8 )
+# Disabled to avoid accidental use
+	field( DISV, "0" )
 }
 
-record( longin, "$(P)$(R)OpalOR" )
+record( longin, "$(P)$(R)OpalBitsPerPixel_RBV" )
 {
     field( DESC, "Output Resolution" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(OR) $(PORT).SER" )
+	field( PINI, "YES" )
 }
 
-record( bo, "$(P)$(R)OpalSetOVL" )
+# Overlay replaces first 8 pixels w/ frame counter and integration time
+record( bo, "$(P)$(R)OpalInfoOverlay" )
 {
     field( DESC, "Set Information Overlay" )
     field( DTYP, "stream"  )
     field( OUT,	 "@opal1000m_12.proto SetInt(OVL) $(PORT).SER" )
-    field( FLNK, "$(P)$(R)OpalOVL" )
+    field( FLNK, "$(P)$(R)OpalInfoOverlay_RBV" )
     field( ZNAM, "Disable" )
     field( ONAM, "Enable"  )
+# Disabled to avoid accidental use
+	field( DISV, "0" )
 }
 
-record( bi, "$(P)$(R)OpalOVL" )
+record( bi, "$(P)$(R)OpalInfoOverlay_RBV" )
 {
     field( DESC, "Information Overlay" )
     field( DTYP, "stream"  )
     field( INP,	 "@opal1000m_12.proto GetInt(OVL) $(PORT).SER" )
-    field( ZNAM, "Disable" )
-    field( ONAM, "Enable"  )
+    field( ZNAM, "Disabled" )
+    field( ONAM, "Enabled"  )
+	field( PINI, "YES" )
 }
 
 # Save configuration
@@ -593,33 +658,37 @@ record( longout, "$(P)$(R)OpalSaveConf" )
     field( DRVH, 9 )
     field( LOPR, 1 )
     field( DRVL, 1 )
+# Disabled to avoid accidental use
+	field( DISV, "0" )
 }
 
-record( stringin, "$(P)$(R)OpalSN" )
+record( longin, "$(P)$(R)OpalSerialNumber_RBV" )
 {
     field( DESC, "Serial Number" )
     field( DTYP, "stream" )
-    field( INP,	 "@opal1000m_12.proto GetQStr(SN) $(PORT).SER" )
+    field( INP,	 "@opal1000m_12.proto GetSerial $(PORT).SER" )
+	field( PINI, "YES" )
 }
 
-record( stringin, "$(P)$(R)OpalTM" )
+# Temperature C;F
+record( stringin, "$(P)$(R)OpalTemperature_RBV" )
 {
     field( DESC, "Temperature of the Sensor" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetStr(TM) $(PORT).SER" )
 }
 
-record( bo, "$(P)$(R)OpalSetTP" )
+record( bo, "$(P)$(R)OpalTestPattern" )
 {
     field( DESC, "Test Pattern On/Off" )
     field( DTYP, "stream" )
     field( OUT,	 "@opal1000m_12.proto SetInt(TP) $(PORT).SER" )
-    field( FLNK, "$(P)$(R)OpalTP" )
+    field( FLNK, "$(P)$(R)OpalTestPattern_RBV" )
     field( ZNAM, "OFF" )
     field( ONAM, "ON"  )
 }
 
-record( bi, "$(P)$(R)OpalTP" )
+record( bi, "$(P)$(R)OpalTestPattern_RBV" )
 {
     field( DESC, "Test Pattern Status" )
     field( DTYP, "stream" )
@@ -628,7 +697,7 @@ record( bi, "$(P)$(R)OpalTP" )
     field( ONAM, "ON"  )
 }
 
-record( stringin, "$(P)$(R)OpalUFDT" )
+record( stringin, "$(P)$(R)OpalFirmwareTimestamp_RBV" )
 {
     field( DESC, "Firmware Release Time Stamp" )
     field( DTYP, "stream" )
@@ -710,4 +779,78 @@ record( bi, "$(P)$(R)OpalVR" )
     field( INP,	 "@opal1000m_12.proto GetInt(VR) $(PORT).SER" )
     field( ZNAM, "No Remapping" )
     field( ONAM, "Remapping"    )
+# Disabled to avoid accidental use
+	field( DISV, "0" )
 }
+
+# Recall configuration
+# Config 0 is factory default
+# Config 1..9 are available for user configurations
+record( longout, "$(P)$(R)OpalReadNVRamConfig" )
+{
+    field( DESC, "Set Power-up Configuration" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(LC) $(PORT).SER" )
+    field( FLNK, "$(P)$(R)OpalNVRamConfig_RBV" )
+    field( HOPR, 9 )
+    field( DRVH, 9 )
+    field( LOPR, 0 )
+    field( DRVL, 0 )
+# Disabled to avoid accidental use
+	field( DISV, "0" )
+}
+
+# Read last selected configuration number
+record( longin, "$(P)$(R)OpalNVRamConfig_RBV" )
+{
+    field( DESC, "Power-up Configuration" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(LC) $(PORT).SER" )
+}
+
+record( mbbo, "$(P)$(R)OpalOutputMirror" )
+{
+    field( DESC, "Set the Output Mirroring" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(MI) $(PORT).SER" )
+    field( FLNK, "$(P)$(R)OpalOutputMirror_RBV" )
+    field( ZRVL, 0 )
+    field( ONVL, 1 )
+    field( TWVL, 2 )
+    field( THVL, 3 )
+    field( ZRST, "No Mirrors"	)
+    field( ONST, "Horizontal"	)
+    field( TWST, "Vertical"		)
+    field( THST, "Horz&Vert"	)
+}
+
+record( mbbi, "$(P)$(R)OpalOutputMirror_RBV" )
+{
+    field( DESC, "Output Mirroring" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(MI) $(PORT).SER" )
+    field( ZRVL, 0 )
+    field( ONVL, 1 )
+    field( TWVL, 2 )
+    field( THVL, 3 )
+    field( ZRST, "No Mirrors"	)
+    field( ONST, "Horizontal"	)
+    field( TWST, "Vertical"		)
+    field( THST, "Horz&Vert"	)
+	field( PINI, "YES" )
+}
+
+record( stringin, "$(P)$(R)OpalModelID_RBV" )
+{
+    field( DESC, "Model ID" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetQStr(MID) $(PORT).SER" )
+}
+
+# Possible TODO: Add support for
+#	WB,WB?	Set and read white balance, Color cameras only
+#	OFS,OFS? Set and read black offset, Color cameras only
+#	USIx;y and USI?x	Set and read user defined integers
+#	USSx;y and USS?x	Set and read user defined strings
+#	RQ		Initiate soft request readout
+#	ROIx;y;w;h		Set ROI x offset, y offset, width, and height

@@ -273,7 +273,7 @@ record( calcout, "$(P)$(R)PulnixCalcPulseShutter" )
 }
 
 # Make EdtTriggerMode FLNK to PulnixTriggerMode
-record( mbbo, "$(P)$(R)EdtTriggerMode" )
+record( mbbi, "$(P)$(R)EdtTriggerMode" )
 {
 	field( FLNK, "$(P)$(R)PulnixTriggerMode" )
 }
@@ -322,7 +322,7 @@ record( mbbo, "$(P)$(R)EdtTriggerMode_RBV" )
 record( calc, "$(P)$(R)PulnixShutterCmdSelect" )
 {
 	field( CALC, "A+1" )
-	field( INPA, "$(P)$(R)PulnixTriggerMode" )
+	field( INPA, "$(P)$(R)PulnixTriggerMode NPP NMS" )
 	field( FLNK, "$(P)$(R)PulnixShutterCmdFanout" )
 }
 
@@ -330,14 +330,11 @@ record( dfanout, "$(P)$(R)PulnixShutterCmdFanout" )
 {
 	field( DESC, "Selects shutter cmd" )
 	field( OMSL, "closed_loop" )
-#	field( DOL,	 "$(P)$(R)PulnixShutter" )
-	field( DOL,	 "1" )
 	field( SELL, "$(P)$(R)PulnixShutterCmdSelect" )
 	field( SELM, "Specified" )
-	field( OUTA, "$(P)$(R)PulnixSetFreeRunShutter.PROC PP" )
-	field( OUTB, "$(P)$(R)PulnixSetExtTrigShutter.PROC PP" )
-	field( OUTC, "$(P)$(R)PulnixSetPulseShutter.PROC PP" )
-	field( PINI, "YES" )
+	field( INPA, "1" )	field( OUTA, "$(P)$(R)PulnixSetFreeRunShutter.PROC PP" )
+	field( INPB, "1" )	field( OUTB, "$(P)$(R)PulnixSetExtTrigShutter.PROC PP" )
+	field( INPC, "1" )	field( OUTC, "$(P)$(R)PulnixSetPulseShutter.PROC PP" )
 	field( FLNK, "$(P)$(R)PulnixGetRawTriggerMode" )
 }
 
@@ -371,7 +368,8 @@ record( longout, "$(P)$(R)PulnixSetPulseShutter" )
 record( calcout, "$(P)$(R)PulnixSetTrigPulseWidth" )
 {
 	field( INPA, "$(P)$(R)AcquireTime NPP NMS"  )
-	field( CALC, "A*1e9" )
+	field( INPB, "$(PW_SCALE=1e9)"  )
+	field( CALC, "A*B" )
 	field( PREC, "0" )
 	field( OUT,  "$(PWIDTH=) PP" )
 	field( FLNK, "$(P)$(R)PulnixGetRawShutter" )
@@ -415,7 +413,7 @@ record( bo, "$(P)$(R)PulnixAutoGain" )
 	field( ONAM, "Enabled" )
 }
 
-record( stringin, "$(P)$(R)PulnixID" )
+record( stringin, "$(P)$(R)PulnixModelID_RBV" )
 {
 	field( DESC, "Camera reported model" )
 	field( DTYP, "stream" )
@@ -423,7 +421,7 @@ record( stringin, "$(P)$(R)PulnixID" )
 	field( PINI, "YES" )
 }
 
-record( stringin, "$(P)$(R)PulnixGetRawVers" )
+record( stringin, "$(P)$(R)PulnixFirmware_RBV" )
 {
 	field( DESC, "Camera reported vers" )
 	field( DTYP, "stream" )

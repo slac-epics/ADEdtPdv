@@ -542,11 +542,11 @@ asynStatus edtPdvCamera::connect( asynUser *	pasynUser )
         return asynError;
     }
 	if ( DEBUG_EDT_PDV >= 1 )
-		printf(	"%s %s: Camera %s 0 connected!\n", 
+		printf(	"%s %s: EDT Framegrabber %s 0 connected!\n", 
 				driverName, functionName, m_CameraName.c_str() );
     asynPrint(	pasynUser, ASYN_TRACE_FLOW, 
 				"asynPrint "
-				"%s %s: Camera %s 0 connected!\n", 
+				"%s %s: EDT Framegrabber %s 0 connected!\n", 
 				driverName, functionName, m_CameraName.c_str() );
     return asynSuccess;
 }
@@ -571,10 +571,10 @@ asynStatus edtPdvCamera::disconnect( asynUser *	pasynUser )
 
     asynPrint(	pasynUser, ASYN_TRACE_FLOW, 
 				"asynPrint "
-				"%s %s: Camera disconnected %s\n", 
+				"%s %s: EDT Framegrabber disconnected %s\n", 
 				driverName, functionName, m_CameraName.c_str() );
 	if ( DEBUG_EDT_PDV >= 1 )
-		printf(	"%s %s: Camera %s 0 disconnected!\n", 
+		printf(	"%s %s: EDT Framegrabber %s 0 disconnected!\n", 
 				driverName, functionName, m_CameraName.c_str() );
 
 	// Process callbacks to update status
@@ -948,7 +948,19 @@ int edtPdvCamera::_Reopen( )
     printf( "Boot sector FPGA header: \"%s\"\n",
 			get_pci_fpga_header( m_pPdvDev , fpga_name));
 	if ( m_EdtMode == EDTMODE_FULL && !strstr( fpga_name, "_fm" ) )
-	    printf( "\n\nWARNING: You need to use full-mode FPGA version for this camera!\n\n" );
+	{
+	    printf( "\n\nERROR: Wrong firmware. You need to use full-mode FPGA version for this camera!\n\n" );
+		pdv_close( m_pPdvDev );
+		m_pPdvDev	= NULL;
+        return -1;
+    }
+	if ( m_EdtMode != EDTMODE_FULL && strstr( fpga_name, "_fm" ) )
+	{
+	    printf( "\n\nERROR: Wrong firmware. You need to use a non-full-mode FPGA version for this camera!\n\n" );
+		pdv_close( m_pPdvDev );
+		m_pPdvDev	= NULL;
+        return -1;
+    }
 
 	// Diagnostics
 	if ( DEBUG_EDT_PDV >= 1 )
@@ -969,7 +981,7 @@ int edtPdvCamera::UpdateADConfigParams( )
 
 	if ( m_pPdvDev == NULL )
 	{
-		printf( "%s Error: Camera %s not connected!\n", functionName, m_CameraName.c_str() );
+		printf( "%s Error: Framegrabber %s not connected!\n", functionName, m_CameraName.c_str() );
 		return -1;
 	}
 
@@ -1393,18 +1405,24 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 		if ( framesync_status == 0 )
 		{
 			if ( DEBUG_EDT_PDV >= 5 )
-				printf(	"%s: framesync counter %d\n", functionName, frame_counter );
+				printf(	"%s: IRIG2 framesync counter %d\n", functionName, frame_counter );
 		}
 		if ( framesync_status < 0 )
 		{
 			if ( DEBUG_EDT_PDV >= 3 )
-				printf(	"%s: framesync not working!\n", functionName );
+				printf(	"%s: pdv framesync not enabled!\n", functionName );
 		}
 		else if ( framesync_status > 0 )
 		{
 			if ( DEBUG_EDT_PDV >= 3 )
 				printf(	"%s: Lost framesync!\n", functionName );
+			// TODO: Add cameraLostFrameSyncCounter
 			// setIntegerParam(cameraLostFrameSyncCounter, lostFrameSyncCounter++);
+#if 0
+// Appears to crash IOC!
+			pdv_timeout_restart( m_pPdvDev, 0 );	// Bailing on pdv_check_framesync error!
+			return asynError;
+#endif
 		}
 	}
 
@@ -1412,6 +1430,7 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 	// If the camera is in freerun or being triggered, it should increment.
 	//int		nCamFramesSinceReset = pdv_cl_get_fv_counter( m_pPdvDev );
 	//pdv_cl_reset_fv_counter( m_pPdvDev );
+	// TODO: Consider using nCamFramesSinceReset as an additional timestamp sync factor
 
 	UpdateStatus( ADStatusReadout );
 
@@ -1766,7 +1785,8 @@ int	edtPdvCamera::SetSizeX(	size_t	value	)
 	{
         errlogPrintf(	"%s: ERROR, HW ROI width %zu == 0!\n",
         	    		functionName, value );
-		return asynError;
+		// return asynError;
+		value = m_ClMaxWidth;
 	}
 	// Allow setting SizeX if m_ClMaxWidth hasn't been configured yet
 	// Will be clipped later if needed
@@ -1774,7 +1794,8 @@ int	edtPdvCamera::SetSizeX(	size_t	value	)
 	{
         errlogPrintf(	"%s: ERROR, HW ROI width %zu > max %zu!\n",
         	    		functionName, value, m_ClMaxWidth );
-		return asynError;
+		// return asynError;
+		value = m_ClMaxWidth;
 	}
 	if ( DEBUG_EDT_PDV >= 2 )
 	{
@@ -1819,7 +1840,8 @@ int	edtPdvCamera::SetSizeY(	size_t	value	)
 	{
         errlogPrintf(	"%s: ERROR, ROI height %zu == 0!\n",
         	    		functionName, value );
-		return asynError;
+		//	return asynError;
+		value = m_ClMaxHeight;
 	}
 	// Allow setting SizeY if m_ClMaxHeight hasn't been configured yet
 	// Will be clipped later if needed
@@ -1827,7 +1849,8 @@ int	edtPdvCamera::SetSizeY(	size_t	value	)
 	{
         errlogPrintf(	"%s: ERROR, ROI height %zu > max %zu!\n",
         	    		functionName, value, m_ClMaxHeight );
-		return asynError;
+		//	return asynError;
+		value = m_ClMaxHeight;
 	}
 	if ( DEBUG_EDT_PDV >= 2 )
 	{
@@ -2019,23 +2042,32 @@ int	edtPdvCamera::SetTriggerMode(	int	value	)
 {
 	static const char	*	functionName	= "edtPdvCamera::SetTriggerMode";
 	TriggerMode_t	tyTriggerMode	= static_cast<TriggerMode_t>( value );
-	if ( DEBUG_EDT_PDV >= 1 )
-		printf(	"%s: Setting trigger mode to %s ...\n",
-				functionName, TriggerModeToString( tyTriggerMode ) );
-	switch ( tyTriggerMode )
+	if ( tyTriggerMode == m_TriggerMode )
 	{
-	default:
-		m_TriggerMode = TRIGMODE_FREERUN;
-		break;
-	case TRIGMODE_FREERUN:
-	case TRIGMODE_EXT:
-	case TRIGMODE_PULSE:
-		m_TriggerMode = tyTriggerMode;
-		break;
+		if ( DEBUG_EDT_PDV >= 1 )
+			printf(	"%s: Trigger mode already %s.\n",
+					functionName, TriggerModeToString( tyTriggerMode ) );
 	}
+	else
+	{
+		if ( DEBUG_EDT_PDV >= 1 )
+			printf(	"%s: Setting trigger mode to %s ...\n",
+					functionName, TriggerModeToString( tyTriggerMode ) );
+		switch ( tyTriggerMode )
+		{
+		default:
+			m_TriggerMode = TRIGMODE_FREERUN;
+			break;
+		case TRIGMODE_FREERUN:
+		case TRIGMODE_EXT:
+		case TRIGMODE_PULSE:
+			m_TriggerMode = tyTriggerMode;
+			break;
+		}
 
-	// Update the AreaDetector parameter
-	setIntegerParam( ADTriggerMode,	m_TriggerMode	);
+		// Update the AreaDetector parameter
+		setIntegerParam( ADTriggerMode,	m_TriggerMode	);
+	}
 	return asynSuccess;
 }
 
@@ -2063,14 +2095,14 @@ int		edtPdvCamera::SetGain( double gain )
   */
 void edtPdvCamera::report( FILE * fp, int details )
 {
-    fprintf(	fp, "EDT PDV camera port %s: %s\n",
+    fprintf(	fp, "EDT Framegrabber port %s: %s\n",
 				this->portName, m_pPdvDev ? "Connected" : "Disconnected" );
 
 	int			connected	= 0;
 	pasynManager->isConnected( this->pasynUserSelf, &connected );
 	if ( m_pPdvDev && !connected )
 	{
-		fprintf(	fp, "Warning, Camera port %s thinks it's %s, but asynManager says %s\n",
+		fprintf(	fp, "Warning, Framegrabber port %s thinks it's %s, but asynManager says %s\n",
 					portName,
 					m_pPdvDev	? "Connected" : "Disconnected",
 					connected	? "Connected" : "Disconnected"	);
