@@ -9,6 +9,12 @@ record( stringin, "$(P)$(R)EdtModel" )
 	field( PINI, "YES" )
 }
 
+record( stringin, "$(P)$(R)EdtModelScreen" )
+{
+	field( VAL,  "edtPdvScreens/up685.edl" )
+	field( PINI, "YES" )
+}
+
 record( seq, "$(P)$(R):DoReport" )
 {
 	field( DESC,	"Do delayed report" )

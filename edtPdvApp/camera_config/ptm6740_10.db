@@ -9,6 +9,12 @@ record( stringin, "$(P)$(R)EdtModel" )
 	field( PINI, "YES" )
 }
 
+record( stringin, "$(P)$(R)EdtModelScreen" )
+{
+	field( VAL,  "edtPdvScreens/ptm6740_10.edl" )
+	field( PINI, "YES" )
+}
+
 # Redirect FLNK's from Gain to EdtGain to PulnixGain
 # Gain and EdtGain use range 0..100
 record( ao, "$(P)$(R)Gain" )
@@ -179,12 +185,13 @@ record( calcout, "$(P)$(R)PulnixExtTrigAcquireTime" )
 record( calcout, "$(P)$(R)PulnixPulseAcquireTime" )
 {
 	field( INPA, "$(P)$(R)AcquireTime NPP NMS"  )
-	field( CALC, "9" )
-	field( PREC, "0" )
+	field( INPB, "$(PW_SCALE=1e9)"  )
 	field( DOPT, "Use OCAL" )
 	field( OOPT, "On Change" )
-	field( OCAL, "A*1e9" )
+	field( OCAL, "A*B" )
 	field( OUT,  "$(PWIDTH=)" )
+	field( CALC, "9" )
+	field( PREC, "0" )
 	field( FLNK, "$(P)$(R)PulnixShutterCmdSelect" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
@@ -222,7 +229,7 @@ record( dfanout, "$(P)$(R)PulnixShutterReadFanout" )
 	field( SELM, "Specified" )
 	field( OUTA, "$(P)$(R)PulnixCalcFreeRunShutter.PROC PP" )
 	field( OUTB, "$(P)$(R)PulnixCalcExtTrigShutter.PROC PP" )
-	field( OUTC, "$(P)$(R)PulnixCalcPulseShutter.PROC PP" )
+	field( OUTC, "$(P)$(R)PulnixPulseAcquireTime_RBV.PROC PP" )
 	field( PINI, "YES" )
 }
 
@@ -258,13 +265,15 @@ record( calcout, "$(P)$(R)PulnixCalcExtTrigShutter" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
-# PulnixCalcPulseShutter
+# PulnixPulseAcquireTime_RBV
 # For pulse width, we use Async setting 9 and
 # write the AcquireTime to the trigger pulse width
-record( calcout, "$(P)$(R)PulnixCalcPulseShutter" )
+record( calcout, "$(P)$(R)PulnixPulseAcquireTime_RBV" )
 {
 	field( INPA, "$(PW_RBV) NPP NMS" )
-	field( CALC, "A/1e9" )
+	field( INPB, "$(PW_SCALE=1e9)"  )
+	field( CALC, "A/B" )
+	field( EGU,  "ns" )
 	field( PREC, "5" )
 	field( OOPT, "On Change" )
 	field( OUT,  "$(P)$(R)EdtAcquireTime_RBV PP MS" )

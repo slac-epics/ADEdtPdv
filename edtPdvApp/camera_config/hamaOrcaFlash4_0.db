@@ -13,6 +13,12 @@ record( stringin, "$(P)$(R)EdtModel" )
 	field( PINI, "YES" )
 }
 
+record( stringin, "$(P)$(R)EdtModelScreen" )
+{
+	field( VAL,  "edtPdvScreens/hamaOrcaFlash4_0.edl" )
+	field( PINI, "YES" )
+}
+
 record( stringin, "$(P)$(R)OrcaComTest" )
 {
 	field( DESC, "Communication Test" )

@@ -35,6 +35,11 @@ record( stringin, "$(P)$(R)EdtModel" )
 	field( VAL,  "Unknown" )
 }
 
+record( stringin, "$(P)$(R)EdtModelScreen" )
+{
+	field( VAL,  "edtPdvScreens/Unknown.edl" )
+}
+
 #
 # Propagate the gain through the EDT layer
 record( ao, "$(P)$(R)Gain" )

@@ -3,7 +3,7 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1118
+x 1066
 y 1224
 w 739
 h 595
@@ -115,7 +115,7 @@ x 4
 y 16
 w 200
 h 20
-controlPv "$(CAM):EdtModel"
+controlPv "$(P)$(R)EdtModel"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 14
@@ -143,7 +143,7 @@ fgColor index 14
 bgColor index 0
 topShadowColor index 1
 botShadowColor index 11
-filePv "$(P)$(R)EdtModel"
+filePv "$(P)$(R)EdtModelScreen"
 numDsps 0
 noScroll
 endObjectProperties

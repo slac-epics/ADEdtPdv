@@ -1684,7 +1684,7 @@ x 260
 y 492
 w 88
 h 20
-controlPv "$(P)$(R)OpalSetPulseWidth"
+controlPv "$(P)$(R)OpalPulseAcquireTime"
 format "float"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
@@ -1711,7 +1711,7 @@ x 364
 y 492
 w 88
 h 20
-controlPv "$(P)$(R)OpalGetPulseWidth"
+controlPv "$(P)$(R)OpalPulseAcquireTime_RBV"
 format "gfloat"
 font "helvetica-medium-r-12.0"
 fontAlign "center"

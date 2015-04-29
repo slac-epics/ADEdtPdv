@@ -11,6 +11,12 @@ record( stringin, "$(P)$(R)EdtModel" )
 	field( PINI, "YES" )
 }
 
+record( stringin, "$(P)$(R)EdtModelScreen" )
+{
+	field( VAL,  "edtPdvScreens/opal1000m_12.edl" )
+	field( PINI, "YES" )
+}
+
 # Set black level
 record( longout, "$(P)$(R)OpalBlackLevel" )
 {
@@ -410,7 +416,7 @@ record( fanout, "$(P)$(R)OpalAcquireTimeFanout" )
 	field( SELM, "Specified" )
 	field( LNK1, "$(P)$(R)OpalCalcAcquireTime" )
 	field( LNK2, "$(P)$(R)OpalCalcAcquireTime" )
-	field( LNK3, "$(P)$(R)OpalSetPulseWidth" )
+	field( LNK3, "$(P)$(R)OpalPulseAcquireTime" )
 	field( FLNK, "$(P)$(R)OpalGetAcquireTimeFanout" )
 }
 
@@ -430,15 +436,29 @@ record( calcout, "$(P)$(R)OpalCalcAcquireTime" )
     field( EGU,  "e-5sec"  )
 	info( autosaveFields, "DESC" )
 }
-# OpalSetPulseWidth
+# OpalPulseAcquireTime
 # Write the AcquireTime to the trigger pulse width
-record( calcout, "$(P)$(R)OpalSetPulseWidth" )
+record( calcout, "$(P)$(R)OpalPulseAcquireTime" )
 {
 	field( INPA, "$(P)$(R)AcquireTime NPP NMS"  )
 	field( INPB, "$(PW_SCALE=1e9)"  )
 	field( CALC, "A*B" )
 	field( OUT,  "$(PWIDTH=)" )
 	field( PREC, "0" )
+	field( EGU,  "ns" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
+}
+
+# OpalPulseAcquireTime_RBV
+record( calcout, "$(P)$(R)OpalPulseAcquireTime_RBV" )
+{
+	field( INPA, "$(PW_RBV) NPP NMS" )
+	field( INPB, "$(PW_SCALE=1e9)"  )
+	field( CALC, "A/B" )
+	field( PREC, "5" )
+	field( OOPT, "On Change" )
+	field( OUT,  "$(P)$(R)EdtAcquireTime_RBV PP MS" )
 	field( EGU,  "ns" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
@@ -470,7 +490,7 @@ record( fanout, "$(P)$(R)OpalGetAcquireTimeFanout" )
 	field( SELM, "Specified" )
 	field( LNK1, "$(P)$(R)OpalAcquireTime" )
 	field( LNK2, "$(P)$(R)OpalAcquireTime_RBV" )
-	field( LNK3, "$(P)$(R)OpalGetPulseWidth" )
+	field( LNK3, "$(P)$(R)OpalPulseAcquireTime_RBV" )
 	field( PINI, "YES" )
 }
 
@@ -498,20 +518,6 @@ record( calcout, "$(P)$(R)OpalCalcAcquireTime_RBV" )
 	field( OUT,	 "$(P)$(R)EdtAcquireTime_RBV PP MS" )
     field( EGU,  "sec"  )
 	info( autosaveFields, "DESC" )
-}
-
-# OpalGetPulseWidth
-record( calcout, "$(P)$(R)OpalGetPulseWidth" )
-{
-	field( INPA, "$(PW_RBV) NPP NMS" )
-	field( INPB, "$(PW_SCALE=1e9)"  )
-	field( CALC, "A/B" )
-	field( PREC, "5" )
-	field( OOPT, "On Change" )
-	field( OUT,  "$(P)$(R)EdtAcquireTime_RBV PP MS" )
-	field( EGU,  "ns" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
-	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
 
 # Set the trigger mode
