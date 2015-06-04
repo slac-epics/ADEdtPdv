@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1924
-y 1117
+x 1928
+y 1141
 w 700
 h 600
 font "helvetica-medium-r-12.0"
@@ -99,7 +99,7 @@ fontAlign "right"
 fgColor index 14
 bgColor index 3
 value {
-  "Information"
+  "Model ID"
 }
 endObjectProperties
 
@@ -118,26 +118,7 @@ fontAlign "right"
 fgColor index 14
 bgColor index 3
 value {
-  "Ref Volt B"
-}
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 32
-y 244
-w 172
-h 20
-font "helvetica-medium-r-12.0"
-fontAlign "right"
-fgColor index 14
-bgColor index 3
-value {
-  "Trigger Mode"
+  "Reference Voltage B"
 }
 endObjectProperties
 
@@ -200,30 +181,6 @@ y 188
 w 108
 h 20
 controlPv "$(P)$(R)PulnixRefVoltB_RBV"
-font "helvetica-medium-r-12.0"
-fontAlign "center"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 25
-smartRefresh
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 212
-y 244
-w 108
-h 20
-controlPv "$(P)$(R)PulnixTriggerMode_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -667,49 +624,6 @@ fgColor index 14
 bgColor index 3
 value {
   "Reference Voltage A"
-}
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 212
-y 216
-w 108
-h 20
-controlPv "$(P)$(R)PulnixModelID_RBV"
-font "helvetica-medium-r-12.0"
-fontAlign "center"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 25
-smartRefresh
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 32
-y 216
-w 172
-h 20
-font "helvetica-medium-r-12.0"
-fontAlign "right"
-fgColor index 14
-bgColor index 3
-value {
-  "Model ID"
 }
 endObjectProperties
 

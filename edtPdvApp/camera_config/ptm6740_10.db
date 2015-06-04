@@ -15,6 +15,7 @@ record( stringin, "$(P)$(R)EdtModelScreen" )
 	field( PINI, "YES" )
 }
 
+
 # Redirect FLNK's from Gain to EdtGain to PulnixGain
 # Gain and EdtGain use range 0..100
 record( ao, "$(P)$(R)Gain" )
@@ -24,6 +25,7 @@ record( ao, "$(P)$(R)Gain" )
 	field( HOPR, "100" )
 	field( LOPR, "0" )
 	field( FLNK, "$(P)$(R)EdtGain" )
+	field( PINI, "YES" )
 }
 record( ao, "$(P)$(R)EdtGain" )
 {
@@ -95,6 +97,20 @@ record( longout, "$(P)$(R)PulnixSetGainB" )
 	field( OUT,	 "@ptm6740_10.proto SetGainB $(PORT).SER" )
 	field( DRVH, "0x1E8" )
 	field( DRVL, "0x042" )
+}
+
+record( longout, $(P)$(R)EdtReConfigCount )
+{
+	field( FLNK, "$(P)$(R)PulnixReReadFanout" )
+}
+record( fanout, $(P)$(R)PulnixReReadFanout )
+{
+	field( LNK1, "$(P)$(R)PulnixRefVoltA_RBV" )
+	field( LNK2, "$(P)$(R)PulnixRefVoltB_RBV" )
+	field( LNK3, "$(P)$(R)PulnixGetRawShutter" )
+	field( LNK4, "$(P)$(R)PulnixGetTriggerMode" )
+	field( LNK5, "$(P)$(R)PulnixModelID_RBV" )
+	field( LNK6, "$(P)$(R)PulnixFirmware_RBV" )
 }
 
 # Reference voltage commands
@@ -341,9 +357,10 @@ record( dfanout, "$(P)$(R)PulnixShutterCmdFanout" )
 	field( OMSL, "closed_loop" )
 	field( SELL, "$(P)$(R)PulnixShutterCmdSelect" )
 	field( SELM, "Specified" )
-	field( INPA, "1" )	field( OUTA, "$(P)$(R)PulnixSetFreeRunShutter.PROC PP" )
-	field( INPB, "1" )	field( OUTB, "$(P)$(R)PulnixSetExtTrigShutter.PROC PP" )
-	field( INPC, "1" )	field( OUTC, "$(P)$(R)PulnixSetPulseShutter.PROC PP" )
+	field( DOL,  "1" )
+	field( OUTA, "$(P)$(R)PulnixSetFreeRunShutter.PROC PP" )
+	field( OUTB, "$(P)$(R)PulnixSetExtTrigShutter.PROC PP" )
+	field( OUTC, "$(P)$(R)PulnixSetPulseShutter.PROC PP" )
 	field( FLNK, "$(P)$(R)PulnixGetRawTriggerMode" )
 }
 
