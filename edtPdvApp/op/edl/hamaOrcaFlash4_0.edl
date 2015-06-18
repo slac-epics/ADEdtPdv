@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 576
-y 1424
+x 344
+y 1371
 w 700
 h 600
 font "helvetica-medium-r-8.0"
@@ -32,7 +32,7 @@ major 4
 minor 4
 release 0
 x 32
-y 284
+y 288
 w 120
 h 24
 fgColor index 14
@@ -72,7 +72,7 @@ major 4
 minor 1
 release 1
 x 24
-y 28
+y 4
 w 128
 h 20
 font "helvetica-medium-r-12.0"
@@ -90,9 +90,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 400
-y 28
-w 172
+x 24
+y 172
+w 128
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -110,7 +110,7 @@ major 4
 minor 1
 release 1
 x 24
-y 56
+y 32
 w 128
 h 20
 font "helvetica-medium-r-12.0"
@@ -129,7 +129,7 @@ major 4
 minor 1
 release 1
 x 24
-y 84
+y 60
 w 128
 h 20
 font "helvetica-medium-r-12.0"
@@ -148,7 +148,7 @@ major 4
 minor 1
 release 1
 x 24
-y 112
+y 88
 w 128
 h 20
 font "helvetica-medium-r-12.0"
@@ -167,7 +167,7 @@ major 4
 minor 1
 release 1
 x 24
-y 140
+y 120
 w 128
 h 20
 font "helvetica-medium-r-12.0"
@@ -186,7 +186,7 @@ major 4
 minor 1
 release 1
 x 24
-y 168
+y 148
 w 128
 h 20
 font "helvetica-medium-r-12.0"
@@ -205,7 +205,7 @@ major 4
 minor 7
 release 0
 x 160
-y 28
+y 8
 w 160
 h 20
 controlPv "$(P)$(R)OrcaModel_RBV"
@@ -228,7 +228,7 @@ major 4
 minor 7
 release 0
 x 160
-y 56
+y 36
 w 160
 h 20
 controlPv "$(P)$(R)OrcaInfo_RBV"
@@ -251,7 +251,7 @@ major 4
 minor 7
 release 0
 x 160
-y 84
+y 64
 w 160
 h 20
 controlPv "$(P)$(R)OrcaFirmware_RBV"
@@ -274,7 +274,7 @@ major 4
 minor 7
 release 0
 x 160
-y 112
+y 92
 w 160
 h 20
 controlPv "$(P)$(R)OrcaSerialNumber_RBV"
@@ -297,7 +297,7 @@ major 4
 minor 7
 release 0
 x 160
-y 140
+y 120
 w 160
 h 20
 controlPv "$(P)$(R)OrcaHeight_RBV"
@@ -321,7 +321,7 @@ major 4
 minor 7
 release 0
 x 160
-y 168
+y 148
 w 160
 h 20
 controlPv "$(P)$(R)OrcaWidth_RBV"
@@ -338,49 +338,6 @@ newPos
 objType "monitors"
 endObjectProperties
 
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 160
-y 196
-w 160
-h 20
-controlPv "$(P)$(R)OrcaAcquireTime_RBV"
-font "helvetica-medium-r-12.0"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 25
-smartRefresh
-useHexPrefix
-showUnits
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 24
-y 196
-w 128
-h 20
-font "helvetica-medium-r-12.0"
-fontAlign "right"
-fgColor index 14
-bgColor index 3
-value {
-  "Acquire Time"
-}
-endObjectProperties
-
 # (Related Display)
 object relatedDisplayClass
 beginObjectProperties
@@ -388,7 +345,7 @@ major 4
 minor 4
 release 0
 x 160
-y 284
+y 288
 w 140
 h 24
 fgColor index 14
@@ -428,7 +385,7 @@ major 4
 minor 4
 release 0
 x 160
-y 256
+y 260
 w 140
 h 24
 fgColor index 14
@@ -461,7 +418,7 @@ major 4
 minor 4
 release 0
 x 32
-y 256
+y 260
 w 120
 h 24
 fgColor index 14
@@ -493,8 +450,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 480
-y 136
+x 484
+y 116
 w 92
 h 20
 fgColor index 25
@@ -513,9 +470,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
-y 136
-w 120
+x 336
+y 116
+w 140
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -532,8 +489,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
-y 136
+x 584
+y 116
 w 88
 h 20
 controlPv "$(P)$(R)OrcaExtTrigMode_RBV"
@@ -557,8 +514,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 480
-y 192
+x 484
+y 172
 w 92
 h 20
 controlPv "$(P)$(R)OrcaScanTop"
@@ -585,9 +542,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
-y 192
-w 120
+x 336
+y 172
+w 140
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -604,8 +561,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
-y 192
+x 584
+y 172
 w 88
 h 20
 controlPv "$(P)$(R)OrcaScanTop_RBV"
@@ -629,8 +586,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
-y 224
+x 584
+y 204
 w 88
 h 20
 controlPv "$(P)$(R)OrcaScanBot_RBV"
@@ -654,8 +611,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 480
-y 224
+x 484
+y 204
 w 92
 h 20
 controlPv "$(P)$(R)OrcaScanBot"
@@ -682,9 +639,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
-y 224
-w 120
+x 336
+y 204
+w 140
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -701,8 +658,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
-y 252
+x 584
+y 232
 w 88
 h 20
 controlPv "$(P)$(R)OrcaScanSize_RBV"
@@ -726,8 +683,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 480
-y 252
+x 484
+y 232
 w 92
 h 20
 controlPv "$(P)$(R)OrcaScanSize"
@@ -754,9 +711,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
-y 252
-w 120
+x 336
+y 232
+w 140
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -773,13 +730,12 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
-y 28
-w 88
+x 160
+y 172
+w 160
 h 20
 controlPv "$(P)$(R)OrcaAcquireTime_RBV"
 font "helvetica-medium-r-12.0"
-fontAlign "center"
 fgColor index 15
 fgAlarm
 bgColor index 12
@@ -799,8 +755,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
-y 112
+x 584
+y 92
 w 88
 h 20
 controlPv "$(P)$(R)OrcaExtTrigPolarity_RBV"
@@ -824,8 +780,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 480
-y 112
+x 484
+y 92
 w 92
 h 20
 fgColor index 25
@@ -844,9 +800,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
-y 112
-w 120
+x 336
+y 92
+w 140
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -863,8 +819,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
-y 164
+x 584
+y 144
 w 88
 h 20
 controlPv "$(P)$(R)OrcaExtTrigDelay_RBV"
@@ -889,8 +845,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 480
-y 164
+x 484
+y 144
 w 92
 h 18
 controlPv "$(P)$(R)OrcaExtTrigDelay"
@@ -917,9 +873,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
-y 164
-w 120
+x 336
+y 144
+w 140
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -936,8 +892,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
-y 308
+x 584
+y 288
 w 88
 h 20
 controlPv "$(P)$(R)OrcaScanMode_RBV"
@@ -961,9 +917,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
-y 308
-w 120
+x 336
+y 288
+w 140
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -981,7 +937,7 @@ major 4
 minor 7
 release 0
 x 160
-y 224
+y 228
 w 160
 h 20
 controlPv "$(P)$(R)OrcaLineDelay"
@@ -1006,7 +962,7 @@ major 4
 minor 1
 release 1
 x 24
-y 224
+y 228
 w 128
 h 20
 font "helvetica-medium-r-12.0"
@@ -1024,14 +980,13 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
-y 56
-w 88
+x 160
+y 200
+w 160
 h 20
 controlPv "$(P)$(R)OrcaMinExposure"
 format "exponential"
 font "helvetica-medium-r-12.0"
-fontAlign "center"
 fgColor index 15
 fgAlarm
 bgColor index 12
@@ -1051,9 +1006,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 400
-y 56
-w 172
+x 24
+y 200
+w 128
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -1070,8 +1025,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
-y 84
+x 584
+y 64
 w 88
 h 20
 controlPv "$(P)$(R)OrcaMaxRate"
@@ -1096,9 +1051,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 400
-y 84
-w 172
+x 336
+y 64
+w 240
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -1116,7 +1071,7 @@ major 4
 minor 4
 release 0
 x 116
-y 312
+y 316
 w 36
 h 24
 fgColor index 14
@@ -1142,7 +1097,7 @@ major 4
 minor 4
 release 0
 x 160
-y 312
+y 316
 w 140
 h 24
 fgColor index 14
@@ -1170,8 +1125,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 580
-y 280
+x 584
+y 260
 w 88
 h 20
 controlPv "$(P)$(R)OrcaScanSpeed_RBV"
@@ -1195,8 +1150,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 480
-y 280
+x 484
+y 260
 w 92
 h 20
 fgColor index 25
@@ -1215,9 +1170,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 340
-y 280
-w 120
+x 336
+y 260
+w 140
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -1235,7 +1190,7 @@ major 4
 minor 1
 release 0
 x 24
-y 28
+y 8
 w 128
 h 20
 fgColor index 14
@@ -1258,7 +1213,7 @@ major 4
 minor 1
 release 0
 x 24
-y 56
+y 36
 w 128
 h 20
 fgColor index 14
@@ -1281,7 +1236,7 @@ major 4
 minor 1
 release 0
 x 24
-y 84
+y 64
 w 128
 h 20
 fgColor index 14
@@ -1304,7 +1259,7 @@ major 4
 minor 1
 release 0
 x 24
-y 112
+y 92
 w 128
 h 20
 fgColor index 14
@@ -1318,5 +1273,292 @@ onLabel "Requesting S/N..."
 offLabel "Serial Number"
 3d
 font "helvetica-medium-r-12.0"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 584
+y 8
+w 88
+h 20
+controlPv "$(P)$(R)EdtCamRepRate_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 488
+y 8
+w 88
+h 20
+controlPv "$(P)$(R)EdtCamEventCode"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 336
+y 8
+w 140
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Cam Eventcode"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 584
+y 36
+w 88
+h 20
+controlPv "$(P)$(R)EdtBeamRepRate_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 488
+y 36
+w 88
+h 20
+controlPv "$(P)$(R)EdtBeamEventCode"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 336
+y 36
+w 140
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Beam Eventcode"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 484
+y 344
+w 92
+h 18
+controlPv "$(P)$(R)Def120HzExposure"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 336
+y 344
+w 140
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Default 120Hz Exposure"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 336
+y 316
+w 140
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Default 120Hz TrigDelay"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 484
+y 316
+w 92
+h 18
+controlPv "$(P)$(R)Def120HzTrigDelay"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 336
+y 372
+w 140
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Default 120Hz First Line"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 484
+y 372
+w 92
+h 18
+controlPv "$(P)$(R)Def120HzMinY"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
 endObjectProperties
 
