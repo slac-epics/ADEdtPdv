@@ -16,7 +16,6 @@
 ///	asynEdtPdvSerial class
 class asynEdtPdvSerial : public asynPortDriver
 {
-//	friend class edtSyncObject;
 public:		//	Public member functions
 
 	///	Constructor
@@ -59,34 +58,6 @@ public:		//	Public member functions
 	asynStatus	pdvDevDisconnected(
 		PdvDev			*	pPdvDev	);
 
-#if 0
-	// Do we need these?
-	virtual asynStatus flushOctet(
-		asynUser		*	pasynUser	);
-
-	virtual asynStatus setInputEosOctet(
-		asynUser		*	pasynUser,
-		const char		*	eos,
-		int					eosLen	);
-
-	virtual asynStatus getInputEosOctet(
-		asynUser		*	pasynUser,
-		char			*	eos,
-		int					eosSize,
-		int				*	eosLen	);
-
-	virtual asynStatus	setOutputEosOctet(
-		asynUser		*	pasynUser,
-		const char		*	eos,
-		int					eosLen	);
-
-	virtual asynStatus	getOutputEosOctet(
-		asynUser		*	pasynUser,
-		char			*	eos,
-		int					eosSize,
-		int				*	eosLen	);
-#endif
-
 	//	Private member variables
 	PdvDev			*	m_pPdvDev;
 	asynUser		*	m_pasynUser;
@@ -95,20 +66,7 @@ public:		//	Public member functions
 	char			*	m_outputEosOctet;
 	int					m_outputEosLenOctet;
 	bool				m_fConnected;
-
-#if 0
-
- 
-	char			*	portName;
-	int					m_addr;
-	unsigned long		nRead;
-	unsigned long		nWritten;
-	double				readTimeout;
-	double				writeTimeout;
-	asynInterface		common;
-	asynInterface		octet;
 	epicsMutexId		m_serialLock;
-#endif
 };
 
 #endif	//	asynEdtPdvSerial_H

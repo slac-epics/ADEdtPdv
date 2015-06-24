@@ -452,7 +452,11 @@ asynStatus edtPdvCamera::ConnectCamera( )
         return asynError;
 	}
 
-	if ( m_pAsynSerial->pdvDevConnected( m_pPdvDev ) != asynSuccess )
+	epicsMutexLock(	m_reconfigLock );
+	status = m_pAsynSerial->pdvDevConnected( m_pPdvDev );
+	epicsMutexUnlock(	m_reconfigLock );
+
+	if ( status != asynSuccess )
         return asynError;
 
 	UpdateStatus( ADStatusIdle );
@@ -483,11 +487,10 @@ asynStatus edtPdvCamera::DisconnectCamera( )
 		epicsThreadSleep(0.1);
 	}
 
-	// TODO: Do we need to use a lock to protect against crashes here?
-	// Note: Doesn't appear to be a problem in first few months of use.
+	// Block reconfigured until serial device is disconnected
+	epicsMutexLock(	m_reconfigLock );
 	m_pAsynSerial->pdvDevDisconnected( NULL );
 
-	epicsMutexLock(	m_reconfigLock );
     if ( m_pPdvDev )
 	{
 		// Halt any image acquires in progress
@@ -605,6 +608,7 @@ int edtPdvCamera::Reconfigure( )
 
 	int		status	= 0;
 	epicsMutexLock(		m_reconfigLock );
+	m_pAsynSerial->pdvDevDisconnected( NULL );
 
 	UpdateStatus( ADStatusInitializing );
 	if ( m_fReopen )
@@ -631,6 +635,7 @@ int edtPdvCamera::Reconfigure( )
 	{
 		printf( "%s: %s done in thread %s\n", functionName, m_CameraName.c_str(), epicsThreadGetNameSelf() );
 	}
+	m_pAsynSerial->pdvDevConnected( m_pPdvDev );
 	epicsMutexUnlock(	m_reconfigLock );
 
 	// TODO: Find a safe place to do this
@@ -1571,7 +1576,7 @@ int edtPdvCamera::LoadNDArray( NDArray * pNDArray, void * pRawData )
 		break;
 	}
 
-	return 0;
+	return status;
 }
 
 
@@ -2064,10 +2069,10 @@ int	edtPdvCamera::SetTriggerMode(	int	value	)
 			m_TriggerMode = tyTriggerMode;
 			break;
 		}
-
-		// Update the AreaDetector parameter
-		setIntegerParam( ADTriggerMode,	m_TriggerMode	);
 	}
+
+	// Update the AreaDetector parameter
+	setIntegerParam( ADTriggerMode,	m_TriggerMode	);
 	return asynSuccess;
 }
 

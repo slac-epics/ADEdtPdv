@@ -56,12 +56,16 @@ asynEdtPdvSerial::asynEdtPdvSerial(
 	m_inputEosLenOctet(		0			),
 	m_outputEosOctet(		NULL		),
 	m_outputEosLenOctet(	0			),
-	m_fConnected(			false		)
+	m_fConnected(			false		),
+	m_serialLock(						)
 {
 	const char		*	functionName	= "asynEdtPdvSerial::asynEdtPdvSerial";
 	//	asynStatus			status;
 	//	int					nbytes;
 	//	asynOctet		*	pasynOctet;
+
+	// Create mutexes
+    m_serialLock	= epicsMutexMustCreate();
 
 	if ( DEBUG_EDT_PDV >= 1 )
 		printf(  "%s: %s\n", functionName, portName );
@@ -94,14 +98,17 @@ asynStatus	asynEdtPdvSerial::connect(
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
 				"%s port %s\n", functionName, this->portName );
 
+	epicsMutexLock(m_serialLock);
 	if ( m_pPdvDev == NULL )
 	{
+		m_fConnected	= false;
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
 						"%s: %s pdvDev disconnected!\n", functionName, this->portName );
+		epicsMutexUnlock(m_serialLock);
 		return asynError;
 	}
-
 	m_fConnected	= true;
+	epicsMutexUnlock(m_serialLock);
 
 	// Signal asynManager that we are connected
 	int  status = pasynManager->exceptionConnect( pasynUser );
@@ -123,7 +130,10 @@ asynStatus	asynEdtPdvSerial::disconnect(
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
 				"%s port %s\n", functionName, this->portName );
 
+	epicsMutexLock(m_serialLock);
+	m_pPdvDev		= NULL;
 	m_fConnected	= false;
+	epicsMutexUnlock(m_serialLock);
 
 	// Signal asynManager that we are disconnected
 	int  status = pasynManager->exceptionDisconnect( pasynUser );
@@ -147,20 +157,22 @@ asynEdtPdvSerial::pdvDevConnected(
 		printf( "%s: %s Connecting %s\n", functionName, this->portName,
 				(pPdvDev != NULL ? pdv_get_camera_model( pPdvDev ) : "NULL") );
 
+	epicsMutexLock(m_serialLock);
 	m_pPdvDev	= pPdvDev;
 	if ( pPdvDev == NULL )
 	{
 		m_fConnected	= false;
+		epicsMutexUnlock(m_serialLock);
+		return asynError;
 	}
-	else
-	{
-		m_fConnected	= true;
 
-		// Create a temporary asynUser for autoConnect control
-		asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
-		pAsynUserTmp->userPvt = this;
-		pasynManager->autoConnect( pAsynUserTmp, 1 );
-	}
+	m_fConnected	= true;
+	epicsMutexUnlock(m_serialLock);
+
+	// Create a temporary asynUser for autoConnect control
+	asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
+	pAsynUserTmp->userPvt = this;
+	pasynManager->autoConnect( pAsynUserTmp, 1 );
 
 	return status;
 }
@@ -175,8 +187,10 @@ asynEdtPdvSerial::pdvDevDisconnected(
 	if ( DEBUG_EDT_PDV >= 1 )
 		printf( "%s: %s Disconnecting\n", functionName, this->portName );
 
+	epicsMutexLock(m_serialLock);
 	m_fConnected	= false;
-	m_pPdvDev		= pPdvDev;
+	m_pPdvDev		= NULL;
+	epicsMutexUnlock(m_serialLock);
 	return status;
 }
 
@@ -224,7 +238,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	size_t		nRead	= 0;
 	for (;;)
 	{
-//		epicsMutexLock(tty->m_serialLock);
+		epicsMutexLock(m_serialLock);
 		/*
 		 * Let's get the timeout_ms semantics right:
 		 *	> 0 = wait for this many milliseconds.
@@ -234,24 +248,30 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		 * Now we need to follow streamdevice usage: <= 0 is don't wait, > 0 wpecifies delay in sec
 		 * In pdv_serial_wait, 0 = wait for the default time (1 sec?).
 		 */
-		int nAvailToRead;
-		if ( pasynUser->timeout > 0 )
+		int nAvailToRead	= 0;
+		if ( m_pPdvDev )
 		{
-			int		nMsTimeout	= static_cast<int>( pasynUser->timeout * 1000 );
-			nAvailToRead = pdv_serial_wait( m_pPdvDev, nMsTimeout, nBytesReadMax );
+			if ( pasynUser->timeout > 0 )
+			{
+				int		nMsTimeout	= static_cast<int>( pasynUser->timeout * 1000 );
+				nAvailToRead = pdv_serial_wait( m_pPdvDev, nMsTimeout, nBytesReadMax );
+			}
+			else
+				nAvailToRead = pdv_serial_get_numbytes( m_pPdvDev );
 		}
-		else
-			nAvailToRead = pdv_serial_get_numbytes( m_pPdvDev );
-//		epicsMutexUnlock(tty->m_serialLock);
+		epicsMutexUnlock(m_serialLock);
 
 		if( nAvailToRead > 0 )
 		{
 			int		nToRead	= nAvailToRead;
 			if( nToRead > static_cast<int>(nBytesReadMax) )
 				nToRead = static_cast<int>(nBytesReadMax);
-//			epicsMutexLock(tty->m_serialLock);
-			nRead = pdv_serial_read( this->m_pPdvDev, value, nToRead );
-//			epicsMutexUnlock(tty->m_serialLock);
+			epicsMutexLock(m_serialLock);
+			if ( m_pPdvDev )
+				nRead = pdv_serial_read( m_pPdvDev, value, nToRead );
+			else
+				nRead = -1;
+			epicsMutexUnlock(m_serialLock);
 		}
 
 		if( nRead > 0 )
@@ -328,6 +348,9 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 	if ( pnWritten )
 		*pnWritten = 0;
 
+	if ( maxChars == 0 )
+		return asynSuccess;
+
 	if ( m_pPdvDev == NULL )
 	{
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
@@ -341,9 +364,6 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 		return asynError;
 	}
 
-	if ( maxChars == 0 )
-		return asynSuccess;
-
 	// Note: 
 	// This driver is designed to be used from DTYP "stream" PV's.
 	// The streamdevice asynDriver owns the pdv serial channel
@@ -354,7 +374,11 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 	// and also wrong as it requires finding another way besides
 	// streamdevice to handle protocol differences between
 	// the many camera models we may need to support.
-	int		pdv_status	= pdv_serial_write( m_pPdvDev, value, maxChars );
+	int		pdv_status	= -1;
+	epicsMutexLock( m_serialLock );
+	if ( m_pPdvDev )
+		pdv_status = pdv_serial_write( m_pPdvDev, value, maxChars );
+	epicsMutexUnlock( m_serialLock );
 
 	if ( pdv_status == 0 )
 	{
