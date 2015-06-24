@@ -254,7 +254,7 @@ record( longout, "$(P)$(R)OpalAcquirePeriod" )
     field( LOPR, 1        )
     field( DRVL, 1        )
     field( EGU,  "e-5sec"  )
-	field( TPRO, 2 )
+#	field( TPRO, 2 )
 	info( autosaveFields, "DESC VAL" )
 }
 
@@ -396,13 +396,13 @@ record( stringin, "$(P)$(R)OpalInfo_RBV" )
 
 record( ao, "$(P)$(R)EdtAcquireTime" )
 {
-	field( TPRO, 2 )
+#	field( TPRO, 2 )
 	field( PREC, "5" )
 	field( FLNK, "$(P)$(R)OpalAcquireTimeFanout" )
 }
 record( calc, "$(P)$(R)OpalAcquireTimeSelect" )
 {
-	field( TPRO, 2 )
+#	field( TPRO, 2 )
 	field( INPA, "$(P)$(R)TriggerMode CPP NMS" )
 	field( CALC, "A+1" )
 	field( PINI, "YES" )
@@ -410,7 +410,7 @@ record( calc, "$(P)$(R)OpalAcquireTimeSelect" )
 }
 record( fanout, "$(P)$(R)OpalAcquireTimeFanout" )
 {
-	field( TPRO, 2 )
+#	field( TPRO, 2 )
 	field( DESC, "Selects AcquireTime cmd" )
 	field( SELL, "$(P)$(R)OpalAcquireTimeSelect PP" )
 	field( SELM, "Specified" )
@@ -425,7 +425,7 @@ record( fanout, "$(P)$(R)OpalAcquireTimeFanout" )
 # OpalCalcAcquireTime is an integer in units of 10us
 record( calcout, "$(P)$(R)OpalCalcAcquireTime" )
 {
-	field( TPRO, 2 )
+#	field( TPRO, 2 )
     field( DESC, "Calc Integration Time" )
 	field( INPA, "$(P)$(R)AcquireTime NPP NMS" )
 	field( INPB, "10e-6" )
@@ -469,7 +469,7 @@ record( calcout, "$(P)$(R)OpalPulseAcquireTime_RBV" )
 # Argument is an integer in units of 10us
 record( longout, "$(P)$(R)OpalAcquireTime" )
 {
-	field( TPRO, 2 )
+#	field( TPRO, 2 )
     field( DESC, "Set Integration Time" )
     field( DTYP, "stream" )
     field( OUT,	 "@opal1000m_12.proto SetInt(IT) $(PORT).SER" )
@@ -484,7 +484,7 @@ record( longout, "$(P)$(R)OpalAcquireTime" )
 
 record( fanout, "$(P)$(R)OpalGetAcquireTimeFanout" )
 {
-	field( TPRO, 2 )
+#	field( TPRO, 2 )
 	field( DESC, "Selects AcquireTime read cmd" )
 	field( SELL, "$(P)$(R)OpalAcquireTimeSelect" )
 	field( SELM, "Specified" )
@@ -499,7 +499,7 @@ record( fanout, "$(P)$(R)OpalGetAcquireTimeFanout" )
 # Reply value is an integer in units of 10us
 record( longin, "$(P)$(R)OpalAcquireTime_RBV" )
 {
-	field( TPRO, 2 )
+#	field( TPRO, 2 )
     field( DESC, "Integration Time" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(IT) $(PORT).SER" )
@@ -510,7 +510,7 @@ record( longin, "$(P)$(R)OpalAcquireTime_RBV" )
 }
 record( calcout, "$(P)$(R)OpalCalcAcquireTime_RBV" )
 {
-	field( TPRO, 2 )
+#	field( TPRO, 2 )
     field( DESC, "Calc Integration Time" )
 	field( INPA, "$(P)$(R)OpalAcquireTime_RBV NPP NMS" )
 	field( INPB, "10e-6" )
@@ -532,14 +532,14 @@ record( mbbi, "$(P)$(R)EdtTriggerMode" )
 }
 record( calc, "$(P)$(R)OpalCalcTriggerMode" )
 {
-	field( TPRO, 2 )
+#	field( TPRO, 2 )
 	field( INPA, "$(P)$(R)EdtTriggerMode NPP NMS" )
 	field( CALC, "A==0?0:(A==1?5:1)" )
 	field( FLNK, "$(P)$(R)OpalTriggerMode" )
 }
 record( mbbo, "$(P)$(R)OpalTriggerMode" )
 {
-	field( TPRO, 2 )
+#	field( TPRO, 2 )
     field( DESC, "Set the Acquisition Mode" )
 	field( OMSL, "closed_loop" )
 	field( DOL,  "$(P)$(R)OpalCalcTriggerMode NPP NMS" )
@@ -557,7 +557,7 @@ record( mbbo, "$(P)$(R)OpalTriggerMode" )
 # Read the trigger mode
 record( mbbi, "$(P)$(R)OpalTriggerMode_RBV" )
 {
-	field( TPRO, 2 )
+#	field( TPRO, 2 )
     field( DESC, "Acquisition Mode" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(MO) $(PORT).SER" )
@@ -572,7 +572,7 @@ record( mbbi, "$(P)$(R)OpalTriggerMode_RBV" )
 }
 record( calc, "$(P)$(R)OpalCalcEdtTriggerMode" )
 {
-	field( TPRO, 2 )
+#	field( TPRO, 2 )
 	field( INPA, "$(P)$(R)OpalTriggerMode_RBV NPP NMS" )
 	field( CALC, "A==0?0:(A==5?1:2)" )
 	field( FLNK, "$(P)$(R)EdtTriggerMode_RBV" )
@@ -581,7 +581,7 @@ record( calc, "$(P)$(R)OpalCalcEdtTriggerMode" )
 # Make EdtTriggerMode_RBV get it's value from OpalCalcEdtTriggerMode
 record( mbbo, "$(P)$(R)EdtTriggerMode_RBV" )
 {
-	field( TPRO, 2 )
+#	field( TPRO, 2 )
 	field( OMSL, "closed_loop" )
 	field( DOL,  "$(P)$(R)OpalCalcEdtTriggerMode NPP MS" )
 }
