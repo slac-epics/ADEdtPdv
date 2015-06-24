@@ -326,9 +326,10 @@ record( mbbi, "$(P)$(R)EdtTriggerMode" )
 # Send Orca serial trigger mode command
 record( mbbo, "$(P)$(R)OrcaTriggerMode" )
 {
+#	field( TPRO, 2 )
 	field( DTYP, "stream" )
 	field( OMSL, "closed_loop" )
-	field( DOL,  "$(P)$(R)EdtTriggerMode CPP NMS" )
+	field( DOL,  "$(P)$(R)EdtTriggerMode PP NMS" )
 	field( OUT,  "@hamaOrcaFlash4_0.proto SetTriggerMode $(PORT).SER" )
 	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
 	field( ONVL, "1" )	field( ONST, "External" )
