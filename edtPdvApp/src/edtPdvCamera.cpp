@@ -1162,7 +1162,7 @@ int edtPdvCamera::StartAcquisition( )
     static const char	*	functionName = "edtPdvCamera::StartAcquisition";
 	CONTEXT_TIMER( "StartAcquisition" );
 
-	double		cameraStartDelay	= 0.5;
+	double		cameraStartDelay	= 0.25;
 	if ( cameraStartDelay > 0.0 )
 	{
 		if ( DEBUG_EDT_PDV >= 2 )
@@ -1398,6 +1398,7 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 		CONTEXT_TIMER( "pdv_start_image" );
 		if ( DEBUG_EDT_PDV >= 4 )
 			printf(	"%s: Calling pdv_start_image in thread %s\n", functionName, epicsThreadGetNameSelf() );
+		// TODO: Consider delaying this in free run mode
 		pdv_start_image( m_pPdvDev );
 	}
 
@@ -1423,18 +1424,19 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 				printf(	"%s: Lost framesync!\n", functionName );
 			// TODO: Add cameraLostFrameSyncCounter
 			// setIntegerParam(cameraLostFrameSyncCounter, lostFrameSyncCounter++);
-#if 0
-// Appears to crash IOC!
+			
+			// Restart acquisition on lost framesync!
 			pdv_timeout_restart( m_pPdvDev, 0 );	// Bailing on pdv_check_framesync error!
 			return asynError;
-#endif
 		}
 	}
 
 	// This counts camera frames whether we're aqcuiring or not.
 	// If the camera is in freerun or being triggered, it should increment.
-	//int		nCamFramesSinceReset = pdv_cl_get_fv_counter( m_pPdvDev );
-	//pdv_cl_reset_fv_counter( m_pPdvDev );
+	int		nCamFramesSinceReset = pdv_cl_get_fv_counter( m_pPdvDev );
+	pdv_cl_reset_fv_counter( m_pPdvDev );
+	if ( DEBUG_EDT_PDV >= 4 )
+		printf(	"%s: %d camera frames since last capture\n", functionName, nCamFramesSinceReset );
 	// TODO: Consider using nCamFramesSinceReset as an additional timestamp sync factor
 
 	UpdateStatus( ADStatusReadout );
@@ -2088,7 +2090,7 @@ int		edtPdvCamera::SetGain( double gain )
 	}
 
 	// Update the AreaDetector parameter
-	setDoubleParam( ADGain, m_Gain );
+//	setDoubleParam( ADGain, m_Gain );
 	return status;
 }
 
@@ -2153,9 +2155,13 @@ asynStatus edtPdvCamera::readFloat64(	asynUser *	pasynUser, epicsFloat64	value )
 				"asynPrint "
 				"%s: Reason %d %s, value %lf\n", functionName, pasynUser->reason, reasonName, value );
 
-    if ( pasynUser->reason == SerAcquireTime )
+//    if ( pasynUser->reason == SerAcquireTime )
+//	{
+//		setDoubleParam( ADAcquireTime, value );
+//	}
+    if ( pasynUser->reason == SerGain )
 	{
-		setDoubleParam( ADAcquireTime, value );
+		setDoubleParam( ADGain, value );
 	}
 
     callParamCallbacks();
@@ -2280,7 +2286,6 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 
 	if ( pasynUser->reason == SerBinX			)	SetBinX(	value );
 	if ( pasynUser->reason == SerBinY			)	SetBinY(	value );
-	if ( pasynUser->reason == SerGain			)	SetGain(	value );
     if ( pasynUser->reason == SerTriggerMode	)	SetTriggerMode(	value );
     if ( pasynUser->reason == SerMinX			)	SetMinX(	value );
     if ( pasynUser->reason == SerMinY			)	SetMinY(	value );
@@ -2307,7 +2312,14 @@ asynStatus edtPdvCamera::writeFloat64(	asynUser *	pasynUser, epicsFloat64	value 
 	{
 		setDoubleParam( ADAcquireTime, value );
 	}
-    if ( pasynUser->reason == ADGain)	SetGain(	value	);
+    if ( pasynUser->reason == ADGain)
+	{
+		SetGain(	value	);
+	}
+    if ( pasynUser->reason == SerGain )
+	{
+		setDoubleParam( ADGain, value );
+	}
 
     callParamCallbacks();
 

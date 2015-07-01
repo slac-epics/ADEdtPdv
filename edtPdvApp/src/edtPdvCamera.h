@@ -492,7 +492,7 @@ private:	//	Private class variables
 // This group provides a way to have serial readbacks get reflected in
 // their ADBase class equivalents, for example
 // SerAcquireTime	=>	ADAcquireTime 
-#define EdtSerAcquireTimeString	"EDT_SER_ACQUIRE_TIME"
+#define EdtSerAcquireTimeString	"EDT_ACQUIRE_TIME"
 #define EdtSerBinXString		"EDT_BIN_X"
 #define EdtSerBinYString		"EDT_BIN_Y"
 #define EdtSerGainString		"EDT_GAIN"
@@ -500,7 +500,7 @@ private:	//	Private class variables
 #define EdtSerMinYString		"EDT_MIN_Y"
 #define EdtSerSizeXString		"EDT_SIZE_X"
 #define EdtSerSizeYString		"EDT_SIZE_Y"
-#define EdtSerTriggerModeString	"EDT_SER_TRIGGER_MODE"
+#define EdtSerTriggerModeString	"EDT_TRIGGER_MODE"
 
 /*	Diagnostic variables	*/
 extern int				DEBUG_EDT_PDV;
