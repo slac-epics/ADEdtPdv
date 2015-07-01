@@ -94,6 +94,18 @@ record( longin, "$(P)$(R)OrcaWidth_RBV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
 
+record( bi, "$(P)$(R)OrcaCoolingMethod_RBV" )
+{
+	field( DESC, "Orca Cooling Method" )
+	field( DTYP, "stream" )
+	field( INP,  "@hamaOrcaFlash4_0.proto GetCoolingMethod $(PORT).SER" )
+	field( ZNAM, "Air"  )
+	field( ONAM, "Water" )
+	field( PINI, "YES" )
+	info( autosaveFields, "ZSV OSV" )
+	info( archiveFields,  "ZSV OSV VAL" )
+}
+
 # Read ORCA Actual Exposure Time
 record( ai, "$(P)$(R)OrcaActualExposure_RBV" )
 {
@@ -190,8 +202,6 @@ record( mbbi, "$(P)$(R)OrcaScanMode_RBV" )
 record( mbbo, "$(P)$(R)OrcaScanSpeed" )
 {
 	field( DTYP, "stream" )
-#	field( OMSL, "closed_loop" )
-#	field( DOL,  "$(P)$(R)ScanSpeed NPP NMS" )
 	field( OUT,  "@hamaOrcaFlash4_0.proto SetScanSpeed $(PORT).SER" )
 	field( ZRVL, "0" )	field( ZRST, "High"  )
 	field( ONVL, "1" )	field( ONST, "Slow" )
@@ -212,6 +222,7 @@ record( mbbi, "$(P)$(R)OrcaScanSpeed_RBV" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetScanSpeed $(PORT).SER" )
 	field( ZRVL, "0" )	field( ZRST, "High"  )
 	field( ONVL, "1" )	field( ONST, "Slow" )
+	field( PINI, "YES" )
 	info( archiveFields,  "VAL" )
 }
 
@@ -528,4 +539,57 @@ record( calc, "$(P)$(R)OrcaPrepTime" )
 	field( LSV,  "MINOR" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC VAL" )
+}
+
+# Read ORCA CoolingMode
+record( mbbi, "$(P)$(R)OrcaCoolingMode_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@hamaOrcaFlash4_0.proto GetCoolingMode $(PORT).SER" )
+	field( ZRVL, "0" )	field( ZRST, "On"  )
+	field( ONVL, "1" )	field( ONST, "Max" )
+	field( TWVL, "2" )	field( TWST, "Off" )
+	field( PINI, "YES" )
+	info( autosaveFields, "ZRSV ONSV TWSV" )
+	info( archiveFields,  "VAL" )
+}
+
+record( mbbo, "$(P)$(R)OrcaCoolingMode" )
+{
+	field( DTYP, "stream" )
+	field( OUT,  "@hamaOrcaFlash4_0.proto SetCoolingMode $(PORT).SER" )
+	field( ZRVL, "0" )	field( ZRST, "On"  )
+	field( ONVL, "1" )	field( ONST, "Max" )
+	field( TWVL, "2" )	field( TWST, "Off" )
+	field( FLNK, "$(P)$(R)OrcaCoolingMode_RBV" )
+#	field( PINI, "YES" )
+# Taking out of autosave for now.
+# Not safe to save this PV value
+#	info( autosaveFields, "VAL" )
+	info( autosaveFields, "ZRSV ONSV TWSV" )
+	info( archiveFields,  "ZRSV ONSV TWSV VAL" )
+}
+
+record( bo, "$(P)$(R)OrcaPixelCorr" )
+{
+	field( DTYP, "stream" )
+	field( OUT,  "@hamaOrcaFlash4_0.proto SetPixelCorr $(PORT).SER" )
+	field( ZNAM, "Off"  )
+	field( ONAM, "On" )
+	field( FLNK, "$(P)$(R)OrcaPixelCorr_RBV" )
+#	field( PINI, "YES" )
+	info( autosaveFields, "ZSV OSV VAL" )
+	info( archiveFields,  "ZSV OSV VAL" )
+}
+
+# Read ORCA PixelCorr
+record( bi, "$(P)$(R)OrcaPixelCorr_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@hamaOrcaFlash4_0.proto GetPixelCorr $(PORT).SER" )
+	field( ZNAM, "Off"  )
+	field( ONAM, "On" )
+	field( PINI, "YES" )
+	info( autosaveFields, "ZSV OSV" )
+	info( archiveFields,  "ZSV OSV VAL" )
 }

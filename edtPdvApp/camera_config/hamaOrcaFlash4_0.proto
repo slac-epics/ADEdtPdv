@@ -58,6 +58,13 @@ GetWidth
 	in	 "CAI H %d";
 }
 
+# GetCoolingMethod - Air or Water
+GetCoolingMethod
+{
+	out	"?CAI C";
+	in	 "CAI C %{A|W}";
+}
+
 GetActualExposure
 {
 	out "?RAT";
@@ -217,7 +224,44 @@ SetVertDblScan
 }
 
 # SPX {1|2|4} Set binning factor
-# PEC {F|O} Pixel Error Corr Off|On
+
+# Get Pixel Correction Mode
+#	F	= Off
+#	O	= On
+GetPixelCorr
+{
+	out "?PEC";
+	in	"PEC %{F|O}";
+}
+
+# Set Pixel Correction Mode
+#	F	= Off
+#	O	= On
+SetPixelCorr
+{
+	out "PEC %{F|O}";
+	in	"PEC %*{F|O}";
+}
+
+# Get Cooling Mode
+#	O	= On  (default for air cooling)
+#	M	= Max (only valid for water cooling)
+#	F	= Off (default for water cooling)
+GetCoolingMode
+{
+	out	"?CSW";	
+	in	"CSW %{O|M|F}";
+}
+
+# Set Cooling Mode
+#	O	= On  (default for air cooling)
+#	M	= Max (only valid for water cooling)
+#	F	= Off (default for water cooling)
+SetCoolingMode
+{
+	out "CSW %{O|M|F}";
+	in  "CSW %*{O|M|F}";
+}
 
 # ACT {I,S}
 # ACquire Type: Imaging or Stop
