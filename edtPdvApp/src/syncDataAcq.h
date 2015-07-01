@@ -83,7 +83,6 @@ template < class Dev, class Data >	class syncDataAcq
 		m_acquireTimeout(		1.0			),
 		m_reconfigDelay(		1.0			),
 
-		m_fSynced(				false		),
 		m_EventNumber(			0			),
 		m_PolicyBadTimeStamp(	USE_OBJECT	),
 		m_PolicyUnsynced(		USE_OBJECT	)
@@ -114,11 +113,6 @@ template < class Dev, class Data >	class syncDataAcq
 	{
 		return m_fAcquiring;
 	}
-
-	virtual void SetSynced( bool fSynced )	// TODO: Make this private
-	{
-		m_fSynced = fSynced;
-	};
 
 	virtual const char	*	Name(		void			)	{ return ""; };
 	virtual int				CountIncr(	edtImage	*	)	{ return -1; };
@@ -279,10 +273,6 @@ template < class Dev, class Data >	class syncDataAcq
 				return 0;
 			}
 
-			// TODO OR NOT TODO: Use an "I/O Intr" genSub for configuration and status
-			//		and process it here to check params and update status once per loop
-			//	Process( pGenSubRec );
-
 			ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Acquiring new image ...\n", functionName );
 			// Wait for a new image
 			status = m_Device.AcquireData( pImage );
@@ -292,14 +282,13 @@ template < class Dev, class Data >	class syncDataAcq
 				ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: AcquireData error %d\n", functionName, status );
 				// Should we return here to avoid trying to acquire data too often?
 				// I think so
-				continue;
+				return status;
 			}
 
 			// Check for image errors
 			status	= m_Device.CheckData( pImage );
 			if ( status != 0 )
 			{
-				SetSynced( false );
 				ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Rejected invalid data ...\n", functionName );
 				continue;
 			}
@@ -413,7 +402,6 @@ private:	//	Private member functions
 	double			m_reconfigDelay;	// Delay in seconds after failed reconfiguration before retry
 
 	//	Old member variables from timesync.h
-	bool				m_fSynced;				// true when synced
 	int					m_EventNumber;			// Trigger event number
 	enum SyncBehaviour 	m_PolicyBadTimeStamp;	// Policy on invalid timestamp
 	enum SyncBehaviour	m_PolicyUnsynced;		// Policy when unsynced
