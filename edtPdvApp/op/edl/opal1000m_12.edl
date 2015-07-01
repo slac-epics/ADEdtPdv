@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 83
-y 1241
+x 87
+y 1265
 w 700
 h 579
 font "helvetica-medium-r-12.0"
@@ -393,9 +393,9 @@ major 4
 minor 7
 release 0
 x 488
-y 268
+y 284
 w 92
-h 18
+h 20
 controlPv "$(P)$(R)OpalBlackLevel"
 format "decimal"
 font "helvetica-medium-r-12.0"
@@ -420,8 +420,8 @@ major 4
 minor 1
 release 1
 x 348
-y 268
-w 120
+y 284
+w 132
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -439,7 +439,7 @@ major 4
 minor 7
 release 0
 x 588
-y 268
+y 284
 w 88
 h 20
 controlPv "$(P)$(R)OpalBlackLevel_RBV"
@@ -464,7 +464,7 @@ major 4
 minor 7
 release 0
 x 588
-y 300
+y 308
 w 88
 h 20
 controlPv "$(P)$(R)OpalTestPattern_RBV"
@@ -489,9 +489,9 @@ major 4
 minor 7
 release 0
 x 488
-y 300
+y 308
 w 92
-h 14
+h 20
 controlPv "$(P)$(R)OpalTestPattern"
 format "decimal"
 font "helvetica-medium-r-12.0"
@@ -515,8 +515,8 @@ major 4
 minor 1
 release 1
 x 348
-y 300
-w 120
+y 308
+w 132
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -580,7 +580,7 @@ minor 1
 release 1
 x 348
 y 188
-w 120
+w 132
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -1187,7 +1187,7 @@ minor 1
 release 1
 x 348
 y 212
-w 120
+w 132
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -1726,5 +1726,133 @@ showUnits
 newPos
 objType "monitors"
 noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 588
+y 236
+w 88
+h 20
+controlPv "$(P)$(R)OpalAutoExposure_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Menu Button)
+object activeMenuButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 488
+y 236
+w 92
+h 20
+fgColor index 25
+bgColor index 5
+inconsistentColor index 40
+topShadowColor index 2
+botShadowColor index 13
+controlPv "$(P)$(R)OpalAutoExposure"
+indicatorPv "$(P)$(R)OpalAutoExposure_RBV"
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 348
+y 236
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Auto Exposure Control"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 588
+y 260
+w 88
+h 20
+controlPv "$(P)$(R)OpalAutoGain_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Menu Button)
+object activeMenuButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 488
+y 260
+w 92
+h 20
+fgColor index 25
+bgColor index 5
+inconsistentColor index 40
+topShadowColor index 2
+botShadowColor index 13
+controlPv "$(P)$(R)OpalAutoGain"
+indicatorPv "$(P)$(R)OpalAutoGain_RBV"
+font "helvetica-medium-r-14.0"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 348
+y 260
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Auto Gain Control"
+}
 endObjectProperties
 

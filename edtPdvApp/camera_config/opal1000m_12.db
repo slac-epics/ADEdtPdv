@@ -350,21 +350,81 @@ record( longin, "$(P)$(R)OpalFST" )
     field( INP,	 "@opal1000m_12.proto GetInt(FST) $(PORT).SER" )
 }
 
-# TODO: Need to convert ADCore $(PORT).SERGain from float to integer units of 0.01 amplification
-# 100 is the minimum gain, i.e. no signal amplification
+record( bo, "$(P)$(R)OpalAutoExposure" )
+{
+    field( DESC, "Auto Integration Time" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(AIC) $(PORT).SER" )
+    field( ZNAM, "Disable" )
+    field( ONAM, "Enable"  )
+    field( FLNK, "$(P)$(R)OpalAutoExposure_RBV" )
+	field( PINI, "YES" )
+	info( autosaveFields, "DESC VAL" )
+}
+
+record( bi, "$(P)$(R)OpalAutoExposure_RBV" )
+{
+    field( DESC, "Auto Integration Time" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(AIC) $(PORT).SER" )
+    field( ZNAM, "Disabled" )
+    field( ONAM, "Enabled"  )
+	field( PINI, "YES" )
+}
+
+record( bo, "$(P)$(R)OpalAutoGain" )
+{
+    field( DESC, "Auto Gain Control" )
+    field( DTYP, "stream" )
+    field( OUT,	 "@opal1000m_12.proto SetInt(AGC) $(PORT).SER" )
+    field( ZNAM, "Disable" )
+    field( ONAM, "Enable"  )
+    field( FLNK, "$(P)$(R)OpalAutoGain_RBV" )
+	field( PINI, "YES" )
+	info( autosaveFields, "DESC VAL" )
+}
+
+record( bi, "$(P)$(R)OpalAutoGain_RBV" )
+{
+    field( DESC, "Auto Gain Control" )
+    field( DTYP, "stream" )
+    field( INP,	 "@opal1000m_12.proto GetInt(AGC) $(PORT).SER" )
+    field( ZNAM, "Disabled" )
+    field( ONAM, "Enabled"  )
+	field( PINI, "YES" )
+}
+
+record( ao, "$(P)$(R)EdtGain" )
+{
+#	field( TPRO, 2 )
+	field( PREC, "2" )
+	field( FLNK, "$(P)$(R)OpalCalcGain" )
+}
+record( calcout, "$(P)$(R)OpalCalcGain" )
+{
+#	field( TPRO, 2 )
+	field( INPA, "$(P)$(R)EdtGain NPP NMS" )
+	field( CALC, "MAX(100,MIN(A*100,3200))" )
+	field( OUT,  "$(P)$(R)OpalGain PP MS" )
+	field( PREC, "2" )
+}
+
+# Opal gain is in integer units of 0.01 amplification
+# 100  is the minimum gain, i.e. no  signal amplification
+# 3200 is the maximum gain, i.e. 32x signal amplification
 record( longout, "$(P)$(R)OpalGain" )
 {
     field( DESC, "Set The Digital Gain" )
     field( DTYP, "stream" )
     field( OUT,	 "@opal1000m_12.proto SetInt(GA) $(PORT).SER" )
-    field( FLNK, "$(P)$(R)OpalGain_RBV" )
     field( HOPR, 3200 )
     field( DRVH, 3200 )
     field( LOPR, 100  )
     field( DRVL, 100  )
+    field( FLNK, "$(P)$(R)OpalGain_RBV" )
 	info( autosaveFields, "DESC VAL" )
+	info( archiveFields,  "DESC VAL" )
 }
-
 
 # TODO: Need to convert the Opal 1000 gain from
 # integer units of 0.01 amplification
@@ -376,6 +436,23 @@ record( longin, "$(P)$(R)OpalGain_RBV" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(GA) $(PORT).SER" )
 	field( PINI, "YES" )
+    field( FLNK, "$(P)$(R)OpalCalcGain_RBV" )
+	info( autosaveFields, "DESC VAL" )
+	info( archiveFields,  "DESC VAL" )
+}
+
+record( calcout, "$(P)$(R)OpalCalcGain_RBV" )
+{
+#	field( TPRO, 2 )
+	field( INPA, "$(P)$(R)OpalGain_RBV NPP NMS" )
+	field( CALC, "A==0?1.0:(A/100)" )
+	field( OUT,  "$(P)$(R)EdtGain_RBV PP MS" )
+	field( PREC, "2" )
+}
+record( ao, "$(P)$(R)EdtGain_RBV" )
+{
+#	field( TPRO, 2 )
+	field( PREC, "2" )
 }
 
 # Read camera identification string
@@ -488,7 +565,7 @@ record( fanout, "$(P)$(R)OpalGetAcquireTimeFanout" )
 	field( DESC, "Selects AcquireTime read cmd" )
 	field( SELL, "$(P)$(R)OpalAcquireTimeSelect" )
 	field( SELM, "Specified" )
-	field( LNK1, "$(P)$(R)OpalAcquireTime" )
+	field( LNK1, "$(P)$(R)OpalAcquireTime_RBV" )
 	field( LNK2, "$(P)$(R)OpalAcquireTime_RBV" )
 	field( LNK3, "$(P)$(R)OpalPulseAcquireTime_RBV" )
 	field( PINI, "YES" )
@@ -710,31 +787,32 @@ record( stringin, "$(P)$(R)OpalFirmwareTimestamp_RBV" )
     field( INP,	 "@opal1000m_12.proto GetQStr(UFDT) $(PORT).SER" )
 }
 
+# Horizontal Binning is not installed on most Opal1000 cameras
 # Set horizontal binning
 # TODO: Use calc record to compute output value from EdtBinX
 #   EdtBinX == 1, Opal HBIN 0
 #   EdtBinX == 2, Opal HBIN 1
-record( longout, "$(P)$(R)OpalBinX" )
-{
-    field( DESC, "Set The horix binning" )
-    field( DTYP, "stream" )
-    field( OUT,	 "@opal1000m_12.proto SetInt(HBIN) $(PORT).SER" )
-    field( FLNK, "$(P)$(R)OpalBinX_RBV" )
-    field( HOPR, 1 )
-    field( DRVH, 1 )
-    field( LOPR, 0 )
-    field( DRVL, 0 )
-}
+#record( longout, "$(P)$(R)OpalBinX" )
+#{
+#    field( DESC, "Set The horix binning" )
+#    field( DTYP, "stream" )
+#    field( OUT,	 "@opal1000m_12.proto SetInt(HBIN) $(PORT).SER" )
+#    field( FLNK, "$(P)$(R)OpalBinX_RBV" )
+#    field( HOPR, 1 )
+#    field( DRVH, 1 )
+#    field( LOPR, 0 )
+#    field( DRVL, 0 )
+#}
 
 # TODO: Use calc record to compute EdtBinX_RBV from HBIN reply
 #   Opal HBIN 0, EdtBinX_RBV 1
 #   Opal HBIN 1, EdtBinX_RBV 2
-record( longin, "$(P)$(R)OpalBinX_RBV" )
-{
-    field( DESC, "Horiz Binning" )
-    field( DTYP, "stream" )
-    field( INP,	 "@opal1000m_12.proto GetInt(HBIN) $(PORT).SER" )
-}
+#record( longin, "$(P)$(R)OpalBinX_RBV" )
+#{
+#    field( DESC, "Horiz Binning" )
+#    field( DTYP, "stream" )
+#    field( INP,	 "@opal1000m_12.proto GetInt(HBIN) $(PORT).SER" )
+#}
 
 # Set vertical binning
 # TODO: Use calc record to compute output value from EdtBinX
