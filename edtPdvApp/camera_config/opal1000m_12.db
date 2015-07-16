@@ -240,6 +240,23 @@ record( stringin, "$(P)$(R)OpalElapsedTime_RBV" )
 }
 
 # TODO: Enable/Disable based on TriggerMode, and add calc records to convert from ADCore AcquirePeriod
+record( ao, "$(P)$(R)AcquirePeriod"			)
+{
+	field( DISA, "0" )
+    field( FLNK, "$(P)$(R)OpalCalcAcquirePeriod" )
+}
+
+record( calcout, "$(P)$(R)OpalCalcAcquirePeriod" )
+{
+	field( INPA, "$(P)$(R)AcquirePeriod"			)
+	field( INPB, "10e-6" )
+	field( CALC, "MAX(1,MIN(A/B,32000))" )
+	field( OUT,  "$(P)$(R)OpalAcquirePeriod PP MS"	)
+    field( HOPR, 32000    )
+    field( LOPR, 1        )
+    field( EGU,  "e-5sec"  )
+}
+
 # Set the acquire period, the rep rate for image capture
 # Only works in FreeRun trigger mode
 # Argument is an integer in units of 10us
@@ -268,6 +285,13 @@ record( longin, "$(P)$(R)OpalAcquirePeriod_RBV" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(FP) $(PORT).SER" )
     field( EGU,  "e-5sec"  )
+	field( FLNK, "$(P)$(R)AcquirePeriod_RBV"	)
+}
+record( ai, "$(P)$(R)AcquirePeriod_RBV"		)
+{
+	field( DOL,  "$(P)$(R)OpalAcquirePeriod_RBV NPP MS" )
+	field( OMSL, "closed_loop" )
+	field( DISA, "0" )
 }
 
 #	FSE		Set flash strobe enable
@@ -753,12 +777,22 @@ record( longin, "$(P)$(R)OpalSerialNumber_RBV" )
 	field( PINI, "YES" )
 }
 
-# Temperature C;F
-record( stringin, "$(P)$(R)OpalTemperature_RBV" )
+# Temperature C
+record( longin, "$(P)$(R)OpalTemperature_RBV" )
 {
     field( DESC, "Temperature of the Sensor" )
     field( DTYP, "stream" )
-    field( INP,	 "@opal1000m_12.proto GetStr(TM) $(PORT).SER" )
+    field( INP,	 "@opal1000m_12.proto GetTempC $(PORT).SER" )
+	field( EGU,  "C" )
+	field( HIHI, "60" )		field( HHSV, "MAJOR" )
+	field( HIGH, "50" )		field( HSV,  "MINOR" )
+	field( FLNK, "$(P)$(R)OpalTemperatureF_RBV" )
+}
+
+record( calc, "$(P)$(R)OpalTemperatureF_RBV" )
+{
+	field( INPA, "$(P)$(R)OpalTemperature_RBV NPP MS" )
+	field( CALC, "(9*A/5)+32" )
 }
 
 record( bo, "$(P)$(R)OpalTestPattern" )

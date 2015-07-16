@@ -27,6 +27,22 @@ GetInt
     @init { out "@\$1?";    in  ACK "@%d"; }
 }
 
+GetTempC
+{
+    out "@\TM?";    in  ACK "@%d;%*d";
+    @init {
+	out "@\TM?";    in  ACK "@%d;%*d";
+	}
+}
+
+GetTempF
+{
+    out "@\TM?";    in  ACK "@%*d;%d";
+    @init {
+	out "@\TM?";    in  ACK "@%*d;%d";
+	}
+}
+
 GetSerial
 {
     out "@SN?";    in  ACK "@\"%d";
