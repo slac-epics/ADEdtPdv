@@ -253,7 +253,7 @@ edtPdvCamera::edtPdvCamera(
 	// Make it available as a member variable
 	m_pSyncDataAcquirer	= pSyncDataAcquirer;
 
-	// Set our policies
+	// Set default policies
 	m_pSyncDataAcquirer->SetPolicyUnsynced(		syncDataAcq<edtPdvCamera, edtImage>::SKIP_OBJECT );
 	m_pSyncDataAcquirer->SetPolicyBadTimeStamp(	syncDataAcq<edtPdvCamera, edtImage>::SKIP_OBJECT );
 
@@ -845,13 +845,13 @@ int edtPdvCamera::_Reconfigure( )
 
 	free( pDD );
 
-	if ( DEBUG_EDT_PDV >= 2 )
+	if ( DEBUG_EDT_PDV >= 3 )
 	{
 		printf( "%s: Calling pdv_flush_fifo( ) ...\n", functionName );
 	}
     pdv_flush_fifo( m_pPdvDev );
 
-	if ( DEBUG_EDT_PDV >= 2 )
+	if ( DEBUG_EDT_PDV >= 3 )
 	{
 		printf( "%s: Calling pdv_multibuf( %d ) ...\n", functionName, m_NumMultiBuf );
 	}
@@ -914,16 +914,15 @@ int edtPdvCamera::_Reopen( )
 	// Close old PdvDev if needed
 	if ( m_pPdvDev )
 	{
-		if ( DEBUG_EDT_PDV >= 1 )
-			printf( "%s: %s pdv_timeout_restart prior to reopen\n", functionName, m_CameraName.c_str() );
+		if ( DEBUG_EDT_PDV >= 3 )
+			printf( "%s: %s pdv_timeout_restart\n", functionName, m_CameraName.c_str() );
 		pdv_timeout_restart( m_pPdvDev, 0 );
-		epicsThreadSleep( 0.1 );
-		if ( DEBUG_EDT_PDV >= 1 )
-			printf( "%s: %s pdv_stop_continuous prior to reopen\n", functionName, m_CameraName.c_str() );
+		// epicsThreadSleep( 0.1 );
+		if ( DEBUG_EDT_PDV >= 3 )
+			printf( "%s: %s pdv_stop_continuous\n", functionName, m_CameraName.c_str() );
 		pdv_stop_continuous( m_pPdvDev );
-		epicsThreadSleep( 0.1 );
-		if ( DEBUG_EDT_PDV >= 1 )
-			printf( "%s: %s Closing old PdvDev prior to reopen\n", functionName, m_CameraName.c_str() );
+		if ( DEBUG_EDT_PDV >= 3 )
+			printf( "%s: %s pdv_close\n", functionName, m_CameraName.c_str() );
 		pdv_close( m_pPdvDev );
 		m_pPdvDev	= NULL;
 		if ( DEBUG_EDT_PDV >= 1 )
@@ -969,10 +968,10 @@ int edtPdvCamera::_Reopen( )
 
 	// Diagnostics
 	if ( DEBUG_EDT_PDV >= 1 )
-		printf(	"%s %s: Camera %s connection opened on card %u, ch %u\n",
+		printf(	"%s %s: %s framegrabber opened on card %u, ch %u\n",
 				driverName, functionName, m_CameraName.c_str(), m_unit, m_channel );
 	asynPrint(	this->pasynUserSelf,	ASYN_TRACEIO_DRIVER,
-				"%s %s: Camera %s connection opened on card %u, ch %u\n",
+				"%s %s: %s framegrabber opened on card %u, ch %u\n",
 				driverName, functionName, m_CameraName.c_str(), m_unit, m_channel );
     return 0;
 }
@@ -1031,14 +1030,6 @@ int edtPdvCamera::UpdateEdtDebugParams( )
 	setIntegerParam(	EdtDebugMsg,	m_EdtDebugMsgLevel	);
 	edt_msg_set_level(	edt_msg_default_handle(),	m_EdtDebugMsgLevel	);
 
-//	m_EdtDebugLevel	= pdv_debug_level(	);
-//	pdv_setdebug(		m_pPdvDev, 		m_EdtDebugLevel	);
-//	getIntegerParam(	EdtDebug,		&m_EdtDebugLevel	);
-//	getIntegerParam(	EdtDebug,		&m_EdtDebugLevel	);
-//	m_EdtDebugMsgLevel	= edt_msg_default_level( );
-//	edt_msg_set_level(	edt_msg_default_handle(),	m_EdtDebugMsgLevel	);
-//	getIntegerParam(	EdtDebugMsg,	&m_EdtDebugMsgLevel	);
-//	getIntegerParam(	EdtDebugMsg,	&m_EdtDebugMsgLevel	);
     return 0;
 }
 
@@ -1126,7 +1117,21 @@ asynStatus	edtPdvCamera::SetAcquireMode( int fAcquire )
 			printf(	"%s: Starting acquisition on camera %s\n", 
 					functionName, m_CameraName.c_str() );
 		if( m_pSyncDataAcquirer != NULL )
+		{
 			m_pSyncDataAcquirer->SetEnabled();
+			if ( m_TriggerModeReq == TRIGMODE_FREERUN )
+			{
+				// Use any images we can get
+				m_pSyncDataAcquirer->SetPolicyUnsynced( syncDataAcq<edtPdvCamera, edtImage>::USE_OBJECT	);
+				m_pSyncDataAcquirer->SetPolicyBadTimeStamp( syncDataAcq<edtPdvCamera, edtImage>::USE_OBJECT	);
+			}
+			else
+			{
+				// Skip images when unsynce or invalid timestamp
+				m_pSyncDataAcquirer->SetPolicyUnsynced( syncDataAcq<edtPdvCamera, edtImage>::SKIP_OBJECT	);
+				m_pSyncDataAcquirer->SetPolicyBadTimeStamp( syncDataAcq<edtPdvCamera, edtImage>::SKIP_OBJECT	);
+			}
+		}
 		// UpdateAcquireCount()
 		{
 		// See how many images we need to acquire
@@ -1172,7 +1177,8 @@ int edtPdvCamera::StartAcquisition( )
 
 	// Cleanup any pending transfers
 	// (Helps keep synchronized images if app is restarted)
-    // pdv_timeout_restart( m_pPdvDev, false );
+	if ( DEBUG_EDT_PDV >= 3 )
+		printf( "%s: Calling pdv_flush_fifo( ) ...\n", functionName );
     pdv_flush_fifo( m_pPdvDev );
 
 	if ( DEBUG_EDT_PDV >= 2 )
@@ -1227,8 +1233,10 @@ int edtPdvCamera::StartAcquisition( )
 	setIntegerParam( ADNumImagesCounter, 0 );
 	UpdateStatus( ADStatusAcquire );
 
+	if ( DEBUG_EDT_PDV >= 3 )
+		printf( "%s: Calling pdv_start_images( pPdvDev, %d ) ...\n", functionName, m_NumMultiBuf );
 	// Start grabbing images
-    pdv_start_images( m_pPdvDev, m_NumMultiBuf );
+	pdv_start_images( m_pPdvDev, m_NumMultiBuf );
 
 	if ( DEBUG_EDT_PDV >= 1 )
         printf(	"%s: Start acquire, count = %d\n",
@@ -1369,7 +1377,10 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 	{
 		if ( DEBUG_EDT_PDV >= 1 )
 			printf(	"%s: AcquireMode cancelled in thread %s\n", functionName, epicsThreadGetNameSelf() );
+
 		// TODO: Is this the right place to call pdv_timeout_restart? Yes, just returned from pdv_wait but need to exit loop
+		if ( DEBUG_EDT_PDV >= 3 )
+			printf(	"%s: Calling pdv_timeout_restart\n", functionName );
 		pdv_timeout_restart( m_pPdvDev, 0 );
 		return asynError;
 	}
@@ -1424,7 +1435,7 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 				printf(	"%s: Lost framesync!\n", functionName );
 			// TODO: Add cameraLostFrameSyncCounter
 			// setIntegerParam(cameraLostFrameSyncCounter, lostFrameSyncCounter++);
-			
+
 			// Restart acquisition on lost framesync!
 			pdv_timeout_restart( m_pPdvDev, 0 );	// Bailing on pdv_check_framesync error!
 			return asynError;
@@ -1596,6 +1607,7 @@ int	edtPdvCamera::ProcessData(
     NDArray	*	pNDArray = pImage->GetNDArrayPtr( );
 	if ( pNDArray != NULL )
 	{
+		CONTEXT_TIMER( "edtPdvCamera-ProcessData" );
 		// Set the NDArray EPICS timestamp and unique ID
 		if ( DEBUG_EDT_PDV >= 4 )
 			printf(	"%s: Timestamp image w/ pulseID %d, 0x%X\n", functionName, pulseID, pulseID );
@@ -1651,8 +1663,11 @@ bool	 edtPdvCamera::IsSynced(
 	epicsTimeStamp	*	pTimeStamp,
 	int					pulseID		)
 {
+	CONTEXT_TIMER( "edtPdvCamera-IsSynced" );
 	if ( pImage == NULL )
 		return false;
+	if ( m_TriggerMode == TRIGMODE_FREERUN )
+		return true;
 	if ( pTimeStamp == NULL )
 		return false;
 	if ( pulseID == INVALID_PULSE )
@@ -2136,6 +2151,7 @@ void edtPdvCamera::report( FILE * fp, int details )
         fprintf( fp, "  Trig Level:        %s\n",	TrigLevelToString( m_trigLevel ) );
         fprintf( fp, "  PDV DebugLevel:    %u\n",	m_EdtDebugLevel );
         fprintf( fp, "  PDV DebugMsgLevel: %u\n",	m_EdtDebugMsgLevel );
+		fprintf( fp, "  asyn TraceLevel:   %u\n",	GetTraceLevel() );
         fprintf( fp, "  Frame Count:       %u\n",	m_ArrayCounter );
 
         fprintf( fp, "\n" );
@@ -2329,12 +2345,18 @@ asynStatus edtPdvCamera::writeFloat64(	asynUser *	pasynUser, epicsFloat64	value 
 
 int		edtPdvCamera::traceVPrint( const char	*	pFormat, va_list pvar )
 {
+	if ( DEBUG_EDT_PDV >= 4 )
+	{
+		static const char	*	functionName = "edtPdvCamera:traceVPrint";
+		printf(	"%s Format: %s\n", functionName, pFormat );
+	}
 	return pasynTrace->vprint( this->pasynUserSelf, GetTraceLevel(), pFormat, pvar );
 }
 
 unsigned int edtPdvCamera::GetTraceLevel()
 {
-	return pasynTrace->getTraceMask( this->pasynUserSelf );
+//	return pasynTrace->getTraceMask( this->pasynUserSelf );
+	return DEBUG_EDT_PDV;
 }
 
 

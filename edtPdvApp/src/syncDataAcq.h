@@ -8,11 +8,11 @@
 //	Uses asynTrace mechanism, so they share the
 //	same mask parameter, currently an int.
 //	Asyn uses the first 6 bits
-//  Starting from an arbitrary bit 17 position
+//  Starting from an arbitrary bit 9 position
 //	Can be changed here if it conflicts w/ another module
-#define	ACQ_TRACE_START_STOP	0x0100	// Enables trace msgs related to stopping and starting acquisition
-#define	ACQ_TRACE_SYNC_UNSYNC	0x0200	// Enables trace msgs related to changes in sync status
-#define	ACQ_TRACE_DETAIL		0x0400	// Enables capture by capture trace details at up to 120hz
+#define	ACQ_TRACE_START_STOP	0x01	// Enables trace msgs related to stopping and starting acquisition
+#define	ACQ_TRACE_SYNC_UNSYNC	0x02	// Enables trace msgs related to changes in sync status
+#define	ACQ_TRACE_DETAIL		0x04	// Enables capture by capture trace details at up to 120hz
 
 #define	ACQ_TRACE( level, pFormat... ) if ( (level) & GetTraceLevel() ) tracePrint( pFormat )
 
@@ -353,7 +353,8 @@ template < class Dev, class Data >	class syncDataAcq
 		int			nout	= 0;
 
 		va_start( pvar, pFormat );
-		m_Device.traceVPrint( pFormat, pvar );
+		// m_Device.traceVPrint( pFormat, pvar );
+		vprintf( pFormat, pvar );
 		va_end( pvar );
 
 		return nout;
