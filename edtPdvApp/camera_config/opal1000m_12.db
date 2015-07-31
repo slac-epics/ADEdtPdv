@@ -285,11 +285,22 @@ record( longin, "$(P)$(R)OpalAcquirePeriod_RBV" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(FP) $(PORT).SER" )
     field( EGU,  "e-5sec"  )
-	field( FLNK, "$(P)$(R)AcquirePeriod_RBV"	)
+	field( FLNK, "$(P)$(R)OpalCalcAcquirePeriod_RBV"	)
+}
+
+record( calcout, "$(P)$(R)OpalCalcAcquirePeriod_RBV" )
+{
+	field( INPA, "$(P)$(R)OpalAcquirePeriod_RBV"	)
+	field( INPB, "10e-6" )
+	field( CALC, "A*B" )
+    field( HOPR, 32000    )
+    field( LOPR, 1        )
+    field( EGU,  "e-5sec"  )
+	field( FLNK, "$(P)$(R)AcquirePeriod_RBV PP MS"	)
 }
 record( ai, "$(P)$(R)AcquirePeriod_RBV"		)
 {
-	field( DOL,  "$(P)$(R)OpalAcquirePeriod_RBV NPP MS" )
+	field( INP,  "$(P)$(R)OpalCalcAcquirePeriod_RBV NPP MS" )
 	field( OMSL, "closed_loop" )
 	field( DISA, "0" )
 }
