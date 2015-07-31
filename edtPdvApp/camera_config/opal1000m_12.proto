@@ -29,17 +29,17 @@ GetInt
 
 GetTempC
 {
-    out "@\TM?";    in  ACK "@%d;%*d";
+    out "@TM?";    in  ACK "@%d;%*d";
     @init {
-	out "@\TM?";    in  ACK "@%d;%*d";
+	out "@TM?";    in  ACK "@%d;%*d";
 	}
 }
 
 GetTempF
 {
-    out "@\TM?";    in  ACK "@%*d;%d";
+    out "@TM?";    in  ACK "@%*d;%d";
     @init {
-	out "@\TM?";    in  ACK "@%*d;%d";
+	out "@TM?";    in  ACK "@%*d;%d";
 	}
 }
 
