@@ -17,6 +17,16 @@ record( stringin, "$(P)$(R)EdtModelScreen" )
 	field( PINI, "YES" )
 }
 
+# Provide defaults for ADCore SizeX and SizeY
+record( longout, "$(P)$(R)SizeX" )
+{
+	field( VAL, "1024" )
+}
+record( longout, "$(P)$(R)SizeY" )
+{
+	field( VAL, "1024" )
+}
+
 # Set black level
 record( longout, "$(P)$(R)OpalBlackLevel" )
 {
@@ -250,11 +260,11 @@ record( calcout, "$(P)$(R)OpalCalcAcquirePeriod" )
 {
 	field( INPA, "$(P)$(R)AcquirePeriod"			)
 	field( INPB, "10e-6" )
-	field( CALC, "MAX(1,MIN(A/B,32000))" )
+	field( CALC, "MAX(0,MIN(A/B,32000))" )
 	field( OUT,  "$(P)$(R)OpalAcquirePeriod PP MS"	)
     field( HOPR, 32000    )
-    field( LOPR, 1        )
-    field( EGU,  "e-5sec"  )
+    field( LOPR, 0        )
+    field( EGU,  "e-5sec" )
 }
 
 # Set the acquire period, the rep rate for image capture
@@ -293,15 +303,12 @@ record( calcout, "$(P)$(R)OpalCalcAcquirePeriod_RBV" )
 	field( INPA, "$(P)$(R)OpalAcquirePeriod_RBV"	)
 	field( INPB, "10e-6" )
 	field( CALC, "A*B" )
-    field( HOPR, 32000    )
-    field( LOPR, 1        )
-    field( EGU,  "e-5sec"  )
+    field( EGU,  "sec"  )
 	field( FLNK, "$(P)$(R)AcquirePeriod_RBV PP MS"	)
 }
 record( ai, "$(P)$(R)AcquirePeriod_RBV"		)
 {
 	field( INP,  "$(P)$(R)OpalCalcAcquirePeriod_RBV NPP MS" )
-	field( OMSL, "closed_loop" )
 	field( DISA, "0" )
 }
 

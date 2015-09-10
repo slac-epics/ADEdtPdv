@@ -434,6 +434,7 @@ record( longout, "$(P)$(R)EdtDelayScale" )
 }
 record( longout, "$(P)$(R)EdtCamEventCode" )
 {
+	field( VAL,  "40" )
 	field( OUT,  "$(CAM_EC=Unused) CPP NMS" )
 	field( PINI, "YES" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
