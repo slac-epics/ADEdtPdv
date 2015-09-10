@@ -239,6 +239,14 @@ record( stringin, "$(P)$(R)EdtDrvVersion" )
 	info( archiveFields,  "VAL" )
 }
 
+record( stringin, "$(P)$(R)EdtLibVersion" )
+{
+	field( DTYP, "asynOctetRead" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_LIB_VERSION" )
+	field( SCAN, "I/O Intr" )
+	info( archiveFields,  "VAL" )
+}
+
 record( stringin, "$(P)$(R)EdtInfo" )
 {
 	field( DTYP, "asynOctetRead" )

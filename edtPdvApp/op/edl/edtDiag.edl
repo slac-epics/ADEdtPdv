@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 8
-y 1540
+x 699
+y 1247
 w 1064
 h 592
 font "helvetica-medium-r-8.0"
@@ -31,9 +31,9 @@ major 4
 minor 0
 release 0
 x 8
-y 428
+y 448
 w 336
-h 152
+h 132
 lineColor index 3
 fill
 fillColor index 3
@@ -46,7 +46,7 @@ major 4
 minor 1
 release 1
 x 8
-y 428
+y 440
 w 50
 h 20
 font "helvetica-bold-r-12.0"
@@ -67,7 +67,7 @@ release 0
 x 8
 y 52
 w 336
-h 368
+h 380
 lineColor index 3
 fill
 fillColor index 3
@@ -549,7 +549,7 @@ major 4
 minor 1
 release 1
 x 20
-y 224
+y 252
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -569,7 +569,7 @@ major 4
 minor 1
 release 1
 x 20
-y 196
+y 224
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -589,7 +589,7 @@ major 4
 minor 1
 release 1
 x 16
-y 252
+y 280
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -609,7 +609,7 @@ major 4
 minor 7
 release 0
 x 236
-y 196
+y 224
 w 100
 h 20
 controlPv "$(P)$(R)ArraySizeY_RBV"
@@ -634,7 +634,7 @@ major 4
 minor 7
 release 0
 x 148
-y 224
+y 252
 w 188
 h 20
 controlPv "$(P)$(R)ArraySize_RBV"
@@ -659,7 +659,7 @@ major 4
 minor 7
 release 0
 x 236
-y 252
+y 280
 w 100
 h 20
 controlPv "$(P)$(R)DataType_RBV"
@@ -684,7 +684,7 @@ major 4
 minor 7
 release 0
 x 148
-y 196
+y 224
 w 80
 h 20
 controlPv "$(P)$(R)ArraySizeX_RBV"
@@ -818,7 +818,7 @@ major 4
 minor 7
 release 0
 x 236
-y 308
+y 336
 w 100
 h 20
 controlPv "$(P)$(R)ColorMode_RBV"
@@ -843,7 +843,7 @@ major 4
 minor 1
 release 1
 x 16
-y 308
+y 336
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -863,7 +863,7 @@ major 4
 minor 7
 release 0
 x 236
-y 280
+y 308
 w 100
 h 20
 controlPv "$(P)$(R)BitsPerPixel_RBV"
@@ -888,7 +888,7 @@ major 4
 minor 1
 release 1
 x 16
-y 280
+y 308
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -950,7 +950,7 @@ major 4
 minor 7
 release 0
 x 236
-y 336
+y 364
 w 100
 h 20
 controlPv "$(P)$(R)HTaps_RBV"
@@ -975,7 +975,7 @@ major 4
 minor 7
 release 0
 x 236
-y 364
+y 392
 w 100
 h 20
 controlPv "$(P)$(R)VTaps_RBV"
@@ -1000,7 +1000,7 @@ major 4
 minor 1
 release 1
 x 16
-y 364
+y 392
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -1020,7 +1020,7 @@ major 4
 minor 1
 release 1
 x 16
-y 336
+y 364
 w 120
 h 20
 font "helvetica-medium-r-12.0"
@@ -1056,5 +1056,77 @@ value {
   "Camlink Data Overrun!"
 }
 autoSize
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 236
+y 192
+w 100
+h 20
+controlPv "$(P)$(R)EdtLibVersion"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+useAlarmBorder
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 148
+y 192
+w 80
+h 20
+controlPv "$(P)$(R)EdtDrvVersion"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+useAlarmBorder
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 20
+y 192
+w 120
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Driver / Lib Versions"
+}
 endObjectProperties
 

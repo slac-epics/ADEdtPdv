@@ -720,7 +720,7 @@ int edtPdvCamera::_Reconfigure( )
     pDD = pdv_alloc_dependent();
     if ( pDD == NULL )
 	{
-        asynPrint(	this->pasynUserSelf,	ASYN_TRACE_FLOW, 
+        asynPrint(	this->pasynUserSelf,	ASYN_TRACE_ERROR, 
 					"asynPrint "
 					"%s %s: ERROR, Cannot allocate PDV Dependent structure!\n",
 					driverName,		functionName );
@@ -753,7 +753,7 @@ int edtPdvCamera::_Reconfigure( )
 	// Read the config file
     if ( pdv_readcfg( m_ConfigFile.c_str(), pDD, &edtinfo ) )
 	{
-        asynPrint(	this->pasynUserSelf,	ASYN_TRACE_FLOW, 
+        asynPrint(	this->pasynUserSelf,	ASYN_TRACE_ERROR, 
 					"asynPrint "
 					"%s %s: ERROR, Invalid camera config file %s!\n",
 					driverName,		functionName,	m_ConfigFile.c_str() );
@@ -772,7 +772,7 @@ int edtPdvCamera::_Reconfigure( )
 	assert( m_pPdvDev->dd_p != pDD  );
     if ( pdv_initcam( m_pPdvDev, pDD, m_unit, &edtinfo, m_ConfigFile.c_str(), NULL, 1 ) )
 	{
-        asynPrint(	this->pasynUserSelf,	ASYN_TRACE_FLOW,
+        asynPrint(	this->pasynUserSelf,	ASYN_TRACE_ERROR,
 					"asynPrint "
 					"%s %s: ERROR, pdv_initcam failed!\n",
 					driverName,		functionName	);
@@ -789,16 +789,38 @@ int edtPdvCamera::_Reconfigure( )
 	setStringParam( ADManufacturer, m_CameraClass.c_str()	);
     setStringParam( EdtClass, 		m_CameraClass.c_str()	);
     setStringParam( EdtInfo,		m_CameraInfo.c_str()	);
+	
+	// Fetch the EDT driver and library versions and make sure they match
     char		buf[MAX_STRING_SIZE];
-    if ( edt_get_driver_version(	m_pPdvDev, buf, MAX_STRING_SIZE ) )
+    edt_get_driver_version(	m_pPdvDev, buf, MAX_STRING_SIZE );
+	m_DrvVersion = buf;
+	size_t end_of_vers = m_DrvVersion.find( " " );
+	if ( end_of_vers != string::npos )
 	{
-        m_DrvVersion = buf;
-		setStringParam( EdtDrvVersion, m_DrvVersion.c_str()	);
+		// The driver version has a date on the end that we don't care about
+		m_DrvVersion.erase( m_DrvVersion.find( " " ) );
 	}
-    if ( edt_get_library_version(	m_pPdvDev, buf, MAX_STRING_SIZE ) )
+	setStringParam( EdtDrvVersion, m_DrvVersion.c_str()	);
+
+    edt_get_library_version( m_pPdvDev, buf, MAX_STRING_SIZE );
+	m_LibVersion = buf;
+	setStringParam( EdtLibVersion, m_LibVersion.c_str()	);
+
+	if ( m_DrvVersion.find(m_LibVersion) == string::npos )
 	{
-        m_LibVersion = buf;
-		setStringParam( EdtLibVersion, m_LibVersion.c_str()	);
+		printf( 
+					"%s %s: ERROR, EDT driver version %s does not match lib version %s!\n",
+					driverName, functionName, m_DrvVersion.c_str(), m_LibVersion.c_str() );
+        asynPrint(	this->pasynUserSelf,	ASYN_TRACE_ERROR, 
+					"asynPrint "
+					"%s %s: ERROR, EDT driver version %s does not match lib version %s!\n",
+					driverName, functionName, m_DrvVersion.c_str(), m_LibVersion.c_str() );
+        return -1;
+    }
+	if ( DEBUG_EDT_PDV >= 2 )
+	{
+		printf( "%s: EDT Driver  version: %s\n", m_DrvVersion.c_str() ); 
+		printf( "%s: EDT Library version: %s\n", m_LibVersion.c_str() );
 	}
 
 	// Fetch the full image geometry parameters and write them to ADBase parameters
