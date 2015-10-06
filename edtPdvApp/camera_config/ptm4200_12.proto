@@ -1,0 +1,139 @@
+#
+InTerminator	= CR;
+OutTerminator	= CR;
+ReplyTimeout	= 800;
+ReadTimeout	= 100;
+WriteTimeout	= 100;
+ExtraInput	= Ignore;
+
+# Safe command to send to test communications
+ComTest
+{
+	out	":SHR?";	in	":o%*{M|A|D}S%*X";
+	@init { out	":SHR?";	in	":o%*{M|A|D}S%*X"; }
+}
+
+
+# Get shutter setting
+GetShutter
+{
+	out	":SHR?";	in	":o%*{M|A|D}S%X";
+	@init { out	":SHR?";	in	":o%*{M|A|D}S%X"; }
+}
+
+# Get shutter mode
+GetTriggerMode
+{
+	out ":SHR?";
+	in	":o%{M|A|D}S%*X";
+# or to grab the shutter setting to a PV
+# INP: @ptm4200_12.proto GetTriggerMode($(P)$(R)PulnixRawShutter)
+#	in	":o%{M|A|D}S%\$1X";
+	@init { out	":SHR?";	in	":o%{M|A|D}S%*X"; }
+}
+
+# Get shutter mode
+GetShutterMode
+{
+	out ":SHR?";
+	in	":o%{M|A|D}S%*X";
+	@init { out	":SHR?";	in	":o%{M|A|D}S%*X"; }
+}
+
+# Set direct shutter speed
+# Shutter stays open for specified number of scan lines
+#	0-XXX	-	Max depends on max scan line
+SetDirectShutter
+{
+	out	":DSH=%03X";	in	":o";
+}
+
+# Set manual shutter speed
+# Internal timing - free run mode
+#	0	-	Manual No Shutter
+#	1-8	-	1=1/60, 2=1/125, 3=1/250, 4=2/500, 5=1/1000, 6=1/2000, 7=1/4000, 8=1/8000, 9=1/16000
+SetManualShutter
+{
+	out	":MSH=%X";	in	":o";
+}
+
+# Set async shutter speed
+# External timing via VINIT trigger
+# Async Modes:
+#	0	-	Async No Shutter
+#	1-8	-	1=1/16000, 2=1/8000, 3=1/4000, 4=1/2000, 5=1/1000,6=1/500,7=1/250,8=1/125
+#	9	-	Async Pulse Width
+SetAsyncShutter
+{
+	out	":ASH=%X";	in	":o";
+}
+
+SetGainA
+{
+	out	":MGA=%03X";
+	in	":o";
+	wait 200;
+	out	":MGA?";
+	in  ":oMG%03X";
+	wait 200;
+	@init { out	":MGA?"; in      ":oMG%03X"; }
+}
+
+SetGainB
+{
+	out	":MGB=%03X";
+	in	":o";
+	wait 200;
+	out	":MGB?";
+    in  ":oSG%03X";
+	wait 200;
+	@init { out	":MGB?"; in      ":oSG%03X"; }
+}
+
+GetRefVoltA
+{
+	out	":VRA?";
+    in  ":oVA%03X";
+}
+
+GetRefVoltB
+{
+	out	":VRB?";
+    in  ":oVB%03X";
+}
+
+SetRefVoltA
+{
+	out	":VRA=%03X";
+	in	":o";
+	out	":VRA?";
+    in  ":oMF%03X";
+	@init { out	":VRA?"; in      ":oMF%03X"; }
+}
+
+SetRefVoltB
+{
+	out	":VRB=%03X";
+	in	":o";
+	out	":VRB?";
+    in  ":oSF%03X";
+	@init { out	":VRB?"; in      ":oSF%03X"; }
+}
+
+SetAutoGain
+{
+	out	":%{DABL|EABL}";
+	in	":o";
+}
+
+GetModel
+{
+	out	":CAM?";	in	":o%#s";
+	@init { out	":CAM?";	in	":o%#s"; }
+}
+
+GetVers
+{
+	out	":VER?";	in	":o%#s";
+	@init { out	":VER?";	in	":o%#s"; }
+}

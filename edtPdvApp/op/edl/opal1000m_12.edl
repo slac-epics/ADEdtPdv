@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 91
-y 1289
+x 95
+y 1313
 w 700
 h 579
 font "helvetica-medium-r-12.0"
@@ -1876,6 +1876,7 @@ limitsFromDb
 nullColor index 25
 smartRefresh
 useHexPrefix
+showUnits
 newPos
 objType "monitors"
 endObjectProperties
