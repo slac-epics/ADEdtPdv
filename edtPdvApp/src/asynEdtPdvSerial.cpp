@@ -194,10 +194,25 @@ asynEdtPdvSerial::pdvDevDisconnected(
 	return status;
 }
 
+bool isAscii( char * pBuf, int sBuf )
+{
+	if ( pBuf == NULL || sBuf == 0 )
+		return false;
+
+	char	*	pBufEnd	= pBuf + sBuf;
+	while ( pBuf < pBufEnd )
+	{
+		char	next = *pBuf++;
+		if ( next <= 0 || next >= 0x7F )
+			return false;
+	}
+	return true;
+}
+
 
 asynStatus	asynEdtPdvSerial::readOctet(
 	asynUser			*	pasynUser,
-	char				*	value,
+	char				*	pBuffer,
 	size_t					nBytesReadMax,
 	size_t				*	pnRead,
 	int					*	eomReason	)
@@ -240,12 +255,9 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	{
 		epicsMutexLock(m_serialLock);
 		/*
-		 * Let's get the timeout_ms semantics right:
-		 *	> 0 = wait for this many milliseconds.
-		 *	  0 = don't wait, just read what you have.
-		 *	< 0 = wait forever.
-		 * Note: Above was for edt_unix module
-		 * Now we need to follow streamdevice usage: <= 0 is don't wait, > 0 wpecifies delay in sec
+		 * Let's get the pasynUser->timeout semantics right:
+		 *	> 0 wait for this many seconds.
+		 *	<=0 don't wait, just read what you have.
 		 * In pdv_serial_wait, 0 = wait for the default time (1 sec?).
 		 */
 		int nAvailToRead	= 0;
@@ -268,7 +280,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 				nToRead = static_cast<int>(nBytesReadMax);
 			epicsMutexLock(m_serialLock);
 			if ( m_pPdvDev )
-				nRead = pdv_serial_read( m_pPdvDev, value, nToRead );
+				nRead = pdv_serial_read( m_pPdvDev, pBuffer, nToRead );
 			else
 				nRead = -1;
 			epicsMutexUnlock(m_serialLock);
@@ -276,7 +288,22 @@ asynStatus	asynEdtPdvSerial::readOctet(
 
 		if( nRead > 0 )
 		{
-			asynPrintIO(	pasynUser, ASYN_TRACEIO_DRIVER, value, nRead,
+			// Make sure we have a valid ascii response, and not garbage on the camlink Rx/Tx lines
+			if ( isAscii( pBuffer, strlen(pBuffer) ) == false )
+			{
+				epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize, "Invalid ascii response!" );
+				asynPrint(	pasynUser, ASYN_TRACE_ERROR,
+							"%s port %s: Read error: %s\n",
+							functionName, this->portName, pasynUser->errorMessage );
+				status = asynError;
+				m_fConnected = false;
+				pasynManager->exceptionDisconnect( pasynUser );
+				if ( eomReason )
+					*eomReason = ASYN_EOM_EOS;
+				break;		/* If we have an error, we're done. */
+			}
+
+			asynPrintIO(	pasynUser, ASYN_TRACEIO_DRIVER, pBuffer, nRead,
 							"%s: %s read %zu of %d\n", functionName, this->portName,
 							nRead, nAvailToRead );
 			break;			/* If we have something, we're done. */
@@ -310,7 +337,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	/* If there is room add a null byte */
 	if ( nRead < nBytesReadMax )
 	{
-		value[nRead] = 0;
+		pBuffer[nRead] = 0;
 		if ( eomReason )
 			*eomReason = ASYN_EOM_EOS;
 	}
@@ -321,8 +348,8 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	}
 
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
-				"%s: %s read %zu, status %d, value %s\n",
-				functionName, this->portName, nRead, status, value	);
+				"%s: %s read %zu, status %d, Buffer: %s\n",
+				functionName, this->portName, nRead, status, pBuffer	);
 
 	// Call the parameter callbacks
     callParamCallbacks();
