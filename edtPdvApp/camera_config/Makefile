@@ -18,6 +18,9 @@ MODELS += up900
 # Pulnix 6740 10 bit
 MODELS += ptm6740_10
 
+# Pulnix 4200 12 bit
+MODELS += ptm4200_12
+
 # Adimec Opal 1000 12bit
 MODELS += opal1000m_12
 
