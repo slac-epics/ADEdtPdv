@@ -178,7 +178,7 @@ template < class Dev, class Data >	class syncDataAcq
 				// Just spin on the reconfig delay till acquisition is enabled
 				if ( !m_fEnabled )
 				{
-					ACQ_TRACE(	ACQ_TRACE_DETAIL, "%s: Signal Acquisition disabled\n", functionName );
+					ACQ_TRACE(	ACQ_TRACE_DETAIL, "%s: Image Acquisition loop not enabled\n", functionName );
 					epicsThreadSleep( m_reconfigDelay );
 					continue;
 				}

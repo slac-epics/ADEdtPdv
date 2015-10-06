@@ -819,8 +819,8 @@ int edtPdvCamera::_Reconfigure( )
     }
 	if ( DEBUG_EDT_PDV >= 2 )
 	{
-		printf( "%s: EDT Driver  version: %s\n", m_DrvVersion.c_str() ); 
-		printf( "%s: EDT Library version: %s\n", m_LibVersion.c_str() );
+		printf( "EDT Driver  version: %s\n", m_DrvVersion.c_str() ); 
+		printf( "EDT Library version: %s\n", m_LibVersion.c_str() );
 	}
 
 	// Fetch the full image geometry parameters and write them to ADBase parameters
@@ -1341,12 +1341,6 @@ int edtPdvCamera::DeIntlvRoiOnly16( NDArray * pNDArray, void	*	pRawData )
 	assert( pNDArray->pData	!= NULL );
 	assert( pRawData		!= NULL );
     static const char	*	functionName	= "edtPdvCamera::DeIntlvRoiOnly16";
-	if ( DEBUG_EDT_PDV >= 4 )
-	{
-		printf( "%s: Image size %zu x %zu pixels, %u bits/pixel\n",
-				functionName, m_ClCurWidth, m_ClCurHeight, m_ClNumBits );
-		return(0);	// HACK to disable img copy
-	}
 	CONTEXT_TIMER( "DeIntlvRoiOnly16" );
 	// Image already de-interleaved in PDV library, just memcpy it here.
 	// memcpy( pNDArray->pData, pRawData, nBytes );
@@ -1361,6 +1355,7 @@ int edtPdvCamera::DeIntlvRoiOnly16( NDArray * pNDArray, void	*	pRawData )
 	return 0;
 }
 
+int fCheckFrameSync = 0;
 
 int edtPdvCamera::AcquireData( edtImage	*	pImage )
 {
@@ -1435,7 +1430,7 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 		pdv_start_image( m_pPdvDev );
 	}
 
-	// if ( m_fCheckFrameSync )
+	if ( fCheckFrameSync )
 	if ( m_TriggerMode != TRIGMODE_FREERUN && pdv_framesync_mode( m_pPdvDev ) != PDV_FRAMESYNC_OFF )
 	{
 		CONTEXT_TIMER( "AcquireData-pdv_check_framesync" );
@@ -1504,6 +1499,9 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 			}
 		}
 	}
+#ifdef	USE_DIAG_TIMER
+	m_ProcessImageTimer.StopTimer( );
+#endif	//	USE_DIAG_TIMER
 
 	unlock();
 
@@ -1701,6 +1699,7 @@ bool	 edtPdvCamera::IsSynced(
 // CheckData returns 0 on OK, non-zero on error
 int	 edtPdvCamera::CheckData(	edtImage	*	pImage	)
 {
+	CONTEXT_TIMER( "edtPdvCamera-CheckData" );
 	if ( pImage == NULL || m_pPdvDev == NULL )
 		return -1;
 
