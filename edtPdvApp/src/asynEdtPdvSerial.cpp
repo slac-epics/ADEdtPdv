@@ -185,12 +185,17 @@ asynEdtPdvSerial::pdvDevDisconnected(
 	asynStatus			status			= asynSuccess;
 	const char		*	functionName	= "asynEdtPdvSerial::pdvDevDisconnected";
 	if ( DEBUG_EDT_PDV >= 1 )
-		printf( "%s: %s Disconnecting\n", functionName, this->portName );
+		printf( "%s: %s Disconnecting ...\n", functionName, this->portName );
 
 	epicsMutexLock(m_serialLock);
+	if ( DEBUG_EDT_PDV >= 3 )
+		printf( "%s: %s Have serial lock ...\n", functionName, this->portName );
 	m_fConnected	= false;
 	m_pPdvDev		= NULL;
 	epicsMutexUnlock(m_serialLock);
+
+	if ( DEBUG_EDT_PDV >= 3 )
+		printf( "%s: %s Disconnected\n", functionName, this->portName );
 	return status;
 }
 
@@ -221,16 +226,14 @@ asynStatus	asynEdtPdvSerial::readOctet(
     static const char	*	functionName	= "asynEdtPdvSerial::readOctet";
     const char			*	reasonName		= "unknownReason";
 
-	getParamName( 0, pasynUser->reason, &reasonName );
-	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
-				"%s: %s nBytesReadMax %zu, reason %d %s\n",
-				functionName, this->portName, nBytesReadMax, pasynUser->reason, reasonName );
-
 	if ( pnRead )
 		*pnRead = 0;
 	if ( eomReason )
 		*eomReason = ASYN_EOM_EOS;
 
+#if 0
+// No need to check these now.
+// The tests below will read 0 bytes and set eomReason to timeout if not connected
 	if ( m_pPdvDev == NULL )
 	{
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
@@ -243,6 +246,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 						"%s Error: %s disconnected:", functionName, this->portName );
 		return asynError;
 	}
+#endif
 	if ( nBytesReadMax == 0 )
 	{
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
@@ -250,18 +254,24 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		return asynError;
 	}
 
-	size_t		nRead	= 0;
+	int		nRead	= 0;
 	for (;;)
 	{
 		epicsMutexLock(m_serialLock);
+		if ( DEBUG_EDT_PDV >= 4 )
+			printf( "%s: %s Have serial lock, nBytesReadMax %zu, timeout %e ...\n",
+					functionName, this->portName, nBytesReadMax, pasynUser->timeout );
 		/*
-		 * Let's get the pasynUser->timeout semantics right:
-		 *	> 0 wait for this many seconds.
-		 *	<=0 don't wait, just read what you have.
+		 * Let's get the timeout_ms semantics right:
+		 *	> 0 = wait for this many milliseconds.
+		 *	  0 = don't wait, just read what you have.
+		 *	< 0 = wait forever.
+		 * Note: Above was for edt_unix module
+		 * Now we need to follow streamdevice usage: <= 0 is don't wait, > 0 specifies delay in sec
 		 * In pdv_serial_wait, 0 = wait for the default time (1 sec?).
 		 */
 		int nAvailToRead	= 0;
-		if ( m_pPdvDev )
+		if ( m_pPdvDev && m_fConnected )
 		{
 			if ( pasynUser->timeout > 0 )
 			{
@@ -272,20 +282,37 @@ asynStatus	asynEdtPdvSerial::readOctet(
 				nAvailToRead = pdv_serial_get_numbytes( m_pPdvDev );
 		}
 		epicsMutexUnlock(m_serialLock);
+		if ( DEBUG_EDT_PDV >= 4 )
+			printf( "%s: %s Released serial lock, nAvailToRead %d ...\n", functionName, this->portName, nAvailToRead );
 
 		if( nAvailToRead > 0 )
 		{
 			int		nToRead	= nAvailToRead;
 			if( nToRead > static_cast<int>(nBytesReadMax) )
+			{
+				if ( DEBUG_EDT_PDV >= 3 )
+					printf( "%s: %s Clipping nAvailToRead %d to nBytesReadMax %zu\n",
+							functionName, this->portName, nAvailToRead, nBytesReadMax );
 				nToRead = static_cast<int>(nBytesReadMax);
+			}
+			getParamName( 0, pasynUser->reason, &reasonName );
+			asynPrint(	pasynUser, ASYN_TRACE_FLOW,
+						"%s: %s nToRead %d, reason %d %s\n",
+						functionName, this->portName, nToRead, pasynUser->reason, reasonName );
+
 			epicsMutexLock(m_serialLock);
-			if ( m_pPdvDev )
+			if ( DEBUG_EDT_PDV >= 3 )
+				printf( "%s: %s Have serial lock, reading %d ...\n", functionName, this->portName, nToRead );
+			if ( m_pPdvDev && m_fConnected )
 				nRead = pdv_serial_read( m_pPdvDev, pBuffer, nToRead );
 			else
 				nRead = -1;
 			epicsMutexUnlock(m_serialLock);
+			if ( DEBUG_EDT_PDV >= 3 )
+				printf( "%s: %s Released serial lock, read %d ...\n", functionName, this->portName, nRead );
 		}
 
+		// If we read something
 		if( nRead > 0 )
 		{
 			// Make sure we have a valid ascii response, and not garbage on the camlink Rx/Tx lines
@@ -308,25 +335,26 @@ asynStatus	asynEdtPdvSerial::readOctet(
 							nRead, nAvailToRead );
 			break;			/* If we have something, we're done. */
 		}
-		else
+
+		// Handle errors
+		if (	(nAvailToRead < 0 || nRead < 0)
+				&&	(errno != EWOULDBLOCK)
+				&&	(errno != EINTR)
+				&&	(errno != EAGAIN) )
 		{
-			if (	(nAvailToRead < 0 || nRead < 0)
-					&&	(errno != EWOULDBLOCK)
-					&&	(errno != EINTR)
-					&&	(errno != EAGAIN) )
-			{
-				epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
-								"%s: %s read error: %s\n",
-								functionName, this->portName, strerror(errno)	);
-				status = asynError;
-				break;		/* If we have an error, we're done. */
-			}
+			epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
+							"%s: %s read error: %s\n",
+							functionName, this->portName, strerror(errno)	);
+			status = asynError;
+			break;		/* If we have an error, we're done. */
 		}
 		if ( pasynUser->timeout > 0 )
 			break;			/* If we aren't waiting forever, we're done. */
 	}
+	if ( DEBUG_EDT_PDV >= 4 )
+		printf( "%s: %s Read %d\n", functionName, this->portName, nRead );
 
-	if ( nRead == 0 && (status == asynSuccess))	/* If we don't have anything, not even an error	*/
+	if ( nRead == 0 && (pasynUser->timeout > 0) && (status == asynSuccess))	/* If we don't have anything, not even an error	*/
 	{
 		status = asynTimeout;					/* then we must have timed out.					*/
 		if ( eomReason )
@@ -335,24 +363,29 @@ asynStatus	asynEdtPdvSerial::readOctet(
 
 	*pnRead = nRead;
 	/* If there is room add a null byte */
-	if ( nRead < nBytesReadMax )
+	if ( nRead < static_cast<int>( nBytesReadMax ) )
 	{
 		pBuffer[nRead] = 0;
 		if ( eomReason )
 			*eomReason = ASYN_EOM_EOS;
 	}
-	else if ( nRead == nBytesReadMax )
+	else if ( nRead == static_cast<int>( nBytesReadMax ) )
 	{
 		if ( eomReason )
 			*eomReason = ASYN_EOM_CNT;
 	}
 
-	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
-				"%s: %s read %zu, status %d, Buffer: %s\n",
-				functionName, this->portName, nRead, status, pBuffer	);
+	if ( nRead > 0 )
+	{
+		if ( DEBUG_EDT_PDV >= 3 )
+			printf( "%s: %s Read %d: %s\n", functionName, this->portName, nRead, pBuffer );
+		asynPrint(	pasynUser, ASYN_TRACE_FLOW,
+					"%s: %s read %zu, status %d, Buffer: %s\n",
+					functionName, this->portName, nRead, status, pBuffer	);
 
-	// Call the parameter callbacks
-    callParamCallbacks();
+		// Call the parameter callbacks
+		callParamCallbacks();
+	}
 
     return status;
 }

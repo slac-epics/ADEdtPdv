@@ -714,6 +714,11 @@ int edtPdvCamera::_Reconfigure( )
         return -1;
 	}
 
+	if ( DEBUG_EDT_PDV >= 1 )
+	{
+		printf( "%s: %s in thread %s ...\n", functionName, m_CameraName.c_str(), epicsThreadGetNameSelf() );
+	}
+
 	// Read the config file
     Edtinfo			edtinfo;
 	Dependent	*	pDD;			// Pointer to PDV dependent information.
@@ -1086,6 +1091,11 @@ int edtPdvCamera::GetEdtDebugMsgLevel( )
 
 asynStatus	edtPdvCamera::UpdateStatus( int	newStatus	)
 {
+	if ( DEBUG_EDT_PDV >= 4 )
+	{
+    	static const char	*	functionName = "edtPdvCamera::UpdateStatus";
+		printf( "%s: %s in thread %s ...\n", functionName, m_CameraName.c_str(), epicsThreadGetNameSelf() );
+	}
 	CONTEXT_TIMER( "edtPdvCamera-UpdateStatus" );
 	//	Context timer shows these next two calls take about 20us
 	asynStatus		status	= setIntegerParam( ADStatus, ADStatusIdle );
@@ -1631,18 +1641,22 @@ int	edtPdvCamera::ProcessData(
 		// Set the NDArray EPICS timestamp and unique ID
 		if ( DEBUG_EDT_PDV >= 4 )
 			printf(	"%s: Timestamp image w/ pulseID %d, 0x%X\n", functionName, pulseID, pulseID );
+		
+		// NDArray has two timestamps.
+		//	epicsTimeStamp	NDArray::epicsTS	is epics sec and ns relative to 1990
 		pNDArray->epicsTS	= *pTimeStamp;
 		pNDArray->uniqueId	= pulseID;
+
+		// Compute POSIX timeStamp in floating point
+		//	double			NDArray::timeStamp	is seconds since 1970
+		pNDArray->timeStamp	= POSIX_TIME_AT_EPICS_EPOCH + pTimeStamp->secPastEpoch
+							+ pTimeStamp->nsec * 1e-9;
 
 		//
 		// asynPortDriver also allows us to provide custom routines:
 		//	getTimeStamp(epicsTimeStamp * pTS)
 		//	setTimeStamp(const epicsTimeStamp * pTS)
 		// Not sure if these will be needed.
-		//
-		// NDArray has two timestamps.
-		//	double			NDArray::timeStamp	is seconds since 1970
-		//	epicsTimeStamp	NDArray::epicsTS	is epics sec and ns relative to 1990
 		//
 		// asyn PV's normally get their timestamp from
 		//	epicsTimeStamp	asynUser::timestamp
