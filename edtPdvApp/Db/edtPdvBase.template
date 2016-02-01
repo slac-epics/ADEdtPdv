@@ -37,16 +37,19 @@ record( ai, "$(P)$(R)AcquirePeriod_RBV"		) { field( DISA, "1" ) }
 # This record should be overridden in $MODEL.db, replacing "UknownModel" with
 # the chosen camera model.
 # PINI is NO here so PV status is UDF, but should be set to YES in $MODEL.db
-record( stringin, "$(P)$(R)EdtModel" )
+record( stringin, "$(P)$(R)CamModel" )
 {
 	field( VAL,  "UnknownModel" )
 	field( PINI, "NO" )
 }
-record( stringin, "$(P)$(R)EdtModelScreen" )
+record( stringin, "$(P)$(R)CamModelScreen" )
 {
 	field( VAL,  "edtPdvScreens/UnknownModel.edl" )
 	field( PINI, "NO" )
 }
+# Provide alias to old EdtModel* PV's for a while to ease transition to CamModel*
+alias( "$(P)$(R)CamModel",		 "$(P)$(R)EdtModel" )
+alias( "$(P)$(R)CamModelScreen", "$(P)$(R)EdtModelScreen" )
 
 # TODO:  We need a generic EdtReConfigCount PV here that
 # gets incremented each time the driver reconfigures the camera.
@@ -520,4 +523,53 @@ record( calc, "$(P)$(R)EdtBeamRepDur" )
 	field( PREC, "3" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC VAL" )
+}
+
+
+record( ao, "$(P)$(R)XmitRate" )
+{
+    field( DOL,  "1.0e6" )
+    field( EGU,  "Bytes/Sec" )
+    field( PREC, "3" )
+    info( autosaveFields, "VAL" )
+}
+
+record( ao, "$(P)$(R)CamProcDelay" )
+{
+    field( DOL,  "1.0e-6" )
+    field( EGU,  "Sec" )
+    field( PREC, "3" ) 
+    field( PINI, "YES" )
+    info( autosaveFields, "VAL" )
+}
+
+record( calc, "$(P)$(R)XmitDelay" )
+{
+    field( INPA, "$(P)$(R)ArraySize_RBV CP MS" )
+    field( INPB, "$(P)$(R)XmitRate CPP MS" )
+    field( INPC, "$(P)$(R)CamProcDelay CPP MS" )
+    field( CALC, "A/B+C" )
+    field( EGU,  "Bytes/Sec" )
+}
+
+record( ao, "$(P)$(R)DriverProcDelay" )
+{
+    field( DOL,  "1.0e-6" )
+    field( EGU,  "Sec" )
+    field( PREC, "3" ) 
+    field( PINI, "YES" )
+    info( autosaveFields, "VAL" )
+}
+
+# TrigToTS_Calc: Expected delay from trigger to timeStamp update 
+# TODO: Add INPA as trigger delay
+record( calc, "$(P)$(R)TrigToTS_Calc" )
+{
+    field( INPA, "0" )
+    field( INPB, "$(P)$(R)XmitDelay CP MS" )
+    field( INPC, "$(P)$(R)AcquireTime_RBV CP MS" )
+    field( INPD, "$(P)$(R)DriverProcDelay CP MS" )
+    field( CALC, "A+B+C+D" )
+    field( EGU,  "sec" )
+    field( PREC, "5" ) 
 }
