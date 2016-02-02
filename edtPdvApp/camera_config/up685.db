@@ -3,13 +3,13 @@
 # UNIQ UP685/UP685CL Camera
 #
 
-record( stringin, "$(P)$(R)EdtModel" )
+record( stringin, "$(P)$(R)CamModel" )
 {
 	field( VAL,  "up685" )
 	field( PINI, "YES" )
 }
 
-record( stringin, "$(P)$(R)EdtModelScreen" )
+record( stringin, "$(P)$(R)CamModelScreen" )
 {
 	field( VAL,  "edtPdvScreens/up685.edl" )
 	field( PINI, "YES" )
@@ -214,3 +214,22 @@ record( stringin, "$(P)$(R):ID" )
 	field( DESC,	"Camera reported model" )
 	field( VAL,	"UP685" )
 }
+
+# Effective transmit rate is 40Mhz PixelClock
+record( ao, "$(P)$(R)XmitRate" )
+{
+    field( DOL,  "40.0e6" )
+    field( EGU,  "Bytes/Sec" )
+    field( PREC, "3" )
+    field( PINI, "YES" )
+    info( autosaveFields, "VAL" )
+}   
+
+
+# Possible TODO: Add support for
+#	WB,WB?	Set and read white balance, Color cameras only
+#	OFS,OFS? Set and read black offset, Color cameras only
+#	USIx;y and USI?x	Set and read user defined integers
+#	USSx;y and USS?x	Set and read user defined strings
+#	RQ		Initiate soft request readout
+#	ROIx;y;w;h		Set ROI x offset, y offset, width, and height

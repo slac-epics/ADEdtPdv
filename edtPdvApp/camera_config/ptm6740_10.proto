@@ -21,15 +21,11 @@ GetShutter
 	@init { out	":SHR?";	in	":o%*{M|A|D}S%X"; }
 }
 
-# Get shutter mode
+# Get shutter trigger mode
+# This one should be used w/ SCAN set to "I/O Intr"
 GetTriggerMode
 {
-	out ":SHR?";
-	in	":o%{M|A|D}S%*X";
-# or to grab the shutter setting to a PV
-# INP: @ptm6740_10.proto GetTriggerMode($(P)$(R)PulnixRawShutter)
-#	in	":o%{M|A|D}S%\$1X";
-	@init { out	":SHR?";	in	":o%{M|A|D}S%*X"; }
+	out	":SHR?";	in	":o%{M|A|D}S%*X";
 }
 
 # Set direct shutter speed

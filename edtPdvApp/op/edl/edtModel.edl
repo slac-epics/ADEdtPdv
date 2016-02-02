@@ -115,7 +115,7 @@ x 4
 y 16
 w 200
 h 20
-controlPv "$(P)$(R)EdtModel"
+controlPv "$(P)$(R)CamModel"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 14
@@ -143,7 +143,7 @@ fgColor index 14
 bgColor index 0
 topShadowColor index 1
 botShadowColor index 11
-filePv "$(P)$(R)EdtModelScreen"
+filePv "$(P)$(R)CamModelScreen"
 numDsps 0
 noScroll
 endObjectProperties

@@ -2,19 +2,30 @@
 # EPICS database for
 # Pulnix 6740 Camera in 10 bit mode
 #
+# Protocol root must match db filename root
+# i.e. ptm6740_10.proto
 
-record( stringin, "$(P)$(R)EdtModel" )
+record( stringin, "$(P)$(R)CamModel" )
 {
 	field( VAL,  "ptm6740_10" )
 	field( PINI, "YES" )
 }
 
-record( stringin, "$(P)$(R)EdtModelScreen" )
+record( stringin, "$(P)$(R)CamModelScreen" )
 {
 	field( VAL,  "edtPdvScreens/ptm6740_10.edl" )
 	field( PINI, "YES" )
 }
 
+# Provide defaults for ADCore SizeX and SizeY
+record( longout, "$(P)$(R)SizeX" )
+{
+	field( VAL, "640" )
+}
+record( longout, "$(P)$(R)SizeY" )
+{
+	field( VAL, "480" )
+}
 
 # Redirect FLNK's from Gain to EdtGain to PulnixGain
 # Gain and EdtGain use range 0..100
@@ -53,6 +64,7 @@ record( longout, "$(P)$(R)PulnixGainOffset" )
 {
 	field( DESC, "Offset between gain halves" )
 	field( DOL,	 "0" )
+	field( PINI, "YES" )
 	field( FLNK, "$(P)$(R)PulnixGainA" )
 	info( autosaveFields, "VAL" )
 }
@@ -82,21 +94,25 @@ record( longout, "$(P)$(R)PulnixSetGainA" )
 {
 	field( DESC, "Set camera gain A" )
 	field( OMSL, "closed_loop" )
-	field( DOL,	 "$(P)$(R)PulnixGainA CPP" )
+	field( DOL,	 "$(P)$(R)PulnixGainA NPP" )
 	field( DTYP, "stream" )
 	field( OUT,	 "@ptm6740_10.proto SetGainA $(PORT).SER" )
 	field( DRVH, "0x1E8" )
 	field( DRVL, "0x042" )
+	field( HOPR, "0x1E8" )
+	field( LOPR, "0x042" )
 }
 record( longout, "$(P)$(R)PulnixSetGainB" )
 {
 	field( DESC, "Set camera gain B" )
 	field( OMSL, "closed_loop" )
-	field( DOL,	 "$(P)$(R)PulnixGainB CPP" )
+	field( DOL,	 "$(P)$(R)PulnixGainB NPP" )
 	field( DTYP, "stream" )
 	field( OUT,	 "@ptm6740_10.proto SetGainB $(PORT).SER" )
 	field( DRVH, "0x1E8" )
 	field( DRVL, "0x042" )
+	field( HOPR, "0x1E8" )
+	field( LOPR, "0x042" )
 }
 
 record( longout, $(P)$(R)EdtReConfigCount )
@@ -108,7 +124,6 @@ record( fanout, $(P)$(R)PulnixReReadFanout )
 	field( LNK1, "$(P)$(R)PulnixRefVoltA_RBV" )
 	field( LNK2, "$(P)$(R)PulnixRefVoltB_RBV" )
 	field( LNK3, "$(P)$(R)PulnixGetRawShutter" )
-	field( LNK4, "$(P)$(R)PulnixGetRawTriggerMode" )
 	field( LNK5, "$(P)$(R)PulnixModelID_RBV" )
 	field( LNK6, "$(P)$(R)PulnixFirmware_RBV" )
 }
@@ -121,6 +136,8 @@ record( longout, "$(P)$(R)PulnixRefVoltA" )
 	field( OUT,	 "@ptm6740_10.proto SetRefVoltA $(PORT).SER" )
 	field( DRVL, "0x000" )
 	field( DRVH, "0x1FF" )
+	field( LOPR, "0x000" )
+	field( HOPR, "0x1FF" )
 	field( PINI, "YES" )
 	info( autosaveFields, "VAL" )
 }
@@ -129,8 +146,9 @@ record( longin, "$(P)$(R)PulnixRefVoltA_RBV" )
 	field( DESC, "Get ref voltage for ch A" )
 	field( DTYP, "stream" )
 	field( INP,	 "@ptm6740_10.proto GetRefVoltA $(PORT).SER" )
+	field( LOPR, "0x000" )
+	field( HOPR, "0x1FF" )
 	field( PINI, "YES" )
-	info( autosaveFields, "VAL" )
 }
 
 
@@ -141,6 +159,8 @@ record( longout, "$(P)$(R)PulnixRefVoltB" )
 	field( OUT,	 "@ptm6740_10.proto SetRefVoltB $(PORT).SER" )
 	field( DRVL, "0x000" )
 	field( DRVH, "0x1FF" )
+	field( LOPR, "0x000" )
+	field( HOPR, "0x1FF" )
 	field( PINI, "YES" )
 	info( autosaveFields, "VAL" )
 }
@@ -149,8 +169,9 @@ record( longin, "$(P)$(R)PulnixRefVoltB_RBV" )
 	field( DESC, "Get ref voltage for ch B" )
 	field( DTYP, "stream" )
 	field( INP,	 "@ptm6740_10.proto GetRefVoltB $(PORT).SER" )
+	field( LOPR, "0x000" )
+	field( HOPR, "0x1FF" )
 	field( PINI, "YES" )
-	info( autosaveFields, "VAL" )
 }
 
 record( ao, "$(P)$(R)AcquireTime" )
@@ -195,6 +216,7 @@ record( calcout, "$(P)$(R)PulnixExtTrigAcquireTime" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
+
 # PulnixPulseAcquireTime
 # For pulse width, we use Async setting 9 and
 # write the AcquireTime to the trigger pulse width
@@ -219,7 +241,26 @@ record( longin, "$(P)$(R)PulnixGetRawShutter" )
 	field( DTYP, "stream" )
 	field( INP,	 "@ptm6740_10.proto GetShutter $(PORT).SER " )
 	field( PINI, "YES" )
-	field( FLNK, "$(P)$(R)PulnixShutterReadSelect" )
+#	field( FLNK, "$(P)$(R)PulnixShutterReadSelect" )
+	field( FLNK, "$(P)$(R)PulnixGetRawTriggerMode" )
+}
+
+# Sends :SHR?
+# Recvs o<mode>S<num>
+# where mode is:
+#	A - Async  shutter mode
+#	D - Direct shutter mode
+#	M - Manual shutter mode
+# and num is an integer whose meaning varies w/ the shutter mode
+record( longin, "$(P)$(R)PulnixGetRawTriggerMode" )
+{
+	field( DESC, "Raw shutter trigger mode" )
+	field( DTYP, "stream" )
+	field( INP,	 "@ptm6740_10.proto GetTriggerMode $(PORT).SER " )
+# I/O Intr not working in current streamDevice version
+#	field( SCAN, "I/O Intr" )
+	field( TPRO, "2" )
+	field( FLNK, "$(P)$(R)PulnixCalcTriggerMode" )
 }
 
 record( longout, "$(P)$(R)PulnixRawShutter" )
@@ -311,23 +352,16 @@ record( mbbo, "$(P)$(R)PulnixTriggerMode" )
 	field( TWVL, "2" )	field( TWST, "Pulse" )
 	field( FLNK, "$(P)$(R)PulnixShutterCmdSelect" )
 }
-#
-record( longin, "$(P)$(R)PulnixGetRawTriggerMode" )
-{
-	field( DESC, "Raw Numeric shutter value" )
-	field( DTYP, "stream" )
-	field( INP,	 "@ptm6740_10.proto GetTriggerMode $(PORT).SER " )
-	field( PINI, "YES" )
-	field( FLNK, "$(P)$(R)PulnixCalcTriggerMode" )
-}
+
 record( calcout, "$(P)$(R)PulnixCalcTriggerMode" )
 {
 	field( INPA,  "$(P)$(R)PulnixGetRawTriggerMode NPP NMS"  )
-	field( INPB,  "$(P)$(R)PulnixGetRawShutter PP NMS"  )
+	field( INPB,  "$(P)$(R)PulnixGetRawShutter NPP NMS"  )
 	field( CALC,  "A==0?0:(A==1?(B!=9?1:2):3)" )
 	field( PREC, "0" )
 	field( OUT,  "$(P)$(R)PulnixTriggerMode_RBV PP MS" )
-	field( FLNK, "$(P)$(R)PulnixPulseAcquireTime" )
+#	field( FLNK, "$(P)$(R)PulnixPulseAcquireTime" )
+	field( FLNK, "$(P)$(R)PulnixShutterReadSelect" )
 }
 record( mbbi, "$(P)$(R)PulnixTriggerMode_RBV" )
 {
@@ -361,7 +395,7 @@ record( dfanout, "$(P)$(R)PulnixShutterCmdFanout" )
 	field( OUTA, "$(P)$(R)PulnixSetFreeRunShutter.PROC PP" )
 	field( OUTB, "$(P)$(R)PulnixSetExtTrigShutter.PROC PP" )
 	field( OUTC, "$(P)$(R)PulnixSetPulseShutter.PROC PP" )
-	field( FLNK, "$(P)$(R)PulnixGetRawTriggerMode" )
+	field( FLNK, "$(P)$(R)PulnixGetRawShutter" )
 }
 
 record( longout, "$(P)$(R)PulnixSetExtTrigShutter" )
@@ -437,6 +471,8 @@ record( bo, "$(P)$(R)PulnixAutoGain" )
 	field( OUT,	 "@ptm6740_10.proto SetAutoGain $(PORT).SER" )
 	field( ZNAM, "Disabled" )
 	field( ONAM, "Enabled" )
+	field( PINI, "YES" )
+	info( autosaveFields, "VAL" )
 }
 
 record( stringin, "$(P)$(R)PulnixModelID_RBV" )
@@ -454,3 +490,22 @@ record( stringin, "$(P)$(R)PulnixFirmware_RBV" )
 	field( INP,	 "@ptm6740_10.proto GetVers $(PORT).SER" )
 	field( PINI, "YES" )
 }
+
+# Effective transmit rate is 40Mhz PixelClock * 2 HTaps
+record( ao, "$(P)$(R)XmitRate" )
+{
+    field( DOL,  "80.0e6" )
+    field( EGU,  "Bytes/Sec" )
+    field( PREC, "3" )
+    field( PINI, "YES" )
+    info( autosaveFields, "VAL" )
+}   
+
+
+# Possible TODO: Add support for
+#	WB,WB?	Set and read white balance, Color cameras only
+#	OFS,OFS? Set and read black offset, Color cameras only
+#	USIx;y and USI?x	Set and read user defined integers
+#	USSx;y and USS?x	Set and read user defined strings
+#	RQ		Initiate soft request readout
+#	ROIx;y;w;h		Set ROI x offset, y offset, width, and height

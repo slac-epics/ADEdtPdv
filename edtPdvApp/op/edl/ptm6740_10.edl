@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1928
-y 1141
+x 280
+y 1706
 w 700
 h 600
 font "helvetica-medium-r-12.0"
@@ -110,7 +110,7 @@ major 4
 minor 1
 release 1
 x 32
-y 188
+y 152
 w 172
 h 20
 font "helvetica-medium-r-12.0"
@@ -157,30 +157,6 @@ y 32
 w 176
 h 20
 controlPv "$(P)$(R)PulnixModelID_RBV"
-font "helvetica-medium-r-12.0"
-fontAlign "center"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 25
-smartRefresh
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 212
-y 188
-w 108
-h 20
-controlPv "$(P)$(R)PulnixRefVoltB_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -582,32 +558,6 @@ value {
 }
 endObjectProperties
 
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 212
-y 164
-w 108
-h 20
-controlPv "$(P)$(R)PulnixRefVoltA_RBV"
-font "helvetica-medium-r-12.0"
-fontAlign "center"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 40
-smartRefresh
-useHexPrefix
-showUnits
-newPos
-objType "monitors"
-noExecuteClipMask
-endObjectProperties
-
 # (Static Text)
 object activeXTextClass
 beginObjectProperties
@@ -615,7 +565,7 @@ major 4
 minor 1
 release 1
 x 32
-y 164
+y 128
 w 172
 h 20
 font "helvetica-medium-r-12.0"
@@ -1279,5 +1229,313 @@ bgColor index 3
 value {
   "AcquireTime"
 }
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 212
+y 260
+w 52
+h 20
+controlPv "$(P)$(R)PulnixGainB"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 25
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 212
+y 236
+w 52
+h 20
+controlPv "$(P)$(R)PulnixGainA"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 92
+y 260
+w 112
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Gain B"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 92
+y 236
+w 112
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Gain A"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 92
+y 208
+w 112
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Gain Offset"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 212
+y 208
+w 108
+h 20
+controlPv "$(P)$(R)PulnixGainOffset"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 92
+y 180
+w 112
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Auto Gain Control"
+}
+endObjectProperties
+
+# (Bar)
+object activeBarClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 272
+y 236
+w 52
+h 20
+indicatorColor index 15
+fgColor index 14
+bgColor index 12
+indicatorPv "$(P)$(R)PulnixSetGainA"
+font "helvetica-medium-r-12.0"
+limitsFromDb
+scaleFormat "FFloat"
+endObjectProperties
+
+# (Bar)
+object activeBarClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 272
+y 260
+w 52
+h 20
+indicatorColor index 15
+fgColor index 14
+bgColor index 12
+indicatorPv "$(P)$(R)PulnixSetGainB"
+font "helvetica-medium-r-12.0"
+limitsFromDb
+scaleFormat "FFloat"
+endObjectProperties
+
+# (Bar)
+object activeBarClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 272
+y 128
+w 52
+h 20
+indicatorColor index 15
+fgColor index 14
+bgColor index 12
+indicatorPv "$(P)$(R)PulnixRefVoltA_RBV"
+font "helvetica-medium-r-12.0"
+limitsFromDb
+scaleFormat "FFloat"
+endObjectProperties
+
+# (Bar)
+object activeBarClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 272
+y 152
+w 52
+h 20
+indicatorColor index 15
+fgColor index 14
+bgColor index 12
+indicatorPv "$(P)$(R)PulnixRefVoltA_RBV"
+font "helvetica-medium-r-12.0"
+limitsFromDb
+scaleFormat "FFloat"
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 212
+y 128
+w 52
+h 20
+controlPv "$(P)$(R)PulnixRefVoltA"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 212
+y 152
+w 52
+h 20
+controlPv "$(P)$(R)PulnixRefVoltB"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 212
+y 180
+w 108
+h 20
+fgColor index 25
+fgAlarm
+onColor index 5
+offColor index 3
+inconsistentColor index 40
+topShadowColor index 1
+botShadowColor index 11
+controlPv "$(P)$(R)PulnixAutoGain"
+onLabel "AutoGain"
+offLabel "No AutoGain"
+3d
+font "helvetica-medium-r-12.0"
+objType "controls"
 endObjectProperties
 
