@@ -27,9 +27,9 @@ CONFIG=$(EPICS_BASE)/configure
 # Define the version(s) of any other needed modules 
 # ===============================================================
 # Example
-ADCORE_MODULE_VERSION		= R2.1-0.3.0
-ASYN_MODULE_VERSION			= R4.23-0.4.0
-DIAG_TIMER_MODULE_VERSION	= R1.6.0
+ADCORE_MODULE_VERSION		= R2.1-0.4.0
+ASYN_MODULE_VERSION			= R4.23-0.5.0
+DIAG_TIMER_MODULE_VERSION	= R1.7.0
 
 # ============================================================
 # External Support module path definitions

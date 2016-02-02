@@ -1,0 +1,97 @@
+#==============================================================
+#
+#  Name: README
+#
+#  Rem:	This is a driver for the EDT frame grabber with support
+#		for various cameras compatible with the camera-link interface.
+#
+#==============================================================
+#
+EPICS Verions:
+--------------
+This driver has currently been built and tested at SLAC with EPICS 3.14.12
+
+Operating System:
+-------------------
+This driver has been tested for linux-x86_64 on RHEL-5
+and for linuxRT_glibc_x86_64
+
+Driver Installation:
+-------------------
+The driver files drom EDT are installed in /opt/EDTpdv.
+To install, run as root:
+	/opt/EDTpdv/pcds_edtinit start
+
+This can be added to /reg/d/iocCommon/<your_ioc_host>/startup.cmd
+to run when the linux system is started.
+This is necessary for diskless nodes, as the EDT driver is not installed
+by the boot image.
+
+RCX Modules:
+------------------
+At SLAC, we commonly deploy EDT cameras using RCX C-Link converters
+which are used to send the camlink signals over fiber and back to
+camlink on the other end.   The RCX boxes come pre-programmed with
+a blink code, and the blink codes need to match your camera and setup.
+
+If needed, you can change the blink codes.
+See https://confluence.slac.stanford.edu/display/PCDS/Controls+Cameras
+to find the RCX manual for how to set the blink codes.
+NOTE: If you change a blink code, mark the RCX to show the new code!!!
+
+RCX Blink Codes:
+Camera-Model	Camera-End		Framegrabber-End
+UNIQ UP900-CL		1-2				2-2
+UNIQ UP685-CL		1-2				2-2
+Pulnix 6740			1-2				2-2
+Opal 1000			1-4				2-4
+
+Note: Up until Oct 2011, we've been using 1-1/2-1 for the UNIQ
+cameras, but we recently found that the UP685 needs code 2-2 on
+the framegrabber end when using a PCIe8 DV-CL framegrabber.
+As this code also works for our other EDT framegrabbers and UNIQ
+cameras, I've changed my recommendation from 1-1/2-1 to 1-2/2-2.
+
+How to use this module in your IOC
+------------------
+1.	Add the following lines in your iocTop/configure/RELEASE:
+ADEDTPDV_MODULE_VERSION=R0.4.0   (use current version here)
+ADEDTPDV=$(EPICS_MODULES)/ADEdtPdv/$(ADEDTPDV_MODULE_VERSION)
+
+2.  
+
+3.	Add the following lines in your <appName>/Db/Makefile:
+ DB += ?.db
+
+4.	Add the following lines in your <appName>/src/Makefile:
+<appName>_DBD += commonDriverSupport.dbd
+<appName>_DBD += edtPdvSupport.dbd
+<appName>_DBD += stream.dbd
+<appName>_LIBS += ADBase
+<appName>_LIBS += stream
+<appName>_LIBS += edtPdv
+<appName>_LIBS += pdv
+
+Add the following lines in your iocBoot/ioc<iocName>/st.cmd,
+# TODO - fill in here
+
+5. General notes
+	The camera won't take pictures without a trigger signal connected to
+	the lemo input to the camera.
+
+	Without a lens, your images will likely be all white or all black
+	depending on how much light reaches the camera.
+
+	The camera images can be large.  This can cause failures to read
+	images across gateways or via edm if EPICS_CA_MAX_ARRAY is too small!
+
+	The videowidget TwoDProfileMonitor may need to be added to edm so you can display images.
+
+	When you configure the TwoDProfileMonitor widget, the Data Width must match
+	the number of columns in your images.  Widget width and height can vary, but
+	you'll get the best images if they are scaled down by 1/2, 1/4, etc.
+
+	If you want to reduce the amount of data in the images and you don't need
+	the entire image, you can define a region of interest and clip the image
+	to that region.
+

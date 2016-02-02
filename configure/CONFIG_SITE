@@ -24,9 +24,6 @@ CROSS_COMPILER_TARGET_ARCHS =
 ifeq '$(EPICS_HOST_ARCH)' 'rhel6-x86_64'
 CROSS_COMPILER_TARGET_ARCHS = linuxRT_glibc-x86_64
 endif
-ifeq '$(EPICS_HOST_ARCH)' 'linux-x86_64'
-CROSS_COMPILER_TARGET_ARCHS = linux-x86
-endif
 
 
 # To install files into a location other than $(TOP) define
