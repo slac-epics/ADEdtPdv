@@ -594,18 +594,18 @@ record( bi, "$(P)$(R)OrcaPixelCorr_RBV" )
 	info( archiveFields,  "ZSV OSV VAL" )
 }
 
-# TSS_Delay: Expected delay from trigger to timeStamp update 
+# TrigToTS_Calc: Expected delay from trigger to timeStamp update 
 # TODO: Add INPA as trigger delay
-record( calc, "$(P)$(R)TSS_Delay" )
-{
-    field( INPA, "0" )
-	field( INPB, "$(P)$(R)OrcaRollingShutterRamp CPP MS" )
-    field( INPC, "$(P)$(R)AcquireTime_RBV CP MS" )
-    field( INPD, "$(P)$(R)DriverProcDelay CP MS" )
-    field( CALC, "A+2*B+C+D" )
-    field( EGU,  "sec" )
-    field( PREC, "5" ) 
-}
+#record( calc, "$(P)$(R)TrigToTS_Calc" )
+#{
+#    field( INPA, "$(P)$(R)EdtCamTrigDelay CP MS" )
+#	field( INPB, "$(P)$(R)OrcaRollingShutterRamp CP MS" )
+#    field( INPC, "$(P)$(R)AcquireTime_RBV CP MS" )
+#    field( INPD, "$(P)$(R)DriverProcDelay CP MS" )
+#    field( CALC, "A+B+C+D" )
+#    field( EGU,  "sec" )
+#    field( PREC, "5" ) 
+#}
 
 record( ao, "$(P)$(R)XmitRate" )
 {
@@ -614,5 +614,5 @@ record( ao, "$(P)$(R)XmitRate" )
     field( PREC, "3" )
     field( PINI, "YES" )
     info( autosaveFields, "VAL" )
-}   
+}
 

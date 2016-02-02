@@ -565,7 +565,7 @@ record( ao, "$(P)$(R)DriverProcDelay" )
 # TODO: Add INPA as trigger delay
 record( calc, "$(P)$(R)TrigToTS_Calc" )
 {
-    field( INPA, "0" )
+    field( INPA, "$(P)$(R)EdtCamTrigDelay CP MS" )
     field( INPB, "$(P)$(R)XmitDelay CP MS" )
     field( INPC, "$(P)$(R)AcquireTime_RBV CP MS" )
     field( INPD, "$(P)$(R)DriverProcDelay CP MS" )
