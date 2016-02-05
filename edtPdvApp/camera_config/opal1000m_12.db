@@ -246,6 +246,7 @@ record( stringin, "$(P)$(R)OpalElapsedTime_RBV" )
 {
     field( DESC, "Elapsed Time" )
     field( DTYP, "stream" )
+	field( SCAN, "10 second" )
     field( INP,	 "@opal1000m_12.proto GetStr(ET) $(PORT).SER" )
 }
 
@@ -278,8 +279,8 @@ record( longout, "$(P)$(R)OpalAcquirePeriod" )
     field( FLNK, "$(P)$(R)OpalAcquirePeriod_RBV" )
     field( HOPR, 32000    )
     field( DRVH, 32000    )
-    field( LOPR, 1        )
-    field( DRVL, 1        )
+    field( LOPR, 0        )
+    field( DRVL, 0        )
     field( EGU,  "e-5sec"  )
 #	field( TPRO, 2 )
 	info( autosaveFields, "DESC VAL" )
@@ -301,14 +302,13 @@ record( longin, "$(P)$(R)OpalAcquirePeriod_RBV" )
 record( calcout, "$(P)$(R)OpalCalcAcquirePeriod_RBV" )
 {
 	field( INPA, "$(P)$(R)OpalAcquirePeriod_RBV"	)
-	field( INPB, "10e-6" )
+	field( INPB, "10e-5" )
 	field( CALC, "A*B" )
     field( EGU,  "sec"  )
-	field( FLNK, "$(P)$(R)AcquirePeriod_RBV PP MS"	)
+	field( OUT,  "$(P)$(R)AcquirePeriod_RBV PP MS"	)
 }
 record( ai, "$(P)$(R)AcquirePeriod_RBV"		)
 {
-	field( INP,  "$(P)$(R)OpalCalcAcquirePeriod_RBV NPP MS" )
 	field( DISA, "0" )
 }
 
@@ -804,6 +804,7 @@ record( longin, "$(P)$(R)OpalTemperature_RBV" )
 	field( EGU,  "C" )
 	field( HIHI, "60" )		field( HHSV, "MAJOR" )
 	field( HIGH, "50" )		field( HSV,  "MINOR" )
+	field( SCAN, "10 second" )
 	field( FLNK, "$(P)$(R)OpalTemperatureF_RBV" )
 }
 
@@ -983,6 +984,17 @@ record( stringin, "$(P)$(R)OpalModelID_RBV" )
     field( INP,	 "@opal1000m_12.proto GetQStr(MID) $(PORT).SER" )
 }
 
+# Opal processing w/ Vertical Remapping enabled is
+# 2us + 7.5us + 4.7ms
+record( ao, "$(P)$(R)CamProcDelay" )
+{
+    field( DOL,  "4.7095e-3" )
+    field( EGU,  "Sec" )
+    field( PREC, "3" ) 
+    field( PINI, "YES" )
+    info( autosaveFields, "VAL" )
+}
+
 # Effective transmit rate is 80Mhz PixelClock * 2 HTaps
 record( ao, "$(P)$(R)XmitRate" )
 {
@@ -992,6 +1004,21 @@ record( ao, "$(P)$(R)XmitRate" )
     field( PINI, "YES" )
     info( autosaveFields, "VAL" )
 }   
+
+# Opal XmitDelay doesn't vary w/ ROI, just BinY
+# Did linear regression fit on t_frame_min values from Opal manual
+# Slope  = 6.8107e-6
+# Offset = 1.1513e-3
+record( calc, "$(P)$(R)XmitDelay" )
+{
+    field( INPA, "6.8107e-6" )
+    field( INPB, "1.1513e-3" )
+    field( INPC, "$(P)$(R)CamProcDelay CPP MS" )
+    field( INPD, "$(P)$(R)BinY  CPP MS" )
+    field( INPE, "$(P)$(R)SizeY CPP MS" )
+    field( CALC, "A*E/D+B+C" )
+    field( EGU,  "Bytes/Sec" )
+}
 
 
 # Possible TODO: Add support for

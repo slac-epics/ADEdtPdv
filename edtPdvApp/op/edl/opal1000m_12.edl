@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 95
-y 1313
+x 99
+y 1337
 w 700
 h 579
 font "helvetica-medium-r-12.0"
@@ -958,48 +958,6 @@ fgColor index 14
 bgColor index 3
 value {
   "Interval"
-}
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 484
-y 380
-w 160
-h 20
-controlPv "$(P)$(R)OpalTemperature_RBV"
-font "helvetica-medium-r-12.0"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 25
-smartRefresh
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 348
-y 380
-w 128
-h 20
-font "helvetica-medium-r-12.0"
-fontAlign "right"
-fgColor index 14
-bgColor index 3
-value {
-  "Temperature (C;F)"
 }
 endObjectProperties
 
