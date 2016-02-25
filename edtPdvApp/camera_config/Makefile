@@ -1,3 +1,6 @@
+# Specify T_A as host arch so we don't create O.$(ARCH) directories and
+# can use DB_INSTALLS directly to install our model specific files
+# No need to do ARCH specific builds here.
 T_A=$(EPICS_HOST_ARCH)
 TOP=../..
 include $(TOP)/configure/CONFIG
