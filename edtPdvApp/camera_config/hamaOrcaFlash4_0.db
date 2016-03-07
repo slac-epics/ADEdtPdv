@@ -595,16 +595,14 @@ record( bi, "$(P)$(R)OrcaPixelCorr_RBV" )
 }
 
 # TrigToTS_Calc: Expected delay from trigger to timeStamp update 
-# TODO: Add INPA as trigger delay
 #record( calc, "$(P)$(R)TrigToTS_Calc" )
 #{
-#    field( INPA, "$(P)$(R)EdtCamTrigDelay CP MS" )
-#	field( INPB, "$(P)$(R)OrcaRollingShutterRamp CP MS" )
-#    field( INPC, "$(P)$(R)AcquireTime_RBV CP MS" )
-#    field( INPD, "$(P)$(R)DriverProcDelay CP MS" )
-#    field( CALC, "A+B+C+D" )
-#    field( EGU,  "sec" )
-#    field( PREC, "5" ) 
+#	field( INPA, "$(P)$(R)OrcaRollingShutterRamp CP MS" )
+#	field( INPB, "$(P)$(R)AcquireTime_RBV CP MS" )
+#	field( INPC, "$(P)$(R)DriverProcDelay CP MS" )
+#	field( CALC, "A+B+C" )
+#	field( EGU,  "sec" )
+#	field( PREC, "5" ) 
 #}
 
 record( ao, "$(P)$(R)XmitRate" )

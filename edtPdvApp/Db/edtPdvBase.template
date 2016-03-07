@@ -15,7 +15,7 @@
 #	CAM_EC_RBV		- PV to get camera event code
 #	CAM_DLY			- PV to set camera event delay in sec
 #	CAM_DLY_EGU		- EGU for   camera event delay values, defaults to sec
-#	CAM_DLY_RBV		- PV to get camera event delay in sec
+#	CAM_DLY_RBV		- PV to get camera event delay readback value in sec
 #	CAM_RATE_RBV	- PV to get camera event code rep rate in Hz
 #	EVR_DLY_SCALE	- Scale factor for cam delay to evr delay, default 1000000000 for ns
 #	EVR_DLY_EGU		- EGU for   camera event delay values, defaults to ns
@@ -561,15 +561,18 @@ record( ao, "$(P)$(R)DriverProcDelay" )
     info( autosaveFields, "VAL" )
 }
 
-# TrigToTS_Calc: Expected delay from trigger to timeStamp update 
-# TODO: Add INPA as trigger delay
-record( calc, "$(P)$(R)TrigToTS_Calc" )
+#
+# TrigToTS_Calc: Calculates expected delay from trigger to timeStamp update 
+# Inputs: All units in seconds
+#	A	- Camera acquire time (exposure length)
+#	B	- Camera image transmission time
+#	C	- Estimated driver processing delay before requesting timestamp
+record( calcout, "$(P)$(R)TrigToTS_Calc" )
 {
-    field( INPA, "$(P)$(R)EdtCamTrigDelay CP MS" )
+    field( INPA, "$(P)$(R)AcquireTime_RBV CP MS" )
     field( INPB, "$(P)$(R)XmitDelay CP MS" )
-    field( INPC, "$(P)$(R)AcquireTime_RBV CP MS" )
-    field( INPD, "$(P)$(R)DriverProcDelay CP MS" )
-    field( CALC, "A+B+C+D" )
+    field( INPC, "$(P)$(R)DriverProcDelay CP MS" )
+    field( CALC, "A+B+C" )
     field( EGU,  "sec" )
     field( PREC, "5" ) 
 }
