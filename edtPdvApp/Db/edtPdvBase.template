@@ -449,37 +449,38 @@ record( longin, "$(P)$(R)EdtCamEventCode_RBV" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC VAL" )
 }
-record( ao, "$(P)$(R)EdtCamTrigDelay" )
-{
-	field( PINI, "YES" )
-	field( EGU,  "$(CAM_DLY_EGU=sec)" )
-	field( PREC, "4" )
-	field( EGU,  "sec" )
-	field( FLNK, "$(P)$(R)EdtCamTrigDelayCalc" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR PREC VAL" )
-	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR PREC VAL" )
-}
-record( calcout, "$(P)$(R)EdtCamTrigDelayCalc" )
-{
-	field( INPA, "$(P)$(R)EdtCamTrigDelay NPP MS" )
-	field( INPB, "$(P)$(R)EdtDelayScale CPP MS" )
-	field( CALC, "A*B" )
-	field( OUT,  "$(CAM_DLY=Unused) CPP NMS" )
-	field( EGU,  "$(CAM_DLY_EGU=sec)" )
-	field( PREC, "4" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC" )
-	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC VAL" )
-}
-record( calc, "$(P)$(R)EdtCamTrigDelay_RBV" )
-{
-	field( INPA, "$(CAM_DLY_RBV=Unused) CPP MS" )
-	field( INPB, "$(P)$(R)EdtDelayScale CPP MS" )
-	field( CALC, "B==0?A:(A/B)" )
-	field( EGU,  "$(CAM_DLY_EGU=sec)" )
-	field( PREC, "4" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC" )
-	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC VAL" )
-}
+#record( ao, "$(P)$(R)EdtCamTrigDelay" )
+#{
+#	field( PINI, "YES" )
+#	field( EGU,  "$(CAM_DLY_EGU=sec)" )
+#	field( PREC, "4" )
+#	field( EGU,  "sec" )
+#	field( FLNK, "$(P)$(R)EdtCamTrigDelayCalc" )
+#	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR PREC VAL" )
+#	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR PREC VAL" )
+#}
+#record( calcout, "$(P)$(R)EdtCamTrigDelayCalc" )
+#{
+#	field( INPA, "$(P)$(R)EdtCamTrigDelay NPP MS" )
+#	field( INPB, "$(P)$(R)EdtDelayScale CPP MS" )
+#	field( CALC, "A*B" )
+#	field( OUT,  "$(CAM_DLY=Unused) CPP NMS" )
+#	field( EGU,  "$(CAM_DLY_EGU=sec)" )
+#	field( PREC, "4" )
+#	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC" )
+#	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC VAL" )
+#}
+#record( calc, "$(P)$(R)EdtCamTrigDelay_RBV" )
+#{
+#	field( INPA, "$(CAM_DLY_RBV=Unused) CPP MS" )
+#	field( INPB, "$(P)$(R)EdtDelayScale CPP MS" )
+#	field( CALC, "B==0?A:(A/B)" )
+#	field( EGU,  "$(CAM_DLY_EGU=sec)" )
+#	field( PREC, "4" )
+#	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC" )
+#	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC VAL" )
+#}
+
 record( ai, "$(P)$(R)EdtCamRepRate_RBV" )
 {
 	field( INP, "$(CAM_RATE_RBV=Unused) CPP MS" )
@@ -547,8 +548,10 @@ record( calc, "$(P)$(R)XmitDelay" )
 {
     field( INPA, "$(P)$(R)ArraySize_RBV CP MS" )
     field( INPB, "$(P)$(R)XmitRate CPP MS" )
-    field( INPC, "$(P)$(R)CamProcDelay CPP MS" )
-    field( CALC, "A/B+C" )
+    field( INPC, "$(P)$(R)HTaps_RBV CPP MS" )
+    field( INPD, "$(P)$(R)VTaps_RBV CPP MS" )
+    field( INPE, "$(P)$(R)CamProcDelay CPP MS" )
+    field( CALC, "(A/B/C/D)+E" )
     field( EGU,  "Bytes/Sec" )
 }
 
@@ -567,7 +570,7 @@ record( ao, "$(P)$(R)DriverProcDelay" )
 #	A	- Camera acquire time (exposure length)
 #	B	- Camera image transmission time
 #	C	- Estimated driver processing delay before requesting timestamp
-record( calcout, "$(P)$(R)TrigToTS_Calc" )
+record( calc, "$(P)$(R)TrigToTS_Calc" )
 {
     field( INPA, "$(P)$(R)AcquireTime_RBV CP MS" )
     field( INPB, "$(P)$(R)XmitDelay CP MS" )
