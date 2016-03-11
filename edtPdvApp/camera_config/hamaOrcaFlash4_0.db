@@ -594,16 +594,37 @@ record( bi, "$(P)$(R)OrcaPixelCorr_RBV" )
 	info( archiveFields,  "ZSV OSV VAL" )
 }
 
+record( ao, "$(P)$(R)CamProcDelay" )
+{
+    field( DOL,  "160e-6" )
+    field( EGU,  "Sec" )
+    field( PREC, "3" ) 
+    field( PINI, "YES" )
+    info( autosaveFields, "VAL" )
+}
+
+record( calc, "$(P)$(R)XmitDelay" )
+{
+	field( INPA, "$(P)$(R)OrcaMinExposure CP MS" )
+    field( INPB, "" )
+    field( INPC, "" )
+    field( INPD, "" )
+    field( INPE, "$(P)$(R)CamProcDelay CPP MS" )
+    field( CALC, "A+E" )
+    field( EGU,  "Bytes/Sec" )
+}
+
 # TrigToTS_Calc: Expected delay from trigger to timeStamp update 
-#record( calc, "$(P)$(R)TrigToTS_Calc" )
-#{
-#	field( INPA, "$(P)$(R)OrcaRollingShutterRamp CP MS" )
-#	field( INPB, "$(P)$(R)AcquireTime_RBV CP MS" )
-#	field( INPC, "$(P)$(R)DriverProcDelay CP MS" )
-#	field( CALC, "A+B+C" )
-#	field( EGU,  "sec" )
-#	field( PREC, "5" ) 
-#}
+record( calc, "$(P)$(R)TrigToTS_Calc" )
+{
+    field( INPA, "$(P)$(R)AcquireTime_RBV CP MS" )
+	field( INPB, "$(P)$(R)XmitDelay CP MS" )
+	field( INPC, "$(P)$(R)DriverProcDelay CP MS" )
+	field( INPD, "$(P)$(R)EdtCamRepDur CP MS" )
+	field( CALC, "A+B+C-D" )
+	field( EGU,  "sec" )
+	field( PREC, "5" ) 
+}
 
 record( ao, "$(P)$(R)XmitRate" )
 {
