@@ -1432,7 +1432,7 @@ x 252
 y 288
 w 96
 h 20
-controlPv "$(P)$(R)EdtCamTrigDelay_RBV"
+controlPv "$(P)$(R)CamTrigDelay_RBV"
 format "exponential"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
@@ -1517,7 +1517,7 @@ x 252
 y 316
 w 96
 h 18
-controlPv "$(P)$(R)EdtCamTrigDelay"
+controlPv "$(P)$(R)CamTrigDelay"
 format "exponential"
 font "helvetica-medium-r-12.0"
 fgColor index 25
@@ -2182,7 +2182,7 @@ x 352
 y 316
 w 28
 h 18
-controlPv "$(P)$(R)EdtCamTrigDelay.EGU"
+controlPv "$(P)$(R)CamTrigDelay.EGU"
 font "helvetica-medium-r-14.0"
 fgColor index 14
 bgColor index 12
@@ -2388,7 +2388,7 @@ x 620
 y 288
 w 96
 h 20
-controlPv "$(P)$(R)EdtCamTrigDelay_RBV"
+controlPv "$(P)$(R)CamTrigDelay_RBV"
 format "exponential"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
