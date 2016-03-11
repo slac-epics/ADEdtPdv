@@ -454,6 +454,7 @@ asynStatus edtPdvCamera::ConnectCamera( )
 
 	epicsMutexLock(	m_reconfigLock );
 	status = m_pAsynSerial->pdvDevConnected( m_pPdvDev );
+	// m_pAsynUser = m_pAsynSerial->pdvDevConnect( m_pPdvDev );
 	epicsMutexUnlock(	m_reconfigLock );
 
 	if ( status != asynSuccess )
@@ -490,6 +491,8 @@ asynStatus edtPdvCamera::DisconnectCamera( )
 	// Block reconfigured until serial device is disconnected
 	epicsMutexLock(	m_reconfigLock );
 	m_pAsynSerial->pdvDevDisconnected( NULL );
+	// m_pAsynSerial->pdvDevDisConnect( );
+	// freeAsynUser( m_pAsynUser );
 
     if ( m_pPdvDev )
 	{
@@ -609,6 +612,7 @@ int edtPdvCamera::Reconfigure( )
 	int		status	= 0;
 	epicsMutexLock(		m_reconfigLock );
 	m_pAsynSerial->pdvDevDisconnected( NULL );
+	// freeAsynUser( m_pAsynUser );
 
 	UpdateStatus( ADStatusInitializing );
 	if ( m_fReopen )
@@ -935,8 +939,6 @@ int edtPdvCamera::_Reopen( )
 		printf( "%s: Setting Pdv_debug = %d, Edt msg level debug = %d\n",
 				functionName,  m_EdtDebugLevel, m_EdtDebugMsgLevel );
 	}
-	pdv_setdebug(		NULL,				 		m_EdtDebugLevel	);
-	edt_msg_set_level(	edt_msg_default_handle(),	m_EdtDebugMsgLevel	);
 
 	// Close old PdvDev if needed
 	if ( m_pPdvDev )
@@ -1052,10 +1054,24 @@ int edtPdvCamera::UpdateEdtDebugParams( )
 {
 	// Update PDV library Debug parameters
 	setIntegerParam(	EdtDebug,		m_EdtDebugLevel	);
-	if ( m_pPdvDev != NULL )
-		pdv_setdebug(		m_pPdvDev, 		m_EdtDebugLevel	);
-	setIntegerParam(	EdtDebugMsg,	m_EdtDebugMsgLevel	);
-	edt_msg_set_level(	edt_msg_default_handle(),	m_EdtDebugMsgLevel	);
+	// It's OK to call pdv_setdebug( NULL, level )
+	pdv_setdebug(		m_pPdvDev, 		m_EdtDebugLevel	);
+
+	// EDT MSG Levels
+	//            INFO2   INFO1   WARN    FATAL
+    // EDT Apps: 0x0008  0x0004  0x0002  0x0001
+    // EDT  Lib: 0x0080  0x0040  0x0020  0x0010
+    // PDV  Lib: 0x0800  0x0400  0x0200  0x0100
+	// Always show fatal error msgs
+	int	debugLevel	= EDT_MSG_FATAL;
+	if ( m_EdtDebugLevel >= 1 )
+		debugLevel += EDT_MSG_WARNING;
+	if ( m_EdtDebugLevel >= 2 )
+		debugLevel += EDT_MSG_INFO_1;
+	if ( m_EdtDebugLevel >= 3 )
+		debugLevel += EDT_MSG_INFO_2;
+	debugLevel |= m_EdtDebugMsgLevel;
+	edt_msg_set_level(	edt_msg_default_handle(),	debugLevel	);
 
     return 0;
 }
@@ -1065,8 +1081,7 @@ int edtPdvCamera::SetEdtDebugLevel( int value )
 	// Update PDV library Debug parameters
 	m_EdtDebugLevel = value;
 	setIntegerParam(	EdtDebug,		m_EdtDebugLevel	);
-	if ( m_pPdvDev != NULL )
-		pdv_setdebug(		m_pPdvDev, 		m_EdtDebugLevel	);
+	UpdateEdtDebugParams();
 	return 0;
 }
 
@@ -1075,7 +1090,7 @@ int edtPdvCamera::SetEdtDebugMsgLevel( int value )
 	// Update PDV library Debug parameters
 	m_EdtDebugMsgLevel = value;
 	setIntegerParam(	EdtDebugMsg,	m_EdtDebugMsgLevel	);
-	edt_msg_set_level(	edt_msg_default_handle(),	m_EdtDebugMsgLevel	);
+	UpdateEdtDebugParams();
 	return 0;
 }
 
