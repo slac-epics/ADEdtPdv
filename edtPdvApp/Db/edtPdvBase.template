@@ -11,16 +11,23 @@
 #
 # These are needed only if you want to use Edt PV's to set
 # and monitor event code trigger timing.
-#	CAM_EC			- PV to set camera event code
-#	CAM_EC_RBV		- PV to get camera event code
-#	CAM_DLY			- PV to set camera event delay in sec
-#	CAM_DLY_EGU		- EGU for   camera event delay values, defaults to sec
-#	CAM_DLY_RBV		- PV to get camera event delay readback value in sec
-#	CAM_RATE_RBV	- PV to get camera event code rep rate in Hz
+#	CAM_EC			- PV to set camera trigger event code
+#	CAM_EC_RBV		- PV to get camera trigger event code
+#	CAM_DLY			- PV to set camera trigger event delay in sec
+#	CAM_DLY_EGU		- EGU for   camera trigger event delay values, defaults to sec
+#	CAM_DLY_RBV		- PV to get camera trigger event delay readback value in sec
+#	CAM_RATE_RBV	- PV to get camera trigger event code rep rate in Hz
 #	EVR_DLY_SCALE	- Scale factor for cam delay to evr delay, default 1000000000 for ns
 #	EVR_DLY_EGU		- EGU for   camera event delay values, defaults to ns
-#	BEAM_EC			- PV to set beam   event code
-#	BEAM_RATE_RBV	- PV to get beam   event code rep rate in Hz
+#
+# These two are typically not needed
+# For the Orca and other rolling shutter cameras whose shutter ramp time is
+# longer than the few ms advance notice before the beam arrives
+# you can specify an event code which will be used to filter camera images
+# acquired at 120hz regardless of beam rate
+#	BEAM_EC			- PV to set beam event code used to filter image acquisition
+#	BEAM_EC_RBV		- PV to get beam event code used to filter image acquisition
+#	BEAM_RATE_RBV	- PV to get beam event code rep rate in Hz
 #
 
 # Disable these records from ADBase.template as they are readback only based
@@ -415,18 +422,12 @@ record( mbbo, "$(P)$(R)EdtTriggerMode_RBV" )
 
 # TODO: Add Pulse Width based AcquireTime support here
 
-# These PV's are needed only if you want to use Edt PV's to set
-# and monitor event code trigger timing.
-#	CAM_EC			- PV to set camera event code
-#	CAM_EC_RBV		- PV to get camera event code
-#	CAM_DLY			- PV to set camera event delay in sec
-#	CAM_DLY_EGU		- EGU for   camera event delay values, defaults to sec
-#	CAM_DLY_RBV		- PV to get camera event delay in sec
-#	CAM_RATE_RBV	- PV to get camera event code rep rate in Hz
-#	EVR_DLY_SCALE	- Scale factor for cam delay to evr delay, default 1000000000 for ns
-#	EVR_DLY_EGU		- EGU for   camera event delay values, defaults to ns
-#	BEAM_EC			- PV to set beam   event code
-#	BEAM_RATE_RBV	- PV to get camera event code rep rate in Hz
+#
+# The following PV's are needed only if you want to use Edt PV's to set
+# and monitor event code trigger timing, in which case be sure to set
+# the required macros listed at the top of this file
+#
+
 record( longout, "$(P)$(R)EdtDelayScale" )
 {
 	field( DOL,  "$(EVR_DLY_SCALE=1000000000)" )
@@ -499,17 +500,35 @@ record( calc, "$(P)$(R)EdtCamRepDur" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC VAL" )
 }
+
+#
+# For rolling shutter $(MODEL).db, use these lines as appropriate
+#	field( PINI, "YES" )
+#	field( OUT,  "$(BEAM_EC=$(P)$(R)EdtCamEventCode) CPP NMS" )
+#	field( INP,  "$(BEAM_RATE_RBV=$(P)$(R)EdtCamRepRate_RBV) CPP MS" )
+#	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
+#
+# By default this beam event code isn't autosaved and
+# PINI is NO so it can be safely ignored if not on the user GUI
+# Similarly, the RBV values default to following their camera trigger equivalents
+#
 record( longout, "$(P)$(R)EdtBeamEventCode" )
 {
 	field( VAL,  "140" )
-	field( PINI, "YES" )
-	field( OUT,  "$(BEAM_EC=Unused) CPP NMS" )
-	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
+	field( PINI, "NO" )
+	field( OUT,  "$(P)$(R)EdtCamEventCode CPP NMS" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
+}
+record( longin, "$(P)$(R)EdtBeamEventCode_RBV" )
+{
+	field( INP,  "$(P)$(R)EdtCamEventCode_RBV CPP MS" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 }
 record( ai, "$(P)$(R)EdtBeamRepRate_RBV" )
 {
-	field( INP,  "$(BEAM_RATE_RBV=Unused) CPP MS" )
+	field( INP,  "$(P)$(R)EdtCamRepRate_RBV CPP MS" )
 	field( EGU,  "Hz" )
 	field( PREC, "1" )
 	field( FLNK, "$(P)$(R)EdtBeamRepDur" )

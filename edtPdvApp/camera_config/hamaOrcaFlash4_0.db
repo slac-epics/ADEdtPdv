@@ -453,6 +453,7 @@ record( calcout, "$(P)$(R)OrcaScan_RBV_Calc" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
+
 # Redefine source for EdtMinY_RBV and EdtSizeY_RBV
 record( longout, "$(P)$(R)EdtMinY_RBV" )
 {
@@ -463,6 +464,30 @@ record( longout, "$(P)$(R)EdtSizeY_RBV" )
 {
 	field( OMSL, "closed_loop" )
 	field( DOL,  "$(P)$(R)OrcaScan_RBV_Calc CPP MS" )
+}
+
+# Redefine default trigger event code and rep rate pvs to
+# allow for separate BEAM_EC and BEAM_RATE_RBV macro substitutions
+
+# Orca camera should always be triggered with this camera event code
+record( longout, "$(P)$(R)EdtCamEventCode" )
+{
+	field( VAL,  "40" )
+}
+# But image acuisition is filtered with this beam event code
+record( longout, "$(P)$(R)EdtBeamEventCode" )
+{
+	field( VAL,  "140" )
+	field( PINI, "YES" )
+	field( OUT,  "$(BEAM_EC=$(P)$(R)EdtCamEventCode) CPP NMS" )
+}
+record( longin, "$(P)$(R)EdtBeamEventCode_RBV" )
+{
+	field( INP,  "$(BEAM_EC_RBV=$(P)$(R)EdtCamEventCode_RBV) CPP MS" )
+}
+record( ai, "$(P)$(R)EdtBeamRepRate_RBV" )
+{
+	field( INP,  "$(BEAM_RATE_RBV=$(P)$(R)EdtCamRepRate_RBV) CPP MS" )
 }
 
 record( ao, "$(P)$(R)OrcaLineDelay" )
