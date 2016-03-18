@@ -71,12 +71,6 @@
 #define PGS4_ID                 0x0050
 #define PGS16_ID                0x0051
 
-#define USB_ID                  0x0060
-#define EDTUSB_VENDOR_ID        0x04b4  /*    Current test vendor id          */
-#define UCD1_ID                 0x8612  /* TODO */
-#define UCD4_ID                 0x8613  /* TODO */
-#define UCD16_ID                0x8614  /* TODO */
-
 #define DMY_ID                  0x0080
 #define DMYK_ID                 0x0081
 #define DMYFOI_ID               0x0081
@@ -118,12 +112,23 @@
 
 #define PE4DVVL_ID               0x00a3
 
+/*
+ * LCR group IDs
+ */
 #define PE4BL_RADIO_ID          0x00a4
 #define PE1BL_TIMING_ID         0x00a5
-#define PE8BL_10GNI_ID          0x00a6
+#define PE8BL_10GNIC_ID         0x00a6
 #define LCRBOOT_ID              0x00a7
+
 #define PE8G2V7_ID              0x00a8
-#define PE4DVVLSIM_ID            0x00a9
+#define PE4DVVLSIM_ID           0x00a9
+#define PE8G3KU_ID              0x00aa
+#define PE8G3A5_ID              0x00ab
+
+#define UNKNOWNAC_ID            0x00ac /* change when assigned */
+#define UNKNOWNAD_ID            0x00ad /* change when assigned */
+#define UNKNOWNAE_ID            0x00ae /* change when assigned */
+#define UNKNOWNAF_ID            0x00af /* change when assigned */
 
 /*************************************
  * Mezzanine ID values 

@@ -322,11 +322,12 @@ typedef struct _PdvDependent
 
 typedef PdvDependent pdv_methods;
 
-#define KODAK_AIA_MCL            1
-#define AIA_MCL                  1    /* same as KODAK */
-#define IRC_160                  2
-#define KODAK_AIA_SER            3
-#define AIA_SERIAL               3    /* same as KODAK */
+#define KODAK_AIA_MCL            1        /* mode control (typ. CC1) pulse-width */
+#define AIA_MCL                  1        /* same as KODAK */
+#define IRC_160                  2        /* IRC 160 */
+#define AIA_SERIAL               3        /* trigger pulse (1 millisecond) */
+#define KODAK_AIA_SER            3        /* dup */
+#define AIA_SER                  3        /* dup */
 #define KODAK_XHF_INTLC          4        /* horizontal interlace */
 #define PDV_BYTE_INTLV           4        /* horizontal interlace */
 #define KODAK_XHF_SKIP           5        /* subsample */
@@ -421,7 +422,9 @@ typedef PdvDependent pdv_methods;
 #define PDV_INTLV_10BIT_8TAP_TO_8BIT 90
 #define PDV_INTLV_20BAND             91   /* custom 21 ... */ 
 #define PDV_INTLV_21BAND             92   /* and 21-band   */
-#define PDV_QUADRANT2_INTLV          93   /* and 21-band   */
+
+#define PDV_QUADRANT2_INTLV          93   /* 4 port deintlv, TopLeft, TopMiddle, MiddleLeft, MIddleMiddle */
+#define PDV_QUADRANT3_INTLV          94   /* 4 port deintlv, like QUADRANT_INTLV but starting in the middle, iterating out */
 
 #define KODAK_RDM_SINGLE          1
 #define KODAK_RDM_DUAL            2

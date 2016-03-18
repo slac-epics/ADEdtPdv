@@ -82,10 +82,6 @@ typedef void * Dependent;
 #include "libedt_timing.h"
 #endif
 
-#ifdef UCD
-#include "edtusb.h"
-#endif
-
 
 /* System time functions */
 EDTAPI double          edt_dtime(void);

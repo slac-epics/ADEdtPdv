@@ -44,13 +44,17 @@
  * #edt_reg_write, #edt_reg_or, or #edt_reg_and to read or write the
  * hardware registers, rather than using ioctls.
  *
- * <h3>Rebuilding the Library, Utilities and Example Applications</h3>
+ * <h3>Building and using the Library, Utilities and Example Applications</h3>
  * By default, EDT's pcd installation package is copied into  c:\EDT\pcd (Windows),
  * or /opt/EDTpdv (Linux / Macos). For pdv packages, see the \ref dv.
  *
+ * @note Applications using EDT boards must be linked with the appropriate (32 or 64-bit) for the
+ * platform in use. Applications linked with 32-bit EDT libraries will not run correctly on 64-bit
+ * systems, or vice-versa.
+ *
  * To rebuild a program or library, you'll need to use a compiler and
  * either the <code>nmake</code> application that comes with Visual Studio, or the
- * Unix <code>make</code> utility, as described below. 
+ * Unix <code>make</code> utility, as described below.
  *
  * 1. Do one of the following:
  *   - For Linux or MacOS, navigate to the installation directory in a terminal window.
@@ -365,7 +369,7 @@
 /** @} */ /* end dma_internal */
 #endif
 
-#define EDTAPI_VERSION 0x05030805
+#define EDTAPI_VERSION 0x05050106
 
 #define EDT_NORMAL_DMA 0
 #define EDT_DIRECT_DMA 1
@@ -480,6 +484,7 @@ typedef char edt_version_string[128];
 #define MAX_MACADDRS     16
 #define MACLIST_SIZE     216 /* should be ((MACADDR_SIZE+1) * MAX_MACADDRS) + 4 for tag + 4 for the count + comma, even number */
 #define EXTRAADDR_SIZE   4
+#define EXTRATAG_SIZE   4
 #define OPTSN_SIZE       32
 #define PROM_EXTRA_SIZE  512
 #define E_SECTOR_SIZE    0x04000
@@ -487,6 +492,8 @@ typedef char edt_version_string[128];
 #define AMD_SECTOR_SIZE2 0x20000
 #define SPI_SECTOR_SIZE  0x100000
 #define XLA_SECTOR_SIZE  AMD_SECTOR_SIZE   /* changed the name, backwards compat */
+#define MIC_N25Q064A13ESE40G_PROMINFO_ADDR 0x7f0000 
+#define EDTMACOUI        0x00251C
 
 /*
  * try to standardize on size of various strings
@@ -517,7 +524,6 @@ typedef char edt_version_string[128];
 #define AMD_XC6SLX45         15
 #define AMD_EP2SGX30D_A      16
 #define AMD_EP2AGX45D        17
-#if 0 /* beyond the above we don't need #defines, just the table entry in edt_flash.c */
 #define AMD_5SGXMA3K2F40C3   18
 #define AMD_5SGXMA5K2F40C3   19
 #define AMD_5SGXMA7K2F40C3   20
@@ -525,8 +531,71 @@ typedef char edt_version_string[128];
 #define AMD_5SGXMA7K1F40C2   22
 #define AMD_5SGXEA2K1F40C2ES 23
 #define AMD_5SGXMA9K2H40C2   24
-#define MIC_N25Q064A11ESE40G 25
-#endif
+#define MIC_N25Q064A13ESE40G 25
+#define AMD_5AGZME1          26
+#define MIC_N25Q256A13EF840  27
+
+/* device (chip) programming types for pciload etc. */
+#define FTYPE_X     0
+#define FTYPE_BT    1
+#define FTYPE_LTX   2
+#define FTYPE_SPI   3
+#define FTYPE_BT2   4
+#define FTYPE_F16   5
+#define FTYPE_MIC   6
+#define FTYPE_F16A  7
+
+/* magic numbers for devices (chips) */
+typedef enum {
+    UnknownMagic,
+    XilinxMagic = 1,
+    AlteraMagic = 2,
+    Altera2Magic = 3
+} FPGAMagic;
+
+/* FPGA bitfile size constants */
+#define MIN_BIT_SIZE_ANY    0x4000
+#define MIN_BIT_SIZE_X      0x8000
+#define MIN_BIT_SIZE_XLA    0x14000
+#define MIN_BIT_SIZE_BT     0x20000
+#define MIN_BIT_SIZE_SPI    0x60000
+#define MIN_BIT_SIZE_AMD512 0x300000
+
+#define EDT_ROM_JUMPER 0x01
+#define EDT_5_VOLT     0x02
+
+/*
+ * status bits
+ * bits 2-7 are Xilinx ID for 4028 and above.
+ * shift down 2 and we get a number for the boot controller
+ */
+#define STAT_PROTECTED          0x01
+#define STAT_5V                 0x02
+#define STAT_IDMASK             0x7c
+#define STAT_IDSHFT             2
+#define IS_DEFAULT_SECTOR -6167
+
+/*
+ * command bits for the 4028xla
+ * boot controller
+ */
+#define BT_READ     0x0100
+#define BT_WRITE    0x0200
+#define BT_INC_ADD  0x0400
+#define BT_A0       0x0800
+#define BT_A1       0x1000
+#define BT_RSVD     0x2000
+#define BT_REINIT   0x4000
+#define BT_EN_READ  0x8000
+#define BT_LD_LO    BT_WRITE
+#define BT_LD_MID   BT_WRITE | BT_A0
+#define BT_LD_HI    BT_WRITE | BT_A1
+#define BT_LD_ROM   BT_WRITE | BT_A0 | BT_A1
+#define BT_RD_ROM   BT_READ | BT_A0 | BT_A1 | BT_EN_READ
+#define BT_RD_FSTAT BT_READ | BT_EN_READ
+#define BT_RD_PALVER BT_READ | BT_A0 | BT_EN_READ
+#define BT_MASK      0xff00
+
 
 /*
  * structure to set up phase locked loop parameters.
@@ -553,6 +622,10 @@ typedef char edt_version_string[128];
     int l; /* xilinx divide by n 1-64 */
     int x; /* xilinx AV9110 prescale of 30MHz oscillator 1-256 */
 } edt_pll ;
+
+/* hard-coded database filenames for pciload and other load/id related files */
+#define EDTMACS_FNAME "edtmactable.txt"
+#define EDTPARTSFNAME "edt_parts.xpn"
 
 /*
  * Typedef for edt_bitpath to send and retrieve bitfile pathnames
@@ -649,6 +722,8 @@ typedef struct {
     char type[4];
     u_int size;
 } EdtPromParmBlock;
+
+#define BAD_PARMS_BLOCK ((EdtPromParmBlock *) 0xffffffff)
 
 #define EdtPromParmData(p) \
     ((u_char *) p + sizeof(EdtPromParmBlock))
@@ -836,7 +911,7 @@ typedef struct edt_device {
     u_int       unit_no ;
     u_int       spi_reg_base ; /* Base address for SPI_ access registers (0 specifies default of 0x60) */
     uint_t      devid ;
-    uint_t      devtype ;      /* 0 == PCI; 1 == USB; ... */
+    uint_t      devtype ;      /* PCD, PDV, ... */
     uint_t      todo;          /* n buffers started            */
     uint_t      b_count;       /* per open byte counter for edt_read/write */
 
@@ -928,6 +1003,7 @@ typedef struct edt_device {
     EdtBitfileDescriptor bfd;
     EdtMezzDescriptor mezz;
 
+
     char                last_direction;
     u_char      last_wait_ret;
     u_int               promcode;
@@ -937,6 +1013,9 @@ typedef struct edt_device {
     volatile u_char *reg_fifo_ctl;
     volatile u_char *reg_intfc_off ;        /* mmap to intfc regs      */
     volatile u_char *reg_intfc_dat ;        /* mmap to intfc regs      */
+    int              regBAR0_fd;
+    int              regBAR1_fd;
+    int              regUIFPGA_fd;
 
     edt_directDMA_t *directDMA_p;         /* Direct DMA management   */
 
@@ -951,6 +1030,14 @@ typedef struct edt_device {
 
 
 /* Header file for functions exported by libedt */
+EDTAPI int initpcd_str(char *cfg_str, int unit, int verbose) ;
+EDTAPI u_int edt_mzdemod_read(EdtDev * edt_p, u_int block, u_int offset);
+EDTAPI void edt_mzdemod_write(EdtDev * edt_p, u_int block, u_int offset, u_int data);
+
+#define LCR_DDC_REG_SPACE (0x08 << 19)
+
+EDTAPI u_int edt_lcr_read(EdtDev *edt_p, unsigned int regBlock, unsigned int regOffset);
+EDTAPI void edt_lcr_write(EdtDev *edt_p, unsigned int regBlock, unsigned int regOffset, unsigned int regVal);
 
 EDTAPI int edt_init_direct_dma(EdtDev *edt_p);
 EDTAPI int edt_direct_read (EdtDev *edt_p, u_char *buf, int bytes);
@@ -959,10 +1046,13 @@ EDTAPI int edt_direct_write(EdtDev *edt_p, u_char *buf, int bytes);
 /**
  * @addtogroup prominfo
  */
+EDTAPI int     edt_flash_is_protected(EdtDev *edt_p);
 EDTAPI void    edt_get_sns(EdtDev *edt_p, char *esn, char *osn);
 EDTAPI void    edt_get_osn(EdtDev *edt_p, char *osn);
 EDTAPI void    edt_get_esn(EdtDev *edt_p, char *esn);
+EDTAPI void    edt_print_dev_flashstatus(EdtDev *edt_p, u_short stat, int sector);
 EDTAPI void    edt_print_flashstatus(u_short stat, int sector, int frdata);
+EDTAPI int     edt_print_pcie_negotiated_link(EdtDev *edt_p);
 EDTAPI void    edt_init_promdata(EdtPromData *pdata);
 EDTAPI void    edt_init_parmblock(EdtPromParmBlock *block, char *type, int datasize);
 EDTAPI EdtPromParmBlock *edt_add_parmblock(EdtPromData *pdata, char *type, int datasize);
@@ -977,8 +1067,10 @@ EDTAPI void    edt_flash_verify(EdtDev *edt_p, u_int addr, u_char *data, int nby
 EDTAPI void    edt_flash_reset(EdtDev * edt_p, int isbt);
 EDTAPI void    edt_flash_print16(EdtDev * edt_p, u_int addr, int ftype);
 EDTAPI int     edt_flash_prom_detect(EdtDev *edt_p, u_short *stat);
+EDTAPI void    edt_dump_flash(EdtDev *edt_p, u_int addr, u_int size);
 
 EDTAPI Edt_prominfo *edt_get_prominfo(int promcode);
+EDTAPI const char *edt_get_fpga_mfg(EdtDev * edt_p);
 EDTAPI u_char  edt_flash_read8(EdtDev * edt_p, u_int addr, int ftype);
 EDTAPI u_short edt_flash_read16(EdtDev * edt_p, u_int addr, int ftype);
 EDTAPI char   *edt_flash_type_string(int ftype);
@@ -992,6 +1084,7 @@ EDTAPI int     edt_program_flash_start(EdtDev *edt_p);
 EDTAPI void    edt_program_flash_chunk(EdtDev *edt_p, const u_char *buf, int xfer, int do_sleep);
 EDTAPI int     edt_program_flash_end(EdtDev *edt_p);
 EDTAPI int     edt_get_flash_file_header(const char *fname, char *header, int *size);
+EDTAPI char   *edt_get_flash_prom_header(EdtDev *edt_p, char *name);
 
 /** @} */ /* end prominfo group */
 
@@ -1002,6 +1095,7 @@ EDTAPI int     edt_get_flash_file_header(const char *fname, char *header, int *s
 EDTAPI EdtDev *edt_open(const char *device_name, int unit) ;
 EDTAPI EdtDev *edt_open_quiet(const char *device_name, int unit) ;
 EDTAPI EdtDev *edt_open_channel(const char *device_name, int unit, int channel) ;
+EDTAPI EdtDev *edt_open_device(const char *device_name, int unit, int channel, int verbose) ;
 EDTAPI int     edt_close(EdtDev *edt_p) ;
 
 EDTAPI void    edt_set_port(EdtDev *edt_p, int port);
@@ -1040,6 +1134,8 @@ EDTAPI int     edt_abort_current_dma(EdtDev *edt_p);
 EDTAPI int     edt_stop_buffers(EdtDev *edt_p);
 EDTAPI int     edt_start_buffers(EdtDev *edt_p, uint_t count);
 
+// Internal EDT lab use only - set all ring buffer SgList entries to specified 32-bit physaddr
+EDTAPI int     edt_set_buffer_physaddr(EdtDev * edt_p, uint_t index, uint64_t physaddr);
 
 EDTAPI int     edt_set_buffer_size(EdtDev *edt_p,
                                 uint_t which_buf,
@@ -1240,7 +1336,8 @@ EDTAPI int         edt_parse_unit(const char *str, char *dev, const char *defaul
 EDTAPI int         edt_parse_unit_channel(const char *str, char *dev,
                                             const char *default_dev,
                                             int *channel) ;
-EDTAPI int         edt_find_xpn(char *partnum, char *xilinx);
+EDTAPI int         edt_find_xpn(char *part_number, char *fpga);
+EDTAPI int         edt_get_xref_info(const char *path, const char *pn, char *fpga, char *sn, char *mtype, char *moffs, char *mcount, char *desc, char *rsvd1, char *rsvd2);
 EDTAPI uint_t      edt_overflow(EdtDev *edt_p) ;
 EDTAPI void        edt_perror(char *str) ;
 EDTAPI u_int       edt_errno(void) ;
@@ -1411,6 +1508,10 @@ EDTAPI void edt_set_intr_mask(EdtDev *edt_p, u_int state);
 EDTAPI u_int edt_get_intr_mask(EdtDev *edt_p);
 EDTAPI void edt_set_remote_intr(EdtDev *edt_p, u_int onoff);
 EDTAPI u_int edt_get_remote_intr(EdtDev *edt_p);
+
+EDTAPI int edt_mic_set_protected(EdtDev *edt_p);
+EDTAPI int edt_mic_unset_protected(EdtDev *edt_p);
+EDTAPI int edt_mic_is_protected(EdtDev *edt_p);
 
 /*
  * routines for pciload instead of globals
@@ -2190,7 +2291,6 @@ typedef struct {
         || (id == PCDHSS_ID) \
         || (id == PGS4_ID) \
         || (id == PGS16_ID) \
-        || (id == USB_ID) \
         || (id == PCD_16_ID) \
         || (id == PCDFOX_ID) \
         || (id == PE8LX1_ID) \
@@ -2199,13 +2299,24 @@ typedef struct {
         || (id == PE8LX32_ID) \
         || (id == PE8G2V7_ID) \
         || (id == PE8G3S5_ID) \
+        || (id == PE8G3A5_ID) \
+        || (id == PE8G3KU_ID) \
         || (id == WSU1_ID) \
         || (id == SNAP1_ID) \
         || (id == PE4BL_RADIO_ID) \
+        || (id == PE8BL_10GNIC_ID) \
         || (id == PE1BL_TIMING_ID) \
-        || (id == PE8BL_10GNI_ID) \
         || (id == LCRBOOT_ID) \
-        || (id == PE4AMC16_ID) )
+        || (id == PE4AMC16_ID) \
+        )
+
+ /* move /remove these from this list as they are assigned */
+#define ID_IS_UNKNOWN(id) ( \
+           ( id == UNKNOWNAC_ID) \
+        || ( id == UNKNOWNAD_ID) \
+        || ( id == UNKNOWNAE_ID) \
+        || ( id == UNKNOWNAF_ID) \
+        )
 
 #define ID_IS_1553(id) ((id == P53B_ID) \
         || (id == PE1_53B_ID))
@@ -2222,6 +2333,8 @@ typedef struct {
         || (id == PE4CDA_ID) \
         || (id == PE4CDA16_ID) \
         || (id == PE8LX16_ID) \
+        || (id == PE8BL_10GNIC_ID) \
+        || (id == PE4BL_RADIO_ID) \
         || (id == PE8LX32_ID))
 
 #define ID_HAS_CHANREG(id) (ID_HAS_MEZZ(id) || (id == PCDA_ID))
@@ -2232,7 +2345,7 @@ typedef struct {
         || (id == PDVAERO_ID) \
         || (id == PDVCL_ID) \
         || (id == PE1DVVL_ID) \
-        || (id == PE1DVVL_ID) \
+        || (id == PE4DVVL_ID) \
         || (id == PE4DVCL_ID) \
         || (id == PE8DVCL_ID) \
         || (id == PE8DVCLS_ID) \
@@ -2243,7 +2356,6 @@ typedef struct {
         || (id == PDVFCI_USPS_ID) \
         || (id == PDVA_ID) \
         || (id == PDVFOX_ID) \
-        || (id == PE1DVVL_ID) \
         || (id == PE4DVAFOX_ID) \
         || (id == PE8DVFOX_ID) \
         || (id == PE4DVVLFOX_ID) \
@@ -2292,17 +2404,23 @@ typedef struct {
       || (id == PE4DVVL_ID) \
       || (id == PE4DVCL_ID) \
       || (id == PE8DVCL_ID) \
-      || (id == PE4DVAFOX_ID) \
-      || (id > PE1DVVL_ID))       /* let's just plan on it being there going forward */
+      || (id == PE4DVAFOX_ID))
 
 #define ID_STORES_MACADDRS(id) \
     (  (ID_HAS_MEZZ(id)) \
     || (id == PE8G3S5_ID) \
+    || (id == PE8G3A5_ID) \
+    || (id == PE8G3KU_ID) \
     || (id == WSU1_ID) \
     || (id == SNAP1_ID) \
     || (id == LCRBOOT_ID) \
-    || (id == PE8BL_10GNI_ID) \
+    || (id == PE8BL_10GNIC_ID) \
     || (id == PE4AMC16_ID))
+
+#define ID_IS_LCRBLADE(id) \
+    (  (id == PE4BL_RADIO_ID) \
+    || (id == PE1BL_TIMING_ID) \
+    || (id == PE8BL_10GNIC_ID))
 
 /* ADD any devices that don't have a separate interface FPGA here */
 #define ID_HAS_COMBINED_FPGA(id) \
@@ -2324,28 +2442,38 @@ typedef struct {
     || (id == PDVFCI_USPS_ID) \
     || (id == PCDFCI_SIM_ID) \
     || (id == PE8G3S5_ID) \
+    || (id == PE8G3A5_ID) \
     || (id == WSU1_ID) \
     || (id == SNAP1_ID) \
     || (id == PE4BL_RADIO_ID) \
     || (id == PE1BL_TIMING_ID) \
-    || (id == PE8BL_10GNI_ID) \
-    || (id == LCRBOOT_ID) \
+    || (id == PE8BL_10GNIC_ID) \
     || (id == PE8G2V7_ID) \
-    || (ID_HAS_SERIAL_PROM(id)) /* ALERT : for visionlink; may change in the future */  \
+    || (ID_IS_MICRON_PROM(id)) /* ALERT : VisionLink and G3A5 have micron proms + combined flash, will future boards? Make sure! */ \
     || (id == PCDFCI_PCD_ID))
 
 #define ID_HAS_16BIT_PROM(id) \
-    (  (id == PE8G3S5_ID) \
-    || (id == WSU1_ID) \
-    || (id == SNAP1_ID) \
-    || (id == PE4CDA_ID) \
-    || (id == PE4CDA16_ID))
+    (  (id == PE8G3S5_ID)     \
+    || (id == PE8G3A5_ID)     \
+    || (id == WSU1_ID)        \
+    || (id == SNAP1_ID)       \
+    || (id == PE4CDA_ID)      \
+    || (id == PE4CDA16_ID)    \
+    || (id == PE8G3KU_ID)     \
+    )
 
-#define ID_HAS_SERIAL_PROM(id) \
-    (  (id == PE1DVVL_ID) \
+#define ID_IS_MICRON_PROM(id) ( \
+       (id == PE1DVVL_ID) \
     || (id == PE4DVVL_ID) \
     || (id == PE4DVVLSIM_ID) \
-    || (id == PE4DVVLFOX_ID))
+    || (id == PE4DVVLFOX_ID) \
+    || (id == PE4BL_RADIO_ID) \
+    || (id == PE1BL_TIMING_ID) \
+    || (id == PE8BL_10GNIC_ID) \
+    || (id == PE8G3A5_ID) \
+    || (id == LCRBOOT_ID) \
+    )
+
 
 #define ID_IS_MULTICHAN(id) \
     (  (id == PSS16_ID) \
@@ -2358,13 +2486,15 @@ typedef struct {
     || (id == PE8LX16_ID) \
     || (id == PE8LX32_ID) \
     || (id == PE8G2V7_ID) \
-    || (id == PE4BL_RADIO_ID) \
-    || (id == PE8BL_10GNI_ID) \
+    || (id == PE8BL_10GNIC_ID) \
     || (id == PE8LX32_ID) \
     || (id == PE4AMC16_ID) \
     || (id == PE8G3S5_ID) \
+    || (id == PE8G3A5_ID) \
+    || (id == PE8G3KU_ID) \
     || (id == WSU1_ID) \
     || (id == SNAP1_ID) \
+    || (id == PE4BL_RADIO_ID) \
     || (id == PE8LX16_LS_ID))
 
 #define ID_IS_2CHANNEL(id) \
@@ -2427,7 +2557,11 @@ typedef struct {
     || (id == PE8LX16_ID) \
     || (id == WSU1_ID) \
     || (id == SNAP1_ID) \
+    || (id == PE8BL_10GNIC_ID) \
+    || (id == PE4BL_RADIO_ID) \
     || (id == PE8G3S5_ID) \
+    || (id == PE8G3A5_ID) \
+    || (id == PE8G3KU_ID) \
     || (id == PE8LX16_LS_ID) \
     || (id == PE4AMC16_ID))
 
@@ -2463,18 +2597,21 @@ typedef struct {
     || ( id == PE8LX16_ID) \
     || ( id == PE8LX16_LS_ID) \
     || ( id == PE8DVCL2_ID) \
-    || ( id == PE8BL_10GNI_ID) \
+    || ( id == PE8BL_10GNIC_ID) \
     || ( id == PE8LX32_ID) \
     || ( id == PE8G2V7_ID) \
-    || ( id == PE8G3S5_ID))
+    || ( id == PE8G3S5_ID) \
+    || ( id == PE8G3A5_ID) \
+    || ( id == PE8G3KU_ID) \
+    )
 
 
 #define ID_HAS_MEZZ(id) (ID_IS_SS(id) || ID_IS_GS(id) || ID_IS_LX(id)) || id == PE8G2V7_ID
 
 /**
- * @addtogroup dma_utility
- * @{
- */
+* @addtogroup dma_utility
+* @{
+*/
 #define has_pcda_direction_bit(edt_p) (ID_HAS_PCD_DIR_BIT(edt_p->devid))
 #define edt_is_pdv(edt_p) (ID_IS_PDV(edt_p->devid))
 #define edt_is_pcd(edt_p) (ID_IS_PCD(edt_p->devid))
@@ -2491,7 +2628,7 @@ typedef struct {
 #define edt_has_chanreg(edt_p) (ID_HAS_CHANREG(edt_p->devid))
 #define edt_stores_macaddrs(edt_p) (ID_STORES_MACADDRS(edt_p->devid))
 #define edt_is_16bit_prom(edt_p) (ID_HAS_16BIT_PROM(edt_p->devid))
-#define edt_is_serial_prom(edt_p) (ID_HAS_SERIAL_PROM(edt_p->devid))
+#define edt_is_micron_prom(edt_p) (ID_IS_MICRON_PROM(edt_p->devid))
 #define edt_is_multichan(edt_p) (ID_IS_MULTICHAN(edt_p->devid))
 #define edt_is_2channel(edt_p) (ID_IS_2CHANNEL(edt_p->devid))
 #define edt_is_3channel(edt_p) (ID_IS_3CHANNEL(edt_p->devid))
@@ -2501,8 +2638,9 @@ typedef struct {
 #define edt_is_32channel(edt_p) (ID_IS_32CHANNEL(edt_p->devid))
 #define edt_is_dummy(edt_p) (ID_IS_DUMMY(edt_p->devid))
 #define edt_is_1lane(edt_p) (ID_IS_1LANE(edt_p->devid))
-#define edt_is_4lane(edt_p) (ID_IS_1LANE(edt_p->devid))
-#define edt_is_8lane(edt_p) (ID_IS_1LANE(edt_p->devid))
+#define edt_is_4lane(edt_p) (ID_IS_4LANE(edt_p->devid))
+#define edt_is_8lane(edt_p) (ID_IS_8LANE(edt_p->devid))
+#define edt_is_unknown(edt_p) (ID_IS_UNKNOWN(edt_p->devid))
 
 #define edt_is_dv_multichannel(edt_p) (edt_is_dvcl(edt_p) || edt_is_dvfox(edt_p) || edt_p->devid == PDVAERO_ID)
 
@@ -2512,8 +2650,8 @@ typedef struct {
 
 /* definition for header data for buffers */
 /* for disk I/O speed, header mem may be allocated with ring-buffer memory
-   even if header not in the DMA stream. This covers all possible relationships
-   of header info to acquisition info */
+even if header not in the DMA stream. This covers all possible relationships
+of header info to acquisition info */
 
 #ifndef HDR_TYPE_IRIG1
 
@@ -2533,10 +2671,10 @@ typedef struct {
 #define TRL_CRITICAL    1
 #define TRL_FATAL       1
 #define TRL_ERROR       2
-#define TRL_WARN    3
-#define TRL_INFO    4
+#define TRL_WARN        3
+#define TRL_INFO        4
 #define TRL_VERBOSE     5
-#define TRL_REALVERBOSE   6
+#define TRL_REALVERBOSE 6
 #define TRL_RESERVED7   7
 #define TRL_RESERVED8   8
 #define TRL_RESERVED9   9
@@ -2545,30 +2683,29 @@ typedef struct {
 
 /* Driver trace mask bits */
 
-#define DBG_INIT        0x00000100
-#define DBG_PNP         0x00000200
-#define DBG_POWER       0x00000400
-#define DBG_CREATE_CLOSE    0x00001000
-#define DBG_IOCTLS      0x00002000
-#define DBG_WRITE       0x00004000
-#define DBG_READ        0x00008000
-#define DBG_DPC         0x00010000
-#define DBG_ISR             0x00020000
-#define DBG_LOCKS       0x00040000
-#define DBG_EVENTS      0x00080000
-#define DBG_HW          0x00100000
-#define DBG_REG         0x00200000
-#define DBG_DMA         0x00400000
-#define DBG_DMA_SETUP       0x00800000
-#define DBG_SERIAL      0x01000000
-#define DBG_BOARD       0x02000000
-#define DBG_ALLOC       0x04000000
-#define DBG_MEMMAP      0x08000000
-#define DBG_TIME        0x10000000
-#define DBG_TIMEOUT     0x20000000
-#define DBG_INTR_EN     0x40000000
-
-#define DBG_ALL         0xffffff00
+#define DBG_INIT          0x00000100
+#define DBG_PNP           0x00000200
+#define DBG_POWER         0x00000400
+#define DBG_CREATE_CLOSE  0x00001000
+#define DBG_IOCTLS        0x00002000
+#define DBG_WRITE         0x00004000
+#define DBG_READ          0x00008000
+#define DBG_DPC           0x00010000
+#define DBG_ISR           0x00020000
+#define DBG_LOCKS         0x00040000
+#define DBG_EVENTS        0x00080000
+#define DBG_HW            0x00100000
+#define DBG_REG           0x00200000
+#define DBG_DMA           0x00400000
+#define DBG_DMA_SETUP     0x00800000
+#define DBG_SERIAL        0x01000000
+#define DBG_BOARD         0x02000000
+#define DBG_ALLOC         0x04000000
+#define DBG_MEMMAP        0x08000000
+#define DBG_TIME          0x10000000
+#define DBG_TIMEOUT       0x20000000
+#define DBG_INTR_EN       0x40000000
+#define DBG_ALL           0xffffff00
 
 #define N_DBG_STATES 24
 
@@ -2581,10 +2718,10 @@ typedef struct {
 #define DBG_READWRITE  (DBG_READ | DBG_WRITE)
 
 /**
- * @enum    EdtIOPort
- *
- * @brief   Values that represent a port on a card. This is to enforce typed access in C++
- ***/
+* @enum    EdtIOPort
+*
+* @brief   Values that represent a port on a card. This is to enforce typed access in C++
+***/
 
 enum EdtIOPort
 {
@@ -2623,5 +2760,28 @@ enum EdtIOPort
     EDT_IO_PORT_31 = 31,
     EDT_IO_PORT_32 = 32
 };
+
+/* Device load tasks - 
+   1. enumerate boards.
+   2. load bitfile.
+   a. from specified name
+   b. auto update
+   3. verify bitfile.
+   4. set serial number values
+   5. display one board's values
+*/
+typedef enum {
+    EDT_Enumerate,
+    EDT_LoadProm,
+    EDT_AutoUpdate,
+    EDT_VerifyOnly,
+    EDT_SetSerial,
+    EDT_Display,
+    EDT_Erase,
+    EDT_CheckIdOnly,
+    EDT_CheckUpdate,
+    EDT_DumpFlash
+} EdtLoadState;
+
 
 #endif /* INCLUDE_edtlib_h */

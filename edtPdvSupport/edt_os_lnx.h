@@ -102,6 +102,7 @@ typedef pthread_mutex_t mutex_t;
 
 #define create_mutex_named(nm)  pthread_mutex_init(&m, NULL)
 #define create_mutex(m)    pthread_mutex_init(&m, NULL)
+#define delete_mutex(m)    pthread_mutex_destroy(&m)
 
 #define wait_mutex_timeout(m,timeout) WaitForSingleObject(m,timeout)
 #define wait_mutex(m) pthread_mutex_lock(&m)

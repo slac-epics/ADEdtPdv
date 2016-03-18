@@ -26,8 +26,6 @@
  **             2:  MAC8100 register memory.
  **             3:  BAR0 DMA channel registers indexed by channel number.
  **             4:  Reserved for future Register File memory.
- **             5:  Reserved for BAR0 USB registers.
- **             6:  Reserved for UI FPGA USB registers.
  **
  **         Access Methods:
  **
@@ -228,7 +226,123 @@
  **             version of the value.
  **
  **
- **      4-15:  Reserved.  Contact EDT before using these register class numbers.
+ **     Class 6:  EDT Demodulator Interface Control Registers
+ **
+ **	    The DEMOD interface register descriptors use 27 bits out of a 32-bit word
+ **         to access 32-bit registers.  The address bits are set as follows (see the
+ **         "QAM Demodulator Interface Control Document (ICD)"):
+ **
+ **		ADDR[26:23]   Register Block Select
+ **		ADDR[22:00]   Register Block Offset Select
+ **
+ **         Access Methods:
+ **
+ **           Programs:
+ **
+ **             pdb utility -  at the prompt:
+ **
+ **               rdemod X Y       Read 32 bit data from Block X Offset Y
+ **               wdemod X Y data  Write 32 bit data to Block X Offset Y
+ **
+ **           Memory mapped:
+ **
+ **		Memory mapped access is not currently implemented.
+ **
+ **           Functions:
+ **
+ **             #define EDT_DEMOD_REGISTER 0x60000000
+ **
+ **             EDT_DEMOD_REGISTER accesses have the form 0x6XYYYYYY,
+ **             where X is the Block selector and YYYYYY is the offset
+ **             within the Block.  Each incremental offset addresses a 32-bit register.
+ **
+ **             edt_reg_read(), edt_reg_write(),
+ **             edt_demod_read(), edt_demod_write().
+ **
+ **
+ **         Example 1:
+ **
+ **             u_int regval = edt_reg_read(edt_p, EDT_DEMOD_REGISTER | (X << 23) | YYYYYY);
+ **
+ **             This will read the 32-bit value at word offset YYYYYY in Block X
+ **             of the DEMOD register memory.
+ **
+ **
+ **         Example 2:
+ **
+ **             DEMOD libedt access functions can also be used:
+ **
+ **             u_int clearmask = 0x00001000;
+ **             u_int val = edt_demod_read(edt_p, X, YYYYYY);
+ **             edt_demod_write(edt_p, X, YYYYYY, val & ~clearmask);
+ **
+ **             This will read the 32-bit value at word offset YYYYYY in Block X
+ **             of the DEMOD register memory, then write back a modified version of the value.
+ **
+ **
+ **     Class 7:  EDT Mezzanine Demodulator Interface Control Registers
+ **
+ **	    The Mezzanine based DEMOD interface register descriptors (MZDEMOD) use 27
+ **         bits out of a 32-bit word to access 32-bit registers. The address bits are
+ **         set as follows (see the "QAM Demodulator Interface Control Document (ICD)"
+ **         in the DRX16 section):
+ **
+ **		ADDR[26:23]   Register Block Select
+ **		ADDR[22:00]   Register Block Offset Select
+ **
+ **         Access Methods:
+ **
+ **           Programs:
+ **
+ **             pdb utility -  at the prompt:
+ **
+ **               rmzdemod X Y       Read 32 bit data from Block X Offset Y
+ **               wmzdemod X Y data  Write 32 bit data to Block X Offset Y
+ **
+ **           Memory mapped:
+ **
+ **		Memory mapped access is not supported due to the non-atomic
+ **		nature of mezzanine based DEMOD register accesses.
+ **
+ **           Functions:
+ **
+ **             #define EDT_MZDEMOD_REGISTER 0x70000000
+ **
+ **             EDT_MZDEMOD_REGISTER accesses have the form 0x7XYYYYYY,
+ **             where X is the Block selector and YYYYYY is the offset
+ **             within the Block.  Each incremental offset addresses a 32-bit register.
+ **
+ **             edt_reg_read(), edt_reg_write(),
+ **             edt_mzdemod_read(), edt_mzdemod_write().
+ **
+ **         Example 1:
+ **
+ **             u_int regval = edt_reg_read(edt_p, EDT_MZDEMOD_REGISTER | (X << 23) | YYYYYY);
+ **
+ **             This will read the 32-bit value at word offset YYYYYY in Block X
+ **             of the Mezzanine DEMOD register memory.
+ **
+ **
+ **         Example 2:
+ **
+ **             Mezzanine DEMOD libedt access functions can also be used:
+ **
+ **             u_int clearmask = 0x00001000;
+ **             u_int val = edt_mzdemod_read(edt_p, X, YYYYYY);
+ **             edt_mzdemod_write(edt_p, X, YYYYYY, val & ~clearmask);
+ **
+ **             This will read the 32-bit value at word offset YYYYYY in Block X
+ **             of the Mezzanine DEMOD register memory, then write back a modified
+ **             version of the value.
+ **
+ **
+ **
+ **  Reserved Register Classes
+ **
+ **    Contact EDT before using the following register class numbers:
+ **
+ **      4-5:   Reserved for BAR2, BAR3, BAR4, and BAR5.
+ **      9-15:  Reserved.
  **
  **/
 
@@ -243,8 +357,6 @@
 #define MAC8100_TYPE            0x02
 #define LOCAL_DMA_TYPE          0x03
 #define REG_FILE_TYPE           0x04
-#define LOCAL_USB_TYPE          0x05
-#define REMOTE_USB_TYPE         0x06
 
 #define INTFC_BYTE              (EDT_MAKE_TYPE(REMOTE_XILINX_TYPE) \
                                                         | EDT_MAKE_SIZE(1))
@@ -257,16 +369,15 @@
 #define MAC8100_WORD            (EDT_MAKE_TYPE(MAC8100_TYPE)\
                                                         | EDT_REG_SIZE(2))
 
-#define EDT_REG_ADDR(x) (x & 0xffff)
+#define EDT_REG_ADDR(addr) (addr & 0xffff)
 #define EDT_REG_TYPE(x) ((x >> 16) & 0xff)
 #define EDT_REG_CLASS(x) ((x >> 28) & 0xf)
 
 // Expression returns 4 if class 2 (customer class) or second MS nibble containing #bytes
-#define EDT_REG_SIZE(addr) ((addr & 0xF0000000) == 0x20000000) ? 4 : ((addr >> 24) & (0x07))
+#define EDT_REG_SIZE(addr) (((addr & 0xE0000000) == 0x20000000) ? 4 : ((addr >> 24) & (0x07)))
 
 #define EDT_MAKE_TYPE(x)        ((x & 0xff) << 16)
 #define EDT_MAKE_SIZE(x)        ((x & 0xff) << 24)
-#define USB_CMD_TYPE(x)         ((x >> 8) & 0xff)
 
 
 /* EDT PCI FPGA registers */
@@ -305,7 +416,18 @@
 #define IND2REG_TEST6   0x2400000a
 
 // EDT BAR1 register class
-#define EDT_BAR1_REGISTER 0x30000000
+#define EDT_BAR1_REGISTER   0x30000000
+#define EDT_BAR1_OFFSET(x)  (x & 0x0FFFFFFF)
+
+
+// EDT DEMOD register class
+//     EDT DEMOD accesses have the form 0x6XYYYYYY, while
+//     Mezzanine DEMOD accesses have the form 0x7XYYYYYY.
+//     Here X is the Block selector and YYYYYY is the offset
+//     within the Block.  Each incremental offset addresses a 32-bit register.
+#define EDT_DEMOD_REGISTER   0x60000000
+#define EDT_MZDEMOD_REGISTER 0x70000000
+
 
 /* macros to define register addresses */
 
@@ -347,7 +469,6 @@ typedef enum edt_driver_class {
     pcd,
     pdv,
     p53b,
-    usb
 } EdtDriverClass;
 
 
@@ -805,10 +926,10 @@ typedef enum edt_driver_class {
 #define PDV_CL_CFG2_OPTO_FRMTRIG 0x04   /* when zero, opto zero goes into the arm block; when set it's opto1 */
 #define PDV_CL_CFG2_PCLVFREE     0x08   /* used to be (before lasdt rev 8) top bit of UTILITY reg but moved */
                                         /* here after that got taken by JG for IRIGB */
-#define PDV_CL_CFG2_PE8_FRMTAG  0x10    /* enables 00ff first word tag only on PCIe8, for PCIe4 see PDVCL4_FRMTAG */
-#define PDV_CL_CFG2_PE8_FRMTAG2 0x20   /* enables 00ff first word tag only on PCIe8, for PCIe4 see PDVCL4_FRMTAG */
+#define PDV_CL_CFG2_PE8_FRMTAG  0x10    /* enables 00ff 1st word tag only on PCIe8, for PCIe4 see PDVCL4_FRMTAG */
+#define PDV_CL_CFG2_PE8_FRMTAG2 0x20    /* enables 1st word counter only on PCIe8, visionlink and beyond; for PCIe4 see PDVCL4_FRMTAG */
 #define PDV_CL_CFG2_FAST_REARM  0x40    /* fast rearm acquisition block, for PCI only but makes it act more like PCIe */
-#define PDV_CL_CFG2_SEL_FRATE  0x80    /* 0=pri conn. uses frate0,; secondary uses frate1, 1=pri conn uses fr1, sec uses fr0 */
+#define PDV_CL_CFG2_SEL_FRATE  0x80     / * 0=pri conn. uses frate0,; secondary uses frate1, 1=pri conn uses fr1, sec uses fr0 */
 
 /* ALERT: OLD WAY -- jerry's working on a new scheme that doesn't eat so many */
 /* register resources */
@@ -957,7 +1078,7 @@ typedef enum edt_driver_class {
 #define PDVCL_PCLVFREE          0x80    /* USED TO 'free' pixel clock from line valid but now used to ena IRIG; */
                                         /* CLVFREE moved to CL_CFG2 */
 #define PDVCL_IRIG2             0x80    /* overloaded yet again, to ena 32byte IRIG footer */
-#define PDVCL4_FRMTAG           0x80    /* enables 00ff first word tag only on PCIe4, for PCIe8 see PDV_CL_CFG2_PE8_FRMTAG */
+#define PDVCL4_FRMTAG           0x80    /* and again? enables 00ff on PCIe4 */
 
 /* defines for utility 2 register */
 #define PDV_PHOTO_TRIGGER       0x01    /* proto coupler triggers after start */
@@ -1635,60 +1756,6 @@ typedef enum edt_driver_class {
 
 #define PDMA_OFFSET     0xF000000
 #define PDMA_SIZE       0x1000
-
-        /* USB 8051 command methods */
-#define EDT_USB_8051_CMD     0x01050000 /* 8051 Command Methods          */
-#define EDT_USB_8051_RFIFO   0x01050001 /* 8051 Read Fifo                */
-#define EDT_USB_8051_WFIFO   0x01050002 /* 8051 Write Fifo               */
-#define EDT_USB_8051_RREG    0x01050003 /* 8051 Read FPGA Register       */
-#define EDT_USB_8051_WREG    0x01050004 /* 8051 Write FPGA Register      */
-
-        /* USB Analyzer registers and control bits */
-
-#define EDT_USB_ANL_CMD     0x01060000  /* Analyzer Command Register          */
-#define     ANL_ENABLE          0x01            /* Analyzer enable bit        */
-#define     ANL_DDR             0x02            /* Double data rate           */
-#define     ANL_GLITCH          0x04            /* Enable glitch detection    */
-
-#define EDT_USB_ANL_STATUS  0x01060001  /* Analyzer Status Register           */
-#define     ANL_CAPTURE         0x01            /* Capture in progress        */
-#define     ANL_TRIGGER_A       0x02            /* Trigger A true             */
-#define     ANL_TRIGGER_B       0x04            /* Trigger B true             */
-
-#define EDT_USB_ANL_ICSREG  0x01060002  /* Analyzer ICS clock chip            */
-#define     ANL_ICSDAT          0x01            /* ICS data bit               */
-#define     ANL_ICSCCK          0x02            /* ICS clock bit              */
-#define     ANL_ICSSTB          0x04            /* ICS strobe bit             */
-#define     ANL_LED2            0x40            /* 2nd LED                    */
-#define     ANL_LED             0x80            /* LED - set to turn on       */
-
-#define EDT_USB_ANL_TSCALE  0x0106000d  /* Analyzer timebase register         */
-#define     ANL_DOWNCNT         0x0f            /* Timebase downcount by n+1: */
-                                                /* 0,1,4 gives x1, x2, x5.    */
-#define     ANL_DECADE          0xf0            /* Timebase decade            */
-                                                /* 0-7 gives 5ns,10ns,100ns   */
-                                                /* 1us,10us,100us,1ms,10ms.   */
-
-#define EDT_USB_ANL_DELAY   0x0206000e  /* Trigger delay register (16 bits)   */
-                                            /* Delay from trigger to end of   */
-                                            /* capture in timebase units.     */
-
-#define EDT_USB_ANL_MASK_A  0x02060010  /* Trigger A mask register (16 bits)  */
-                                        /* Trigger A fires when:              */
-                                     /* (data & MASK_A) == (MASK_A & MATCH_A) */
-
-#define EDT_USB_ANL_MASK_B  0x02060012  /* Trigger B mask register (16 bits)  */
-                                        /* Trigger B fires when:              */
-                                     /* (data & MASK_B) == (MASK_B & MATCH_B) */
-
-#define EDT_USB_ANL_MATCH_A 0x02060014  /* Trigger A match register (16 bits) */
-                                                /* After trigger A fires,     */
-                                                /* then wait for trigger B.   */
-
-#define EDT_USB_ANL_MATCH_B 0x02060016  /* Trigger B match register (16 bits) */
-                                            /* After trigger B fires,         */
-                                            /* then wait for delay timebase   */
-                                            /* ticks before stopping capture. */
 
 
 /* trace support */
