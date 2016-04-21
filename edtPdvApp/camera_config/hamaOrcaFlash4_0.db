@@ -470,24 +470,24 @@ record( longout, "$(P)$(R)EdtSizeY_RBV" )
 # allow for separate BEAM_EC and BEAM_RATE_RBV macro substitutions
 
 # Orca camera should always be triggered with this camera event code
-record( longout, "$(P)$(R)EdtCamEventCode" )
+record( longout, "$(P)$(R)CamEventCode" )
 {
 	field( VAL,  "40" )
 }
 # But image acuisition is filtered with this beam event code
-record( longout, "$(P)$(R)EdtBeamEventCode" )
+record( longout, "$(P)$(R)BeamEventCode" )
 {
 	field( VAL,  "140" )
 	field( PINI, "YES" )
-	field( OUT,  "$(BEAM_EC=$(P)$(R)EdtCamEventCode) CPP NMS" )
+	field( OUT,  "$(BEAM_EC=$(P)$(R)CamEventCode) CPP NMS" )
 }
-record( longin, "$(P)$(R)EdtBeamEventCode_RBV" )
+record( longin, "$(P)$(R)BeamEventCode_RBV" )
 {
-	field( INP,  "$(BEAM_EC_RBV=$(P)$(R)EdtCamEventCode_RBV) CPP MS" )
+	field( INP,  "$(BEAM_EC_RBV=$(P)$(R)CamEventCode_RBV) CPP MS" )
 }
 record( ai, "$(P)$(R)EdtBeamRepRate_RBV" )
 {
-	field( INP,  "$(BEAM_RATE_RBV=$(P)$(R)EdtCamRepRate_RBV) CPP MS" )
+	field( INP,  "$(BEAM_RATE_RBV=$(P)$(R)CamRepRate_RBV) CPP MS" )
 }
 
 record( ao, "$(P)$(R)OrcaLineDelay" )
@@ -552,7 +552,7 @@ record( calc, "$(P)$(R)OrcaFullExpWindow" )
 
 record( calc, "$(P)$(R)OrcaPrepTime" )
 {
-	field( INPA, "$(P)$(R)EdtCamRepDur          CPP MS" )
+	field( INPA, "$(P)$(R)CamRepDur              CPP MS" )
 	field( INPB, "$(P)$(R)OrcaRollingShutterRamp CPP MS" )
 	field( INPC, "$(P)$(R)AcquireTime_RBV        CPP MS" )
 	field( CALC, "A-B-C" )
@@ -645,11 +645,12 @@ record( calc, "$(P)$(R)TrigToTS_Calc" )
     field( INPA, "$(P)$(R)AcquireTime_RBV CP MS" )
 	field( INPB, "$(P)$(R)XmitDelay CP MS" )
 	field( INPC, "$(P)$(R)DriverProcDelay CP MS" )
-	field( INPD, "$(P)$(R)EdtCamRepDur CP MS" )
+	field( INPD, "$(P)$(R)CamRepDur CP MS" )
 	field( CALC, "A+B+C-D" )
 	field( EGU,  "sec" )
 	field( PREC, "5" ) 
 }
+
 
 record( ao, "$(P)$(R)XmitRate" )
 {

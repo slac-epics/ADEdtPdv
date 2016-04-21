@@ -436,7 +436,7 @@ record( longout, "$(P)$(R)EdtDelayScale" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 }
-record( longout, "$(P)$(R)EdtCamEventCode" )
+record( longout, "$(P)$(R)CamEventCode" )
 {
 	field( VAL,  "40" )
 	field( OUT,  "$(CAM_EC=Unused) CPP NMS" )
@@ -444,56 +444,25 @@ record( longout, "$(P)$(R)EdtCamEventCode" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 }
-record( longin, "$(P)$(R)EdtCamEventCode_RBV" )
+record( longin, "$(P)$(R)CamEventCode_RBV" )
 {
 	field( INP,  "$(CAM_EC_RBV=Unused) CPP MS" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC VAL" )
 }
-#record( ao, "$(P)$(R)EdtCamTrigDelay" )
-#{
-#	field( PINI, "YES" )
-#	field( EGU,  "$(CAM_DLY_EGU=sec)" )
-#	field( PREC, "4" )
-#	field( EGU,  "sec" )
-#	field( FLNK, "$(P)$(R)EdtCamTrigDelayCalc" )
-#	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR PREC VAL" )
-#	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR PREC VAL" )
-#}
-#record( calcout, "$(P)$(R)EdtCamTrigDelayCalc" )
-#{
-#	field( INPA, "$(P)$(R)EdtCamTrigDelay NPP MS" )
-#	field( INPB, "$(P)$(R)EdtDelayScale CPP MS" )
-#	field( CALC, "A*B" )
-#	field( OUT,  "$(CAM_DLY=Unused) CPP NMS" )
-#	field( EGU,  "$(CAM_DLY_EGU=sec)" )
-#	field( PREC, "4" )
-#	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC" )
-#	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC VAL" )
-#}
-#record( calc, "$(P)$(R)EdtCamTrigDelay_RBV" )
-#{
-#	field( INPA, "$(CAM_DLY_RBV=Unused) CPP MS" )
-#	field( INPB, "$(P)$(R)EdtDelayScale CPP MS" )
-#	field( CALC, "B==0?A:(A/B)" )
-#	field( EGU,  "$(CAM_DLY_EGU=sec)" )
-#	field( PREC, "4" )
-#	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC" )
-#	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC VAL" )
-#}
 
-record( ai, "$(P)$(R)EdtCamRepRate_RBV" )
+record( ai, "$(P)$(R)CamRepRate_RBV" )
 {
 	field( INP, "$(CAM_RATE_RBV=Unused) CPP MS" )
 	field( EGU,  "Hz" )
 	field( PREC, "1" )
-	field( FLNK, "$(P)$(R)EdtCamRepDur" )
+	field( FLNK, "$(P)$(R)CamRepDur" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC VAL" )
 }
-record( calc, "$(P)$(R)EdtCamRepDur" )
+record( calc, "$(P)$(R)CamRepDur" )
 {
-	field( INPA, "$(P)$(R)EdtCamRepRate_RBV CPP MS" )
+	field( INPA, "$(P)$(R)CamRepRate_RBV CPP MS" )
 	field( CALC, "A==0?10:(1/A)" )
 	field( EGU,  "sec" )
 	field( PREC, "3" )
@@ -502,42 +471,42 @@ record( calc, "$(P)$(R)EdtCamRepDur" )
 }
 
 #
-# For rolling shutter $(MODEL).db, use these lines as appropriate
+# For rolling shutter MODEL.db, use these lines as appropriate
 #	field( PINI, "YES" )
-#	field( OUT,  "$(BEAM_EC=$(P)$(R)EdtCamEventCode) CPP NMS" )
-#	field( INP,  "$(BEAM_RATE_RBV=$(P)$(R)EdtCamRepRate_RBV) CPP MS" )
+#	field( OUT,  "$(BEAM_EC=$(P)$(R)CamEventCode) CPP NMS" )
+#	field( INP,  "$(BEAM_RATE_RBV=$(P)$(R)CamRepRate_RBV) CPP MS" )
 #	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 #
 # By default this beam event code isn't autosaved and
 # PINI is NO so it can be safely ignored if not on the user GUI
 # Similarly, the RBV values default to following their camera trigger equivalents
 #
-record( longout, "$(P)$(R)EdtBeamEventCode" )
+record( longout, "$(P)$(R)BeamEventCode" )
 {
 	field( VAL,  "140" )
 	field( PINI, "NO" )
-	field( OUT,  "$(P)$(R)EdtCamEventCode CPP NMS" )
+	field( OUT,  "$(P)$(R)CamEventCode CPP NMS" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 }
-record( longin, "$(P)$(R)EdtBeamEventCode_RBV" )
+record( longin, "$(P)$(R)BeamEventCode_RBV" )
 {
-	field( INP,  "$(P)$(R)EdtCamEventCode_RBV CPP MS" )
+	field( INP,  "$(P)$(R)CamEventCode_RBV CPP MS" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 }
-record( ai, "$(P)$(R)EdtBeamRepRate_RBV" )
+record( ai, "$(P)$(R)BeamRepRate_RBV" )
 {
-	field( INP,  "$(P)$(R)EdtCamRepRate_RBV CPP MS" )
+	field( INP,  "$(P)$(R)CamRepRate_RBV CPP MS" )
 	field( EGU,  "Hz" )
 	field( PREC, "1" )
-	field( FLNK, "$(P)$(R)EdtBeamRepDur" )
+	field( FLNK, "$(P)$(R)BeamRepDur" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC PREC VAL" )
 }
-record( calc, "$(P)$(R)EdtBeamRepDur" )
+record( calc, "$(P)$(R)BeamRepDur" )
 {
-	field( INPA, "$(P)$(R)EdtBeamRepRate_RBV CPP MS" )
+	field( INPA, "$(P)$(R)BeamRepRate_RBV CPP MS" )
 	field( CALC, "A==0?10:(1/A)" )
 	field( EGU,  "sec" )
 	field( PREC, "3" )

@@ -1285,7 +1285,7 @@ x 584
 y 8
 w 88
 h 20
-controlPv "$(P)$(R)EdtCamRepRate_RBV"
+controlPv "$(P)$(R)CamRepRate_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -1311,7 +1311,7 @@ x 488
 y 8
 w 88
 h 20
-controlPv "$(P)$(R)EdtCamEventCode"
+controlPv "$(P)$(R)CamEventCode"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
@@ -1358,7 +1358,7 @@ x 584
 y 36
 w 88
 h 20
-controlPv "$(P)$(R)EdtBeamRepRate_RBV"
+controlPv "$(P)$(R)BeamRepRate_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -1384,7 +1384,7 @@ x 488
 y 36
 w 88
 h 20
-controlPv "$(P)$(R)EdtBeamEventCode"
+controlPv "$(P)$(R)BeamEventCode"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
