@@ -509,7 +509,7 @@ asynStatus edtPdvCamera::DisconnectCamera( )
     //	return asynSuccess;
 }
 
-/// Overriding asynPortDriver::connect
+/// Overriding ADDriver::connect
 ///	Connects driver to device
 asynStatus edtPdvCamera::connect( asynUser *	pasynUser )
 {
@@ -557,7 +557,7 @@ asynStatus edtPdvCamera::connect( asynUser *	pasynUser )
     return asynSuccess;
 }
 
-/// Overriding asynPortDriver::disconnect
+/// Overriding ADDriver::disconnect
 ///	Disconnects driver from device
 asynStatus edtPdvCamera::disconnect( asynUser *	pasynUser )
 {
@@ -850,7 +850,7 @@ int edtPdvCamera::_Reconfigure( )
 	}
 	setIntegerParam( NDBitsPerPixel,	m_ClNumBits		);
 
-	setIntegerParam( NDArrayCallbacks,	1	);
+	// setIntegerParam( NDArrayCallbacks,	1	);
 
 	// See if we support deinterlacing raw images
 	switch ( pDD->swinterlace )
@@ -1276,7 +1276,7 @@ int edtPdvCamera::StartAcquisition( )
 	if ( DEBUG_EDT_PDV >= 2 )
 		printf(	"%s: framesync enable %s\n", functionName, framesync == 0 ? "succeeded" : "failed" );
 
-	// TODO: Is this the right place for these?
+	// Clear NumImagesCounter and start acquisition
 	setIntegerParam( ADNumImagesCounter, 0 );
 	UpdateStatus( ADStatusAcquire );
 
@@ -1365,7 +1365,7 @@ int edtPdvCamera::DeIntlvRoiOnly16( NDArray * pNDArray, void	*	pRawData )
 	assert( pNDArray		!= NULL );
 	assert( pNDArray->pData	!= NULL );
 	assert( pRawData		!= NULL );
-    static const char	*	functionName	= "edtPdvCamera::DeIntlvRoiOnly16";
+    // static const char	*	functionName	= "edtPdvCamera::DeIntlvRoiOnly16";
 	CONTEXT_TIMER( "DeIntlvRoiOnly16" );
 	// Image already de-interleaved in PDV library, just memcpy it here.
 	// memcpy( pNDArray->pData, pRawData, nBytes );
@@ -1534,7 +1534,9 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 	CONTEXT_TIMER( "AcquireData-wrapup" );
 
 	// Increment NumImagesCounter
-	//	TODO: Replace this silly pattern w/ local m_numImagesCounter that sets ADNumImagesCounter
+	//	TODO: Replace this pattern w/ local m_numImagesCounter
+	//	m_numImagesCounter++
+	//	setIntegerParam( ADNumImagesCounter, m_numImagesCounter );
 	int		numImagesCounter;
 	getIntegerParam(	ADNumImagesCounter,	&numImagesCounter	);
 	numImagesCounter++;
@@ -1686,13 +1688,18 @@ int	edtPdvCamera::ProcessData(
 		/* Update our frame count */
 		IncrArrayCounter();
 
-		// Do NDArray callbacks unlocked to avoid deadlocks if the plugin
-		// tries to lock the driver.
-		this->unlock();
-		if ( DEBUG_EDT_PDV >= 4 )
-			printf(	"%s: Processing image callbacks ...\n", functionName );
-		doCallbacksGenericPointer( pNDArray, NDArrayData, 0 );
-		this->lock();
+		int	arrayCallbacks;
+		getIntegerParam( NDArrayCallbacks, &arrayCallbacks );
+		if ( arrayCallbacks )
+		{
+			// Do NDArray callbacks unlocked to avoid deadlocks if the plugin
+			// tries to lock the driver.
+			this->unlock();
+			if ( DEBUG_EDT_PDV >= 4 )
+				printf(	"%s: Processing image callbacks ...\n", functionName );
+			doCallbacksGenericPointer( pNDArray, NDArrayData, 0 );
+			this->lock();
+		}
 
 		if ( DEBUG_EDT_PDV >= 4 )
 			printf(	"%s: Processing parameter callbacks ...\n", functionName );
@@ -2250,7 +2257,8 @@ asynStatus edtPdvCamera::readInt32(	asynUser *	pasynUser, epicsInt32	* pValueRet
 //	if ( pasynUser->reason == EdtTrigLevel ) setIntegerParam( EdtTrigLevel, *pValueRet );
 
 	// Call base class
-	asynStatus	status	= asynPortDriver::readInt32( pasynUser, pValueRet );
+	// asynStatus	status	= asynPortDriver::readInt32( pasynUser, pValueRet );
+	asynStatus	status	= ADDriver::readInt32( pasynUser, pValueRet );
     return status;
 }
 
@@ -2264,34 +2272,39 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 	asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
 				"%s: Reason %d %s, value %d\n", functionName, pasynUser->reason, reasonName, value );
 
-    if ( pasynUser->reason == ADAcquire )
-	{
-		return SetAcquireMode( value );
-    }
-
-    if ( pasynUser->reason == ADBinX		)	RequestBinX(	value	);
-    if ( pasynUser->reason == ADBinY		)	RequestBinY(	value	);
-    if ( pasynUser->reason == ADMinX		)	RequestMinX(	value	);
-    if ( pasynUser->reason == ADMinY		)	RequestMinY(	value	);
-    if ( pasynUser->reason == ADSizeX		)	RequestSizeX(	value	);
-    if ( pasynUser->reason == ADSizeY		)	RequestSizeY(	value	);
-    if ( pasynUser->reason == ADTriggerMode	)	RequestTriggerMode(	value );
-
-    if ( pasynUser->reason == ADImageMode)
-	{
-		// Get prior values
+	int	status	= asynSuccess;
+	//
+	// EDT implements these AD parameters
+	//
+	if (		pasynUser->reason == ADAcquire ) {
+		status	= SetAcquireMode( value );
+	} else if ( pasynUser->reason == ADBinX		) {
+		status	= RequestBinX(	value	);
+    } else if ( pasynUser->reason == ADBinY		) {
+		status	= RequestBinY(	value	);
+    } else if ( pasynUser->reason == ADMinX		) {
+		status	= RequestMinX(	value	);
+    } else if ( pasynUser->reason == ADMinY		) {
+		status	= RequestMinY(	value	);
+    } else if ( pasynUser->reason == ADSizeX		) {
+		status	= RequestSizeX(	value	);
+    } else if ( pasynUser->reason == ADSizeY		) {
+		status	= RequestSizeY(	value	);
+    } else if ( pasynUser->reason == ADTriggerMode	) {
+		status	= RequestTriggerMode(	value );
+    } else if ( pasynUser->reason == ADImageMode) {
+		// Get current imageMode from ADDriver
 		int			imageMode;
-		// TODO: Why are we asking ADManager what our driver parameter values are? Add m_ImageMode, ...
-		getIntegerParam( ADImageMode,	&imageMode	);
+		status	= getIntegerParam( ADImageMode,	&imageMode	);
 
 		if ( imageMode != value )
 		{
 			int			numImages;
 			getIntegerParam( ADNumImages,	&numImages	);
 
-			// Capture mode changed
+			// Image Capture mode changed
 			imageMode = value;
-			setIntegerParam( ADImageMode,	value );
+			status	= setIntegerParam( ADImageMode,	value );
 
 			// Update acquire count
 			switch( imageMode )
@@ -2310,18 +2323,16 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 				printf(	"%s: Setting acquire count to %d\n", 
 						functionName, m_acquireCount );
 		}
-	}
 
-    if ( pasynUser->reason == ADNumImages )
-	{
+	} else if ( pasynUser->reason == ADNumImages ) {
 		// Get prior values
 		int			numImages;
-		getIntegerParam( ADNumImages,	&numImages	);
+		status	= getIntegerParam( ADNumImages,	&numImages	);
 
 		if ( numImages != value )
 		{
 			// Image capture count changed
-			setIntegerParam( ADNumImages,	value );
+			status	= setIntegerParam( ADNumImages,	value );
 
 			// Update acquire count
 			int			imageMode;
@@ -2342,27 +2353,47 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 				printf(	"%s: Updating acquire count to %d\n", 
 						functionName, m_acquireCount );
 		}
-	}
 
-    if ( pasynUser->reason == NDArrayCounter	)
-	{
-		return SetArrayCounter( value );
-	}
-    if ( pasynUser->reason == EdtTrigLevel		)	setIntegerParam( EdtTrigLevel, value );
+	//
+	// EDT implements these ND parameters
+	//
+	} else if ( pasynUser->reason == NDArrayCounter	) {
+		status = SetArrayCounter( value );
+	//
+	// No more overrides of ND and AD parameters
+	// Any below FIRST_EDT_PARAM get handled by base class ADDriver
+	//
+    } else if (	pasynUser->reason < FIRST_EDT_PARAM ) {
+		status	= ADDriver::writeInt32( pasynUser, value );
+	//
+	// Start of EDT specific parameters
+	//
+    } else if ( pasynUser->reason == EdtTrigLevel		) {
+		status = setIntegerParam( EdtTrigLevel, value );
 
-	if ( pasynUser->reason == SerBinX			)	SetBinX(	value );
-	if ( pasynUser->reason == SerBinY			)	SetBinY(	value );
-    if ( pasynUser->reason == SerTriggerMode	)	SetTriggerMode(	value );
-    if ( pasynUser->reason == SerMinX			)	SetMinX(	value );
-    if ( pasynUser->reason == SerMinY			)	SetMinY(	value );
-    if ( pasynUser->reason == SerSizeX			)	SetSizeX(	value );
-    if ( pasynUser->reason == SerSizeY			)	SetSizeY(	value );
-    if ( pasynUser->reason == EdtDebug			)	SetEdtDebugLevel(		value );
-    if ( pasynUser->reason == EdtDebugMsg		)	SetEdtDebugMsgLevel(	value );
- 
+	} else if ( pasynUser->reason == SerBinX			) {
+		status = SetBinX(	value );
+	} else if ( pasynUser->reason == SerBinY			) {
+		status = SetBinY(	value );
+    } else if ( pasynUser->reason == SerTriggerMode	) {
+		status = SetTriggerMode(	value );
+    } else if ( pasynUser->reason == SerMinX			) {
+		status = SetMinX(	value );
+    } else if ( pasynUser->reason == SerMinY			) {
+		status = SetMinY(	value );
+    } else if ( pasynUser->reason == SerSizeX			) {
+		status = SetSizeX(	value );
+    } else if ( pasynUser->reason == SerSizeY			) {
+		status = SetSizeY(	value );
+    } else if ( pasynUser->reason == EdtDebug			) {
+		status = SetEdtDebugLevel(		value );
+    } else if ( pasynUser->reason == EdtDebugMsg		) {
+		status = SetEdtDebugMsgLevel(	value );
+ 	}
+
     callParamCallbacks( 0, 0 );
 
-    return asynStatus(0);
+    return (asynStatus) status;
 }
 
 asynStatus edtPdvCamera::writeFloat64(	asynUser *	pasynUser, epicsFloat64	value )
@@ -2374,22 +2405,20 @@ asynStatus edtPdvCamera::writeFloat64(	asynUser *	pasynUser, epicsFloat64	value 
 				"asynPrint "
 				"%s: Reason %d %s, value %lf\n", functionName, pasynUser->reason, reasonName, value );
 
-    if ( pasynUser->reason == SerAcquireTime )
-	{
-		setDoubleParam( ADAcquireTime, value );
-	}
-    if ( pasynUser->reason == ADGain)
-	{
-		SetGain(	value	);
-	}
-    if ( pasynUser->reason == SerGain )
-	{
-		setDoubleParam( ADGain, value );
+	int		status	= asynSuccess;
+    if (		pasynUser->reason < FIRST_EDT_PARAM ) {
+		status	= ADDriver::writeFloat64( pasynUser, value );
+    } else if ( pasynUser->reason == SerAcquireTime ) {
+		status	= setDoubleParam( ADAcquireTime, value );
+	} else if ( pasynUser->reason == ADGain) {
+		status	= SetGain(	value	);
+	} else if ( pasynUser->reason == SerGain ) {
+		status	= setDoubleParam( ADGain, value );
 	}
 
     callParamCallbacks();
 
-    return asynStatus(0);
+    return (asynStatus) status;
 }
 
 
