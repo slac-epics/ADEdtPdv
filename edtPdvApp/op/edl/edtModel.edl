@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1066
-y 1224
+x 257
+y 1274
 w 739
 h 595
 font "helvetica-medium-r-12.0"
@@ -146,5 +146,44 @@ botShadowColor index 11
 filePv "$(P)$(R)CamModelScreen"
 numDsps 0
 noScroll
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 8
+y 48
+w 720
+h 544
+
+beginGroup
+
+# (Embedded Window)
+object activePipClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 8
+y 48
+w 720
+h 544
+fgColor index 14
+bgColor index 0
+topShadowColor index 1
+botShadowColor index 11
+filePv "$(P)$(R)EdtModelScreen"
+numDsps 0
+noScroll
+endObjectProperties
+
+endGroup
+
+visPv "$(P)$(R)EdtModelScreen.SEVR"
+visMin "0"
+visMax "1"
 endObjectProperties
 

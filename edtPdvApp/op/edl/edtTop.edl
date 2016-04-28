@@ -208,7 +208,7 @@ buttonLabel "Plugins"
 numPvs 4
 numDsps 1
 displayFileName {
-  0 "gigeScreens/pcdsPlugins.edl"
+  0 "ADStreamScreens/pcdsPlugins.edl"
 }
 symbols {
   0 "CAM=$(CAM),P=$(CAM):,IOC=$(IOC)"
