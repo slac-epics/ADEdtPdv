@@ -302,7 +302,7 @@ record( longin, "$(P)$(R)OpalAcquirePeriod_RBV" )
 record( calcout, "$(P)$(R)OpalCalcAcquirePeriod_RBV" )
 {
 	field( INPA, "$(P)$(R)OpalAcquirePeriod_RBV"	)
-	field( INPB, "10e-5" )
+	field( INPB, "10e-6" )
 	field( CALC, "A*B" )
     field( EGU,  "sec"  )
 	field( OUT,  "$(P)$(R)AcquirePeriod_RBV PP MS"	)
