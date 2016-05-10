@@ -347,6 +347,8 @@ private:	//	Private member functions
 	int		_Reconfigure( );
 	int		_Reopen( );
 
+	int		SetupROI( );
+
 	//	NDArray routines
 	//	Don't call without holding driver lock!
 	NDArray *	AllocNDArray(	);

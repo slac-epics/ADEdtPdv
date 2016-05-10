@@ -17,15 +17,14 @@ record( stringin, "$(P)$(R)CamModelScreen" )
 	field( PINI, "YES" )
 }
 
-# Provide defaults for ADCore SizeX and SizeY
-record( longout, "$(P)$(R)SizeX" )
-{
-	field( VAL, "640" )
-}
-record( longout, "$(P)$(R)SizeY" )
-{
-	field( VAL, "480" )
-}
+# ADCore MinX, MinY, SizeX and SizeY not supported via serial
+# However, they appear to be supported via camlink interface
+# record( longout, "$(P)$(R)MinX"  ) { field( DISA, "1" ) }
+# record( longout, "$(P)$(R)MinY"  ) { field( DISA, "1" ) }
+# record( longout, "$(P)$(R)SizeX" ) { field( DISA, "1" ) }
+# record( longout, "$(P)$(R)SizeY" ) { field( DISA, "1" ) }
+
+# TODO: Add support for BinX, BinY
 
 # Redirect FLNK's from Gain to EdtGain to PulnixGain
 # Gain and EdtGain use range 0..100
@@ -491,10 +490,28 @@ record( stringin, "$(P)$(R)PulnixFirmware_RBV" )
 	field( PINI, "YES" )
 }
 
+# Pulnix 6740 appears to take about 1.3ms to send the image
+record( ao, "$(P)$(R)CamProcDelay" )
+{
+    field( DOL,  "1.3e-3" )
+}
+
+record( calc, "$(P)$(R)XmitDelay" )
+{
+    field( INPA, "$(P)$(R)ArraySizeX_RBV CP MS" )
+    field( INPB, "$(P)$(R)XmitRate CPP MS" )
+    field( INPC, "$(P)$(R)HTaps_RBV CPP MS" )
+    field( INPD, "$(P)$(R)VTaps_RBV CPP MS" )
+    field( INPE, "$(P)$(R)CamProcDelay CPP MS" )
+    field( INPF, "$(P)$(R)ArraySizeY_RBV CP MS" )
+    field( CALC, "((A+160)*(F+20)/B/C/D)+E" )
+    field( EGU,  "Bytes/Sec" )
+}
+
 # Effective transmit rate is 40Mhz PixelClock * 2 HTaps
 record( ao, "$(P)$(R)XmitRate" )
 {
-    field( DOL,  "80.0e6" )
+    field( DOL,  "40.0e6" )
     field( EGU,  "Bytes/Sec" )
     field( PREC, "3" )
     field( PINI, "YES" )

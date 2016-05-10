@@ -281,8 +281,10 @@ template < class Dev, class Data >	class syncDataAcq
 				// Failed to acquire an image!
 				ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: AcquireData error %d\n", functionName, status );
 				// Should we return here to avoid trying to acquire data too often?
-				// I think so
 				return status;
+				// Looks like Opal is ok w/ continue here
+				// but Pulnix needs a restart if the trigger goes away and comes back
+				// continue;
 			}
 
 			// Check for image errors

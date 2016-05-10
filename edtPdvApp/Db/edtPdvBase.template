@@ -41,6 +41,9 @@ record( mbbo, "$(P)$(R)ColorMode"			) { field( DISA, "1" ) }
 record( ao, "$(P)$(R)AcquirePeriod"			) { field( DISA, "1" ) }
 record( ai, "$(P)$(R)AcquirePeriod_RBV"		) { field( DISA, "1" ) }
 
+# Set severity for ADStateInitializing to MINOR to highlight when camera is reconfiguring
+record( mbbi, "$(P)$(R)DetectorState_RBV"	) { field( EISV, "MINOR" ) }
+
 # This record should be overridden in $MODEL.db, replacing "UknownModel" with
 # the chosen camera model.
 # PINI is NO here so PV status is UDF, but should be set to YES in $MODEL.db
@@ -60,16 +63,18 @@ alias( "$(P)$(R)CamModelScreen", "$(P)$(R)EdtModelScreen" )
 
 # TODO:  We need a generic EdtReConfigCount PV here that
 # gets incremented each time the driver reconfigures the camera.
-# That PV could be monitored by camera specific PV's w/ PINI YES
+# The FNLK record, EdtReConfigFanout, would be implemented by each
+# camera model.db file to trigger processing of PV's w/ PINI YES
 # that currently only get one read attempt at ioc boot time.
 # For cameras w/ sketchy serial support, we currently get occasional
 # failures reading these status related PV's such as firmware version
 # and there's no mechanism to force a retry.
 record( longout, $(P)$(R)EdtReConfigCount )
 {
-#	field( DTYP, "asynInt32" )
-#	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))RECFG_CNT" )
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))RECFG_CNT" )
 	field( SCAN, "I/O Intr" )
+	field( FLNK, "$(P)$(R)EdtReConfigFanout" )
 }
 
 #

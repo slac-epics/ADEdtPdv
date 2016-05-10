@@ -54,6 +54,10 @@ static	const char *		driverName	= "EdtPdv";
 
 int		DEBUG_EDT_PDV	= 2;
 
+int		fEnableFrameSync	= PDV_FRAMESYNC_OFF;
+// int		fEnableFrameSync	= PDV_FRAMESYNC_ON;
+int		fCheckFrameSync		= 0;
+
 //	t_HiResTime		imageCaptureCumTicks	= 0LL;
 //	unsigned long	imageCaptureCount		= 0L;
 
@@ -788,6 +792,14 @@ int edtPdvCamera::_Reconfigure( )
         return -1;
     }
 
+	double		cameraInitCamDelay	= 0.0;
+	if ( cameraInitCamDelay > 0.0 )
+	{
+		if ( DEBUG_EDT_PDV >= 2 )
+			printf(	"%s: Delaying %f sec for pdv_initcam\n", functionName, cameraInitCamDelay );
+		epicsThreadSleep( cameraInitCamDelay );
+	}
+
 	// Fetch the camera manufacturer and model and write them to ADBase parameters
     m_CameraClass	= pdv_get_camera_class(	m_pPdvDev );
     m_CameraModel	= pdv_get_camera_model(	m_pPdvDev );
@@ -910,18 +922,64 @@ int edtPdvCamera::_Reconfigure( )
 	// Should be OK to just FLNK it in edtPdvBase.template
 	// setDoubleParam(  SerGain,			m_Gain		);
 
-	// TODO: Can we put off the rest of this routine until the above
-	// setIntegerParam calls have been processed by the camera specific PV's?
-	// We aren't really ready yet as the new HW ROI settings haven't been
-	// send to the camera.
+	SetupROI();
 
-	// Write the configuration parameters to the AreaDetector parameter PV's
-//	int	status = (asynStatus) UpdateADConfigParams( );
-//	if ( status != asynSuccess )
-//       asynPrint(	this->pasynUserSelf, ASYN_TRACE_ERROR,
-//					"asynPrint "
-//					"%s %s: error calling UpdateADConfigParams, error=%s\n",
-//					driverName, functionName, this->pasynUserSelf->errorMessage );
+	if ( fEnableFrameSync )
+	{
+		int framesync = pdv_enable_framesync(	m_pPdvDev, fEnableFrameSync	);
+		if ( DEBUG_EDT_PDV >= 2 )
+			printf(	"%s: framesync enable %s\n", functionName, framesync == 0 ? "succeeded" : "failed" );
+	}
+	else
+	{
+		fCheckFrameSync = 0;
+	}
+
+    return 0;
+}
+
+
+int edtPdvCamera::SetupROI( )
+{
+    static const char	*	functionName = "edtPdvCamera::SetupROI";
+
+	if (	(	GetSizeX() < m_ClMaxWidth  )
+		||	(	GetSizeY() < m_ClMaxHeight ) )
+	{
+		// Setup PDV ROI image transfer
+		int		hskip	= GetMinX();
+		int		vskip	= GetMinY();
+		// EDT Horiz and Vert Active line count must be a multiple of the number of CamLink taps
+		// Pad up to next largest size 
+		int		hactv	= ( (GetSizeX()+m_ClHTaps-1) / m_ClHTaps ) * m_ClHTaps;
+		int		vactv	= ( (GetSizeY()+m_ClVTaps-1) / m_ClVTaps ) * m_ClVTaps;
+		if ( DEBUG_EDT_PDV >= 2 )
+			printf(	"%s: Setting PDV ROI to hskip %d, hactv %d, vskip %d, vactv %d\n",
+					functionName,	hskip, hactv, vskip, vactv );
+		pdv_enable_roi(	m_pPdvDev, 1	);
+		pdv_set_roi(	m_pPdvDev,	hskip, hactv, vskip, vactv );
+		m_ClCurWidth	= hactv;
+		m_ClCurHeight	= vactv;
+	}
+	else
+	{
+		int		hskip	= 0;
+		int		vskip	= 0;
+		// EDT Horiz and Vert Active line count must be a multiple of the number of CamLink taps
+		// Pad up to next largest size 
+		int		hactv	= ( (m_ClMaxWidth  + m_ClHTaps - 1) / m_ClHTaps ) * m_ClHTaps;
+		int		vactv	= ( (m_ClMaxHeight + m_ClVTaps - 1) / m_ClVTaps ) * m_ClVTaps;
+		assert(	hactv == (int) m_ClMaxWidth	);
+		assert(	vactv == (int) m_ClMaxHeight	);
+		if ( DEBUG_EDT_PDV >= 2 )
+			printf(	"%s: Disabling PDV ROI, restoring hskip %d, hactv %d, vskip %d, vactv %d\n",
+					functionName,	hskip, hactv, vskip, vactv );
+		pdv_enable_roi(	m_pPdvDev, 0	);
+		pdv_set_roi(	m_pPdvDev,	hskip, hactv, vskip, vactv );
+		m_ClCurWidth	= hactv;
+		m_ClCurHeight	= vactv;
+	}
+
     return 0;
 }
 
@@ -947,9 +1005,9 @@ int edtPdvCamera::_Reopen( )
 			printf( "%s: %s pdv_timeout_restart\n", functionName, m_CameraName.c_str() );
 		pdv_timeout_restart( m_pPdvDev, 0 );
 		// epicsThreadSleep( 0.1 );
-		if ( DEBUG_EDT_PDV >= 3 )
-			printf( "%s: %s pdv_stop_continuous\n", functionName, m_CameraName.c_str() );
-		pdv_stop_continuous( m_pPdvDev );
+//		if ( DEBUG_EDT_PDV >= 3 )
+//			printf( "%s: %s pdv_stop_continuous\n", functionName, m_CameraName.c_str() );
+//		pdv_stop_continuous( m_pPdvDev );
 		if ( DEBUG_EDT_PDV >= 3 )
 			printf( "%s: %s pdv_close\n", functionName, m_CameraName.c_str() );
 		pdv_close( m_pPdvDev );
@@ -1113,7 +1171,7 @@ asynStatus	edtPdvCamera::UpdateStatus( int	newStatus	)
 	}
 	CONTEXT_TIMER( "edtPdvCamera-UpdateStatus" );
 	//	Context timer shows these next two calls take about 20us
-	asynStatus		status	= setIntegerParam( ADStatus, ADStatusIdle );
+	asynStatus		status	= setIntegerParam( ADStatus, newStatus );
 	if( status == asynSuccess )
 		status = callParamCallbacks( 0, 0 );
 	return status;
@@ -1214,7 +1272,15 @@ int edtPdvCamera::StartAcquisition( )
     static const char	*	functionName = "edtPdvCamera::StartAcquisition";
 	CONTEXT_TIMER( "StartAcquisition" );
 
-	double		cameraStartDelay	= 0.25;
+#if 0
+	// Cleanup any pending transfers
+	// (Helps keep synchronized images if app is restarted)
+	if ( DEBUG_EDT_PDV >= 3 )
+		printf( "%s: Calling pdv_flush_fifo( ) ...\n", functionName );
+    pdv_flush_fifo( m_pPdvDev );
+#endif
+
+	double		cameraStartDelay	= 0.1;
 	if ( cameraStartDelay > 0.0 )
 	{
 		if ( DEBUG_EDT_PDV >= 2 )
@@ -1222,59 +1288,9 @@ int edtPdvCamera::StartAcquisition( )
 		epicsThreadSleep( cameraStartDelay );
 	}
 
-	// Cleanup any pending transfers
-	// (Helps keep synchronized images if app is restarted)
-	if ( DEBUG_EDT_PDV >= 3 )
-		printf( "%s: Calling pdv_flush_fifo( ) ...\n", functionName );
-    pdv_flush_fifo( m_pPdvDev );
-
 	if ( DEBUG_EDT_PDV >= 2 )
 		printf(	"%s: Acquire image from %zu,%zu size %zux%zu\n", functionName,
 				GetMinX(), GetMinY(), GetSizeX(), GetSizeY()	);
-	if (	(	GetSizeX() < m_ClMaxWidth  )
-		||	(	GetSizeY() < m_ClMaxHeight ) )
-	{
-		// Setup PDV ROI image transfer
-		// Note: We don't use MinY in setting up the PDV image grab as
-		// the ORCA handles the Y offset and Y size, always transfers full rows,
-		// and reads the resulting image to row 0
-		// TODO: Figure out how to handle this for other camera models
-		int		hskip	= GetMinX();
-		int		vskip	= 0;
-		// EDT Horiz and Vert Active line count must be a multiple of the number of CamLink taps
-		// Pad up to next largest size 
-		int		hactv	= ( (GetSizeX()+m_ClHTaps-1) / m_ClHTaps ) * m_ClHTaps;
-		int		vactv	= ( (GetSizeY()+m_ClVTaps-1) / m_ClVTaps ) * m_ClVTaps;
-		if ( DEBUG_EDT_PDV >= 2 )
-			printf(	"%s: Setting PDV ROI to hskip %d, hactv %d, vskip %d, vactv %d\n",
-					functionName,	hskip, hactv, vskip, vactv );
-		pdv_set_roi(	m_pPdvDev,	hskip, hactv, vskip, vactv );
-		pdv_enable_roi(	m_pPdvDev, 1	);
-		m_ClCurWidth	= hactv;
-		m_ClCurHeight	= vactv;
-	}
-	else
-	{
-		int		hskip	= 0;
-		int		vskip	= 0;
-		// EDT Horiz and Vert Active line count must be a multiple of the number of CamLink taps
-		// Pad up to next largest size 
-		int		hactv	= ( (m_ClMaxWidth  + m_ClHTaps - 1) / m_ClHTaps ) * m_ClHTaps;
-		int		vactv	= ( (m_ClMaxHeight + m_ClVTaps - 1) / m_ClVTaps ) * m_ClVTaps;
-		assert(	hactv == (int) m_ClMaxWidth	);
-		assert(	vactv == (int) m_ClMaxHeight	);
-		if ( DEBUG_EDT_PDV >= 2 )
-			printf(	"%s: Disabling PDV ROI, restoring hskip %d, hactv %d, vskip %d, vactv %d\n",
-					functionName,	hskip, hactv, vskip, vactv );
-		pdv_set_roi(	m_pPdvDev,	hskip, hactv, vskip, vactv );
-		pdv_enable_roi(	m_pPdvDev, 0	);
-		m_ClCurWidth	= hactv;
-		m_ClCurHeight	= vactv;
-	}
-
-	int framesync = pdv_enable_framesync(	m_pPdvDev, PDV_FRAMESYNC_ON	);
-	if ( DEBUG_EDT_PDV >= 2 )
-		printf(	"%s: framesync enable %s\n", functionName, framesync == 0 ? "succeeded" : "failed" );
 
 	// Clear NumImagesCounter and start acquisition
 	setIntegerParam( ADNumImagesCounter, 0 );
@@ -1282,6 +1298,7 @@ int edtPdvCamera::StartAcquisition( )
 
 	if ( DEBUG_EDT_PDV >= 3 )
 		printf( "%s: Calling pdv_start_images( pPdvDev, %d ) ...\n", functionName, m_NumMultiBuf );
+
 	// Start grabbing images
 	pdv_start_images( m_pPdvDev, m_NumMultiBuf );
 
@@ -1380,8 +1397,6 @@ int edtPdvCamera::DeIntlvRoiOnly16( NDArray * pNDArray, void	*	pRawData )
 	return 0;
 }
 
-int fCheckFrameSync = 0;
-
 int edtPdvCamera::AcquireData( edtImage	*	pImage )
 {
     static const char	*	functionName = "edtPdvCamera::AcquireData";
@@ -1431,12 +1446,13 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 	if( m_acquireCount > 0 )
 		m_acquireCount--;
 
-	if ( pPdvBuffer == NULL )
+	int	edtWaitStatus	= edt_get_wait_status( m_pPdvDev );
+	if ( pPdvBuffer == NULL || edtWaitStatus != EDT_WAIT_OK )
 	{
 #ifdef	USE_DIAG_TIMER
 		m_ReArmTimer.StopTimer( );
 #endif	//	USE_DIAG_TIMER
-		if ( DEBUG_EDT_PDV >= 1 )
+		if ( DEBUG_EDT_PDV >= 3 )
 			printf(	"%s: Failed to acquire image!\n", functionName );
 		pdv_timeout_restart( m_pPdvDev, 0 );
 		return asynError;
@@ -1762,10 +1778,10 @@ int	 edtPdvCamera::CheckData(	edtImage	*	pImage	)
 
 void edtPdvCamera::ReleaseData(	edtImage	*	pImage	)
 {
+	CONTEXT_TIMER( "ReleaseData" );
 	UpdateStatus( ADStatusIdle );
 	if ( pImage == NULL )
 		return;
-	CONTEXT_TIMER( "ReleaseData" );
 	this->lock();
 	pImage->ReleaseNDArray();
 	this->unlock();
@@ -2392,6 +2408,16 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
  	}
 
     callParamCallbacks( 0, 0 );
+
+	/* Report any errors */
+	if (status)
+		asynPrint(	pasynUser, ASYN_TRACE_ERROR,
+					"%s:writeInt32 error, status=%d function=%d %s, value=%d\n",
+					functionName, status, pasynUser->reason, reasonName, value);
+	else 
+		asynPrint(	pasynUser, ASYN_TRACEIO_DRIVER,
+					"%s:writeInt32: function=%d %s, value=%d\n",
+					functionName, pasynUser->reason, reasonName, value);
 
     return (asynStatus) status;
 }
