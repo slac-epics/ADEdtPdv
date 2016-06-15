@@ -54,8 +54,8 @@ static	const char *		driverName	= "EdtPdv";
 
 int		DEBUG_EDT_PDV	= 2;
 
-int		fEnableFrameSync	= PDV_FRAMESYNC_OFF;
-// int		fEnableFrameSync	= PDV_FRAMESYNC_ON;
+// int		fEnableFrameSync	= PDV_FRAMESYNC_OFF;
+int		fEnableFrameSync	= PDV_FRAMESYNC_ON;
 int		fCheckFrameSync		= 0;
 
 //	t_HiResTime		imageCaptureCumTicks	= 0LL;
@@ -922,11 +922,12 @@ int edtPdvCamera::_Reconfigure( )
 	// Should be OK to just FLNK it in edtPdvBase.template
 	// setDoubleParam(  SerGain,			m_Gain		);
 
+#ifdef	SETUP_ROI_IN_RECONFIG
 	SetupROI();
 
-	if ( fEnableFrameSync )
+	if ( fEnableFrameSync && pdv_framesync_mode(m_pPdvDev) != PDV_FRAMESYNC_OFF )
 	{
-		int framesync = pdv_enable_framesync(	m_pPdvDev, fEnableFrameSync	);
+		int framesync = pdv_enable_framesync(	m_pPdvDev, pdv_framesync_mode(m_pPdvDev) );
 		if ( DEBUG_EDT_PDV >= 2 )
 			printf(	"%s: framesync enable %s\n", functionName, framesync == 0 ? "succeeded" : "failed" );
 	}
@@ -934,10 +935,12 @@ int edtPdvCamera::_Reconfigure( )
 	{
 		fCheckFrameSync = 0;
 	}
+#endif
 
     return 0;
 }
 
+unsigned int	fOrca	= 1;
 
 int edtPdvCamera::SetupROI( )
 {
@@ -947,8 +950,12 @@ int edtPdvCamera::SetupROI( )
 		||	(	GetSizeY() < m_ClMaxHeight ) )
 	{
 		// Setup PDV ROI image transfer
+		// Note: We don't use MinY in setting up the PDV image grab as
+		// the ORCA handles the Y offset and Y size, always transfers full rows,
+		// and reads the resulting image to row 0
+		// TODO: Figure out how to handle this for other camera models
 		int		hskip	= GetMinX();
-		int		vskip	= GetMinY();
+		int		vskip	= fOrca ? 0 : GetMinY();
 		// EDT Horiz and Vert Active line count must be a multiple of the number of CamLink taps
 		// Pad up to next largest size 
 		int		hactv	= ( (GetSizeX()+m_ClHTaps-1) / m_ClHTaps ) * m_ClHTaps;
@@ -956,8 +963,8 @@ int edtPdvCamera::SetupROI( )
 		if ( DEBUG_EDT_PDV >= 2 )
 			printf(	"%s: Setting PDV ROI to hskip %d, hactv %d, vskip %d, vactv %d\n",
 					functionName,	hskip, hactv, vskip, vactv );
-		pdv_enable_roi(	m_pPdvDev, 1	);
 		pdv_set_roi(	m_pPdvDev,	hskip, hactv, vskip, vactv );
+		pdv_enable_roi(	m_pPdvDev, 1	);
 		m_ClCurWidth	= hactv;
 		m_ClCurHeight	= vactv;
 	}
@@ -974,15 +981,13 @@ int edtPdvCamera::SetupROI( )
 		if ( DEBUG_EDT_PDV >= 2 )
 			printf(	"%s: Disabling PDV ROI, restoring hskip %d, hactv %d, vskip %d, vactv %d\n",
 					functionName,	hskip, hactv, vskip, vactv );
-		pdv_enable_roi(	m_pPdvDev, 0	);
 		pdv_set_roi(	m_pPdvDev,	hskip, hactv, vskip, vactv );
+		pdv_enable_roi(	m_pPdvDev, 0	);
 		m_ClCurWidth	= hactv;
 		m_ClCurHeight	= vactv;
 	}
-
-    return 0;
+	return 0;
 }
-
 
 //	Internal version of reopen
 //	Don't call without holding m_reconfigLock!
@@ -990,6 +995,14 @@ int edtPdvCamera::_Reopen( )
 {
     static const char	*	functionName = "edtPdvCamera::_Reopen";
 	CONTEXT_TIMER( "_Reopen" );
+
+	double		cameraReOpenDelay	= 0.0;
+	if ( cameraReOpenDelay > 0.0 )
+	{
+		if ( DEBUG_EDT_PDV >= 2 )
+			printf(	"%s: Delaying %f sec\n", functionName, cameraReOpenDelay );
+		epicsThreadSleep( cameraReOpenDelay );
+	}
 
 	// Set the EDT PDV debug levels
 	if ( DEBUG_EDT_PDV >= 1 )
@@ -1005,9 +1018,6 @@ int edtPdvCamera::_Reopen( )
 			printf( "%s: %s pdv_timeout_restart\n", functionName, m_CameraName.c_str() );
 		pdv_timeout_restart( m_pPdvDev, 0 );
 		// epicsThreadSleep( 0.1 );
-//		if ( DEBUG_EDT_PDV >= 3 )
-//			printf( "%s: %s pdv_stop_continuous\n", functionName, m_CameraName.c_str() );
-//		pdv_stop_continuous( m_pPdvDev );
 		if ( DEBUG_EDT_PDV >= 3 )
 			printf( "%s: %s pdv_close\n", functionName, m_CameraName.c_str() );
 		pdv_close( m_pPdvDev );
@@ -1272,21 +1282,31 @@ int edtPdvCamera::StartAcquisition( )
     static const char	*	functionName = "edtPdvCamera::StartAcquisition";
 	CONTEXT_TIMER( "StartAcquisition" );
 
-#if 0
-	// Cleanup any pending transfers
-	// (Helps keep synchronized images if app is restarted)
-	if ( DEBUG_EDT_PDV >= 3 )
-		printf( "%s: Calling pdv_flush_fifo( ) ...\n", functionName );
-    pdv_flush_fifo( m_pPdvDev );
-#endif
+#ifndef	SETUP_ROI_IN_RECONFIG
+	SetupROI();
 
-	double		cameraStartDelay	= 0.1;
+	if ( fEnableFrameSync && pdv_framesync_mode(m_pPdvDev) != PDV_FRAMESYNC_OFF )
+	{
+		int framesync = pdv_enable_framesync(	m_pPdvDev, pdv_framesync_mode(m_pPdvDev) );
+		if ( DEBUG_EDT_PDV >= 2 )
+			printf(	"%s: framesync enable %s\n", functionName, framesync == 0 ? "succeeded" : "failed" );
+	}
+	else
+	{
+		fCheckFrameSync = 0;
+	}
+#endif	//	SETUP_ROI_IN_RECONFIG
+
+	double		cameraStartDelay	= 0.25;
 	if ( cameraStartDelay > 0.0 )
 	{
 		if ( DEBUG_EDT_PDV >= 2 )
 			printf(	"%s: Delaying %f sec\n", functionName, cameraStartDelay );
 		epicsThreadSleep( cameraStartDelay );
 	}
+
+	if ( m_fReconfig || !InAcquireMode() )
+    	return -1;
 
 	if ( DEBUG_EDT_PDV >= 2 )
 		printf(	"%s: Acquire image from %zu,%zu size %zux%zu\n", functionName,
@@ -1452,8 +1472,8 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 #ifdef	USE_DIAG_TIMER
 		m_ReArmTimer.StopTimer( );
 #endif	//	USE_DIAG_TIMER
-		if ( DEBUG_EDT_PDV >= 3 )
-			printf(	"%s: Failed to acquire image!\n", functionName );
+		if ( DEBUG_EDT_PDV >= 1 )
+			printf(	"%s: Image Timeout: Failed to acquire image!\n", functionName );
 		pdv_timeout_restart( m_pPdvDev, 0 );
 		return asynError;
 	}
@@ -1857,8 +1877,8 @@ int	edtPdvCamera::RequestSizeX(	size_t	value	)
     static const char	*	functionName	= "edtPdvCamera::RequestSizeX";
 	if ( value == 0 )
 	{
-        errlogPrintf(	"%s: ERROR, HW ROI width %zu == 0!\n",
-        	    		functionName, value );
+        errlogPrintf(	"%s: ERROR, HW ROI width cannot be set to 0!\n",
+        	    		functionName );
 		return asynError;
 	}
 	if( m_SizeXReq != value )
@@ -1878,10 +1898,10 @@ int	edtPdvCamera::SetSizeX(	size_t	value	)
     static const char	*	functionName	= "edtPdvCamera::SetSizeX";
 	if ( value == 0 )
 	{
-        errlogPrintf(	"%s: ERROR, HW ROI width %zu == 0!\n",
-        	    		functionName, value );
+        errlogPrintf(	"%s: ERROR, HW ROI width cannot be set to 0!\n",
+        	    		functionName );
 		// return asynError;
-		value = m_ClMaxWidth;
+		value = m_SizeX > 0 ? m_SizeX : m_ClMaxWidth;
 	}
 	// Allow setting SizeX if m_ClMaxWidth hasn't been configured yet
 	// Will be clipped later if needed
@@ -1896,6 +1916,8 @@ int	edtPdvCamera::SetSizeX(	size_t	value	)
 	{
 		printf(	"%s: Set SizeX %zu ...\n", functionName, value );
 	}
+	if( m_SizeX != value )
+		m_fReconfig	= true;
 	m_SizeX	= value;
 
 	// Update the AreaDetector SizeX parameters
@@ -1912,8 +1934,8 @@ int	edtPdvCamera::RequestSizeY(	size_t	value	)
     static const char	*	functionName	= "edtPdvCamera::RequestSizeY";
 	if ( value == 0 )
 	{
-        errlogPrintf(	"%s: ERROR, HW ROI width %zu == 0!\n",
-        	    		functionName, value );
+        errlogPrintf(	"%s: ERROR, HW ROI height cannot be set to 0!\n",
+        	    		functionName );
 		return asynError;
 	}
 	if( m_SizeYReq != value )
@@ -1933,10 +1955,10 @@ int	edtPdvCamera::SetSizeY(	size_t	value	)
     static const char	*	functionName	= "edtPdvCamera::SetSizeY";
 	if ( value == 0 )
 	{
-        errlogPrintf(	"%s: ERROR, ROI height %zu == 0!\n",
-        	    		functionName, value );
+        errlogPrintf(	"%s: ERROR, HW ROI height cannot be set to 0!\n",
+        	    		functionName );
 		//	return asynError;
-		value = m_ClMaxHeight;
+		value = m_SizeY > 0 ? m_SizeY : m_ClMaxHeight;
 	}
 	// Allow setting SizeY if m_ClMaxHeight hasn't been configured yet
 	// Will be clipped later if needed
@@ -1951,6 +1973,8 @@ int	edtPdvCamera::SetSizeY(	size_t	value	)
 	{
 		printf(	"%s: Set SizeY %zu ...\n", functionName, value );
 	}
+	if( m_SizeY != value )
+		m_fReconfig	= true;
 	m_SizeY		= value;
 
 	// Update the AreaDetector parameter
@@ -1990,6 +2014,8 @@ int	edtPdvCamera::SetMinX(	size_t	value	)
 	{
 		printf(	"%s: Set MinX %zu ...\n", functionName, value );
 	}
+	if( m_MinX != value )
+		m_fReconfig	= true;
 	m_MinX	= value;
 
 	// Update the AreaDetector parameter
@@ -2026,6 +2052,8 @@ int	edtPdvCamera::SetMinY(	size_t	value	)
 	{
 		printf(	"%s: Set MinY %zu ...\n", functionName, value );
 	}
+	if( m_MinY != value )
+		m_fReconfig	= true;
 	m_MinY		=  value;
 
 	// Update the AreaDetector parameter
