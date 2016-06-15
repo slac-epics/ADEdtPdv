@@ -490,22 +490,35 @@ record( stringin, "$(P)$(R)PulnixFirmware_RBV" )
 	field( PINI, "YES" )
 }
 
-# Pulnix 6740 appears to take about 1.3ms to send the image
+# Pulnix 6740 has 9 lines of delay before it writes the first
+# pixels to their camlink channels.
+# One line is 400 pixel clocks at 40MHz = 10us
+# No need to autosave as it's fixed
 record( ao, "$(P)$(R)CamProcDelay" )
 {
-    field( DOL,  "1.3e-3" )
+    field( DOL,  "10e-6" )
+    field( LOW,  "9.999e-6" )
+    field( HIGH, "10.001-6" )
+    field( LSV,  "MINOR" )
+    field( HSV,  "MINOR" )
+    info( autosaveFields, "" )
 }
 
+# Pulnix TM-6740 timing
+# 400 pixel clocks per line
+# 20 lines between images
+# We only support scan mode A, so all pixels get sent,
+# but EDT returns an image after MinY + SizeY lines
 record( calc, "$(P)$(R)XmitDelay" )
 {
-    field( INPA, "$(P)$(R)ArraySizeX_RBV CP MS" )
+    field( INPA, "$(P)$(R)MinY_RBV CPP MS" )
     field( INPB, "$(P)$(R)XmitRate CPP MS" )
-    field( INPC, "$(P)$(R)HTaps_RBV CPP MS" )
-    field( INPD, "$(P)$(R)VTaps_RBV CPP MS" )
+    field( INPC, "$(P)$(R)SizeY_RBV CPP MS" )
+    field( INPD, "" )
     field( INPE, "$(P)$(R)CamProcDelay CPP MS" )
-    field( INPF, "$(P)$(R)ArraySizeY_RBV CP MS" )
-    field( CALC, "((A+160)*(F+20)/B/C/D)+E" )
-    field( EGU,  "Bytes/Sec" )
+    field( INPF, "" )
+    field( CALC, "(400*(20+A+C)/B)+E" )
+    field( EGU,  "Sec" )
 }
 
 # Effective transmit rate is 40Mhz PixelClock * 2 HTaps
