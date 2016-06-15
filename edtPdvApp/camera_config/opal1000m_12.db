@@ -1017,7 +1017,7 @@ record( calc, "$(P)$(R)XmitDelay" )
     field( INPD, "$(P)$(R)BinY  CPP MS" )
     field( INPE, "$(P)$(R)SizeY CPP MS" )
     field( CALC, "A*E/D+B+C" )
-    field( EGU,  "Bytes/Sec" )
+    field( EGU,  "Sec" )
 }
 
 
