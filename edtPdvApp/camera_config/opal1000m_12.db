@@ -5,6 +5,45 @@
 # Protocol root must match db filename root
 # i.e. opal1000m_12.proto
 
+record( seq, "$(P)$(R)EdtReConfigSeq" )
+{
+	field( DOL1, "1" )	field( LNK1, "$(P)$(R)OpalBlackLevel_RBV.PROC"  )
+	field( DOL2, "1" )	field( LNK2, "$(P)$(R)OpalBuildState_RBV.PROC" )
+	field( DOL3, "1" )	field( LNK3, "$(P)$(R)OpalBuiltInTest_RBV.PROC" )
+	field( DOL4, "1" )	field( LNK4, "$(P)$(R)OpalCCE_RBV.PROC" )
+	field( DOL5, "1" )	field( LNK5, "$(P)$(R)OpalCCFS_RBV.PROC" )
+	field( DOL6, "1" )	field( LNK6, "$(P)$(R)OpalDefPixelCorr_RBV.PROC" )
+	field( DOL7, "1" )	field( LNK7, "$(P)$(R)OpalDefPixelTest_RBV.PROC" )
+	field( DOL8, "1" )	field( LNK8, "$(P)$(R)OpalLastError_RBV.PROC" )
+	field( DOL9, "1" )	field( LNK9, "$(P)$(R)OpalElapsedTime_RBV.PROC" )
+	field( DOLA, "1" )	field( LNKA, "$(P)$(R)OpalFSE.PROC" )
+	field( FLNK, "$(P)$(R)EdtReConfigSeq2" )
+field( TPRO, 1 )
+}
+record( seq, "$(P)$(R)EdtReConfigSeq2" )
+{
+	field( DOL1, "1" )	field( LNK1, "$(P)$(R)OpalFSP.PROC" )
+	field( DOL2, "1" )	field( LNK2, "$(P)$(R)OpalFSM.PROC" )
+	field( DOL3, "1" )	field( LNK3, "$(P)$(R)OpalFST.PROC" )
+	field( DOL4, "1" )	field( LNK4, "$(P)$(R)OpalAutoExposure_RBV.PROC" )
+	field( DOL5, "1" )	field( LNK5, "$(P)$(R)OpalAutoGain_RBV.PROC" )
+	field( DOL6, "1" )	field( LNK6, "$(P)$(R)OpalInfo_RBV.PROC" )
+	field( DOL7, "1" )	field( LNK7, "$(P)$(R)OpalOLUTE.PROC" )
+	field( DOL8, "1" )	field( LNK8, "$(P)$(R)OpalBitsPerPixel_RBV.PROC" )
+	field( DOL9, "1" )	field( LNK9, "$(P)$(R)OpalInfoOverlay_RBV.PROC" )
+	field( DOLA, "1" )	field( LNKA, "$(P)$(R)OpalSerialNumber_RBV.PROC" )
+	field( FLNK, "$(P)$(R)EdtReConfigSeq3" )
+}
+record( seq, "$(P)$(R)EdtReConfigSeq3" )
+{
+	field( DOL1, "1" )	field( LNK1, "$(P)$(R)OpalTestPattern_RBV.PROC" )
+	field( DOL2, "1" )	field( LNK2, "$(P)$(R)OpalFirmwareTimestamp_RBV.PROC" )
+	field( DOL3, "1" )	field( LNK3, "$(P)$(R)OpalBinY_RBV.PROC" )
+	field( DOL4, "1" )	field( LNK4, "$(P)$(R)OpalVR.PROC" )
+	field( DOL5, "1" )	field( LNK5, "$(P)$(R)OpalOutputMirror_RBV.PROC" )
+	field( DOL6, "1" )	field( LNK6, "$(P)$(R)OpalModelID_RBV.PROC" )
+}
+
 record( stringin, "$(P)$(R)CamModel" )
 {
 	field( VAL,  "opal1000m_12" )
@@ -47,7 +86,7 @@ record( longin, "$(P)$(R)OpalBlackLevel_RBV" )
     field( DESC, "Black Level" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(BL) $(PORT).SER" )
-	field( PINI, "YES" )
+#	field( PINI, "YES" )
 }
 
 record( stringin, "$(P)$(R)OpalBuiltInTest_RBV" )
@@ -392,8 +431,10 @@ record( longin, "$(P)$(R)OpalFST" )
     field( INP,	 "@opal1000m_12.proto GetInt(FST) $(PORT).SER" )
 }
 
+# Disabled as not supported by Opal1000
 record( bo, "$(P)$(R)OpalAutoExposure" )
 {
+	field( DISA, "1" )
     field( DESC, "Auto Integration Time" )
     field( DTYP, "stream" )
     field( OUT,	 "@opal1000m_12.proto SetInt(AIC) $(PORT).SER" )
@@ -404,8 +445,10 @@ record( bo, "$(P)$(R)OpalAutoExposure" )
 	info( autosaveFields, "DESC VAL" )
 }
 
+# Disabled as not supported by Opal1000
 record( bi, "$(P)$(R)OpalAutoExposure_RBV" )
 {
+	field( DISA, "1" )
     field( DESC, "Auto Integration Time" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(AIC) $(PORT).SER" )
@@ -414,8 +457,10 @@ record( bi, "$(P)$(R)OpalAutoExposure_RBV" )
 	field( PINI, "YES" )
 }
 
+# Disabled as not supported by Opal1000
 record( bo, "$(P)$(R)OpalAutoGain" )
 {
+	field( DISA, "1" )
     field( DESC, "Auto Gain Control" )
     field( DTYP, "stream" )
     field( OUT,	 "@opal1000m_12.proto SetInt(AGC) $(PORT).SER" )
@@ -426,8 +471,10 @@ record( bo, "$(P)$(R)OpalAutoGain" )
 	info( autosaveFields, "DESC VAL" )
 }
 
+# Disabled as not supported by Opal1000
 record( bi, "$(P)$(R)OpalAutoGain_RBV" )
 {
+	field( DISA, "1" )
     field( DESC, "Auto Gain Control" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetInt(AGC) $(PORT).SER" )
@@ -916,8 +963,6 @@ record( bi, "$(P)$(R)OpalVR" )
     field( INP,	 "@opal1000m_12.proto GetInt(VR) $(PORT).SER" )
     field( ZNAM, "No Remapping" )
     field( ONAM, "Remapping"    )
-# Disabled to avoid accidental use
-	field( DISV, "0" )
 }
 
 # Recall configuration

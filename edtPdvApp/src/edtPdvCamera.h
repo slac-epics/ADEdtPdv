@@ -226,6 +226,16 @@ public:		//	Public member functions
 		return m_ClNumBits;
 	}
 
+	bool	HasHwHRoi() const
+	{
+		return( m_HwHRoi != 0 );
+	}
+
+	bool	HasHwVRoi() const
+	{
+		return( m_HwVRoi != 0 );
+	}
+
 	/// Get frame count
 	int		GetArrayCounter( ) const
 	{
@@ -400,6 +410,8 @@ private:	//	Private member variables
 	TriggerMode_t	m_TriggerMode;
 	TriggerMode_t	m_TriggerModeReq;
 
+	unsigned int	m_ReConfigCount;// Reconfiguration counter
+
 	// HW ROI and binning parameters from ADBase
 	size_t	m_BinX,		m_BinXReq,		m_BinY,		m_BinYReq;
 	size_t	m_MinX,		m_MinXReq,		m_MinY,		m_MinYReq;
@@ -412,10 +424,15 @@ private:	//	Private member variables
 	// Gain value for camera
 	double			m_Gain;
 
+	// HW ROI support
+	unsigned int	m_HwHRoi;			// Zero if no HW ROI, Non-zero if camera supports Horiz ROI
+	unsigned int	m_HwVRoi;			// Zero if no HW ROI, Non-zero if camera supports Vert  ROI
+
 	int				m_ArrayCounter;		// Frame count
 	int				m_acquireCount;		// How many images to acquire
 	unsigned int	m_fiducial;			// Fiducial ID from last timestamped image
 
+	unsigned int	m_ReCfgCnt;			// Reconfigure counter (increments by 1 each reconfigure)
 	epicsMutexId	m_reconfigLock;		// Protect against more than one thread trying to reconfigure the device
 	syncDataAcq<edtPdvCamera, edtImage>		*	m_pSyncDataAcquirer;
 
@@ -433,8 +450,11 @@ private:	//	Private member variables
 	int		EdtHSkip;
 	int		EdtHSize;
 	int		EdtHTaps;
+	int		EdtHwHRoi;
+	int		EdtHwVRoi;
 	int		EdtMode;
 	int		EdtOverrun;
+	int		EdtReCfgCnt;
 	int		EdtVSkip;
 	int		EdtVSize;
 	int		EdtVTaps;
@@ -481,8 +501,11 @@ private:	//	Private class variables
 #define EdtHSkipString		"EDT_HSKIP"
 #define EdtHSizeString		"EDT_HSIZE"
 #define EdtHTapsString		"EDT_HTAPS"
+#define EdtHwHRoiString		"EDT_HW_HROI"
+#define EdtHwVRoiString		"EDT_HW_VROI"
 #define EdtModeString		"EDT_MODE"
 #define EdtOverrunString	"EDT_OVERRUN"
+#define EdtReCfgCntString	"EDT_RECFG_CNT"
 #define EdtVSkipString		"EDT_VSKIP"
 #define EdtVSizeString		"EDT_VSIZE"
 #define EdtVTapsString		"EDT_VTAPS"

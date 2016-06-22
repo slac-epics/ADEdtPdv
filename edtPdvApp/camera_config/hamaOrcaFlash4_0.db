@@ -367,6 +367,12 @@ record( mbbo, "$(P)$(R)EdtTriggerMode_RBV" )
 # Handle ORCA ROI (Vertical Double Scan Parameters)
 #
 
+# Orca supports Vertical ROI in the camera
+record( longout, "$(P)$(R)EdtHwVROI_RBV" )
+{
+	field( VAL,  "1" )
+}
+
 # Redirect FLNK of EdtMinY to OrcaScanTop
 record( longin, "$(P)$(R)EdtMinY" )
 {

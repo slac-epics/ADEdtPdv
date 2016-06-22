@@ -61,20 +61,22 @@ record( stringin, "$(P)$(R)CamModelScreen" )
 alias( "$(P)$(R)CamModel",		 "$(P)$(R)EdtModel" )
 alias( "$(P)$(R)CamModelScreen", "$(P)$(R)EdtModelScreen" )
 
-# TODO:  We need a generic EdtReConfigCount PV here that
-# gets incremented each time the driver reconfigures the camera.
-# The FNLK record, EdtReConfigFanout, would be implemented by each
-# camera model.db file to trigger processing of PV's w/ PINI YES
-# that currently only get one read attempt at ioc boot time.
-# For cameras w/ sketchy serial support, we currently get occasional
-# failures reading these status related PV's such as firmware version
-# and there's no mechanism to force a retry.
+# This EdtReConfigCount PV # gets incremented each time the driver reconfigures
+# the camera.  The FNLK record, EdtReConfigSeq, should be implemented by each
+# camera model.db file to trigger processing of serial commands
+# to read camera settings and status.
+# Note: Serial commands for AcquireTime, TriggerMode, etc that get updated
+# in response to user changes to settings typically do not need to get
+# re-read in response to a reconfigure.
 record( longout, $(P)$(R)EdtReConfigCount )
 {
 	field( DTYP, "asynInt32" )
-	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))RECFG_CNT" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_RECFG_CNT" )
 	field( SCAN, "I/O Intr" )
-	field( FLNK, "$(P)$(R)EdtReConfigFanout" )
+	field( FLNK, "$(P)$(R)EdtReConfigSeq" )
+}
+record( seq, $(P)$(R)EdtReConfigSeq )
+{
 }
 
 #
@@ -206,6 +208,36 @@ record( longout, "$(P)$(R)EdtSizeY_RBV" )
 	field( DOL,  "$(P)$(R)EdtSizeY NPP MS" )
 	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SIZE_Y" )
 	info( autosaveFields, "" )
+}
+
+# Used to configure whether camera has HW ROI or not
+# Most EDT cameras do not so HW ROI happens in the framegrabber
+# by reading out less than the full image.  This does not
+# increase frame rates as the entire image is still being sent
+# over the camlink connection.
+# TODO: Some cameras such as Pulnix have 2 or 3 preconfigured
+# ROI readout modes that could be used but would probably require
+# some custom driver coding.
+record( longout, "$(P)$(R)EdtHwHROI_RBV" )
+{
+	field( OMSL, "closed_loop" )
+	field( VAL,  "0" )
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_HW_VROI" )
+	field( PINI, "YES" )
+	info( archiveFields,  "VAL" )
+}
+
+# Used to configure whether camera has HW ROI or not
+# Most EDT cameras do not
+record( longout, "$(P)$(R)EdtHwVROI_RBV" )
+{
+	field( OMSL, "closed_loop" )
+	field( VAL,  "0" )
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_HW_VROI" )
+	field( PINI, "YES" )
+	info( archiveFields,  "VAL" )
 }
 
 record( longin, "$(P)$(R)HTaps_RBV" )

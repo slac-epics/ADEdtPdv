@@ -161,10 +161,14 @@ edtPdvCamera::edtPdvCamera(
 		m_SizeY(			0					),
 		// Do we need ADBase ROI values here?  m_BinX, m_BinY, m_MinX, m_SizeY, ...
 		m_Gain(				0					),
+		m_HwHRoi(			0					),
+		m_HwVRoi(			0					),
 		
 		m_ArrayCounter(		0					),
 		m_acquireCount(		0					),
 		m_fiducial(			0					),
+
+		m_ReCfgCnt(			0					),
 		m_reconfigLock(		NULL				),
 		
 		m_trigLevel(		0					),
@@ -216,6 +220,8 @@ edtPdvCamera::edtPdvCamera(
 	createParam( EdtHSkipString,		asynParamInt32,		&EdtHSkip		);
 	createParam( EdtHSizeString,		asynParamInt32,		&EdtHSize		);
 	createParam( EdtHTapsString,		asynParamInt32,		&EdtHTaps		);
+	createParam( EdtHwHRoiString,		asynParamInt32,		&EdtHwHRoi		);
+	createParam( EdtHwVRoiString,		asynParamInt32,		&EdtHwVRoi		);
 	createParam( EdtModeString,			asynParamInt32,		&EdtMode		);
 	createParam( EdtOverrunString,		asynParamInt32,		&EdtOverrun		);
 	createParam( EdtVSkipString,		asynParamInt32,		&EdtVSkip		);
@@ -225,6 +231,7 @@ edtPdvCamera::edtPdvCamera(
 	createParam( EdtMultiBufString,		asynParamInt32,		&EdtMultiBuf	);
 	createParam( EdtInfoString,			asynParamOctet,		&EdtInfo		);
 	createParam( EdtTrigLevelString,	asynParamInt32,		&EdtTrigLevel	);
+	createParam( EdtReCfgCntString,		asynParamInt32,		&EdtReCfgCnt	);
 
 	// This group provides a way to have serial readbacks get reflected in
 	// their ADBase class equivalents, for example
@@ -637,6 +644,8 @@ int edtPdvCamera::Reconfigure( )
 	else
 	{
 		UpdateStatus( ADStatusIdle );
+		m_ReCfgCnt++;
+		setIntegerParam( EdtReCfgCnt, m_ReCfgCnt );
 	}
 
 	if ( DEBUG_EDT_PDV >= 1 )
@@ -940,7 +949,6 @@ int edtPdvCamera::_Reconfigure( )
     return 0;
 }
 
-unsigned int	fOrca	= 1;
 
 int edtPdvCamera::SetupROI( )
 {
@@ -950,12 +958,11 @@ int edtPdvCamera::SetupROI( )
 		||	(	GetSizeY() < m_ClMaxHeight ) )
 	{
 		// Setup PDV ROI image transfer
-		// Note: We don't use MinY in setting up the PDV image grab as
-		// the ORCA handles the Y offset and Y size, always transfers full rows,
-		// and reads the resulting image to row 0
-		// TODO: Figure out how to handle this for other camera models
-		int		hskip	= GetMinX();
-		int		vskip	= fOrca ? 0 : GetMinY();
+		// Note: If the camera has HW ROI, we set hskip and/or vskip to zero as
+		// it is assumed that serial commands are used to configure the camera HW ROI
+		int		hskip	= HasHwHRoi() ? 0 : GetMinX();
+		int		vskip	= HasHwVRoi() ? 0 : GetMinY();
+
 		// EDT Horiz and Vert Active line count must be a multiple of the number of CamLink taps
 		// Pad up to next largest size 
 		int		hactv	= ( (GetSizeX()+m_ClHTaps-1) / m_ClHTaps ) * m_ClHTaps;
@@ -2414,7 +2421,15 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 	//
     } else if ( pasynUser->reason == EdtTrigLevel		) {
 		status = setIntegerParam( EdtTrigLevel, value );
-
+    } else if ( pasynUser->reason == EdtHwHRoi			) {
+		m_HwHRoi = value;
+		status	 = 0;
+    } else if ( pasynUser->reason == EdtHwVRoi			) {
+		m_HwVRoi = value;
+		status	 = 0;
+    } else if ( pasynUser->reason == EdtReCfgCnt		) {
+		m_ReCfgCnt = value;
+		status	 = 0;
 	} else if ( pasynUser->reason == SerBinX			) {
 		status = SetBinX(	value );
 	} else if ( pasynUser->reason == SerBinY			) {
