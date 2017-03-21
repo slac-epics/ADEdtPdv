@@ -13,23 +13,6 @@
 //	Asyn device support using EDT framegrabber serial interface via CamLink
 //
 
-//	#include <string.h>
-//	#include <errno.h>
-
-//	#include <cantProceed.h>
-//	#include <errlog.h>
-//	#include <iocsh.h>
-//	#include <epicsAssert.h>
-//	#include <epicsMutex.h>
-//	#include <epicsStdio.h>
-//	#include <epicsString.h>
-//	#include <epicsThread.h>
-//	#include <epicsTime.h>
-
-//	#include "asynDriver.h"
-//	#include "asynOctet.h"
-
-// #include "edtPdvCamera.h"
 #include "asynEdtPdvSerial.h"
 
 #include "edtinc.h"
@@ -271,12 +254,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			printf( "%s: %s Have serial lock, nBytesReadMax %zu, timeout %e ...\n",
 					functionName, this->portName, nBytesReadMax, pasynUser->timeout );
 		/*
-		 * Let's get the timeout_ms semantics right:
-		 *	> 0 = wait for this many milliseconds.
-		 *	  0 = don't wait, just read what you have.
-		 *	< 0 = wait forever.
-		 * Note: Above was for edt_unix module
-		 * Now we need to follow streamdevice usage: <= 0 is don't wait, > 0 specifies delay in sec
+		 * Follow streamdevice usage on timeout: <= 0 is don't wait, > 0 specifies delay in sec
 		 * In pdv_serial_wait, 0 = wait for the default time (1 sec?).
 		 */
 		int nAvailToRead	= 0;
@@ -340,7 +318,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			}
 
 			asynPrintIO(	pasynUser, ASYN_TRACEIO_DRIVER, pBuffer, nRead,
-							"%s: %s read %zu of %d\n", functionName, this->portName,
+							"%s: %s read %d of %d\n", functionName, this->portName,
 							nRead, nAvailToRead );
 			break;			/* If we have something, we're done. */
 		}
@@ -389,7 +367,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		if ( DEBUG_EDT_PDV >= 3 )
 			printf( "%s: %s Read %d: %s\n", functionName, this->portName, nRead, pBuffer );
 		asynPrint(	pasynUser, ASYN_TRACE_FLOW,
-					"%s: %s read %zu, status %d, Buffer: %s\n",
+					"%s: %s read %d, status %d, Buffer: %s\n",
 					functionName, this->portName, nRead, status, pBuffer	);
 
 		// Call the parameter callbacks
