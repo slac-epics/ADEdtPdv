@@ -1,0 +1,56 @@
+#
+# SLAC RELEASE_NOTES
+#
+R1.14.0	2017-03-21	bhill
+	Fixed %zu vs %d in printf of nRead. Also cleaned up some stale comments.
+	Adding an edtPdvScreens soft link to edtPdvApp/op/edl
+	Separating edtPdvScreens link from an old Orca related commit
+	Updated documentation html page
+	Applied SLAC license script to ADEdtPdv
+
+R1.13.0	2016-06-22 Bruce Hill
+	Added parameters for HW vert and horiz ROI, along w/ a ReConfigCount PV
+		that increments on each reconfigure and can be used to force reread of serial cmds.
+	Added parameters for HW vert and horiz ROI, along w/ a ReConfigCount PV that increments
+		on each reconfigure and can be used to force reread of serial cmds.
+	Cleaned up framesync and ROI handling, moving them from Reconfig to StartAcquisition.
+	Fixed units on XmitDelay
+	Updated Opal cfg files to specify FRAMESYNC_OFF as it causes hsync issues.
+	Force extTrigPolarity to 1 per manual and fixed some minor issues w/ XmitDelay
+	Improved pulnix XmitDelay calculations per manual and EDT advice.
+
+R1.12.0	2016-05-10 Bruce Hill
+	Fixed hsync bug on first acquisition by moving ROI to the reconfigure routine,
+		removing the flush_fifo at the start of acquisition, and disabling framesync.
+	Updated Pulnix XmitDelay calculations.
+	Fixed spurious images at 1hz when triggers not enabled by cking EDT timeout status.
+
+R1.11.0	2016-04-28 Bruce Hill
+	Fixed some low level interactions w/ ADDriver class edtModel screen fixed along w/ Opal AcquirePeriod readback.
+	Fixed edtModel screen and some other minor tweaks.
+	Fixed scaling in OpalCalcAquirePeriod_RBV.
+	Fixed bug where write routines didn't pass on low level params to parent class.
+	Also cleaned up handling of ArrayCallbacks and NumImageCounter.
+
+R1.10.0	2016-04-21 Bruce Hill
+	Replaced edtCam* and edtBeam* PV's w/ cam* and beam* to match gigE equivalents.
+
+R1.9.0	2016-03-18 Bruce Hill
+	Updated to EDTpdv/R5.5.1.6 and dropped support for 32bit linux-x86
+
+R1.8.0	2016-03-17 Bruce Hill
+	Fixed issue w/ EdtCamEventCode vs EdtBeamEventCode
+	Rolled back to asyn/R4.23-0.5.0 and ADCore/R2.1-0.4.0 till I fix EDT SER bug w/ newer asyn.
+	Fixed XmitDelay calculation for orca
+
+R1.7.0	2016-03-11 Bruce Hill
+	Fixed some issues w/ calculating xmitDelay and moved the trigger delay calculations to ioc/common/edtCam.
+	Rolled back to asyn/R4.23-0.5.0 and ADCore/R2.1-0.4.0 till I fix EDT SER bug w/ newer asyn.
+	Fixed XmitDelay calculation for orca
+	moved EdtCamTrigDelay pv's to ioc/common/edtCam, renaming CamTrigDelay*
+
+R1.6.0	2016-02-25 Bruce Hill
+	Fixed some issues w/ pulnix4200 shutter settings
+	Fixed some issues w/ enum ordering in pulnix 4200 GetShutterSetting protocol
+	Fixed opal XmitDelay calc, CamProcDelay, along w/ a few other issues.
+	Added support for trigger delay in TrigToTS_Calc
