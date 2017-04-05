@@ -1,6 +1,10 @@
 #
 # SLAC RELEASE_NOTES
 #
+R1.15.0	2017-04-05	bhill
+	Added support for RHEL7
+	Updated for git workflow build
+
 R1.14.0	2017-03-21	bhill
 	Fixed %zu vs %d in printf of nRead. Also cleaned up some stale comments.
 	Adding an edtPdvScreens soft link to edtPdvApp/op/edl
