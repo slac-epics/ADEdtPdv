@@ -58,6 +58,9 @@ LIB_INSTALLS_Linux += ../os/linux-x86_64/libpdv.a
 else ifeq (rhel6-x86_64, $(findstring rhel6-x86_64, $(T_A)))
 LIB_INSTALLS_Linux += ../os/rhel6-x86_64/libpdv.a
 
+else ifeq (rhel7-x86_64, $(findstring rhel7-x86_64, $(T_A)))
+LIB_INSTALLS_Linux += ../os/rhel7-x86_64/libpdv.a
+
 else ifeq (linuxRT_glibc-x86_64, $(findstring linuxRT_glibc-x86_64, $(T_A)))
 LIB_INSTALLS_Linux += ../os/linuxRT_glibc-x86_64/libpdv.a
 
