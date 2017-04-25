@@ -878,7 +878,9 @@ int edtPdvCamera::_Reconfigure( )
 	{
 		setIntegerParam( NDDataType,		NDUInt16 );
 	}
+#ifdef NDBitsPerPixel
 	setIntegerParam( NDBitsPerPixel,	m_ClNumBits		);
+#endif
 
 	// setIntegerParam( NDArrayCallbacks,	1	);
 
@@ -1649,7 +1651,9 @@ NDArray * edtPdvCamera::AllocNDArray( )
 	// Set the NDArray parameters
 	assert( pNDArray			!= NULL );
 	pNDArray->ndims				= ndims;
+#ifdef NDBitsPerPixel
 	pNDArray->bitsPerElement	= m_ClNumBits;
+#endif
 
 	// Update each dimension's settings from the RBV values
 	pNDArray->dims[0].size		= GetSizeX();
@@ -2217,6 +2221,8 @@ int		edtPdvCamera::SetGain( double gain )
 	if ( m_Gain != gain )
 	{
 		if ( m_pPdvDev != NULL )
+			// We could drop support for calling pdv_set_gain, as it just sends a
+			// serial command from the cfg file that we can support via protocol and db files
 			status = pdv_set_gain( m_pPdvDev, static_cast<int>(gain) );
     	m_Gain	= gain;
 	}
