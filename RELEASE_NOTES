@@ -4,6 +4,8 @@
 R1.15.0	2017-04-05	bhill
 	Added support for RHEL7
 	Updated for git workflow build
+    Bumped ADCore to R2.6-2.1.0
+    Bumped asyn to R4.31-0.1.0
 
 R1.14.0	2017-03-21	bhill
 	Fixed %zu vs %d in printf of nRead. Also cleaned up some stale comments.
