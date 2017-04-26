@@ -19,8 +19,8 @@
 # Don't set your version to anything such as "test" that
 # could match a directory name.
 # ==========================================================
-ADCORE_MODULE_VERSION		= R2.2-1.1.5
-ASYN_MODULE_VERSION			= R4.23-0.5.1
+ADCORE_MODULE_VERSION		= R2.6-2.1.0
+ASYN_MODULE_VERSION			= R4.31-0.1.0
 DIAG_TIMER_MODULE_VERSION	= R1.9.0
 
 # ==========================================================
