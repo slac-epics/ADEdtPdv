@@ -262,7 +262,12 @@ edtPdvCamera::edtPdvCamera(
 	// Get the EDT PDV debug levels and multibuf number (should be in autosave)
 	getIntegerParam( EdtDebug,		&m_EdtDebugLevel	);
 	getIntegerParam( EdtDebugMsg,	&m_EdtDebugMsgLevel	);
-	getIntegerParam( EdtMultiBuf,	&m_NumMultiBuf	);
+	getIntegerParam( EdtMultiBuf,	&m_NumMultiBuf  );
+
+    if (m_NumMultiBuf < 1) {
+        printf( "%s: Setting MultiBuf to default %d\n", functionName, N_PDV_MULTIBUF_DEF);
+        m_NumMultiBuf = N_PDV_MULTIBUF_DEF;
+    }
 
 	// Create an EDT Sync object
 	// TODO: Should we just make this a member object?

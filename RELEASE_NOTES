@@ -1,6 +1,11 @@
 #
 # SLAC RELEASE_NOTES
 #
+R1.16.0 2017-05-09  slepicka
+    Fixed bug when autosave is disable the number of buffers is 0 resulting in 
+    failed mmap call. Setting to N_PDV_MULTIBUF_DEF which is = 4 in case a value
+    less than 1 is given.
+
 R1.15.0	2017-04-05	bhill
 	Added support for RHEL7
 	Updated for git workflow build
