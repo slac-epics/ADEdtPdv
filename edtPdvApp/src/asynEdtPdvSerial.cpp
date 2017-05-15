@@ -19,7 +19,7 @@
 
 extern int	DEBUG_EDT_PDV;
 
-#define	MAX_ADDR		1
+#define	MAX_ADDR	    1	
 #define	NUM_PARAMS		1
 
 using namespace	std;
@@ -87,27 +87,33 @@ asynStatus	asynEdtPdvSerial::connect(
     static const char	*	functionName	= "asynEdtPdvSerial::connect";
     epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize, "%s:\n", functionName );
 
+    printf("****************** DEBUG HUGO: asynEdtPdvSerial - Connect\n");
+
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
 				"%s port %s\n", functionName, this->portName );
 
 	epicsMutexLock(m_serialLock);
 	if ( m_pPdvDev == NULL )
 	{
-		m_fConnected	= false;
+        printf("****************** DEBUG HUGO: asynEdtPdvSerial - it is disconnected\n");
+        m_fConnected	= false;
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
 						"%s: %s pdvDev disconnected!\n", functionName, this->portName );
 		epicsMutexUnlock(m_serialLock);
 		return asynError;
 	}
+    printf("****************** DEBUG HUGO: asynEdtPdvSerial - it is connected, let's signal the asyn manager\n");
 	m_fConnected	= true;
-	epicsMutexUnlock(m_serialLock);
+    epicsMutexUnlock(m_serialLock);
 
 	// Signal asynManager that we are connected
 	int  status = pasynManager->exceptionConnect( pasynUser );
-	if ( status != asynSuccess )
-		asynPrint(	pasynUser, ASYN_TRACE_ERROR,
+	if ( status != asynSuccess ){
+        printf("****************** DEBUG HUGO: asynEdtPdvSerial - problems signaling to the asyn manager\n");
+ 		asynPrint(	pasynUser, ASYN_TRACE_ERROR,
 					"%s port %s: Error calling pasynManager->exceptionConnect, error=%s\n",
 					functionName, this->portName, pasynUser->errorMessage );
+    }
 
 	return asynSuccess;
 }
@@ -125,7 +131,7 @@ asynStatus	asynEdtPdvSerial::disconnect(
 	epicsMutexLock(m_serialLock);
 	m_pPdvDev		= NULL;
 	m_fConnected	= false;
-	epicsMutexUnlock(m_serialLock);
+    epicsMutexUnlock(m_serialLock);
 
 	// Signal asynManager that we are disconnected
 	int  status = pasynManager->exceptionDisconnect( pasynUser );
@@ -133,6 +139,7 @@ asynStatus	asynEdtPdvSerial::disconnect(
 		asynPrint(	pasynUser, ASYN_TRACE_ERROR,
 					"%s port %s: Error calling pasynManager->exceptionDisconnect, error=%s\n",
 					functionName, this->portName, pasynUser->errorMessage );
+
 
 	return asynSuccess;
 }
@@ -153,19 +160,28 @@ asynEdtPdvSerial::pdvDevConnected(
 	m_pPdvDev	= pPdvDev;
 	if ( pPdvDev == NULL )
 	{
+        if ( DEBUG_EDT_PDV >= 1 )
+            printf( "%s: %s Failed to connect to %s\n", functionName, this->portName,
+                    (pPdvDev != NULL ? pdv_get_camera_model( pPdvDev ) : "NULL") );
+
 		m_fConnected	= false;
 		epicsMutexUnlock(m_serialLock);
 		return asynError;
 	}
 
 	m_fConnected	= true;
+	if ( DEBUG_EDT_PDV >= 1 )
+		printf( "%s: %s Connected to %s\n", functionName, this->portName,
+				(pPdvDev != NULL ? pdv_get_camera_model( pPdvDev ) : "NULL") );
+
 	epicsMutexUnlock(m_serialLock);
 
-	// Create a temporary asynUser for autoConnect control
+
+    // Create a temporary asynUser for autoConnect control
 	asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
 	pAsynUserTmp->userPvt = this;
 	pasynManager->autoConnect( pAsynUserTmp, 1 );
-
+    pasynManager->freeAsynUser(pAsynUserTmp);
 	return status;
 }
 
@@ -217,6 +233,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	asynStatus				status			= asynSuccess;
     static const char	*	functionName	= "asynEdtPdvSerial::readOctet";
     const char			*	reasonName		= "unknownReason";
+    printf("****************** DEBUG HUGO: inside %s\n", functionName);
 
 	if ( pnRead )
 		*pnRead = 0;
@@ -387,7 +404,8 @@ asynStatus	asynEdtPdvSerial::writeOctet(
     static const char	*	functionName	= "asynEdtPdvSerial::writeOctet";
     const char			*	reasonName		= "unknownReason";
 	
-	getParamName( 0, pasynUser->reason, &reasonName );
+    printf("****************** DEBUG HUGO: inside %s\n", functionName);
+    getParamName( 0, pasynUser->reason, &reasonName );
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
 				"%s: %s maxChars %zu, reason %d %s\n",
 				functionName, this->portName, maxChars, pasynUser->reason, reasonName );
@@ -499,6 +517,7 @@ asynStatus	asynEdtPdvSerial::getOutputEosOctet(
 
 void asynEdtPdvSerial::report( FILE * fp, int details )
 {
+    fprintf(    fp, "Report from asynEdtPdvSerial:\n");
     fprintf(	fp, "EDT PDV camera serial port %s: %s\n",
 				this->portName, m_fConnected ? "Connected" : "Disconnected" );
     fprintf(	fp, "EDT PDV camera serial port %s: camera model %s\n",

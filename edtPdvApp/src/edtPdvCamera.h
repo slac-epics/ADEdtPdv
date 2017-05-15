@@ -36,6 +36,7 @@ class	asynEdtPdvSerial;
 //	struct	ttyController;
 
 #define N_PDV_DRV_ADDR_MAX		4
+//#define N_PDV_DRV_ADDR_MAX      1
 #define N_PDV_MULTIBUF_DEF		4
 
 #define	PDV_INTLV_IN_PDV_LIB	-1

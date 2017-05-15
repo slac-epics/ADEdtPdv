@@ -29,8 +29,10 @@ DIAG_TIMER_MODULE_VERSION	= R1.9.0
 #  or
 # FOO = /Full/Path/To/Development/Version 
 # ==========================================================
-ADCORE		= $(EPICS_MODULES)/ADCore/$(ADCORE_MODULE_VERSION)
-ASYN		= $(EPICS_MODULES)/asyn/$(ASYN_MODULE_VERSION)
+#ADCORE		= $(EPICS_MODULES)/ADCore/$(ADCORE_MODULE_VERSION)
+ADCORE      = /reg/neh/home5/slepicka/sandbox_lcls/git/ADCore-git/
+#ASYN		= $(EPICS_MODULES)/asyn/$(ASYN_MODULE_VERSION)
+ASYN        = /reg/neh/home5/slepicka/sandbox_lcls/git/asyn-git/
 DIAG_TIMER	= $(EPICS_MODULES)/diagTimer/$(DIAG_TIMER_MODULE_VERSION)
 
 # Set EPICS_BASE last so it appears last in the DB, DBD, INCLUDE, and LIB search paths

@@ -479,7 +479,7 @@ asynStatus edtPdvCamera::ConnectCamera( )
 
 	epicsMutexLock(	m_reconfigLock );
 	status = m_pAsynSerial->pdvDevConnected( m_pPdvDev );
-	// m_pAsynUser = m_pAsynSerial->pdvDevConnect( m_pPdvDev );
+	//m_pAsynUser = m_pAsynSerial->pdvDevConnect( m_pPdvDev );
 	epicsMutexUnlock(	m_reconfigLock );
 
 	if ( status != asynSuccess )
@@ -487,6 +487,7 @@ asynStatus edtPdvCamera::ConnectCamera( )
 
 	UpdateStatus( ADStatusIdle );
 
+    printf("************* DEBUG HUGO: edtPdvCamera::ConnectCamera - After UpdateStatus ADStatusIdle\n");
     return status;
 }
 
@@ -540,6 +541,8 @@ asynStatus edtPdvCamera::connect( asynUser *	pasynUser )
 {
     static const char	*	functionName	= "edtPdvCamera::connect";
 
+    printf("******************* DEBUG HUGO: edtPdvCamera::connect called\n");
+
 	if ( DEBUG_EDT_PDV >= 1 )
 		printf( "%s: %s in thread %s ...\n", functionName, m_CameraName.c_str(), epicsThreadGetNameSelf() );
 
@@ -562,6 +565,9 @@ asynStatus edtPdvCamera::connect( asynUser *	pasynUser )
 		}
     	return status;
     }
+
+    printf("******************* DEBUG HUGO: edtPdvCamera::connect will notify pasynManager that we are connected\n");
+
 
 	// Signal asynManager that we are connected
     status = pasynManager->exceptionConnect( pasynUser );
@@ -2245,6 +2251,7 @@ int		edtPdvCamera::SetGain( double gain )
   */
 void edtPdvCamera::report( FILE * fp, int details )
 {
+    fprintf(    fp, "Report from edtPdvCamera:\n");
     fprintf(	fp, "EDT Framegrabber port %s: %s\n",
 				this->portName, m_pPdvDev ? "Connected" : "Disconnected" );
 
