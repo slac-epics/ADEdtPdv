@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 699
-y 1247
+x 82
+y 484
 w 1064
 h 592
 font "helvetica-medium-r-8.0"
@@ -911,7 +911,7 @@ x 148
 y 136
 w 188
 h 20
-controlPv "$(P)$(R)OrcaModel_RBV"
+controlPv "$(P)$(R)EdtClass"
 font "helvetica-medium-r-12.0"
 fgColor index 15
 fgAlarm
@@ -939,7 +939,7 @@ fontAlign "right"
 fgColor index 14
 bgColor index 3
 value {
-  "Camera Model"
+  "Camera Class"
 }
 endObjectProperties
 
