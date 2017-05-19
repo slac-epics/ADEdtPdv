@@ -1,6 +1,14 @@
 #
 # SLAC RELEASE_NOTES
 #
+R1.17.0 2017-05-19  slepicka
+    Bumped ADCore to R2.6-2.2.0
+    Bumped Asyn to R4.31-1.0.0
+    Enabled auto connect for asynEdtPdvSerial.
+    Added timeout to pdv_serial_wait at asynEdtPdvSerial::readOctet of 500 milliseconds.
+    Fixed ifdef for NDBitsPerPixel.
+    Removed temporary AsynUser created to handle the autoConnect.
+
 R1.16.0 2017-05-09  slepicka
     Fixed bug when autosave is disable the number of buffers is 0 resulting in 
     failed mmap call. Setting to N_PDV_MULTIBUF_DEF which is = 4 in case a value

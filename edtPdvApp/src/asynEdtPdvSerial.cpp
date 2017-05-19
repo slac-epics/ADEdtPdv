@@ -162,9 +162,9 @@ asynEdtPdvSerial::pdvDevConnected(
 	epicsMutexUnlock(m_serialLock);
 
 	// Create a temporary asynUser for autoConnect control
-	asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
-	pAsynUserTmp->userPvt = this;
-	pasynManager->autoConnect( pAsynUserTmp, 1 );
+	//asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
+	//pAsynUserTmp->userPvt = this;
+	//pasynManager->autoConnect( pAsynUserTmp, 1 );
 
 	return status;
 }
@@ -260,13 +260,10 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		int nAvailToRead	= 0;
 		if ( m_pPdvDev && m_fConnected )
 		{
+            int nMsTimeout = 500; // Default timeout of 500 milliseconds
 			if ( pasynUser->timeout > 0 )
-			{
-				int		nMsTimeout	= static_cast<int>( pasynUser->timeout * 1000 );
-				nAvailToRead = pdv_serial_wait( m_pPdvDev, nMsTimeout, nBytesReadMax );
-			}
-			else
-				nAvailToRead = pdv_serial_get_numbytes( m_pPdvDev );
+				nMsTimeout	= static_cast<int>( pasynUser->timeout * 1000 );
+			nAvailToRead = pdv_serial_wait( m_pPdvDev, nMsTimeout, nBytesReadMax );
 		}
 		epicsMutexUnlock(m_serialLock);
 		if ( DEBUG_EDT_PDV >= 4 )
@@ -297,7 +294,10 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			epicsMutexUnlock(m_serialLock);
 			if ( DEBUG_EDT_PDV >= 3 )
 				printf( "%s: %s Released serial lock, read %d ...\n", functionName, this->portName, nRead );
-		}
+		}else{
+            // nAvailToRead <=0 so nothing to do here... fly away!
+            return asynSuccess;
+        }
 
 		// If we read something
 		if( nRead > 0 )

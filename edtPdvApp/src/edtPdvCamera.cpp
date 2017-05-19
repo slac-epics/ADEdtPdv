@@ -217,7 +217,7 @@ edtPdvCamera::edtPdvCamera(
 
     // Configure an asyn port for serial commands
 	unsigned int		serPriority		= 0;
-	int					autoConnect		= 0;
+	int					autoConnect		= 1;
     m_pAsynSerial = new asynEdtPdvSerial(	m_SerialPort.c_str(), serPriority,	autoConnect	);
 
 	// Create EDT parameters shared by all EDT based cameras
@@ -883,7 +883,7 @@ int edtPdvCamera::_Reconfigure( )
 	{
 		setIntegerParam( NDDataType,		NDUInt16 );
 	}
-#ifdef NDBitsPerPixel
+#ifdef NDBitsPerPixelString
 	setIntegerParam( NDBitsPerPixel,	m_ClNumBits		);
 #endif
 
