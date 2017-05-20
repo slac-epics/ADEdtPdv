@@ -161,18 +161,24 @@ asynEdtPdvSerial::pdvDevConnected(
 	m_fConnected	= true;
 	epicsMutexUnlock(m_serialLock);
 
-	// Create a temporary asynUser for autoConnect control
-	//asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
-	//pAsynUserTmp->userPvt = this;
-	//pasynManager->autoConnect( pAsynUserTmp, 1 );
+	// Create a temporary asynUser to enable autoConnect
+	// Why is this pasynManager->autoConnect(pAsynUserTmp,1) call even needed?
+	asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
+	pAsynUserTmp->userPvt = this;
+	pasynManager->autoConnect( pAsynUserTmp, 1 );
 
+	// Test me!
+	// freeAsynUser( pAsynUserTmp );
+	// or
+	// return pAsynUserTmp;
+	// Probably the former?  freeAsynUser( pAsynUserTmp )
 	return status;
 }
 
 
 asynStatus
 asynEdtPdvSerial::pdvDevDisconnected(
-	PdvDev			*	pPdvDev	)
+	PdvDev			*	pPdvDev	) // TODO: Remove pPdvDev param
 {
 	asynStatus			status			= asynSuccess;
 	const char		*	functionName	= "asynEdtPdvSerial::pdvDevDisconnected";
@@ -505,25 +511,26 @@ void asynEdtPdvSerial::report( FILE * fp, int details )
 				this->portName,
 				(m_pPdvDev != NULL ? pdv_get_camera_model( m_pPdvDev ) : "None") );
 
-	int			connected	= 0;
-	pasynManager->isConnected( this->pasynUserSelf, &connected );
-	if ( m_fConnected && !connected )
+    if ( details >= 2 )
 	{
-		fprintf(	fp, "Warning, Camera serial port %s thinks it's %s, but asynManager says %s\n",
-					portName,
-					m_fConnected	? "Connected" : "Disconnected",
-					connected		? "Connected" : "Disconnected"	);
+		int			connected	= 0;
+		pasynManager->isConnected( this->pasynUserSelf, &connected );
+		if ( m_fConnected && !connected )
+		{
+			fprintf(	fp, "Warning, Camera serial port %s thinks it's %s, but asynManager says %s\n",
+						portName,
+						m_fConnected	? "Connected" : "Disconnected",
+						connected		? "Connected" : "Disconnected"	);
+		}
 	}
-
-#if 0
-    if ( details > 0 )
+    if ( details >= 1 )
 	{
-        fprintf( fp, "\n" );
-    }
-#endif
+        fprintf( fp, "InputEosOctet  0x%p, len %d\n", m_inputEosOctet,  m_inputEosLenOctet  );
+        fprintf( fp, "OutputEosOctet 0x%p, len %d\n", m_outputEosOctet, m_outputEosLenOctet );
 
-    /* Call the base class method */
-    asynPortDriver::report( fp, details );
+		/* Call the base class method */
+		asynPortDriver::report( fp, details );
+    }
 }
 
 //	Private member variables
