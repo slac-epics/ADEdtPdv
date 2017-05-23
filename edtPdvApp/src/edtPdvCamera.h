@@ -339,6 +339,9 @@ public:		//	Public member functions
 	/// SetEdtDebugMsgLevel
 	int		SetEdtDebugMsgLevel( int value );
 
+    /// SetSerDisable
+    int SetSerDisable( int value );
+
 	// Trace level for diagnostics
 	unsigned int GetTraceLevel();
 
@@ -450,6 +453,8 @@ private:	//	Private member variables
 	int				m_EdtDebugLevel;	// PDV library debug level
 	int				m_EdtDebugMsgLevel;	// PDV library debug msg level
 
+    int             m_SerialDisable;    // Flag to enable or disable the serial communication
+
 	// These variables hold the asyn parameter index numbers for each parameter
 	#define FIRST_EDT_PARAM EdtClass
 	int		EdtClass;
@@ -482,7 +487,9 @@ private:	//	Private member variables
 	int		SerSizeX;
 	int		SerSizeY;
 	int		SerTriggerMode;
-	#define LAST_EDT_PARAM  SerTriggerMode
+
+    int     SerDisable;
+	#define LAST_EDT_PARAM  SerDisable
 
 #ifdef	USE_DIAG_TIMER
 	ContextTimerMax			m_ReAcquireTimer;
@@ -535,6 +542,8 @@ private:	//	Private class variables
 #define EdtSerSizeXString		"EDT_SIZE_X"
 #define EdtSerSizeYString		"EDT_SIZE_Y"
 #define EdtSerTriggerModeString	"EDT_TRIGGER_MODE"
+
+#define EdtSerDisableString     "SERIAL_DISABLE"
 
 /*	Diagnostic variables	*/
 extern int				DEBUG_EDT_PDV;

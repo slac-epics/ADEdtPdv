@@ -296,6 +296,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 				printf( "%s: %s Released serial lock, read %d ...\n", functionName, this->portName, nRead );
 		}else{
             // nAvailToRead <=0 so nothing to do here... fly away!
+            *pnRead = 0;
             return asynSuccess;
         }
 

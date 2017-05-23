@@ -604,3 +604,20 @@ record( calc, "$(P)$(R)TrigToTS_Calc" )
     field( EGU,  "sec" )
     field( PREC, "5" ) 
 }
+
+# EdtTriggerMode should not be FLNK'd from TriggerMode, as it shouldn't
+# get processed till we've shutdown acquisition.
+# Note also it needs to be an input record so it processes via I/O Scan
+# once camera is reconfigured.
+record( bo, "$(P)$(R)SerialDisable" )
+{
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))SERIAL_DISABLE" )
+    field( DOL, 0  )
+    field( PINI, "YES" )
+    field( ZNAM, "Off" )
+    field( ONAM, "On"  )
+	info( archiveFields,  "VAL" )
+    info( autosaveFields, "VAL" )
+}
+
