@@ -275,10 +275,6 @@ asynStatus	asynEdtPdvSerial::readOctet(
 				nMsTimeout	= static_cast<int>( pasynUser->timeout * 1000 );
 			nAvailToRead = pdv_serial_wait( m_pPdvDev, nMsTimeout, nBytesReadMax );
 		}
-		epicsMutexUnlock(m_serialLock);
-		if ( DEBUG_EDT_PDV >= 4 )
-			printf( "%s: %s Released serial lock, nAvailToRead %d ...\n", functionName, this->portName, nAvailToRead );
-
 		if( nAvailToRead > 0 )
 		{
 			int		nToRead	= nAvailToRead;
@@ -307,8 +303,17 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		}else{
             // nAvailToRead <=0 so nothing to do here... fly away!
             *pnRead = 0;
+            epicsMutexUnlock(m_serialLock);
+            if ( DEBUG_EDT_PDV >= 4 )
+                printf( "%s: %s Released serial lock, nAvailToRead %d ...\n", functionName, this->portName, nAvailToRead );
+
             return asynSuccess;
         }
+
+        epicsMutexUnlock(m_serialLock);
+		if ( DEBUG_EDT_PDV >= 4 )
+			printf( "%s: %s Released serial lock, nAvailToRead %d ...\n", functionName, this->portName, nAvailToRead );
+
 
 		// If we read something
 		if( nRead > 0 )
