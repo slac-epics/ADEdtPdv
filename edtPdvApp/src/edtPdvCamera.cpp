@@ -647,15 +647,15 @@ int edtPdvCamera::Reconfigure( )
 
 	int		status	= 0;
 	epicsMutexLock(		m_reconfigLock );
+    
     // Disable the Serial Communication
     SetSerDisable(1); 
-	m_pAsynSerial->pdvDevDisconnected( NULL );
-	// freeAsynUser( m_pAsynUser );
+    m_pAsynSerial->pdvDevDisconnected( NULL );
 
 	UpdateStatus( ADStatusInitializing );
 	if ( m_fReopen )
 	{
-		// Clear reopen flag up front so it can be set again by another thread if needed
+        // Clear reopen flag up front so it can be set again by another thread if needed
 		m_fReopen	= false;
 		status	= edtPdvCamera::_Reopen( );
 	}
@@ -668,18 +668,11 @@ int edtPdvCamera::Reconfigure( )
 		// Reconfigure failed, request another
 		m_fReconfig	= true;
 	}
-	else
-	{
-		UpdateStatus( ADStatusIdle );
-		m_ReCfgCnt++;
-		setIntegerParam( EdtReCfgCnt, m_ReCfgCnt );
-	}
 
 	if ( DEBUG_EDT_PDV >= 1 )
 	{
 		printf( "%s: %s done in thread %s\n", functionName, m_CameraName.c_str(), epicsThreadGetNameSelf() );
 	}
-	m_pAsynSerial->pdvDevConnected( m_pPdvDev );
 	epicsMutexUnlock(	m_reconfigLock );
 
 	// TODO: Find a safe place to do this
@@ -693,14 +686,20 @@ int edtPdvCamera::Reconfigure( )
 					"%s %s: Reconfigure error! errorMsg=%s\n",
 					driverName, functionName, this->pasynUserSelf->errorMessage );
 	}
-	else if ( m_fReconfig )
-	{
-        asynPrint(	this->pasynUserSelf, ASYN_TRACE_ERROR,
-					"%s %s: Reconfigure succeeded, but Reconfig flag has already been set again!\n",
-					driverName, functionName );
-	}
-    // Enable the Serial Communication
-    SetSerDisable(0); 
+    else
+    {
+        UpdateStatus( ADStatusIdle );
+		
+        m_ReCfgCnt++;
+		setIntegerParam( EdtReCfgCnt, m_ReCfgCnt );
+        if ( m_fReconfig )
+        {
+            asynPrint(	this->pasynUserSelf, ASYN_TRACE_ERROR,
+                        "%s %s: Reconfigure succeeded, but Reconfig flag has already been set again!\n",
+                        driverName, functionName );
+        }
+    }
+
 	return status;
 }
 
@@ -829,6 +828,10 @@ int edtPdvCamera::_Reconfigure( )
 					driverName,		functionName	);
         return -1;
     }
+
+    // Enable the Serial Communication
+    m_pAsynSerial->pdvDevConnected( m_pPdvDev );
+    SetSerDisable(0); 
 
 	double		cameraInitCamDelay	= 0.0;
 	if ( cameraInitCamDelay > 0.0 )

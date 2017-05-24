@@ -19,10 +19,12 @@
 
 extern int	DEBUG_EDT_PDV;
 
-#define	MAX_ADDR		1
+#define	MAX_ADDR		2
 #define	NUM_PARAMS		1
 
 using namespace	std;
+
+static const char * driverName = "asynEdtPdvSerial";
 
 ///	Constructor
 asynEdtPdvSerial::asynEdtPdvSerial(
@@ -43,7 +45,7 @@ asynEdtPdvSerial::asynEdtPdvSerial(
 							priority,
 							stackSize	),
 	m_pPdvDev(				NULL		),
-	m_pasynUser(			NULL		),
+	m_pasynUserStream(		NULL		),
 	m_inputEosOctet(		NULL		),
 	m_inputEosLenOctet(		0			),
 	m_outputEosOctet(		NULL		),
@@ -123,7 +125,7 @@ asynStatus	asynEdtPdvSerial::disconnect(
 				"%s port %s\n", functionName, this->portName );
 
 	epicsMutexLock(m_serialLock);
-	m_pPdvDev		= NULL;
+	//m_pPdvDev		= NULL;
 	m_fConnected	= false;
 	epicsMutexUnlock(m_serialLock);
 
@@ -158,7 +160,13 @@ asynEdtPdvSerial::pdvDevConnected(
 		return asynError;
 	}
 
-	m_fConnected	= true;
+    if (m_pasynUserStream != NULL)
+    {
+        printf("*********************** DEBUG HUGO: %s with m_pasynUserStream. portName: %s", functionName,
+                this->portName);
+	    connect( m_pasynUserStream );
+    }
+
 	epicsMutexUnlock(m_serialLock);
 
 	// Create a temporary asynUser for autoConnect control
@@ -182,6 +190,13 @@ asynEdtPdvSerial::pdvDevDisconnected(
 	epicsMutexLock(m_serialLock);
 	if ( DEBUG_EDT_PDV >= 3 )
 		printf( "%s: %s Have serial lock ...\n", functionName, this->portName );
+
+	if ( pasynManager->exceptionDisconnect( this->pasynUserSelf ) != asynSuccess )
+	{
+        asynPrint(	this->pasynUserSelf, ASYN_TRACE_ERROR,
+					"%s %s: error calling pasynManager->exceptionDisconnect, error=%s\n",
+					driverName, functionName, this->pasynUserSelf->errorMessage );
+	}
 	m_fConnected	= false;
 	m_pPdvDev		= NULL;
 	epicsMutexUnlock(m_serialLock);
@@ -217,6 +232,9 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	asynStatus				status			= asynSuccess;
     static const char	*	functionName	= "asynEdtPdvSerial::readOctet";
     const char			*	reasonName		= "unknownReason";
+    
+    // Keep our copy of the Streamdevice asynUser
+    m_pasynUserStream = pasynUser;
 
 	if ( pnRead )
 		*pnRead = 0;
@@ -387,7 +405,10 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 	asynStatus				status			= asynSuccess;
     static const char	*	functionName	= "asynEdtPdvSerial::writeOctet";
     const char			*	reasonName		= "unknownReason";
-	
+
+    // Keep our copy of the Streamdevice asynUser
+    m_pasynUserStream = pasynUser;
+
 	getParamName( 0, pasynUser->reason, &reasonName );
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
 				"%s: %s maxChars %zu, reason %d %s\n",

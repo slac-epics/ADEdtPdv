@@ -69,7 +69,7 @@ public:		//	Public member functions
 
 	//	Private member variables
 	PdvDev			*	m_pPdvDev;
-	asynUser		*	m_pasynUser;
+	asynUser		*	m_pasynUserStream;
 	char			*	m_inputEosOctet;
 	int					m_inputEosLenOctet;
 	char			*	m_outputEosOctet;
