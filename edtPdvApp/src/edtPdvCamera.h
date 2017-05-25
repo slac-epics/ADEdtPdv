@@ -342,6 +342,12 @@ public:		//	Public member functions
     /// SetSerDisable
     int SetSerDisable( int value );
 
+    /// Synchronized Data Acq Stats
+    int ResetSyncCounters();
+    int IncrSyncTotalCount();
+    int IncrSyncBadTSCount();
+    int IncrSyncBadSyncCount();
+
 	// Trace level for diagnostics
 	unsigned int GetTraceLevel();
 
@@ -455,6 +461,10 @@ private:	//	Private member variables
 
     int             m_SerialDisable;    // Flag to enable or disable the serial communication
 
+    unsigned int    m_SyncTotal;        // Total images counter
+    unsigned int    m_SyncBadTS;        // Images discarded by bad timestamp counter
+    unsigned int    m_SyncBadSync;      // Images discarded by bad sync counter
+
 	// These variables hold the asyn parameter index numbers for each parameter
 	#define FIRST_EDT_PARAM EdtClass
 	int		EdtClass;
@@ -489,7 +499,11 @@ private:	//	Private member variables
 	int		SerTriggerMode;
 
     int     SerDisable;
-	#define LAST_EDT_PARAM  SerDisable
+
+    int     SyncTotal;
+    int     SyncBadTS;
+    int     SyncBadSync;
+	#define LAST_EDT_PARAM SyncBadSync 
 
 #ifdef	USE_DIAG_TIMER
 	ContextTimerMax			m_ReAcquireTimer;
@@ -544,6 +558,11 @@ private:	//	Private class variables
 #define EdtSerTriggerModeString	"EDT_TRIGGER_MODE"
 
 #define EdtSerDisableString     "SERIAL_DISABLE"
+
+#define EdtSyncTotalCntString   "SYNC_TOTAL"
+#define EdtSyncBadTSCntString   "SYNC_BAD_TS"
+#define EdtSyncBadSyncCntString "SYNC_BAD_SYNC"
+
 
 /*	Diagnostic variables	*/
 extern int				DEBUG_EDT_PDV;

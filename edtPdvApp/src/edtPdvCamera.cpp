@@ -258,6 +258,10 @@ edtPdvCamera::edtPdvCamera(
 
     createParam( EdtSerDisableString,             asynParamInt32,     &SerDisable     );
 
+    createParam( EdtSyncTotalCntString,     asynParamInt32,     &SyncTotal  );
+    createParam( EdtSyncBadTSCntString,     asynParamInt32,     &SyncBadTS  );
+    createParam( EdtSyncBadSyncCntString,   asynParamInt32,     &SyncBadSync  );
+
 	// Get the EDT mode from the mbbo PV
 	int		paramValue	= static_cast<int>( m_EdtMode );
 	setIntegerParam( EdtMode,		paramValue );
@@ -1223,6 +1227,41 @@ int edtPdvCamera::SetSerDisable( int value )
 	return status;
 }
 
+int edtPdvCamera::ResetSyncCounters()
+{
+    m_SyncTotal = 0;
+    m_SyncBadTS = 0;
+    m_SyncBadSync = 0;
+
+    return asynSuccess;
+}
+
+int edtPdvCamera::IncrSyncTotalCount()
+{
+    m_SyncTotal += 1;
+	asynStatus		status	= setIntegerParam( SyncTotal, m_SyncTotal );
+	if( status == asynSuccess )
+		status = callParamCallbacks( 0, 0 );
+	return status;
+}
+
+int edtPdvCamera::IncrSyncBadTSCount()
+{
+    m_SyncBadTS += 1;
+	asynStatus		status	= setIntegerParam( SyncBadTS, m_SyncBadTS );
+	if( status == asynSuccess )
+		status = callParamCallbacks( 0, 0 );
+	return status;
+}
+
+int edtPdvCamera::IncrSyncBadSyncCount()
+{
+    m_SyncBadSync += 1;
+	asynStatus		status	= setIntegerParam( SyncBadSync, m_SyncBadSync );
+	if( status == asynSuccess )
+		status = callParamCallbacks( 0, 0 );
+	return status;
+}
 
 asynStatus	edtPdvCamera::UpdateStatus( int	newStatus	)
 {

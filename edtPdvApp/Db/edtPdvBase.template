@@ -605,10 +605,7 @@ record( calc, "$(P)$(R)TrigToTS_Calc" )
     field( PREC, "5" ) 
 }
 
-# EdtTriggerMode should not be FLNK'd from TriggerMode, as it shouldn't
-# get processed till we've shutdown acquisition.
-# Note also it needs to be an input record so it processes via I/O Scan
-# once camera is reconfigured.
+# Disable or Enable the serial communication with the Device
 record( bo, "$(P)$(R)SerialDisable" )
 {
 	field( DTYP, "asynInt32" )
@@ -622,3 +619,29 @@ record( bo, "$(P)$(R)SerialDisable" )
     info( autosaveFields, "VAL" )
 }
 
+# Holds the total number of images acquired
+record( longout, "$(P)$(R)SyncTotalCnt" )
+{
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))SYNC_TOTAL" )
+    field( SCAN, "I/O Intr" )
+	info( archiveFields,  "VAL" )
+}
+
+# Holds the total number of images discarded by Bad Timestamp
+record( longout, "$(P)$(R)SyncBadTSCnt" )
+{
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))SYNC_BAD_TS" )
+    field( SCAN, "I/O Intr" )
+	info( archiveFields,  "VAL" )
+}
+
+# Holds the total number of images discarded by Bad Sync 
+record( longout, "$(P)$(R)SyncBadSyncCnt" )
+{
+	field( DTYP, "asynInt32" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))SYNC_BAD_SYNC" )
+    field( SCAN, "I/O Intr" )
+	info( archiveFields,  "VAL" )
+}
