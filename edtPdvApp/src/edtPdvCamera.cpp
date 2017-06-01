@@ -184,15 +184,17 @@ edtPdvCamera::edtPdvCamera(
 		m_EdtDebugLevel(	1					),
 	//	m_EdtDebugMsgLevel(	0xFFF				),
 		m_EdtDebugMsgLevel(	0x000				),
-
+        m_SerialDisable (   1                   ),
+        m_SyncTotal (       0                   ),
+        m_SyncBadTS (       0                   ),
+        m_SyncBadSync (     0                   ),
 #ifdef	USE_DIAG_TIMER
 		m_ReAcquireTimer(	"ReAcquire"			),
 		m_ReArmTimer(		"ReArm"				),
 		m_ProcessImageTimer("ProcessImage"		),
 #endif	//	USE_DIAG_TIMER
 		m_ioscan(			NULL				),
-		m_pAsynSerial(		NULL				),
-        m_SerialDisable (   1                   )
+		m_pAsynSerial(		NULL				)
 {
 	static const char	*	functionName = "edtPdvCamera:edtPdvCamera";
 
