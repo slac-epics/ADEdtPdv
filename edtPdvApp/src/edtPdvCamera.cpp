@@ -1221,7 +1221,7 @@ int edtPdvCamera::GetEdtDebugMsgLevel( )
 
 int edtPdvCamera::SetSerDisable( int value )
 {
-    printf("******************** DEBUG HUGO: SetSerDisable to: %d\n", value);
+    printf("%s serial port communication\n", value ? "Disabling":"Enabling");
     m_SerialDisable = value;
 	asynStatus		status	= setIntegerParam( SerDisable, m_SerialDisable );
 	if( status == asynSuccess )
