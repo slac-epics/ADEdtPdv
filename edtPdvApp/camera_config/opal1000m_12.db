@@ -879,7 +879,6 @@ record( longin, "$(P)$(R)OpalSerialNumber_RBV" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetSerial $(PORT).SER" )
 	field( PINI, "YES" )
-    field( SCAN, "10 second" )
     field( SDIS, "$(SerialDisable)")
 }
 
@@ -1080,7 +1079,6 @@ record( stringin, "$(P)$(R)OpalModelID_RBV" )
     field( DESC, "Model ID" )
     field( DTYP, "stream" )
     field( INP,	 "@opal1000m_12.proto GetQStr(MID) $(PORT).SER" )
-    field( SCAN, "10 second" )
     field( SDIS, "$(SerialDisable)")
 }
 
