@@ -24,14 +24,15 @@ char *
 get_pci_fpga_header(EdtDev *edt_p, char *name)
 {
     u_short stat;
-    u_char jumpers, idbits, xidbits;
+    //u_char jumpers, idbits, xidbits;
+    u_char idbits, xidbits;
     int promcode;
     EdtPromData pdata;
     Edt_prominfo *ep;
 
     promcode = edt_flash_prom_detect(edt_p, &stat);
     ep = edt_get_prominfo(promcode);
-    jumpers = stat & 0x3;
+    //jumpers = stat & 0x3;
     idbits = (stat >>2) & 0x1f;
     xidbits = stat >> 8;
 

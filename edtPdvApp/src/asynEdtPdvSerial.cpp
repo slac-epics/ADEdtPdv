@@ -24,6 +24,8 @@ extern int	DEBUG_EDT_PDV;
 
 using namespace	std;
 
+static const char * driverName = "asynEdtPdvSerial";
+
 ///	Constructor
 asynEdtPdvSerial::asynEdtPdvSerial(
 	const char			*	portName,
@@ -43,7 +45,7 @@ asynEdtPdvSerial::asynEdtPdvSerial(
 							priority,
 							stackSize	),
 	m_pPdvDev(				NULL		),
-	m_pasynUser(			NULL		),
+	m_pasynUserStream(		NULL		),
 	m_inputEosOctet(		NULL		),
 	m_inputEosLenOctet(		0			),
 	m_outputEosOctet(		NULL		),
@@ -123,7 +125,8 @@ asynStatus	asynEdtPdvSerial::disconnect(
 				"%s port %s\n", functionName, this->portName );
 
 	epicsMutexLock(m_serialLock);
-	m_pPdvDev		= NULL;
+    //commented out as the user can connect of disconnect using the AsynIO fields
+    //m_pPdvDev		= NULL;
 	m_fConnected	= false;
 	epicsMutexUnlock(m_serialLock);
 
@@ -158,20 +161,14 @@ asynEdtPdvSerial::pdvDevConnected(
 		return asynError;
 	}
 
-	m_fConnected	= true;
 	epicsMutexUnlock(m_serialLock);
 
-	// Create a temporary asynUser to enable autoConnect
-	// Why is this pasynManager->autoConnect(pAsynUserTmp,1) call even needed?
-	asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
-	pAsynUserTmp->userPvt = this;
-	pasynManager->autoConnect( pAsynUserTmp, 1 );
+    connect(this->pasynUserSelf);
+	// Create a temporary asynUser for autoConnect control
+	//asynUser	*	pAsynUserTmp = pasynManager->createAsynUser(0,0);
+	//pAsynUserTmp->userPvt = this;
+	//pasynManager->autoConnect( pAsynUserTmp, 1 );
 
-	// Test me!
-	// freeAsynUser( pAsynUserTmp );
-	// or
-	// return pAsynUserTmp;
-	// Probably the former?  freeAsynUser( pAsynUserTmp )
 	return status;
 }
 
@@ -188,6 +185,13 @@ asynEdtPdvSerial::pdvDevDisconnected(
 	epicsMutexLock(m_serialLock);
 	if ( DEBUG_EDT_PDV >= 3 )
 		printf( "%s: %s Have serial lock ...\n", functionName, this->portName );
+
+	if ( pasynManager->exceptionDisconnect( this->pasynUserSelf ) != asynSuccess )
+	{
+        asynPrint(	this->pasynUserSelf, ASYN_TRACE_ERROR,
+					"%s %s: error calling pasynManager->exceptionDisconnect, error=%s\n",
+					driverName, functionName, this->pasynUserSelf->errorMessage );
+	}
 	m_fConnected	= false;
 	m_pPdvDev		= NULL;
 	epicsMutexUnlock(m_serialLock);
@@ -223,7 +227,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	asynStatus				status			= asynSuccess;
     static const char	*	functionName	= "asynEdtPdvSerial::readOctet";
     const char			*	reasonName		= "unknownReason";
-
+    
 	if ( pnRead )
 		*pnRead = 0;
 	if ( eomReason )
@@ -271,10 +275,6 @@ asynStatus	asynEdtPdvSerial::readOctet(
 				nMsTimeout	= static_cast<int>( pasynUser->timeout * 1000 );
 			nAvailToRead = pdv_serial_wait( m_pPdvDev, nMsTimeout, nBytesReadMax );
 		}
-		epicsMutexUnlock(m_serialLock);
-		if ( DEBUG_EDT_PDV >= 4 )
-			printf( "%s: %s Released serial lock, nAvailToRead %d ...\n", functionName, this->portName, nAvailToRead );
-
 		if( nAvailToRead > 0 )
 		{
 			int		nToRead	= nAvailToRead;
@@ -302,8 +302,18 @@ asynStatus	asynEdtPdvSerial::readOctet(
 				printf( "%s: %s Released serial lock, read %d ...\n", functionName, this->portName, nRead );
 		}else{
             // nAvailToRead <=0 so nothing to do here... fly away!
+            *pnRead = 0;
+            epicsMutexUnlock(m_serialLock);
+            if ( DEBUG_EDT_PDV >= 4 )
+                printf( "%s: %s Released serial lock, nAvailToRead %d ...\n", functionName, this->portName, nAvailToRead );
+
             return asynSuccess;
         }
+
+        epicsMutexUnlock(m_serialLock);
+		if ( DEBUG_EDT_PDV >= 4 )
+			printf( "%s: %s Released serial lock, nAvailToRead %d ...\n", functionName, this->portName, nAvailToRead );
+
 
 		// If we read something
 		if( nRead > 0 )
@@ -392,7 +402,7 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 	asynStatus				status			= asynSuccess;
     static const char	*	functionName	= "asynEdtPdvSerial::writeOctet";
     const char			*	reasonName		= "unknownReason";
-	
+
 	getParamName( 0, pasynUser->reason, &reasonName );
 	asynPrint(	pasynUser, ASYN_TRACE_FLOW,
 				"%s: %s maxChars %zu, reason %d %s\n",

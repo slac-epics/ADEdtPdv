@@ -1,6 +1,15 @@
 #
 # SLAC RELEASE_NOTES
 #
+R1.18.0 2017-06-01  slepicka
+    Added SerialDisable to disable the SCAN at some records and avoid issues with StreamDevice
+    Removed not supported records from opal1000m_12.db
+    Introduced the DLY field at seq records for EdtReConfig to avoid communication issues when reconfiguring the camera
+    Added SyncTotalCnt, SyncBadTSCnt and SyncBadSyncCnt PVs to edtPdvBase.template to hold the stats of total and dropped images by failure at sync
+    Cleaned build warnings
+    Updated libpdv.a for RHEL7-x86_64, using EDTPdv driver: R5.5.1.6 and Kernel: 3.10.0-514.10.2.el7.x86_64
+    Show message when serial port communitation is turned on or off
+
 R1.17.0 2017-05-19  slepicka
     Bumped ADCore to R2.6-2.2.0
     Bumped Asyn to R4.31-1.0.0

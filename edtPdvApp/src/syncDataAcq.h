@@ -256,6 +256,9 @@ template < class Dev, class Data >	class syncDataAcq
 		ACQ_TRACE(	ACQ_TRACE_START_STOP,	"%s: Entering acquire loop: Acquire Count %d\n",
 					functionName, m_Device.GetAcquireCount() );
 
+
+        m_Device.ResetSyncCounters();
+
 		//	Start acquisition
 		int status = m_Device.StartAcquisition();
 		if ( status != 0 )
@@ -304,12 +307,15 @@ template < class Dev, class Data >	class syncDataAcq
 				continue;
 			}
 
+            m_Device.IncrSyncTotalCount();
+
 			//	Get image timestamp
 			epicsTimeStamp	tsEvent;
 			int				pulseID;
 			status = m_Device.TimeStampImage( pImage, &tsEvent, &pulseID );
 			if ( status != 0 )
 			{
+                m_Device.IncrSyncBadTSCount();
 				if ( GetPolicyBadTimeStamp() == SKIP_OBJECT )
 				{
 					ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Bad TimeStamp, skipping object ...\n", functionName );
@@ -322,12 +328,13 @@ template < class Dev, class Data >	class syncDataAcq
 				// Check for sync
 				if ( m_Device.IsSynced( pImage, &tsEvent, pulseID ) == false )
 				{
+                    m_Device.IncrSyncBadSyncCount();
 					ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: Unsynced, skipping object ...\n", functionName );
 					continue;
 				}
 			}
 
-			ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: ProcessData for pulse id %d ...\n", functionName, pulseID );
+			ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: ProcessData for pulse id %d ...\n", functionName, pulseID );            
 			// Process the image data
 			m_Device.ProcessData( pImage, &tsEvent, pulseID );
 		}

@@ -184,7 +184,10 @@ edtPdvCamera::edtPdvCamera(
 		m_EdtDebugLevel(	1					),
 	//	m_EdtDebugMsgLevel(	0xFFF				),
 		m_EdtDebugMsgLevel(	0x000				),
-
+        m_SerialDisable (   1                   ),
+        m_SyncTotal (       0                   ),
+        m_SyncBadTS (       0                   ),
+        m_SyncBadSync (     0                   ),
 #ifdef	USE_DIAG_TIMER
 		m_ReAcquireTimer(	"ReAcquire"			),
 		m_ReArmTimer(		"ReArm"				),
@@ -217,7 +220,7 @@ edtPdvCamera::edtPdvCamera(
 
     // Configure an asyn port for serial commands
 	unsigned int		serPriority		= 0;
-	int					autoConnect		= 1;
+	int					autoConnect		= 0;
     m_pAsynSerial = new asynEdtPdvSerial(	m_SerialPort.c_str(), serPriority,	autoConnect	);
 
 	// Create EDT parameters shared by all EDT based cameras
@@ -254,6 +257,12 @@ edtPdvCamera::edtPdvCamera(
 	createParam( EdtSerSizeXString,			asynParamInt32,		&SerSizeX		);
 	createParam( EdtSerSizeYString,			asynParamInt32,		&SerSizeY		);
 	createParam( EdtSerTriggerModeString,	asynParamInt32,		&SerTriggerMode	);
+
+    createParam( EdtSerDisableString,             asynParamInt32,     &SerDisable     );
+
+    createParam( EdtSyncTotalCntString,     asynParamInt32,     &SyncTotal  );
+    createParam( EdtSyncBadTSCntString,     asynParamInt32,     &SyncBadTS  );
+    createParam( EdtSyncBadSyncCntString,   asynParamInt32,     &SyncBadSync  );
 
 	// Get the EDT mode from the mbbo PV
 	int		paramValue	= static_cast<int>( m_EdtMode );
@@ -463,6 +472,9 @@ asynStatus edtPdvCamera::ConnectCamera( )
 	if ( DEBUG_EDT_PDV >= 1 )
 		printf( "%s: %s in thread %s ...\n", functionName, m_CameraName.c_str(), epicsThreadGetNameSelf() );
 
+    // Disable the Serial Communication
+    SetSerDisable(1);
+
 	// Initialize (or re-initialize) EDT framegrabber connection
 	Reopen( );
 
@@ -485,6 +497,8 @@ asynStatus edtPdvCamera::ConnectCamera( )
 	if ( status != asynSuccess )
         return asynError;
 
+    // Enable the Serial Communication
+    SetSerDisable(0);
 	UpdateStatus( ADStatusIdle );
 
     return status;
@@ -513,7 +527,10 @@ asynStatus edtPdvCamera::DisconnectCamera( )
 		epicsThreadSleep(0.1);
 	}
 
-	// Block reconfigured until serial device is disconnected
+    // Disable the Serial Communication
+    SetSerDisable(1);
+
+    // Block reconfigured until serial device is disconnected
 	epicsMutexLock(	m_reconfigLock );
 	m_pAsynSerial->pdvDevDisconnected( NULL );
 	// m_pAsynSerial->pdvDevDisConnect( );
@@ -636,13 +653,15 @@ int edtPdvCamera::Reconfigure( )
 
 	int		status	= 0;
 	epicsMutexLock(		m_reconfigLock );
-	m_pAsynSerial->pdvDevDisconnected( NULL );
-	// freeAsynUser( m_pAsynUser );
+    
+    // Disable the Serial Communication
+    SetSerDisable(1); 
+    m_pAsynSerial->pdvDevDisconnected( NULL );
 
 	UpdateStatus( ADStatusInitializing );
 	if ( m_fReopen )
 	{
-		// Clear reopen flag up front so it can be set again by another thread if needed
+        // Clear reopen flag up front so it can be set again by another thread if needed
 		m_fReopen	= false;
 		status	= edtPdvCamera::_Reopen( );
 	}
@@ -655,18 +674,11 @@ int edtPdvCamera::Reconfigure( )
 		// Reconfigure failed, request another
 		m_fReconfig	= true;
 	}
-	else
-	{
-		UpdateStatus( ADStatusIdle );
-		m_ReCfgCnt++;
-		setIntegerParam( EdtReCfgCnt, m_ReCfgCnt );
-	}
 
 	if ( DEBUG_EDT_PDV >= 1 )
 	{
 		printf( "%s: %s done in thread %s\n", functionName, m_CameraName.c_str(), epicsThreadGetNameSelf() );
 	}
-	m_pAsynSerial->pdvDevConnected( m_pPdvDev );
 	epicsMutexUnlock(	m_reconfigLock );
 
 	// TODO: Find a safe place to do this
@@ -680,12 +692,20 @@ int edtPdvCamera::Reconfigure( )
 					"%s %s: Reconfigure error! errorMsg=%s\n",
 					driverName, functionName, this->pasynUserSelf->errorMessage );
 	}
-	else if ( m_fReconfig )
-	{
-        asynPrint(	this->pasynUserSelf, ASYN_TRACE_ERROR,
-					"%s %s: Reconfigure succeeded, but Reconfig flag has already been set again!\n",
-					driverName, functionName );
-	}
+    else
+    {
+        UpdateStatus( ADStatusIdle );
+		
+        m_ReCfgCnt++;
+		setIntegerParam( EdtReCfgCnt, m_ReCfgCnt );
+        if ( m_fReconfig )
+        {
+            asynPrint(	this->pasynUserSelf, ASYN_TRACE_ERROR,
+                        "%s %s: Reconfigure succeeded, but Reconfig flag has already been set again!\n",
+                        driverName, functionName );
+        }
+    }
+
 	return status;
 }
 
@@ -814,6 +834,10 @@ int edtPdvCamera::_Reconfigure( )
 					driverName,		functionName	);
         return -1;
     }
+
+    // Enable the Serial Communication
+    m_pAsynSerial->pdvDevConnected( m_pPdvDev );
+    SetSerDisable(0); 
 
 	double		cameraInitCamDelay	= 0.0;
 	if ( cameraInitCamDelay > 0.0 )
@@ -1193,6 +1217,52 @@ int edtPdvCamera::GetEdtDebugLevel( )
 int edtPdvCamera::GetEdtDebugMsgLevel( )
 {
 	return edt_msg_default_level( );
+}
+
+int edtPdvCamera::SetSerDisable( int value )
+{
+    printf("%s serial port communication\n", value ? "Disabling":"Enabling");
+    m_SerialDisable = value;
+	asynStatus		status	= setIntegerParam( SerDisable, m_SerialDisable );
+	if( status == asynSuccess )
+		status = callParamCallbacks( 0, 0 );
+	return status;
+}
+
+int edtPdvCamera::ResetSyncCounters()
+{
+    m_SyncTotal = 0;
+    m_SyncBadTS = 0;
+    m_SyncBadSync = 0;
+
+    return asynSuccess;
+}
+
+int edtPdvCamera::IncrSyncTotalCount()
+{
+    m_SyncTotal += 1;
+	asynStatus		status	= setIntegerParam( SyncTotal, m_SyncTotal );
+	if( status == asynSuccess )
+		status = callParamCallbacks( 0, 0 );
+	return status;
+}
+
+int edtPdvCamera::IncrSyncBadTSCount()
+{
+    m_SyncBadTS += 1;
+	asynStatus		status	= setIntegerParam( SyncBadTS, m_SyncBadTS );
+	if( status == asynSuccess )
+		status = callParamCallbacks( 0, 0 );
+	return status;
+}
+
+int edtPdvCamera::IncrSyncBadSyncCount()
+{
+    m_SyncBadSync += 1;
+	asynStatus		status	= setIntegerParam( SyncBadSync, m_SyncBadSync );
+	if( status == asynSuccess )
+		status = callParamCallbacks( 0, 0 );
+	return status;
 }
 
 asynStatus	edtPdvCamera::UpdateStatus( int	newStatus	)
@@ -2281,6 +2351,7 @@ void edtPdvCamera::report( FILE * fp, int details )
         fprintf( fp, "  PDV DebugMsgLevel: %u\n",	m_EdtDebugMsgLevel );
 		fprintf( fp, "  asyn TraceLevel:   %u\n",	GetTraceLevel() );
         fprintf( fp, "  Frame Count:       %u\n",	m_ArrayCounter );
+        fprintf( fp, "  Serial Disabled:   %u\n",   m_SerialDisable );
 
         fprintf( fp, "\n" );
 
@@ -2325,6 +2396,7 @@ asynStatus edtPdvCamera::readInt32(	asynUser *	pasynUser, epicsInt32	* pValueRet
 	asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
 				"%s: Reason %d %s\n", functionName, pasynUser->reason, reasonName );
 
+    if ( pasynUser->reason == SerDisable    ) setIntegerParam( SerDisable, *pValueRet );
 //	if ( pasynUser->reason == EdtTrigLevel ) setIntegerParam( EdtTrigLevel, *pValueRet );
 
 	// Call base class
@@ -2468,7 +2540,9 @@ asynStatus edtPdvCamera::writeInt32(	asynUser *	pasynUser, epicsInt32	value )
 		status = SetEdtDebugLevel(		value );
     } else if ( pasynUser->reason == EdtDebugMsg		) {
 		status = SetEdtDebugMsgLevel(	value );
- 	}
+ 	} else if ( pasynUser->reason == SerDisable      ) {
+        status = SetSerDisable(value);
+    }
 
     callParamCallbacks( 0, 0 );
 
