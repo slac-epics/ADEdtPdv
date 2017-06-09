@@ -554,9 +554,10 @@ record( calc, "$(P)$(R)BeamRepDur" )
 
 record( ao, "$(P)$(R)XmitRate" )
 {
-    field( DOL,  "1.0e6" )
+    field( DOL,  "40.0e6" )
     field( EGU,  "Bytes/Sec" )
     field( PREC, "3" )
+    field( PINI, "YES" )
     info( autosaveFields, "VAL" )
 }
 
@@ -583,7 +584,7 @@ record( calc, "$(P)$(R)CamlinkXmitTime" )
 
 record( calc, "$(P)$(R)XmitDelay" )
 {
-    field( INPA, "$(P)$(R)CamLinkXmitTime NPP MS" )
+    field( INPA, "$(P)$(R)CamlinkXmitTime NPP MS" )
     field( INPB, "$(P)$(R)CamProcDelay CPP MS" )
     field( CALC, "A+B" )
     field( EGU,  "Sec" )
