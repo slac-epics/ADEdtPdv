@@ -258,6 +258,7 @@ record( longout, "$(P)$(R)SizeY"  ) { field( DISA, "1" ) }
 # Limit SizeX to 2048 
 record(longout, "$(P)$(R)SizeX")
 {
+   field( VAL,  2048 )
    field( HOPR, 2048 )
    field( HIGH, 2049 )
    field( HSV,  "MINOR" )

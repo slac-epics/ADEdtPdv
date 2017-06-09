@@ -93,15 +93,17 @@ SetGainB
 GetRefVoltA
 {
 	out	":VRA?";
-    in  ":oVA%03X";
+    in  ":oMF%03X";
 }
 
 GetRefVoltB
 {
 	out	":VRB?";
-    in  ":oVB%03X";
+    in  ":oSF%03X";
 }
 
+# TODO: Should probably move the @init
+# to GetRefVoltA and link Set to Get via DB FLNK
 SetRefVoltA
 {
 	out	":VRA=%03X";
@@ -123,6 +125,12 @@ SetRefVoltB
 SetAutoGain
 {
 	out	":%{DABL|EABL}";
+	in	":o";
+}
+
+SetHWROI
+{
+	out	":SMDU=%(\$1MinY)04X%(\$1SizeY)04X";
 	in	":o";
 }
 

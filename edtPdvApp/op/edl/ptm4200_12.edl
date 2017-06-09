@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1928
-y 1141
+x 50
+y 50
 w 700
 h 600
 font "helvetica-medium-r-12.0"
@@ -110,7 +110,7 @@ major 4
 minor 1
 release 1
 x 32
-y 188
+y 192
 w 172
 h 20
 font "helvetica-medium-r-12.0"
@@ -176,8 +176,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 212
-y 188
+x 328
+y 192
 w 108
 h 20
 controlPv "$(P)$(R)PulnixRefVoltB_RBV"
@@ -588,7 +588,7 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 212
+x 328
 y 164
 w 108
 h 20
@@ -1279,5 +1279,61 @@ bgColor index 3
 value {
   "AcquireTime"
 }
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 216
+y 164
+w 100
+h 20
+controlPv "$(P)$(R)PulnixRefVoltA"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 216
+y 192
+w 100
+h 20
+controlPv "$(P)$(R)PulnixRefVoltB"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
 endObjectProperties
 
