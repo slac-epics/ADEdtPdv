@@ -7,6 +7,36 @@
 # Protocol root must match db filename root
 # i.e. hamaOrcaFlash4_0.proto
 
+record( seq, "$(P)$(R)EdtReConfigSeq" )
+{
+	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK1, "$(P)$(R)OrcaInfo_RBV.PROC"  )
+	field( DLY2, 0.5 ) field( DOL2, "1" )	field( LNK2, "$(P)$(R)OrcaModel_RBV.PROC"  )
+	field( DLY3, 0.5 ) field( DOL3, "1" )	field( LNK3, "$(P)$(R)OrcaSerialNumber_RBV.PROC"  )
+	field( DLY4, 0.5 ) field( DOL4, "1" )	field( LNK4, "$(P)$(R)OrcaFirmware_RBV.PROC"  )
+	field( DLY5, 0.5 ) field( DOL5, "1" )	field( LNK5, "$(P)$(R)OrcaHeight_RBV.PROC"  )
+	field( DLY6, 0.5 ) field( DOL6, "1" )	field( LNK6, "$(P)$(R)OrcaWidth_RBV.PROC"  )
+	field( DLY7, 0.5 ) field( DOL7, "1" )	field( LNK7, "$(P)$(R)OrcaCoolingMethod_RBV.PROC"  )
+	field( DLY8, 0.5 ) field( DOL8, "1" )	field( LNK8, "$(P)$(R)OrcaCoolingMode_RBV.PROC"  )
+	field( DLY9, 0.5 ) field( DOL9, "1" )	field( LNK9, "$(P)$(R)OrcaActualExposure_RBV.PROC"  )
+	field( DLYA, 0.5 ) field( DOLA, "1" )	field( LNKA, "$(P)$(R)OrcaExtTrigMode_RBV.PROC"  )
+	field( FLNK, "$(P)$(R)EdtReConfigSeq2" )
+}
+
+record( seq, "$(P)$(R)EdtReConfigSeq2" )
+{
+	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK1, "$(P)$(R)OrcaExtTrigPolarity_RBV.PROC"  )
+	field( DLY2, 0.5 ) field( DOL2, "1" )	field( LNK2, "$(P)$(R)OrcaScanMode_RBV.PROC"  )
+	field( DLY3, 0.5 ) field( DOL3, "1" )	field( LNK3, "$(P)$(R)OrcaScanSpeed_RBV.PROC"  )
+	field( DLY4, 0.5 ) field( DOL4, "1" )	field( LNK4, "$(P)$(R)OrcaExtTrigDelay_RBV.PROC"  )
+	field( DLY5, 0.5 ) field( DOL5, "1" )	field( LNK5, "$(P)$(R)OrcaAcquireTime_RBV.PROC"  )
+	field( DLY6, 0.5 ) field( DOL6, "1" )	field( LNK6, "$(P)$(R)OrcaTriggerMode_RBV.PROC"  )
+	field( DLY7, 0.5 ) field( DOL7, "1" )	field( LNK7, "$(P)$(R)OrcaScanSize_RBV.PROC"  )
+	field( DLY8, 0.5 ) field( DOL8, "1" )	field( LNK8, "$(P)$(R)OrcaPixelCorr_RBV.PROC"  )
+#	field( DLY9, 0.5 ) field( DOL9, "1" )	field( LNK9, "$(P)$(R)OrcaXXXX_RBV.PROC"  )
+#	field( DLYA, 0.5 ) field( DOLA, "1" )	field( LNKA, "$(P)$(R)OrcaXXXX_RBV.PROC"  )
+#	field( FLNK, "$(P)$(R)EdtReConfigSeq3" )
+}
+
 record( stringin, "$(P)$(R)CamModel" )
 {
 	field( VAL,  "hamaOrcaFlash4_0" )
@@ -26,6 +56,7 @@ record( stringin, "$(P)$(R)OrcaComTest" )
 	field( INP,  "@hamaOrcaFlash4_0.proto ComTest $(PORT).SER" )
 	field( VAL,  "Unknown" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 }
 
 record( stringin, "$(P)$(R)OrcaInfo_RBV" )
@@ -35,6 +66,7 @@ record( stringin, "$(P)$(R)OrcaInfo_RBV" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetInfo $(PORT).SER" )
 	field( VAL,  "Unknown" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( archiveFields,  "VAL" )
 }
 
@@ -45,6 +77,7 @@ record( stringin, "$(P)$(R)OrcaModel_RBV" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetModel $(PORT).SER" )
 	field( VAL,  "Unknown" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( archiveFields,  "VAL" )
 }
 
@@ -55,6 +88,7 @@ record( stringin, "$(P)$(R)OrcaSerialNumber_RBV" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetSerialNumber $(PORT).SER" )
 	field( VAL,  "Unknown" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( archiveFields,  "VAL" )
 }
 
@@ -65,6 +99,7 @@ record( stringin, "$(P)$(R)OrcaFirmware_RBV" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetFirmware $(PORT).SER" )
 	field( VAL,  "Unknown" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( archiveFields,  "VAL" )
 }
 
@@ -75,6 +110,7 @@ record( longin, "$(P)$(R)OrcaHeight_RBV" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetHeight $(PORT).SER" )
 	field( EGU,  "Px" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
@@ -86,6 +122,7 @@ record( longin, "$(P)$(R)OrcaWidth_RBV" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetWidth $(PORT).SER" )
 	field( EGU,  "Px" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
@@ -98,6 +135,7 @@ record( bi, "$(P)$(R)OrcaCoolingMethod_RBV" )
 	field( ZNAM, "Air"  )
 	field( ONAM, "Water" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "ZSV OSV" )
 	info( archiveFields,  "ZSV OSV VAL" )
 }
@@ -111,6 +149,7 @@ record( ai, "$(P)$(R)OrcaActualExposure_RBV" )
 	field( EGU,  "sec" )
 	field( PREC, "5" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
@@ -126,6 +165,7 @@ record( mbbo, "$(P)$(R)OrcaExtTrigMode" )
 	field( TWVL, "2" )	field( TWST, "Sync" )
 	field( FLNK, "$(P)$(R)OrcaExtTrigMode_RBV" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "VAL" )
 	info( archiveFields,  "VAL" )
 }
@@ -138,6 +178,7 @@ record( mbbi, "$(P)$(R)OrcaExtTrigMode_RBV" )
 	field( ZRVL, "0" )	field( ZRST, "Edge" )
 	field( ONVL, "1" )	field( ONST, "Level" )
 	field( TWVL, "2" )	field( TWST, "Sync" )
+    field( SDIS, "$(SerialDisable)")
 	info( archiveFields,  "VAL" )
 }
 
@@ -150,6 +191,7 @@ record( mbbo, "$(P)$(R)OrcaExtTrigPolarity" )
 	field( ONVL, "1" )	field( ONST, "Pos" )
 	field( FLNK, "$(P)$(R)OrcaExtTrigPolarity_RBV" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "VAL" )
 	info( archiveFields,  "VAL" )
 }
@@ -162,6 +204,7 @@ record( mbbi, "$(P)$(R)OrcaExtTrigPolarity_RBV" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetExtTrigPolarity $(PORT).SER" )
 	field( ZRVL, "0" )	field( ZRST, "Neg" )
 	field( ONVL, "1" )	field( ONST, "Pos" )
+    field( SDIS, "$(SerialDisable)")
 	info( archiveFields,  "VAL" )
 }
 
@@ -175,6 +218,7 @@ record( mbbo, "$(P)$(R)OrcaScanMode" )
 	field( ONVL, "1" )	field( ONST, "Binning" )
 	field( TWVL, "2" )	field( TWST, "VertDbl" )
 	field( FLNK, "$(P)$(R)OrcaScanMode_RBV" )
+    field( SDIS, "$(SerialDisable)")
 #	field( PINI, "YES" )
 # Taking out of autosave for now.
 # ScanMode gets set by the cfg file, so we may want
@@ -192,6 +236,7 @@ record( mbbi, "$(P)$(R)OrcaScanMode_RBV" )
 	field( ZRVL, "0" )	field( ZRST, "Normal"  )
 	field( ONVL, "1" )	field( ONST, "Binning" )
 	field( TWVL, "2" )	field( TWST, "VertDbl" )
+    field( SDIS, "$(SerialDisable)")
 	info( archiveFields,  "VAL" )
 }
 
@@ -203,6 +248,7 @@ record( mbbo, "$(P)$(R)OrcaScanSpeed" )
 	field( ONVL, "1" )	field( ONST, "Slow" )
 	field( FLNK, "$(P)$(R)OrcaScanSpeed_RBV" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 # Taking out of autosave for now.
 # ScanSpeed gets set by the cfg file, so we may want
 # to remove this PV so user's can't change it directly.
@@ -219,6 +265,7 @@ record( mbbi, "$(P)$(R)OrcaScanSpeed_RBV" )
 	field( ZRVL, "0" )	field( ZRST, "High"  )
 	field( ONVL, "1" )	field( ONST, "Slow" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( archiveFields,  "VAL" )
 }
 
@@ -233,6 +280,7 @@ record( ao, "$(P)$(R)OrcaExtTrigDelay" )
 	field( PREC, "5" )
 	field( FLNK, "$(P)$(R)OrcaExtTrigDelay_RBV" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
@@ -244,6 +292,7 @@ record( ai, "$(P)$(R)OrcaExtTrigDelay_RBV" )
 	field( EGU,  "sec" )
 	field( PREC, "5" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
@@ -296,6 +345,7 @@ record( ao, "$(P)$(R)OrcaAcquireTime" )
 	field( HOPR, "10" )
 	field( PREC, "5" )
 	field( FLNK, "$(P)$(R)OrcaAcquireTime_RBV" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
@@ -309,6 +359,7 @@ record( ai, "$(P)$(R)OrcaAcquireTime_RBV" )
 	field( PREC, "5" )
 	field( PINI, "YES" )
 	field( FLNK, "$(P)$(R)EdtAcquireTime_RBV" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
@@ -343,6 +394,7 @@ record( mbbo, "$(P)$(R)OrcaTriggerMode" )
 	field( ONVL, "1" )	field( ONST, "External" )
 	field( TWVL, "2" )	field( TWST, "Pulse" )
 	field( FLNK, "$(P)$(R)OrcaTriggerMode_RBV" )
+    field( SDIS, "$(SerialDisable)")
 	info( archiveFields,  "VAL" )
 }
 
@@ -355,6 +407,7 @@ record( mbbi, "$(P)$(R)OrcaTriggerMode_RBV" )
 	field( ONVL, "1" )	field( ONST, "External" )
 	field( TWVL, "2" )	field( TWST, "Pulse" )
 	field( FLNK, "$(P)$(R)EdtTriggerMode_RBV" )
+    field( SDIS, "$(SerialDisable)")
 	info( archiveFields,  "VAL" )
 }
 # Make EdtTriggerMode_RBV get it's value from OrcaTriggerMode_RBV
@@ -417,6 +470,7 @@ record( longout, "$(P)$(R)OrcaScanSize" )
 	field( HOPR, "1024" )
 	field( OUT,  "@hamaOrcaFlash4_0.proto SetVertDblScan($(P)$(R)) $(PORT).SER" )
 	field( FLNK, "$(P)$(R)OrcaScanSize_RBV" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
@@ -440,6 +494,7 @@ record( longin, "$(P)$(R)OrcaScanSize_RBV" )
 	field( INP,  "@hamaOrcaFlash4_0.proto GetVertDblScan($(P)$(R)) $(PORT).SER" )
 	field( FLNK, "$(P)$(R)OrcaScan_RBV_Calc" )
 #	field( OUT,  "$(P)$(R)EdtMinY_RBV PP MS" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV VAL" )
 }
@@ -573,6 +628,7 @@ record( mbbi, "$(P)$(R)OrcaCoolingMode_RBV" )
 	field( ONVL, "1" )	field( ONST, "Max" )
 	field( TWVL, "2" )	field( TWST, "Off" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "ZRSV ONSV TWSV" )
 	info( archiveFields,  "VAL" )
 }
@@ -585,6 +641,7 @@ record( mbbo, "$(P)$(R)OrcaCoolingMode" )
 	field( ONVL, "1" )	field( ONST, "Max" )
 	field( TWVL, "2" )	field( TWST, "Off" )
 	field( FLNK, "$(P)$(R)OrcaCoolingMode_RBV" )
+    field( SDIS, "$(SerialDisable)")
 #	field( PINI, "YES" )
 # Taking out of autosave for now.
 # Not safe to save this PV value
@@ -600,6 +657,7 @@ record( bo, "$(P)$(R)OrcaPixelCorr" )
 	field( ZNAM, "Off"  )
 	field( ONAM, "On" )
 	field( FLNK, "$(P)$(R)OrcaPixelCorr_RBV" )
+    field( SDIS, "$(SerialDisable)")
 #	field( PINI, "YES" )
 	info( autosaveFields, "ZSV OSV VAL" )
 	info( archiveFields,  "ZSV OSV VAL" )
@@ -613,6 +671,7 @@ record( bi, "$(P)$(R)OrcaPixelCorr_RBV" )
 	field( ZNAM, "Off"  )
 	field( ONAM, "On" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "ZSV OSV" )
 	info( archiveFields,  "ZSV OSV VAL" )
 }
