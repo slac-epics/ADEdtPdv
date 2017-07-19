@@ -528,10 +528,12 @@ record( longout, "$(P)$(R)CamEventCode" )
 	field( VAL,  "40" )
 }
 # But image acuisition is filtered with this beam event code
+# so we enable it by setting DISA to 0
 record( longout, "$(P)$(R)BeamEventCode" )
 {
 	field( VAL,  "140" )
 	field( PINI, "YES" )
+	field( DISA, "0" )
 	field( OUT,  "$(BEAM_EC=$(P)$(R)CamEventCode) CPP NMS" )
 }
 record( longin, "$(P)$(R)BeamEventCode_RBV" )
@@ -713,7 +715,7 @@ record( calc, "$(P)$(R)TrigToTS_Calc" )
 record( ao, "$(P)$(R)XmitRate" )
 {
     field( DOL,  "1.051e8" )
-    field( EGU,  "Bytes/Sec" )
+    field( EGU,  "Px/Sec" )
     field( PREC, "3" )
     field( PINI, "YES" )
     info( autosaveFields, "VAL" )

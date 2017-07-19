@@ -219,7 +219,7 @@ record( stringin, "$(P)$(R):ID" )
 record( ao, "$(P)$(R)XmitRate" )
 {
     field( DOL,  "40.0e6" )
-    field( EGU,  "Bytes/Sec" )
+    field( EGU,  "Px/Sec" )
     field( PREC, "3" )
     field( PINI, "YES" )
     info( autosaveFields, "VAL" )

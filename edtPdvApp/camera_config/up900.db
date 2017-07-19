@@ -247,7 +247,7 @@ record( bo,	"$(P)$(R)Up900AutoGain" )
 record( ao, "$(P)$(R)XmitRate" )
 {
     field( DOL,  "25.0e6" )
-    field( EGU,  "Bytes/Sec" )
+    field( EGU,  "Px/Sec" )
     field( PREC, "3" )
     field( PINI, "YES" )
     info( autosaveFields, "VAL" )
