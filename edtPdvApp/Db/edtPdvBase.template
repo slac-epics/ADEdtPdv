@@ -514,8 +514,8 @@ record( calc, "$(P)$(R)CamRepDur" )
 #	field( INP,  "$(BEAM_RATE_RBV=$(P)$(R)CamRepRate_RBV) CPP MS" )
 #	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 #
-# By default this beam event code isn't autosaved and
-# PINI is NO so it can be safely ignored if not on the user GUI
+# By default this beam event code is disabled, not autosaved and
+# PINI is NO so it can be safely ignored and not visible on the user GUI
 # Similarly, the RBV values default to following their camera trigger equivalents
 #
 record( longout, "$(P)$(R)BeamEventCode" )
@@ -523,6 +523,7 @@ record( longout, "$(P)$(R)BeamEventCode" )
 	field( VAL,  "140" )
 	field( PINI, "NO" )
 	field( OUT,  "$(P)$(R)CamEventCode CPP NMS" )
+	field( DISA, "1" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 }
