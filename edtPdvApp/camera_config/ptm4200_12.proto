@@ -134,6 +134,12 @@ SetHWROI
 	in	":o";
 }
 
+SetTrigPolarity
+{
+	out	":TAH=%1X";
+	in	":o";
+}
+
 GetModel
 {
 	out	":CAM?";	in	":o%#s";
