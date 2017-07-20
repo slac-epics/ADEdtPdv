@@ -196,7 +196,10 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	}
 
 	if ( pReg32 != NULL )
-		*pReg32 = __be32_to_cpu( *(reinterpret_cast<__be32 *>( &pPacket->scd.scdReadData[0] )) );
+	{
+		__be32	*	pBigEndianReg32	= reinterpret_cast<__be32 *>( &pPacket->scd.scdReadData[0] );
+		*pReg32 = __be32_to_cpu( *pBigEndianReg32 );
+	}
 	return GENCP_STATUS_SUCCESS;
 }
 
@@ -219,7 +222,10 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	}
 
 	if ( pReg64 != NULL )
-		*pReg64 = __be64_to_cpu( *(reinterpret_cast<__be64 *>( &pPacket->scd.scdReadData[0] )) );
+	{
+		__be64	*	pBigEndianReg64	= reinterpret_cast<__be64 *>( &pPacket->scd.scdReadData[0] );
+		*pReg64 = __be64_to_cpu( *pBigEndianReg64 );
+	}
 	return GENCP_STATUS_SUCCESS;
 }
 
