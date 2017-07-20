@@ -52,19 +52,19 @@
 ///		Postfix, technology specific, may be empty
 ///
 
-#define	GENCP_SERIAL_PREAMBLE		0x0100	// First two bytes are 1 (SOH) and 0 (NULL)
+#define	GENCP_SERIAL_PREAMBLE			0x0100	// First two bytes are 1 (SOH) and 0 (NULL)
 
 /// GenCP CCD FLAGS
-#define	GENCP_CCD_FLAG_REQACK		0x4000	// Sender requests an acknowldege packet
-#define	GENCP_CCD_FLAG_RESEND		0x8000	// This command packet is being sent as a retry
+#define	GENCP_CCD_FLAG_REQACK			0x4000	// Sender requests an acknowldege packet
+#define	GENCP_CCD_FLAG_RESEND			0x8000	// This command packet is being sent as a retry
 
 /// GenCP Status Code Bits
-#define	GENCP_SC_CODE_MASK			0x0FFF	// Status code is least significant 12 bits
-#define	GENCP_SC_NAMESPACE_MASK		0x6000	// Use this mask for the Namespace bits
-#define	GENCP_SC_NAMESPACE_GENCP	0x0000	// GenCP Common Status Code
-#define	GENCP_SC_NAMESPACE_TECH		0x2000	// Technology specific Status Code
-#define	GENCP_SC_NAMESPACE_DEVICE	0x4000	// Device specific Status Code
-#define	GENCP_SC_ERROR				0x8000	// 1=Error, 0=Warning/Info
+#define	GENCP_SC_CODE_MASK				0x0FFF	// Status code is least significant 12 bits
+#define	GENCP_SC_NAMESPACE_MASK			0x6000	// Use this mask for the Namespace bits
+#define	GENCP_SC_NAMESPACE_GENCP		0x0000	// GenCP Common Status Code
+#define	GENCP_SC_NAMESPACE_TECH			0x2000	// Technology specific Status Code
+#define	GENCP_SC_NAMESPACE_DEVICE		0x4000	// Device specific Status Code
+#define	GENCP_SC_ERROR					0x8000	// 1=Error, 0=Warning/Info
 
 /// GenCP Common Status Codes
 #define	GENCP_STATUS_SUCCESS			0x0000	// Success
@@ -80,6 +80,9 @@
 #define	GENCP_STATUS_WRONG_CONFIG		0x000F	// Current receiver configuration does not allow command
 #define	GENCP_STATUS_GENERIC_ERROR		0x0FFF	// Command not implemented
 
+#define GENCP_READMEM_MAX_BYTES			1000	// Recommended max per GenCP standard
+
+typedef	uint32_t	GENCP_STATUS;
 
 /// GenCP CCD Command Identifiers
 typedef enum
@@ -103,9 +106,9 @@ typedef enum
 typedef struct GENCP_ATTR
 {
 	uint16_t		prefixPreamble;		// Always 0x0100 for serial GenCP Packets
-	uint16_t		prefixCkSumCCD;		// Cksum over channel_id and CCD
-	uint16_t		prefixCkSumSCD;		// Cksum over channel_id, CCD and SCD
-	uint16_t		prefixChannel_id;	// 0 for control channel
+	uint16_t		prefixCkSumCCD;		// Cksum over channelId and CCD
+	uint16_t		prefixCkSumSCD;		// Cksum over channelId, CCD and SCD
+	uint16_t		prefixChannelId;	// 0 for control channel
 }	GenCpSerialPrefix;
 
 ///
@@ -116,18 +119,18 @@ typedef struct GENCP_ATTR
 typedef struct GENCP_ATTR
 {
 	uint16_t		ccdFlags;			// See GENCP_CCD_FLAG_*
-	uint16_t		ccdCommand_id;		// Cmd ID from enum GENCP_ID
+	uint16_t		ccdCommandId;		// Cmd ID from enum GENCPId
 	uint16_t		ccdScdLength;		// Length of SCD section
-	uint16_t		ccdRequest_id;		// Incrementing request id
+	uint16_t		ccdRequestId;		// Incrementing request id
 }	GenCpCCDRequest;
 
 /// Common Acknowledge Packet Layout (CCD)
 typedef struct GENCP_ATTR
 {
 	uint16_t		ccdStatusCode;		// See GENCP_STATUS_*
-	uint16_t		ccdCommand_id;		// Cmd ID from enum GENCP_ID
+	uint16_t		ccdCommandId;		// Cmd ID from enum GENCPId
 	uint16_t		ccdScdLength;		// Length of SCD section
-	uint16_t		ccdRequest_id;		// Request id (from matching command packet)
+	uint16_t		ccdRequestId;		// Request id (from matching command packet)
 }	GenCpCCDAck;
 
 ///
@@ -145,8 +148,7 @@ typedef struct GENCP_ATTR
 /// Specific Command Data ReadMem Acknowledge Layout (SCD)
 typedef struct GENCP_ATTR
 {
-	uint8_t			scdReadData;	// First byte of data from addr
-	// Remaining data bytes per ccdScdLength follow
+	uint8_t			scdReadData[GENCP_READMEM_MAX_BYTES];	// Packet payload
 }	GenCpSCDReadAck;
 
 
@@ -176,5 +178,30 @@ typedef struct GENCP_ATTR
 }	GenCpSCDPendingAck;
 
 /// Technology Specific Postfix: Not Needed for Serial GenCP Transport Layer
+
+///
+/// GenCP Read Memory Packet
+///
+typedef struct	GENCP_ATTR
+{
+	GenCpSerialPrefix	serialPrefix;
+	GenCpCCDRequest		ccd;
+	GenCpSCDReadMem		scd;
+}	GenCpReadMemPacket;
+
+typedef struct	GENCP_ATTR
+{
+	GenCpSerialPrefix	serialPrefix;
+	GenCpCCDAck			ccd;
+	GenCpSCDReadAck		scd;
+}	GenCpReadMemAck;
+
+///
+/// GenCP Packet function declarations
+///
+
+/// Compute 16 bit host checksum for big-endian buffer
+uint16_t GenCpChecksum16( uint8_t * pBuffer, uint32_t nNumBytes );
+
 
 #endif	/* GENCP_PACKET_H */
