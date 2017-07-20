@@ -15,6 +15,8 @@ LIBRARY_IOC_Darwin += edtPdv
 LIB_SRCS += asynEdtPdvSerial.cpp
 LIB_SRCS += edtPdvCamera.cpp
 LIB_SRCS += syncDataAcq.cpp
+LIB_SRCS += GenCp.cpp
+
 # TODO: Remove this local copy of an EDT src file for
 # future pdv lib versions that provide it
 LIB_SRCS += promheader.c
