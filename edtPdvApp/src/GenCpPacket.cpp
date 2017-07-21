@@ -50,7 +50,7 @@ GENCP_STATUS	GenCpInitReadMemPacket(
 	size_t						numBytes )
 {
 	if ( pPacket == NULL )
-		return GENCP_STATUS_GENERIC_ERROR;
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 
 	pPacket->serialPrefix.prefixPreamble	= __cpu_to_be16( GENCP_SERIAL_PREAMBLE );
 	pPacket->serialPrefix.prefixChannelId	= 0;
@@ -79,14 +79,14 @@ GENCP_STATUS	GenCpValidateReadMemAck(
 {
 	const	char 			*	funcName = "GenCpValidateReadMemAck";
 	if ( pPacket == NULL )
-		return GENCP_STATUS_GENERIC_ERROR;
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 
 	uint16_t	prefixPreamble	= __be16_to_cpu( pPacket->serialPrefix.prefixPreamble );
 	uint16_t	ccdRequestId	= __be16_to_cpu( pPacket->ccd.ccdRequestId );
 	if ( prefixPreamble	!= GENCP_SERIAL_PREAMBLE )
 	{
-		printf( "%s Error: Req %u, Invalid preamble, 0x%02X\n", funcName, ccdRequestId, prefixPreamble );
-		return GENCP_STATUS_INVALID_PARAM;
+		fprintf( stderr, "%s Error: Req %u, Invalid preamble, 0x%02X\n", funcName, ccdRequestId, prefixPreamble );
+		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
 	}
 
 	// Validate CCD Checksum
@@ -94,34 +94,34 @@ GENCP_STATUS	GenCpValidateReadMemAck(
 												sizeof(uint16_t) + sizeof(GenCpCCDAck) );
 	if ( ckSumCCD != __be16_to_cpu( pPacket->serialPrefix.prefixCkSumCCD ) )
 	{
-		printf( "%s Error: Req %u, Packet CCD cksum, 0x%04X, computed 0x%04X\n", funcName,
+		fprintf( stderr, "%s Error: Req %u, Packet CCD cksum, 0x%04X, computed 0x%04X\n", funcName,
 				ccdRequestId, ckSumCCD, __be16_to_cpu( pPacket->serialPrefix.prefixCkSumCCD ) );
-		return GENCP_STATUS_INVALID_PARAM;
+		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
 	}
 
 	// Validate SCD Checksum
 	uint32_t	ckSumSCD	= GenCpChecksum16(	reinterpret_cast<uint8_t *>( &pPacket->serialPrefix.prefixChannelId ),
-												sizeof(uint16_t) + sizeof(GenCpCCDAck) + pPacket->ccd.ccdScdLength );
+												sizeof(uint16_t) + sizeof(GenCpCCDAck) + __be16_to_cpu( pPacket->ccd.ccdScdLength ) );
 	if ( ckSumSCD != __be16_to_cpu( pPacket->serialPrefix.prefixCkSumSCD ) )
 	{
-		printf( "%s Error: Req %u, Packet SCD cksum, 0x%04X, computed 0x%04X\n", funcName,
+		fprintf( stderr, "%s Error: Req %u, Packet SCD cksum, 0x%04X, computed 0x%04X\n", funcName,
 				ccdRequestId, ckSumSCD, __be16_to_cpu( pPacket->serialPrefix.prefixCkSumSCD ) );
-		return GENCP_STATUS_INVALID_PARAM;
+		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
 	}
 
 	uint16_t	ccdCommandId	= __be16_to_cpu( pPacket->ccd.ccdCommandId );
-	if ( ccdCommandId	!= GENCP_ID_READMEM_CMD )
+	if ( ccdCommandId	!= GENCP_ID_READMEM_ACK )
 	{
-		printf( "%s Error: Req %u, Invalid commandId, 0x%02X\n", funcName, ccdRequestId, ccdCommandId );
-		return GENCP_STATUS_INVALID_PARAM;
+		fprintf( stderr, "%s Error: Req %u, Invalid commandId, 0x%02X\n", funcName, ccdRequestId, ccdCommandId );
+		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
 	}
 
 	uint16_t	ccdScdLength	= __be16_to_cpu( pPacket->ccd.ccdScdLength );
 	if ( ccdScdLength > GENCP_READMEM_MAX_BYTES )
 	{
-		printf( "%s Error: Req %u, SCD Length %u greater than max %u\n", funcName,
+		fprintf( stderr, "%s Error: Req %u, SCD Length %u greater than max %u\n", funcName,
 				ccdRequestId, ccdScdLength, GENCP_READMEM_MAX_BYTES );
-		return GENCP_STATUS_INVALID_PARAM;
+		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
 	}
 
 	uint16_t	ccdStatus		= __be16_to_cpu( pPacket->ccd.ccdStatusCode );
@@ -130,16 +130,16 @@ GENCP_STATUS	GenCpValidateReadMemAck(
 	{
 		// uint16_t	ccdStatusNS		= ccdStatusCode & GENCP_SC_NAMESPACE_MASK;
 		// if ( ccdStatusNS == GENCP_SC_NAMESPACE_GENCP )
-		//		printf( "%s Error: Req %u, StatusCode Error %u: %s\n", funcName, ccdRequestId, ccdStatusCode,
+		//		fprintf( stderr, "%s Error: Req %u, StatusCode Error %u: %s\n", funcName, ccdRequestId, ccdStatusCode,
 		//				GenCpStatusCodeToString(ccdStatusCode) );
-		printf( "%s Error: Req %u, StatusCode Error %u\n", funcName, ccdRequestId, ccdStatusCode );
+		fprintf( stderr, "%s Error: Req %u, StatusCode Error %u\n", funcName, ccdRequestId, ccdStatusCode );
 		return ccdStatusCode;
 	}
 
 	return GENCP_STATUS_SUCCESS;
 }
 
-/// GenCpProcessReadMemAck()
+/// GenCpProcessReadMemAck() char buffer
 GENCP_STATUS	GenCpProcessReadMemAck(
 	GenCpReadMemAck			*	pPacket,
 	char					*	pBuffer,
@@ -148,11 +148,11 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 {
 	const	char 			*	funcName = "GenCpProcessReadMemAck";
 	if ( pPacket == NULL )
-		return GENCP_STATUS_GENERIC_ERROR;
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 	if ( pBuffer == NULL )
-		return GENCP_STATUS_GENERIC_ERROR;
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 	if ( sBuffer == 0 )
-		return GENCP_STATUS_GENERIC_ERROR;
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 	if ( pnBytesRead != NULL )
 		*pnBytesRead = 0;
 
@@ -166,9 +166,9 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	uint16_t	ccdRequestId	= __be16_to_cpu( pPacket->ccd.ccdRequestId );
 	if ( ccdScdLength >= sBuffer )
 	{
-		printf( "%s Error: Req %u, SCD Length %d >= sBuffer %zu\n", funcName,
+		fprintf( stderr, "%s Error: Req %u, SCD Length %d >= sBuffer %zu\n", funcName,
 				ccdRequestId, ccdScdLength, sBuffer );
-		return GENCP_STATUS_INVALID_PARAM;
+		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
 	}
 
 	memcpy( reinterpret_cast<void *>(pBuffer),
@@ -178,21 +178,47 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	return GENCP_STATUS_SUCCESS;
 }
 
-/// GenCpProcessReadMemAck() 32 bit reg
+/// GenCpProcessReadMemAck() 16 bit reg
 GENCP_STATUS	GenCpProcessReadMemAck(
 	GenCpReadMemAck			*	pPacket,
-	uint32_t				*	pReg32 )
+	uint16_t				*	pReg16 )
 {
 	// const	char 			*	funcName = "GenCpProcessReadMemAck";
 	if ( pPacket == NULL )
-		return GENCP_STATUS_GENERIC_ERROR;
-	if ( pReg32 == NULL )
-		return GENCP_STATUS_GENERIC_ERROR;
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
+	if ( pReg16 == NULL )
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 
 	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket );
 	if ( statusCode	!= GENCP_STATUS_SUCCESS )
 	{
 		return statusCode;
+	}
+
+	if ( pReg16 != NULL )
+	{
+		__be16	*	pBigEndianReg16	= reinterpret_cast<__be16 *>( &pPacket->scd.scdReadData[0] );
+		*pReg16 = __be16_to_cpu( *pBigEndianReg16 );
+	}
+	return GENCP_STATUS_SUCCESS;
+}
+
+/// GenCpProcessReadMemAck() 32 bit reg
+GENCP_STATUS	GenCpProcessReadMemAck(
+	GenCpReadMemAck			*	pPacket,
+	uint32_t				*	pReg32 )
+{
+	const	char 			*	funcName = "GenCpProcessReadMemAck";
+	if ( pPacket == NULL )
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
+	if ( pReg32 == NULL )
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
+
+	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket );
+	if ( statusCode	!= GENCP_STATUS_SUCCESS )
+	{
+		fprintf( stderr, "%s Error: %u\n", funcName, statusCode );
+		// return statusCode;
 	}
 
 	if ( pReg32 != NULL )
@@ -211,9 +237,9 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 {
 	// const	char 			*	funcName = "GenCpProcessReadMemAck";
 	if ( pPacket == NULL )
-		return GENCP_STATUS_GENERIC_ERROR;
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 	if ( pReg64 == NULL )
-		return GENCP_STATUS_GENERIC_ERROR;
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 
 	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket );
 	if ( statusCode	!= GENCP_STATUS_SUCCESS )

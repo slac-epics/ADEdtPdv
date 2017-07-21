@@ -3,6 +3,13 @@ include $(TOP)/configure/CONFIG
 #----------------------------------------
 #  ADD MACRO DEFINITIONS AFTER THIS LINE
 
+PROD_IOC	+= GenCpTool
+
+GenCpTool_SRCS	+= GenCpPacket.cpp
+GenCpTool_SRCS	+= GenCpTool.cpp
+
+GenCpTool_LIBS	+= pdv
+
 #======== DETECTOR LIBRARY ==============
 
 USR_CXXFLAGS_Linux += -D_LINUX -D_x86

@@ -203,5 +203,31 @@ typedef struct	GENCP_ATTR
 /// Compute 16 bit host checksum for big-endian buffer
 uint16_t GenCpChecksum16( uint8_t * pBuffer, uint32_t nNumBytes );
 
+/// GenCpInitReadMemPacket() Initialize a ReadMem packet to read numBytes from regAddr
+GENCP_STATUS	GenCpInitReadMemPacket(	GenCpReadMemPacket		*	pPacket,
+										uint16_t					requestId,
+										uint64_t					regAddr,
+										size_t						numBytes );
+
+/// GenCpValidateReadMemAck() Checks for any errors in a ReadMem acknowledge packet
+GENCP_STATUS	GenCpValidateReadMemAck( GenCpReadMemAck		*	pPacket	);
+
+/// GenCpProcessReadMemAck() char buffer
+GENCP_STATUS	GenCpProcessReadMemAck(	GenCpReadMemAck			*	pPacket,
+										char					*	pBuffer,
+										size_t						sBuffer,
+										size_t					*	pnBytesRead );
+
+/// GenCpProcessReadMemAck() 16 bit reg
+GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
+										uint16_t				*	pReg16 );
+
+/// GenCpProcessReadMemAck() 32 bit reg
+GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
+										uint32_t				*	pReg32 );
+
+/// GenCpProcessReadMemAck() 64 bit reg
+GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
+										uint64_t				*	pReg64 );
 
 #endif	/* GENCP_PACKET_H */
