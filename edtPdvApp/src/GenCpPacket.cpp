@@ -172,7 +172,7 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	}
 
 	memcpy( reinterpret_cast<void *>(pBuffer),
-			reinterpret_cast<void *>(pPacket->scd.scdReadData[0]), ccdScdLength );
+			reinterpret_cast<void *>(&pPacket->scd.scdReadData[0]), ccdScdLength );
 	if ( pnBytesRead != NULL )
 		*pnBytesRead = ccdScdLength;
 	return GENCP_STATUS_SUCCESS;

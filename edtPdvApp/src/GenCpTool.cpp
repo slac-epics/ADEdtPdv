@@ -9,7 +9,7 @@ static uint16_t		localGenCpRequestId	= 0;
 void usage( char * msg )
 {
     printf( "%s", msg );
-    printf( "Usage: \n" );
+    printf( "GenCpTool Usage: \n" );
     printf(
        "    -h              - Help message\n"
        "    --help          - Help message\n"
@@ -18,7 +18,11 @@ void usage( char * msg )
        "    -u N            - Unit number (default 0)\n"
        "    --unit N        - Unit number (default 0)\n"
        "    --readXml       - Read XML GeniCam file and dump to stdout\n"
+       "    --U16 Addr      - Read 16 bit unsigned value from address\n"
        "    --U32 Addr      - Read 32 bit unsigned value from address\n"
+       "    --U64 Addr      - Read 64 bit unsigned value from address\n"
+       "    --C20 Addr      - Read up to 20 character string from address\n"
+       "    --C82 Addr      - Read up to 82 character string from address, etc for other counts\n"
        "    -v              - Verbose\n"
     );
 }
@@ -29,7 +33,7 @@ GENCP_STATUS PdvGenCpReadUint(
 	size_t				numBytes,
 	uint64_t		*	pnResult	)
 {
-	const char		*	functionName = "EdtGenCpReadUint";
+	const char		*	functionName = "PdvGenCpReadUint";
 	GENCP_STATUS		status;
 	GenCpReadMemPacket	readMemPacket;
 	GenCpReadMemAck		ackPacket;
@@ -76,7 +80,7 @@ GENCP_STATUS PdvGenCpReadUint(
 		status = GenCpProcessReadMemAck( &ackPacket, &result16 );
 		if ( status != GENCP_STATUS_SUCCESS )
 		{
-			fprintf( stderr, "GenCP Validate Error: %d\n", status );
+			fprintf( stderr, "GenCP ReadMem16 Validate Error: %d (0x%X)\n", status, status );
 			return status;
 		}
 		result = static_cast<uint64_t>( result16 );
@@ -88,7 +92,7 @@ GENCP_STATUS PdvGenCpReadUint(
 		status = GenCpProcessReadMemAck( &ackPacket, &result32 );
 		if ( status != GENCP_STATUS_SUCCESS )
 		{
-			fprintf( stderr, "GenCP Validate Error: %d\n", status );
+			fprintf( stderr, "GenCP ReadMem32 Validate Error: %d (0x%X)\n", status, status );
 			return status;
 		}
 		result = static_cast<uint64_t>( result32 );
@@ -100,7 +104,7 @@ GENCP_STATUS PdvGenCpReadUint(
 		status = GenCpProcessReadMemAck( &ackPacket, &result64 );
 		if ( status != GENCP_STATUS_SUCCESS )
 		{
-			fprintf( stderr, "GenCP Validate Error: %d\n", status );
+			fprintf( stderr, "GenCP ReadMem64 Validate Error: %d (0x%X)\n", status, status );
 			return status;
 		}
 		result = static_cast<uint64_t>( result64 );
@@ -108,6 +112,63 @@ GENCP_STATUS PdvGenCpReadUint(
 
 	if ( pnResult != NULL )
 		*pnResult = result;
+	return GENCP_STATUS_SUCCESS;
+}
+
+GENCP_STATUS PdvGenCpReadString(
+    EdtDev			*	pPdv,
+	uint64_t			regAddr,
+	size_t				numBytes,
+	char			*	pBuffer,
+	size_t				sBuffer )
+{
+	const char		*	functionName = "PdvGenCpReadString";
+	GENCP_STATUS		status;
+	GenCpReadMemPacket	readMemPacket;
+	GenCpReadMemAck		ackPacket;
+
+	if ( pBuffer != NULL )
+		*pBuffer = 0;
+
+	status = GenCpInitReadMemPacket( &readMemPacket, localGenCpRequestId++, regAddr, numBytes );
+	if ( status != GENCP_STATUS_SUCCESS )
+	{
+		fprintf( stderr, "GenCP Error: %d\n", status );
+		return status;
+	}
+
+	status = pdv_serial_write( pPdv, reinterpret_cast<char *>( &readMemPacket ), sizeof(readMemPacket) );
+	int		nMsTimeout		= 500;
+	size_t	nBytesReadMax	= sizeof(ackPacket);
+	int		nAvailToRead	= pdv_serial_wait( pPdv, nMsTimeout, nBytesReadMax );
+
+	int     nRead = 0;
+	if ( nAvailToRead > 0 )
+	{
+		int     nToRead = nAvailToRead;
+		if( nToRead > static_cast<int>( nBytesReadMax ) )
+		{
+			printf( "%s: Clipping nAvailToRead %d to nBytesReadMax %zu\n",
+					functionName, nAvailToRead, nBytesReadMax );
+			nToRead = static_cast<int>(nBytesReadMax);
+		}
+		nRead = pdv_serial_read( pPdv, reinterpret_cast<char *>(&ackPacket), nToRead );
+	}
+
+	if ( nRead <= 0 )
+	{
+		fprintf( stderr, "%s Error: Timeout with no reply!\n", functionName );
+		return GENCP_STATUS_MSG_TIMEOUT | GENCP_SC_ERROR;
+	}
+
+	size_t	nBytesRead;
+	status = GenCpProcessReadMemAck( &ackPacket, pBuffer, sBuffer, &nBytesRead );
+	if ( status != GENCP_STATUS_SUCCESS )
+	{
+		fprintf( stderr, "GenCP ReadMemString Validate Error: %d (0x%X)\n", status, status );
+		return status;
+	}
+
 	return GENCP_STATUS_SUCCESS;
 }
 
@@ -145,11 +206,51 @@ GENCP_STATUS EdtGenCpReadUint(
 	}
 	else
 	{
-		printf( "regAddr 0x%08lX = %lu\n", regAddr, result );
+		printf( "regAddr 0x%08lX = %lu = 0x%lx\n", regAddr, result, result );
 	}
 
 	if ( pnResult != NULL )
 		*pnResult = result;
+	return GENCP_STATUS_SUCCESS;
+}
+
+
+GENCP_STATUS EdtGenCpReadString(
+	unsigned int		iUnit,
+	unsigned int		iChannel,
+	uint64_t			regAddr,
+	size_t				numBytes,
+	char			*	pBuffer,
+	size_t				sBuffer )
+{
+	GENCP_STATUS		status;
+    EdtDev			*	pPdv;
+
+	if ( pBuffer != NULL )
+		*pBuffer = 0;
+
+    /* open a handle to the device     */
+    pPdv = pdv_open_channel(EDT_INTERFACE, iUnit, iChannel);
+    if ( pPdv == NULL )
+    {
+        pdv_perror( EDT_INTERFACE );
+        return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
+    }
+	pdv_serial_read_enable( pPdv );
+
+	status = PdvGenCpReadString( pPdv, regAddr, numBytes, pBuffer, sBuffer );
+
+	pdv_close( pPdv );
+
+	if ( status != GENCP_STATUS_SUCCESS )
+	{
+		fprintf( stderr, "Error reading %zu character string from regAddr 0x%08lX\n", sBuffer, regAddr );
+	}
+	else
+	{
+		printf( "regAddr 0x%08lX = %zu char string: %-64s\n", regAddr, strlen(pBuffer), pBuffer );
+	}
+
 	return GENCP_STATUS_SUCCESS;
 }
 
@@ -182,6 +283,25 @@ int main( int argc, char **argv )
 				exit( -1 );
 			}
 			unit = atoi( argv[++iArg] );
+		}
+		else if (	strncmp( argv[iArg], "--C", 3 ) == 0 )
+		{
+			if ( iArg >= argc )
+			{
+				usage( "Error: Missing address.\n" );
+				exit( -1 );
+			}
+
+			char			buffer[1001];
+			unsigned int	numBytes	= atoi( &argv[iArg][3] );
+			if ( numBytes == 0 || numBytes > 1000 )
+			{
+				fprintf( stderr, "Invalid number of bytes for --C option: %s\n", argv[iArg] );
+				exit( 1 );
+			}
+			iArg++;
+			uint64_t		regAddr		= strtoull( argv[iArg], NULL, 0 );
+			status = EdtGenCpReadString( unit, channel, regAddr, numBytes, buffer, 1000 );
 		}
 		else if (	strncmp( argv[iArg], "--U", 3 ) == 0 )
 		{
@@ -222,7 +342,7 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			fprintf( stderr, "unknown option: %s\n", argv[0] );
+			fprintf( stderr, "unknown option: %s\n", argv[iArg] );
 			usage( "" );
 			exit( 1 );
 		}
