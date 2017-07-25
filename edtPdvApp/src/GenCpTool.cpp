@@ -1,6 +1,14 @@
+#include <assert.h>
+#include <openssl/sha.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+// #include <zlib.h>
 #include "edtinc.h"
 #include "pciload.h"
 #include "GenCpPacket.h"
+#include "GenCpRegister.h"
 
 
 // GenCp Request ID, start at 0, increment each request
@@ -17,12 +25,12 @@ void usage( char * msg )
        "    --channel N     - channel #\n"
        "    -u N            - Unit number (default 0)\n"
        "    --unit N        - Unit number (default 0)\n"
-       "    --readXml       - Read XML GeniCam file and dump to stdout\n"
+       "    --readXml fname - Read XML GeniCam file and write to fname\n"
        "    --U16 Addr      - Read 16 bit unsigned value from address\n"
        "    --U32 Addr      - Read 32 bit unsigned value from address\n"
        "    --U64 Addr      - Read 64 bit unsigned value from address\n"
-       "    --C20 Addr      - Read up to 20 character string from address\n"
-       "    --C82 Addr      - Read up to 82 character string from address, etc for other counts\n"
+       "    --C20 Addr      - Read 20 character string from address\n"
+       "    --C82 Addr      - Read 82 character string from address, etc for other counts\n"
        "    -v              - Verbose\n"
     );
 }
@@ -45,7 +53,7 @@ GENCP_STATUS PdvGenCpReadUint(
 	status = GenCpInitReadMemPacket( &readMemPacket, localGenCpRequestId++, regAddr, numBytes );
 	if ( status != GENCP_STATUS_SUCCESS )
 	{
-		fprintf( stderr, "GenCP Error: %d\n", status );
+		fprintf( stderr, "%s: GenCP Error: %0x04X\n", functionName, status );
 		return status;
 	}
 
@@ -162,12 +170,119 @@ GENCP_STATUS PdvGenCpReadString(
 	}
 
 	size_t	nBytesRead;
-	status = GenCpProcessReadMemAck( &ackPacket, pBuffer, sBuffer, &nBytesRead );
+	status = GenCpProcessReadMemAck( &ackPacket, pBuffer, numBytes, &nBytesRead );
 	if ( status != GENCP_STATUS_SUCCESS )
 	{
 		fprintf( stderr, "GenCP ReadMemString Validate Error: %d (0x%X)\n", status, status );
 		return status;
 	}
+
+	return GENCP_STATUS_SUCCESS;
+}
+
+GENCP_STATUS PdvGenCpReadXmlFile(
+    EdtDev			*	pPdv,
+	unsigned int		iFileEntry,
+	unsigned char	*	pBuffer,
+	size_t				sBuffer,
+	const char		*	pFileName )
+{
+	const char		*	functionName = "PdvGenCpReadXmlFile";
+	GENCP_STATUS		status;
+
+	if ( pBuffer != NULL )
+		*pBuffer = 0;
+
+	uint64_t			addrManifestTable;
+	status = PdvGenCpReadUint( pPdv, REG_BRM_MANIFEST_TABLE_ADDRESS, 8, &addrManifestTable );
+	if ( status != GENCP_STATUS_SUCCESS )
+	{
+		fprintf( stderr, "%s: GenCP Error reading manifest table address: %d\n", functionName, status );
+		return status;
+	}
+
+	GenCpManifestEntry	xmlFileEntry;
+	uint64_t addrFileEntry = addrManifestTable + sizeof(uint64_t) + iFileEntry * sizeof(GenCpManifestEntry);
+	status = PdvGenCpReadString( pPdv,					addrFileEntry,		sizeof(GenCpManifestEntry),
+								reinterpret_cast<char *>(&xmlFileEntry),	sizeof(GenCpManifestEntry) );
+	if ( status != GENCP_STATUS_SUCCESS )
+	{
+		fprintf( stderr, "%s: GenCP Error reading manifest table entry: %0x04X\n", functionName, status );
+		return status;
+	}
+	uint32_t		xmlFileVersion	= GenCpBigEndianToCpu( xmlFileEntry.xmlFileVersion );
+	uint32_t		xmlFileSchema	= GenCpBigEndianToCpu( xmlFileEntry.xmlFileSchema );
+	uint64_t		xmlFileStart	= GenCpBigEndianToCpu( xmlFileEntry.xmlFileStart );
+	uint64_t		xmlFileSize		= GenCpBigEndianToCpu( xmlFileEntry.xmlFileSize );
+
+	unsigned char	*	pReadBuffer	= pBuffer;
+	size_t				sReadBuffer	= sBuffer;
+	const size_t		ZIP_CHUNK	= 100000;
+	unsigned char		zipBuffer[ZIP_CHUNK];
+	if ( GENCP_MFT_ENTRY_SCHEMA_TYPE(xmlFileSchema) == GENCP_MFT_ENTRY_SCHEMA_TYPE_ZIP )
+	{
+		pReadBuffer = zipBuffer;
+		sReadBuffer = ZIP_CHUNK < sBuffer ? ZIP_CHUNK : sBuffer;
+	}
+	else if ( GENCP_MFT_ENTRY_SCHEMA_TYPE(xmlFileSchema) != GENCP_MFT_ENTRY_SCHEMA_TYPE_UNCMP )
+	{
+		fprintf( stderr, "%s GenCP Error: XML File schema %d not supported yet!\n", functionName, xmlFileSchema );
+		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
+	}
+
+	if ( xmlFileSize > sReadBuffer )
+	{
+		fprintf( stderr, "%s GenCP Error: XML File size %zu > buffer size %zu.\n", functionName, xmlFileSize, sReadBuffer );
+		return status;
+	}
+
+	// Read the file
+	size_t		nBytesRead	= 0;
+	while ( nBytesRead < xmlFileSize )
+	{
+		size_t		nBytesReq	= xmlFileSize - nBytesRead;
+		char	*	nextAddr	= reinterpret_cast<char *>( pReadBuffer + nBytesRead );
+		if( nBytesReq > GENCP_READMEM_MAX_BYTES )
+			nBytesReq = GENCP_READMEM_MAX_BYTES;
+		status = PdvGenCpReadString( pPdv, xmlFileStart + nBytesRead, nBytesReq,
+									nextAddr, sReadBuffer - nBytesRead );
+		if ( status != GENCP_STATUS_SUCCESS )
+		{
+			fprintf( stderr, "%s: GenCP Error while reading XML file version 0x%08X: %0x04X\n", functionName, xmlFileVersion, status );
+			return status;
+		}
+		nBytesRead	+= nBytesReq;
+	}
+
+	char		tempFileName[100];
+	strncpy( tempFileName, pFileName, 100 );
+	if ( GENCP_MFT_ENTRY_SCHEMA_TYPE(xmlFileSchema) == GENCP_MFT_ENTRY_SCHEMA_TYPE_ZIP )
+	{
+		strncat( tempFileName + strlen(tempFileName), ".zip", 100 - 1 - strlen(tempFileName) );
+	}
+
+	FILE	*	outFile	= fopen( tempFileName, "wb" );
+	if ( outFile == NULL )
+	{
+		fprintf( stderr, "%s: GenCP unable to create temp file: %s\n", functionName, tempFileName );
+		return status;
+	}
+	(void) fwrite( zipBuffer, sizeof(char), nBytesRead, outFile );
+	(void) fclose( outFile );
+	printf( "Genicam file written to %s\n", tempFileName );
+
+#if 0
+	//	Check the SHA1 hash
+	//	TODO: Should this be before or after unzip?
+	uint8_t		xmlFileSHA1[GENCP_MFT_ENTRY_SHA1_SIZE];
+	SHA1( pBuffer, xmlFileSize, xmlFileSHA1 );
+
+	if ( memcmp( xmlFileSHA1, xmlFileEntry.xmlFileSHA1, GENCP_MFT_ENTRY_SHA1_SIZE ) != 0 )
+	{
+		fprintf( stderr, "%s GenCP Error: SHA1 hash does not match!\n", functionName );
+		// return status;
+	}
+#endif
 
 	return GENCP_STATUS_SUCCESS;
 }
@@ -195,6 +310,10 @@ GENCP_STATUS EdtGenCpReadUint(
         return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
     }
 	pdv_serial_read_enable( pPdv );
+    // Flush the read buffer
+	char		flushBuf[1000];
+	(void) pdv_serial_read( pPdv, flushBuf, 1000 );
+
 
 	status = PdvGenCpReadUint( pPdv, regAddr, numBytes, &result );
 
@@ -237,6 +356,9 @@ GENCP_STATUS EdtGenCpReadString(
         return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
     }
 	pdv_serial_read_enable( pPdv );
+    // Flush the read buffer
+	char		flushBuf[1000];
+	(void) pdv_serial_read( pPdv, flushBuf, 1000 );
 
 	status = PdvGenCpReadString( pPdv, regAddr, numBytes, pBuffer, sBuffer );
 
@@ -244,13 +366,54 @@ GENCP_STATUS EdtGenCpReadString(
 
 	if ( status != GENCP_STATUS_SUCCESS )
 	{
-		fprintf( stderr, "Error reading %zu character string from regAddr 0x%08lX\n", sBuffer, regAddr );
+		fprintf( stderr, "Error reading %zu characters from regAddr 0x%08lX\n", numBytes, regAddr );
 	}
 	else
 	{
-		printf( "regAddr 0x%08lX = %zu char string: %-64s\n", regAddr, strlen(pBuffer), pBuffer );
+		printf( "regAddr 0x%08lX = %zu char string: %-.64s\n", regAddr, strlen(pBuffer), pBuffer );
 	}
 
+	return GENCP_STATUS_SUCCESS;
+}
+
+
+GENCP_STATUS EdtGenCpReadXmlFile(
+	unsigned int		iUnit,
+	unsigned int		iChannel,
+	unsigned int		iFileEntry,
+	unsigned char	*	pBuffer,
+	size_t				sBuffer,
+	const char		*	pFileName )
+{
+	const char		*	functionName = "EdtGenCpReadXmlFile";
+	GENCP_STATUS		status;
+    EdtDev			*	pPdv;
+
+	if ( pBuffer != NULL )
+		*pBuffer = 0;
+
+    /* open a handle to the device     */
+    pPdv = pdv_open_channel(EDT_INTERFACE, iUnit, iChannel);
+    if ( pPdv == NULL )
+    {
+        pdv_perror( EDT_INTERFACE );
+        return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
+    }
+	pdv_serial_read_enable( pPdv );
+    // Flush the read buffer
+	char		flushBuf[1000];
+	(void) pdv_serial_read( pPdv, flushBuf, 1000 );
+
+	status = PdvGenCpReadXmlFile( pPdv, iFileEntry, pBuffer, sBuffer, pFileName );
+
+	pdv_close( pPdv );
+
+	if ( status != GENCP_STATUS_SUCCESS )
+	{
+		fprintf( stderr, "%s: GenCP error reading XML file!: %0x04X\n", functionName, status );
+	}
+
+	printf( "%.*s", static_cast<int>(sBuffer), pBuffer );
 	return GENCP_STATUS_SUCCESS;
 }
 
@@ -259,7 +422,8 @@ int main( int argc, char **argv )
 {
 	int				status;
     unsigned int	channel = 0;
-    unsigned int	unit = 0;
+    unsigned int	unit 	= 0;
+	unsigned int	iFile	= 0;
     bool	     	verbose = FALSE;
 
     for ( int iArg = 1; iArg < argc; iArg++ )
@@ -267,31 +431,25 @@ int main( int argc, char **argv )
 		if	(	strcmp( argv[iArg], "-c" ) == 0
 			||	strcmp( argv[iArg], "--channel" ) == 0 )
 		{
-			if ( iArg >= argc )
+			if ( ++iArg >= argc )
 			{
 				usage( "Error: Missing channel number.\n" );
 				exit( -1 );
 			}
-			channel = atoi( argv[++iArg] );
+			channel = atoi( argv[iArg] );
 		}
 		else if (	strcmp( argv[iArg], "-u" ) == 0
 				||	strcmp( argv[iArg], "--unit" ) == 0 )
         {
-			if ( iArg >= argc )
+			if ( ++iArg >= argc )
 			{
 				usage( "Error: Missing unit number.\n" );
 				exit( -1 );
 			}
-			unit = atoi( argv[++iArg] );
+			unit = atoi( argv[iArg] );
 		}
 		else if (	strncmp( argv[iArg], "--C", 3 ) == 0 )
 		{
-			if ( iArg >= argc )
-			{
-				usage( "Error: Missing address.\n" );
-				exit( -1 );
-			}
-
 			char			buffer[1001];
 			unsigned int	numBytes	= atoi( &argv[iArg][3] );
 			if ( numBytes == 0 || numBytes > 1000 )
@@ -300,17 +458,17 @@ int main( int argc, char **argv )
 				exit( 1 );
 			}
 			iArg++;
-			uint64_t		regAddr		= strtoull( argv[iArg], NULL, 0 );
-			status = EdtGenCpReadString( unit, channel, regAddr, numBytes, buffer, 1000 );
-		}
-		else if (	strncmp( argv[iArg], "--U", 3 ) == 0 )
-		{
 			if ( iArg >= argc )
 			{
 				usage( "Error: Missing address.\n" );
 				exit( -1 );
 			}
 
+			uint64_t		regAddr		= strtoull( argv[iArg], NULL, 0 );
+			status = EdtGenCpReadString( unit, channel, regAddr, numBytes, buffer, 1000 );
+		}
+		else if (	strncmp( argv[iArg], "--U", 3 ) == 0 )
+		{
        		//   --U32 Addr  Read 32 bit unsigned value from address\n"
 			uint64_t		result64;
 			unsigned int	numBits		= atoi( &argv[iArg][3] );
@@ -321,6 +479,12 @@ int main( int argc, char **argv )
 				exit( 1 );
 			}
 			iArg++;
+			if ( iArg >= argc )
+			{
+				usage( "Error: Missing address.\n" );
+				exit( -1 );
+			}
+
 			uint64_t		regAddr		= strtoull( argv[iArg], NULL, 0 );
 			//if ( sscanf( argv[iArg], "%LX", &regAddr ) != 1 )
 			//{
@@ -328,6 +492,18 @@ int main( int argc, char **argv )
 			//	exit( 1 );
 			//}
 			status = EdtGenCpReadUint( unit, channel, regAddr, numBytes, &result64 );
+		}
+		else if ( strcmp( argv[iArg], "--readXml" ) == 0 )
+        {
+			iArg++;
+			if ( iArg >= argc )
+			{
+				usage( "Error: Missing fileName.\n" );
+				exit( -1 );
+			}
+
+			unsigned char	xmlFileBuffer[100000];
+			status = EdtGenCpReadXmlFile( unit, channel, iFile, xmlFileBuffer, 100000, argv[iArg] );
 		}
 		else if (	strcmp( argv[iArg], "-v" ) == 0
 				||	strcmp( argv[iArg], "--verbose" ) == 0 )

@@ -9,8 +9,10 @@ GenCpTool_SRCS	+= GenCpPacket.cpp
 GenCpTool_SRCS	+= GenCpTool.cpp
 
 GenCpTool_LIBS	+= pdv
+GenCpTool_SYS_LIBS	+= crypto z
 
 #======== DETECTOR LIBRARY ==============
+USR_CXXFLAGS_Linux += -O0
 
 USR_CXXFLAGS_Linux += -D_LINUX -D_x86
 USR_CXXFLAGS_Darwin += -D_OSX -D_x86

@@ -80,7 +80,8 @@
 #define	GENCP_STATUS_WRONG_CONFIG		0x000F	// Current receiver configuration does not allow command
 #define	GENCP_STATUS_GENERIC_ERROR		0x0FFF	// Command not implemented
 
-#define GENCP_READMEM_MAX_BYTES			1000	// Recommended max per GenCP standard
+//#define GENCP_READMEM_MAX_BYTES			384		// 100 is recommended max per GenCP standard
+#define GENCP_READMEM_MAX_BYTES			64		// 100 is recommended max per GenCP standard
 
 typedef	uint32_t	GENCP_STATUS;
 
@@ -229,5 +230,9 @@ GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
 /// GenCpProcessReadMemAck() 64 bit reg
 GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
 										uint64_t				*	pReg64 );
+
+/// Convenience functions to hide __be32_to_cpu() and other variants
+extern uint32_t	GenCpBigEndianToCpu( uint32_t	be32Value );
+extern uint64_t	GenCpBigEndianToCpu( uint64_t	be64Value );
 
 #endif	/* GENCP_PACKET_H */

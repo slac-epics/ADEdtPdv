@@ -100,12 +100,12 @@ GENCP_STATUS	GenCpValidateReadMemAck(
 	}
 
 	// Validate SCD Checksum
-	uint32_t	ckSumSCD	= GenCpChecksum16(	reinterpret_cast<uint8_t *>( &pPacket->serialPrefix.prefixChannelId ),
+	uint16_t	ckSumSCD	= GenCpChecksum16(	reinterpret_cast<uint8_t *>( &pPacket->serialPrefix.prefixChannelId ),
 												sizeof(uint16_t) + sizeof(GenCpCCDAck) + __be16_to_cpu( pPacket->ccd.ccdScdLength ) );
 	if ( ckSumSCD != __be16_to_cpu( pPacket->serialPrefix.prefixCkSumSCD ) )
 	{
-		fprintf( stderr, "%s Error: Req %u, Packet SCD cksum, 0x%04X, computed 0x%04X\n", funcName,
-				ccdRequestId, ckSumSCD, __be16_to_cpu( pPacket->serialPrefix.prefixCkSumSCD ) );
+		fprintf( stderr, "%s Error: Req %u, Packet SCD cksum, 0x%04X, computed 0x%04X, length %d\n", funcName,
+				ccdRequestId, __be16_to_cpu( pPacket->serialPrefix.prefixCkSumSCD ), ckSumSCD, __be16_to_cpu( pPacket->ccd.ccdScdLength ) );
 		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
 	}
 
@@ -143,7 +143,7 @@ GENCP_STATUS	GenCpValidateReadMemAck(
 GENCP_STATUS	GenCpProcessReadMemAck(
 	GenCpReadMemAck			*	pPacket,
 	char					*	pBuffer,
-	size_t						sBuffer,
+	size_t						numBytes,
 	size_t					*	pnBytesRead )
 {
 	const	char 			*	funcName = "GenCpProcessReadMemAck";
@@ -151,7 +151,7 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 	if ( pBuffer == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
-	if ( sBuffer == 0 )
+	if ( numBytes == 0 )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 	if ( pnBytesRead != NULL )
 		*pnBytesRead = 0;
@@ -164,15 +164,26 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 
 	uint16_t	ccdScdLength	= __be16_to_cpu( pPacket->ccd.ccdScdLength );
 	uint16_t	ccdRequestId	= __be16_to_cpu( pPacket->ccd.ccdRequestId );
-	if ( ccdScdLength >= sBuffer )
+	if ( ccdScdLength > numBytes )
 	{
-		fprintf( stderr, "%s Error: Req %u, SCD Length %d >= sBuffer %zu\n", funcName,
-				ccdRequestId, ccdScdLength, sBuffer );
+		fprintf( stderr, "%s Error: Req %u, SCD Length %d > numBytes %zu\n", funcName,
+				ccdRequestId, ccdScdLength, numBytes );
 		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
 	}
 
+	// Copy the character array to the buffer
 	memcpy( reinterpret_cast<void *>(pBuffer),
 			reinterpret_cast<void *>(&pPacket->scd.scdReadData[0]), ccdScdLength );
+
+#if 0	// Shouldn't need to terminate strings according to std
+// If we terminate here, we need a different routine to read a raw array of bytes
+	// Make sure it's NULL terminated
+	if ( ccdScdLength < numBytes )
+		*(pBuffer + ccdScdLength) = 0;
+	else
+		*(pBuffer + numBytes - 1) = 0;
+#endif
+
 	if ( pnBytesRead != NULL )
 		*pnBytesRead = ccdScdLength;
 	return GENCP_STATUS_SUCCESS;
@@ -255,3 +266,12 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	return GENCP_STATUS_SUCCESS;
 }
 
+uint32_t	GenCpBigEndianToCpu( uint32_t	be32Value )
+{
+	return __be32_to_cpu( static_cast<__be32>(be32Value) );
+}
+
+uint64_t	GenCpBigEndianToCpu( uint64_t	be64Value )
+{
+	return __be64_to_cpu( static_cast<__be64>(be64Value) );
+}
