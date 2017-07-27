@@ -217,18 +217,6 @@ GENCP_STATUS PdvGenCpReadXmlFile(
 
 	unsigned char	*	pReadBuffer	= pBuffer;
 	size_t				sReadBuffer	= sBuffer;
-	const size_t		ZIP_CHUNK	= 100000;
-	unsigned char		zipBuffer[ZIP_CHUNK];
-	if ( GENCP_MFT_ENTRY_SCHEMA_TYPE(xmlFileSchema) == GENCP_MFT_ENTRY_SCHEMA_TYPE_ZIP )
-	{
-		pReadBuffer = zipBuffer;
-		sReadBuffer = ZIP_CHUNK < sBuffer ? ZIP_CHUNK : sBuffer;
-	}
-	else if ( GENCP_MFT_ENTRY_SCHEMA_TYPE(xmlFileSchema) != GENCP_MFT_ENTRY_SCHEMA_TYPE_UNCMP )
-	{
-		fprintf( stderr, "%s GenCP Error: XML File schema %d not supported yet!\n", functionName, xmlFileSchema );
-		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
-	}
 
 	if ( xmlFileSize > sReadBuffer )
 	{
@@ -267,22 +255,28 @@ GENCP_STATUS PdvGenCpReadXmlFile(
 		fprintf( stderr, "%s: GenCP unable to create temp file: %s\n", functionName, tempFileName );
 		return status;
 	}
-	(void) fwrite( zipBuffer, sizeof(char), nBytesRead, outFile );
+	(void) fwrite( pReadBuffer, sizeof(char), nBytesRead, outFile );
 	(void) fclose( outFile );
 	printf( "Genicam file written to %s\n", tempFileName );
 
-#if 0
 	//	Check the SHA1 hash
 	//	TODO: Should this be before or after unzip?
 	uint8_t		xmlFileSHA1[GENCP_MFT_ENTRY_SHA1_SIZE];
-	SHA1( pBuffer, xmlFileSize, xmlFileSHA1 );
+	SHA1( pReadBuffer, xmlFileSize, xmlFileSHA1 );
 
-	if ( memcmp( xmlFileSHA1, xmlFileEntry.xmlFileSHA1, GENCP_MFT_ENTRY_SHA1_SIZE ) != 0 )
+	if ( memcmp( xmlFileSHA1, xmlFileEntry.xmlFileSHA1, GENCP_MFT_ENTRY_SHA1_SIZE ) == 0 )
 	{
+		printf( "Genicam file matches SHA1: " );
+		for ( size_t i = 0; i < GENCP_MFT_ENTRY_SHA1_SIZE; i++ )
+			printf( "%02x", xmlFileSHA1[i] );
+		putchar( '\n' );
+	}
+	else
+	{
+		printf( "Genicam file written to %s\n", tempFileName );
 		fprintf( stderr, "%s GenCP Error: SHA1 hash does not match!\n", functionName );
 		// return status;
 	}
-#endif
 
 	return GENCP_STATUS_SUCCESS;
 }
@@ -410,10 +404,9 @@ GENCP_STATUS EdtGenCpReadXmlFile(
 
 	if ( status != GENCP_STATUS_SUCCESS )
 	{
-		fprintf( stderr, "%s: GenCP error reading XML file!: %0x04X\n", functionName, status );
+		fprintf( stderr, "%s: GenCP error reading XML file!: 0x%04X\n", functionName, status );
 	}
 
-	printf( "%.*s", static_cast<int>(sBuffer), pBuffer );
 	return GENCP_STATUS_SUCCESS;
 }
 
