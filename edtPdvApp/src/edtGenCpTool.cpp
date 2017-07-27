@@ -17,7 +17,7 @@ static uint16_t		localGenCpRequestId	= 0;
 void usage( char * msg )
 {
     printf( "%s", msg );
-    printf( "GenCpTool Usage: \n" );
+    printf( "edtGenCpTool Usage: \n" );
     printf(
        "    -h              - Help message\n"
        "    --help          - Help message\n"
