@@ -13,7 +13,7 @@ record( seq, "$(P)$(R)EdtReConfigSeq" )
 }
 record( seq, "$(P)$(R)EdtReConfigSeq2" )
 {
-	field( FLNK, "$(P)$(R)EdtReConfigSeq3" )
+#	field( FLNK, "$(P)$(R)EdtReConfigSeq3" )
 }
 
 record( stringin, "$(P)$(R)CamModel" )
@@ -42,8 +42,138 @@ record( longout, "$(P)$(R)SizeY" )
 # AVT GoldEye Register Access PV's
 #
 
+# Need to set AccessPrivilege to 1 on startup for R/W control and image streaming
+record( longout, "$(P)$(R)GoldEyeAccessPrivilege" )
+{
+	field( DOL,  "1" )
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x204) $(PORT).SER" )
+	field( PINI, "YES" )
+	field( FLNK, "$(P)$(R)GoldEyeAccessPrivilege_RBV" )
+}
+# Read at least one register every 3 seconds or camera clears AccessPrivilege
+record( longin, "$(P)$(R)GoldEyeAccessPrivilege_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x204) $(PORT).SER" )
+#	field( SCAN, "1 second" )
+}
+
 record( stringin, "$(P)$(R)GoldEyeCamModel" )
 {
+	field( DTYP, "stream" )
 	field( INP,  "@avtGoldEye008.proto GetStr(64,0x44) $(PORT).SER" )
 	field( PINI, "YES" )
 }
+
+# RegAcquisitionCommand
+record( mbbo, "$(P)$(R)GoldEyeAcquire" )
+{
+	field( DOL,  "$(P)$(R)Acquire CPP MS" )
+	field( OMSL, "closed_loop" )
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x130F4) $(PORT).SER" )
+	field( ZRVL, "0" ) field( ZRST, "Stop" )
+	field( ONVL, "1" ) field( ONST, "Start" )
+	field( TWVL, "2" ) field( TWST, "Abort" )
+}
+
+record( mbbo, "$(P)$(R)GoldEyeFStartTrMode" )
+{
+	field( ZRVL, "0" ) field( ZRST, "FreeRun" )
+	field( ONVL, "1" ) field( ONST, "Line1" )
+	field( TWVL, "2" ) field( TWST, "Line2" )
+	field( THVL, "3" ) field( THST, "Line3" )
+	field( FRVL, "4" ) field( FRST, "Line4" )
+	field( FVVL, "5" ) field( FVST, "CC1" )
+	field( SXVL, "6" ) field( SXST, "CC2" )
+	field( SVVL, "7" ) field( SVST, "CC3" )
+	field( EIVL, "8" ) field( EIST, "CC4" )
+	field( NIVL, "9" ) field( NIST, "FixedRate" )
+	field( TEVL, "9" ) field( TEST, "Software" )
+	field( FLNK, "$(P)$(R)GoldEyeFStartFullTrMode" )
+}
+
+# FrameStart TriggerSource
+record( mbbo, "$(P)$(R)GoldEyeFStartTrSrc" )
+{
+	field( ZRVL, "0" ) field( ZRST, "FreeRun" )
+	field( ONVL, "1" ) field( ONST, "Line1" )
+	field( TWVL, "2" ) field( TWST, "Line2" )
+	field( THVL, "3" ) field( THST, "Line3" )
+	field( FRVL, "4" ) field( FRST, "Line4" )
+	field( FVVL, "5" ) field( FVST, "CC1" )
+	field( SXVL, "6" ) field( SXST, "CC2" )
+	field( SVVL, "7" ) field( SVST, "CC3" )
+	field( EIVL, "8" ) field( EIST, "CC4" )
+	field( NIVL, "9" ) field( NIST, "FixedRate" )
+	field( TEVL, "9" ) field( TEST, "Software" )
+	field( FLNK, "$(P)$(R)GoldEyeFStartFullTrMode" )
+}
+
+# FrameStopTriggerMode combines several bit fields into one 32 bit register, RegFullTriggerMode
+# There are 3 of these RegFullTriggerMode registers:
+#	Addr		TriggerType			Name
+#	0x13410		FrameStart			FStartFullTrMode - The trigger that starts each image
+#	0x134D0		AcquisitionStart	AStartFullTrMode - The trigger that starts the acquisition process
+#	0x13510		AcquisitionStop		AStopFullTrMode  - The trigger that stops  the acquisition process
+
+# Bit numbering for GeniCam: MSB is 0, LSB is 31 for 32 bit register
+# Bit(s)	Name
+#	0		TriggerMode: Off/On
+#	16-31	TriggerSource enum, valid when TriggerMode is On
+#
+record( calcout, "$(P)$(R)GoldEyeCalcFStartFullTrMode" )
+{
+	field( DESC, "FrameStart: Controls image start" )
+	field( INPA, "$(P)$(R)GoldEyeTriggerMode   NPP MS" )
+	field( INPB, "$(P)$(R)GoldEyeTriggerSource NPP MS" )
+	field( CALC, "(B<<16)|(A&0xFFFF)" )
+	field( OUT,  "$(P)$(R)GoldEyeFStartFullTrMode PP MS" )
+}
+
+record( longout, "$(P)$(R)GoldEyeFStartFullTrMode" )
+{
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x13410) $(PORT).SER" )
+	field( FLNK, "$(P)$(R)GoldEyeFStartFullTrMode_RBV" )
+}
+
+record( longin, "$(P)$(R)GoldEyeFStartFullTrMode_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x13410) $(PORT).SER" )
+}
+
+
+# RegTriggerSourceInq is 32 bit register w/ bits for whether
+# each trigger source type is selected
+# There are 3 of these RegTriggerSourceInq registers:
+#	Addr		TriggerType			GoldEyeValue	Name
+#	0x13408		FrameStart			0x0000707		FStartTrSrcInq - The trigger that starts each image
+#	0x134C8		AcquisitionStart	0x00001e6		AStartTrSrcInq - The trigger that starts the acquisition process
+#	0x13508		AcquisitionStop 	0x00001e6		AStopTrSrcInq  - The trigger that starts the acquisition process
+#
+#	Bit		Name
+#	21		Software
+#	22		FixedRate
+#	23		CC1
+#
+#	24		CC2
+#	25		CC3
+#	26		CC4
+#	27		unused
+#
+#	28		unused
+#	29		Ext Trig Line2
+#	30		Ext Trig Line1
+#	31		FreeRun
+
+# TODO:
+#	0x13138	RegFixedIntervalValue
+#	0x1341C	FrameStartRegTriggerDelay
+#	0x13418	RegTriggerEvent, FStartTrActivation: RisingEdge/FallingEdge/AnyEdge,LevelHigh,LevelLow
+#	0x13424	RegTriggeroverlap:	FStartTriggerOverlap: Ignore/ReTrig
+#	0x1341C	RegTriggerDelay: us 
+#	0x13160	RegSoftwareTrigger: Off/On
+#

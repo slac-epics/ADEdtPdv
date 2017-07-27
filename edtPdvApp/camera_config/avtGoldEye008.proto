@@ -89,8 +89,8 @@
 # 24            20		SHA1-Hash
 #
 #
-InTerminator	= CR;
-OutTerminator	= CR;
+InTerminator	= LF;
+OutTerminator	= LF;
 ReplyTimeout	= 800;
 ReadTimeout		= 100;
 WriteTimeout	= 500;
@@ -100,7 +100,7 @@ ExtraInput		= Ignore;
 GetStr
 {
     out "C\$1 \$2?";
-	in  "OK %s";
+	in  "R%*#X=%40c";
 }
 
 SetStr
@@ -113,24 +113,24 @@ SetStr
 GetUint32
 {
     out "U32 \$1?";
-	in  "OK %d";
+	in  "R%*#X=%u";
 }
 
 SetUint32
 {
-    out "U32 \$1=%d";
+    out "U32 \$1=%u";
 	in  "OK";
 }
 
 GetUint64
 {
     out "U64 \$1?";
-	in  "OK %d";
+	in  "R%*#X=%llu";
 }
 
 SetUint64
 {
-    out "U32 \$1=%d";
+    out "U32 \$1=%llu";
 	in  "OK";
 }
 
@@ -138,7 +138,7 @@ SetUint64
 GetInt32
 {
     out "I32 \$1?";
-	in  "OK %d";
+	in  "R%*#X=%d";
 }
 
 SetInt32
@@ -150,11 +150,11 @@ SetInt32
 GetInt64
 {
     out "I64 \$1?";
-	in  "OK %d";
+	in  "R%*#X=%lld";
 }
 
 SetInt64
 {
-    out "I32 \$1=%d";
+    out "I64 \$1=%lld";
 	in  "OK";
 }
