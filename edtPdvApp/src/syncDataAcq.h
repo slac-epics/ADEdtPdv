@@ -21,7 +21,7 @@
 //	Can be changed here if it conflicts w/ another module
 #define	ACQ_TRACE_START_STOP	0x01	// Enables trace msgs related to stopping and starting acquisition
 #define	ACQ_TRACE_SYNC_UNSYNC	0x02	// Enables trace msgs related to changes in sync status
-#define	ACQ_TRACE_DETAIL		0x04	// Enables capture by capture trace details at up to 120hz
+#define	ACQ_TRACE_DETAIL		0x08	// Enables capture by capture trace details at up to 120hz
 
 #define	ACQ_TRACE( level, pFormat... ) if ( (level) & GetTraceLevel() ) tracePrint( pFormat )
 
