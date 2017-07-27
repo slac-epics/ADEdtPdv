@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int		DEBUG_GENCP	= 2;
+int		DEBUG_GENCP	= 0;
 
 /// GenCpCheckSum16() from Allied Vision Goldeye G/CL Features Reference V1.2.0
 /// Assumes packet data exists in memory in big endian format and the host is little endian.
