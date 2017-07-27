@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
+int		DEBUG_GENCP	= 2;
 
 /// GenCpCheckSum16() from Allied Vision Goldeye G/CL Features Reference V1.2.0
 /// Assumes packet data exists in memory in big endian format and the host is little endian.
@@ -49,6 +50,7 @@ GENCP_STATUS	GenCpInitReadMemPacket(
 	uint64_t					regAddr,
 	size_t						numBytes )
 {
+	const char	*	funcName = "GenCpInitReadMemPacket";
 	if ( pPacket == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 
@@ -70,6 +72,8 @@ GENCP_STATUS	GenCpInitReadMemPacket(
 	pPacket->serialPrefix.prefixCkSumCCD	= __cpu_to_be16( ckSumCCD );
 	pPacket->serialPrefix.prefixCkSumSCD	= __cpu_to_be16( ckSumSCD );
 
+	if ( DEBUG_GENCP >= 2 )
+		printf( "%s: Read %zu bytes from reg 0x%llX\n", funcName, numBytes, (long long unsigned int) regAddr );
 	return GENCP_STATUS_SUCCESS;
 }
 
@@ -135,6 +139,9 @@ GENCP_STATUS	GenCpValidateReadMemAck(
 		fprintf( stderr, "%s Error: Req %u, StatusCode Error %u\n", funcName, ccdRequestId, ccdStatusCode );
 		return ccdStatusCode;
 	}
+	if ( DEBUG_GENCP >= 2 )
+		printf( "%s: statusCode=%u, commandId=0x%X, scdLength=%u, reqId=%u\n",
+				funcName, ccdStatusCode, ccdCommandId, ccdScdLength, ccdRequestId );
 
 	return GENCP_STATUS_SUCCESS;
 }
@@ -162,8 +169,9 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 		return statusCode;
 	}
 
-	uint16_t	ccdScdLength	= __be16_to_cpu( pPacket->ccd.ccdScdLength );
-	uint16_t	ccdRequestId	= __be16_to_cpu( pPacket->ccd.ccdRequestId );
+	uint16_t	ccdCommandId	= __be16_to_cpu( pPacket->ccd.ccdCommandId	);
+	uint16_t	ccdScdLength	= __be16_to_cpu( pPacket->ccd.ccdScdLength	);
+	uint16_t	ccdRequestId	= __be16_to_cpu( pPacket->ccd.ccdRequestId	);
 	if ( ccdScdLength > numBytes )
 	{
 		fprintf( stderr, "%s Error: Req %u, SCD Length %d > numBytes %zu\n", funcName,
@@ -186,6 +194,13 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 
 	if ( pnBytesRead != NULL )
 		*pnBytesRead = ccdScdLength;
+
+	if ( DEBUG_GENCP >= 2 )
+		printf( "%s: commandId=0x%X, scdLength=%u, reqId=%u, data: %02X %02X %02X %02X\n",
+				funcName, ccdCommandId, ccdScdLength, ccdRequestId,
+				pPacket->scd.scdReadData[0], pPacket->scd.scdReadData[1],
+				pPacket->scd.scdReadData[2], pPacket->scd.scdReadData[3] );
+
 	return GENCP_STATUS_SUCCESS;
 }
 
@@ -232,11 +247,21 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 		// return statusCode;
 	}
 
+	uint16_t	ccdCommandId	= __be16_to_cpu( pPacket->ccd.ccdCommandId	);
+	uint16_t	ccdScdLength	= __be16_to_cpu( pPacket->ccd.ccdScdLength	);
+	uint16_t	ccdRequestId	= __be16_to_cpu( pPacket->ccd.ccdRequestId	);
+
 	if ( pReg32 != NULL )
 	{
 		__be32	*	pBigEndianReg32	= reinterpret_cast<__be32 *>( &pPacket->scd.scdReadData[0] );
 		*pReg32 = __be32_to_cpu( *pBigEndianReg32 );
 	}
+
+	if ( DEBUG_GENCP >= 2 )
+		printf( "%s: commandId=0x%X, scdLength=%u, reqId=%u, data: %02X %02X %02X %02X\n",
+				funcName, ccdCommandId, ccdScdLength, ccdRequestId,
+				pPacket->scd.scdReadData[0], pPacket->scd.scdReadData[1],
+				pPacket->scd.scdReadData[2], pPacket->scd.scdReadData[3] );
 	return GENCP_STATUS_SUCCESS;
 }
 
@@ -263,6 +288,266 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 		__be64	*	pBigEndianReg64	= reinterpret_cast<__be64 *>( &pPacket->scd.scdReadData[0] );
 		*pReg64 = __be64_to_cpu( *pBigEndianReg64 );
 	}
+	return GENCP_STATUS_SUCCESS;
+}
+
+/// GenCpValidateWriteMemAck() Checks for any errors in a WriteMem acknowledge packet
+GENCP_STATUS	GenCpValidateWriteMemAck( GenCpWriteMemAck		*	pPacket	)
+{
+	const	char 			*	funcName = "GenCpValidateWriteMemAck";
+	if ( pPacket == NULL )
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
+
+	uint16_t	prefixPreamble	= __be16_to_cpu( pPacket->serialPrefix.prefixPreamble );
+	uint16_t	ccdRequestId	= __be16_to_cpu( pPacket->ccd.ccdRequestId );
+	if ( prefixPreamble	!= GENCP_SERIAL_PREAMBLE )
+	{
+		fprintf( stderr, "%s Error: Req %u, Invalid preamble, 0x%02X\n", funcName, ccdRequestId, prefixPreamble );
+		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
+	}
+
+	// Validate CCD Checksum
+	uint32_t	ckSumCCD	= GenCpChecksum16(	reinterpret_cast<uint8_t *>( &pPacket->serialPrefix.prefixChannelId ),
+												sizeof(uint16_t) + sizeof(GenCpCCDAck) );
+	if ( ckSumCCD != __be16_to_cpu( pPacket->serialPrefix.prefixCkSumCCD ) )
+	{
+		fprintf( stderr, "%s Error: Req %u, Packet CCD cksum, 0x%04X, computed 0x%04X\n", funcName,
+				ccdRequestId, ckSumCCD, __be16_to_cpu( pPacket->serialPrefix.prefixCkSumCCD ) );
+		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
+	}
+
+	// Validate SCD Checksum
+	uint16_t	ckSumSCD	= GenCpChecksum16(	reinterpret_cast<uint8_t *>( &pPacket->serialPrefix.prefixChannelId ),
+												sizeof(uint16_t) + sizeof(GenCpCCDAck) + __be16_to_cpu( pPacket->ccd.ccdScdLength ) );
+	if ( ckSumSCD != __be16_to_cpu( pPacket->serialPrefix.prefixCkSumSCD ) )
+	{
+		fprintf( stderr, "%s Error: Req %u, Packet SCD cksum, 0x%04X, computed 0x%04X, length %d\n", funcName,
+				ccdRequestId, __be16_to_cpu( pPacket->serialPrefix.prefixCkSumSCD ), ckSumSCD, __be16_to_cpu( pPacket->ccd.ccdScdLength ) );
+		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
+	}
+
+	uint16_t	ccdCommandId	= __be16_to_cpu( pPacket->ccd.ccdCommandId );
+	if ( ccdCommandId	!= GENCP_ID_WRITEMEM_ACK )
+	{
+		fprintf( stderr, "%s Error: Req %u, Invalid commandId, 0x%02X\n", funcName, ccdRequestId, ccdCommandId );
+		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
+	}
+
+	uint16_t	ccdScdLength	= __be16_to_cpu( pPacket->ccd.ccdScdLength );
+	if ( ccdScdLength > GENCP_READMEM_MAX_BYTES )
+	{
+		fprintf( stderr, "%s Error: Req %u, SCD Length %u greater than max %u\n", funcName,
+				ccdRequestId, ccdScdLength, GENCP_READMEM_MAX_BYTES );
+		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
+	}
+
+	uint16_t	ccdStatus		= __be16_to_cpu( pPacket->ccd.ccdStatusCode );
+	uint16_t	ccdStatusCode	= ccdStatus & GENCP_SC_CODE_MASK;
+	if ( ccdStatus & GENCP_SC_ERROR )
+	{
+		// uint16_t	ccdStatusNS		= ccdStatusCode & GENCP_SC_NAMESPACE_MASK;
+		// if ( ccdStatusNS == GENCP_SC_NAMESPACE_GENCP )
+		//		fprintf( stderr, "%s Error: Req %u, StatusCode Error %u: %s\n", funcName, ccdRequestId, ccdStatusCode,
+		//				GenCpStatusCodeToString(ccdStatusCode) );
+		fprintf( stderr, "%s Error: Req %u, StatusCode Error %u\n", funcName, ccdRequestId, ccdStatusCode );
+		return ccdStatusCode;
+	}
+
+	uint16_t	scdLengthWritten	= __be16_to_cpu( pPacket->scd.scdLengthWritten );
+
+	if ( DEBUG_GENCP >= 2 )
+		printf( "%s: statusCode=%u, commandId=0x%X scdLength=%u, reqId=%u, scdLengthWritten=%u\n",
+				funcName, ccdStatusCode, ccdCommandId, ccdScdLength, ccdRequestId, scdLengthWritten );
+	return GENCP_STATUS_SUCCESS;
+}
+
+/// GenCpInitWriteMemPacket() Initialize a WriteMem packet to write a string to regAddr
+GENCP_STATUS	GenCpInitWriteMemPacket(
+	GenCpWriteMemPacket		*	pPacket,
+	uint16_t					requestId,
+	uint64_t					regAddr,
+	size_t						numBytes,
+	char					*	pString,
+	size_t					*	pnBytesSend )
+{
+	const	char 			*	funcName = "GenCpInitWriteMemPacket";
+	if ( pnBytesSend )
+		*pnBytesSend = 0;
+	if ( pPacket == NULL )
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
+
+	uint16_t	ccdScdLength = sizeof( uint64_t ) + numBytes;
+	pPacket->serialPrefix.prefixPreamble	= __cpu_to_be16( GENCP_SERIAL_PREAMBLE );
+	pPacket->serialPrefix.prefixChannelId	= 0;
+	pPacket->ccd.ccdFlags					= __cpu_to_be16( GENCP_CCD_FLAG_REQACK );
+	pPacket->ccd.ccdCommandId				= __cpu_to_be16( GENCP_ID_WRITEMEM_CMD );
+	pPacket->ccd.ccdScdLength				= __cpu_to_be16( ccdScdLength );
+	pPacket->ccd.ccdRequestId				= __cpu_to_be16( requestId );
+	pPacket->scd.scdRegAddr					= __cpu_to_be64( regAddr );
+
+	assert( numBytes < GENCP_READMEM_MAX_BYTES );
+	memcpy( (char *) &pPacket->scd.scdWriteData[0], pString, numBytes );
+
+	// Compute CCD and SCD Checksums
+	uint32_t	ckSumCCD	= GenCpChecksum16(	reinterpret_cast<uint8_t *>( &pPacket->serialPrefix.prefixChannelId ),
+												sizeof(uint16_t) + sizeof(GenCpCCDRequest) );
+	uint32_t	ckSumSCD	= GenCpChecksum16(	reinterpret_cast<uint8_t *>( &pPacket->serialPrefix.prefixChannelId ),
+												sizeof(uint16_t) + sizeof(GenCpCCDRequest) + ccdScdLength );
+	pPacket->serialPrefix.prefixCkSumCCD	= __cpu_to_be16( ckSumCCD );
+	pPacket->serialPrefix.prefixCkSumSCD	= __cpu_to_be16( ckSumSCD );
+
+	if ( pnBytesSend )
+		*pnBytesSend = sizeof(GenCpSerialPrefix) + sizeof(GenCpCCDRequest) + ccdScdLength;
+
+	if ( DEBUG_GENCP >= 2 )
+		printf( "%s: commandId=0x%X, regAddr=0x%llX, scdLength=%u, reqId=%u\n",
+				funcName, GENCP_ID_WRITEMEM_CMD, (long long unsigned int) regAddr, ccdScdLength, requestId );
+	return GENCP_STATUS_SUCCESS;
+}
+
+/// GenCpInitWriteMemPacket() Initialize a WriteMem packet to write a uint16 to regAddr
+GENCP_STATUS	GenCpInitWriteMemPacket(
+	GenCpWriteMemPacket		*	pPacket,
+	uint16_t					requestId,
+	uint64_t					regAddr,
+	uint16_t					regValue,
+	size_t					*	pnBytesSend )
+{
+	const	char 			*	funcName = "GenCpInitWriteMemPacket";
+	if ( pnBytesSend )
+		*pnBytesSend = 0;
+	if ( pPacket == NULL )
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
+
+	uint16_t	ccdScdLength = sizeof( uint64_t ) + sizeof(uint16_t);
+	pPacket->serialPrefix.prefixPreamble	= __cpu_to_be16( GENCP_SERIAL_PREAMBLE );
+	pPacket->serialPrefix.prefixChannelId	= 0;
+	pPacket->ccd.ccdFlags					= __cpu_to_be16( GENCP_CCD_FLAG_REQACK );
+	pPacket->ccd.ccdCommandId				= __cpu_to_be16( GENCP_ID_WRITEMEM_CMD );
+	pPacket->ccd.ccdScdLength				= __cpu_to_be16( ccdScdLength );
+	pPacket->ccd.ccdRequestId				= __cpu_to_be16( requestId );
+	pPacket->scd.scdRegAddr					= __cpu_to_be64( regAddr );
+
+	union
+	{
+		__be16		beValue;
+		char		beBytes[4];
+	}	beAccess;
+	beAccess.beValue	= __cpu_to_be16( regValue );
+	memcpy( (char *) &pPacket->scd.scdWriteData[0], beAccess.beBytes, sizeof(uint16_t) );
+
+	// Compute CCD and SCD Checksums
+	uint32_t	ckSumCCD	= GenCpChecksum16(	reinterpret_cast<uint8_t *>( &pPacket->serialPrefix.prefixChannelId ),
+												sizeof(uint16_t) + sizeof(GenCpCCDRequest) );
+	uint32_t	ckSumSCD	= GenCpChecksum16(	reinterpret_cast<uint8_t *>( &pPacket->serialPrefix.prefixChannelId ),
+												sizeof(uint16_t) + sizeof(GenCpCCDRequest) + ccdScdLength );
+	pPacket->serialPrefix.prefixCkSumCCD	= __cpu_to_be16( ckSumCCD );
+	pPacket->serialPrefix.prefixCkSumSCD	= __cpu_to_be16( ckSumSCD );
+
+	if ( pnBytesSend )
+		*pnBytesSend = sizeof(GenCpSerialPrefix) + sizeof(GenCpCCDRequest) + ccdScdLength;
+
+	if ( DEBUG_GENCP >= 2 )
+		printf( "%s: commandId=0x%X, regAddr=0x%llX, scdLength=%u, reqId=%u\n",
+				funcName, GENCP_ID_WRITEMEM_CMD, (long long unsigned int) regAddr, ccdScdLength, requestId );
+	return GENCP_STATUS_SUCCESS;
+}
+
+/// GenCpInitWriteMemPacket() Initialize a WriteMem packet to write a uint32 to regAddr
+GENCP_STATUS	GenCpInitWriteMemPacket(
+	GenCpWriteMemPacket		*	pPacket,
+	uint16_t					requestId,
+	uint64_t					regAddr,
+	uint32_t					regValue,
+	size_t					*	pnBytesSend )
+{
+	const	char 			*	funcName = "GenCpInitWriteMemPacket";
+	if ( pnBytesSend )
+		*pnBytesSend = 0;
+	if ( pPacket == NULL )
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
+
+	uint16_t	ccdScdLength = sizeof( uint64_t ) + sizeof(uint32_t);
+	pPacket->serialPrefix.prefixPreamble	= __cpu_to_be16( GENCP_SERIAL_PREAMBLE );
+	pPacket->serialPrefix.prefixChannelId	= 0;
+	pPacket->ccd.ccdFlags					= __cpu_to_be16( GENCP_CCD_FLAG_REQACK );
+	pPacket->ccd.ccdCommandId				= __cpu_to_be16( GENCP_ID_WRITEMEM_CMD );
+	pPacket->ccd.ccdScdLength				= __cpu_to_be16( ccdScdLength );
+	pPacket->ccd.ccdRequestId				= __cpu_to_be16( requestId );
+	pPacket->scd.scdRegAddr					= __cpu_to_be64( regAddr );
+
+	union
+	{
+		__be32		beValue;
+		char		beBytes[4];
+	}	beAccess;
+	beAccess.beValue	= __cpu_to_be32( regValue );
+	memcpy( (char *) &pPacket->scd.scdWriteData[0], beAccess.beBytes, sizeof(uint32_t) );
+
+	// Compute CCD and SCD Checksums
+	uint32_t	ckSumCCD	= GenCpChecksum16(	reinterpret_cast<uint8_t *>( &pPacket->serialPrefix.prefixChannelId ),
+												sizeof(uint16_t) + sizeof(GenCpCCDRequest) );
+	uint32_t	ckSumSCD	= GenCpChecksum16(	reinterpret_cast<uint8_t *>( &pPacket->serialPrefix.prefixChannelId ),
+												sizeof(uint16_t) + sizeof(GenCpCCDRequest) + ccdScdLength );
+	pPacket->serialPrefix.prefixCkSumCCD	= __cpu_to_be16( ckSumCCD );
+	pPacket->serialPrefix.prefixCkSumSCD	= __cpu_to_be16( ckSumSCD );
+
+	if ( pnBytesSend )
+		*pnBytesSend = sizeof(GenCpSerialPrefix) + sizeof(GenCpCCDRequest) + ccdScdLength;
+
+	if ( DEBUG_GENCP >= 2 )
+		printf( "%s: commandId=0x%X, regAddr=0x%llX, scdLength=%u, reqId=%u, data: %02X %02X %02X %02X\n",
+				funcName, GENCP_ID_WRITEMEM_CMD, (long long unsigned int) regAddr, ccdScdLength, requestId,
+				pPacket->scd.scdWriteData[0], pPacket->scd.scdWriteData[1],
+				pPacket->scd.scdWriteData[2], pPacket->scd.scdWriteData[3] );
+	return GENCP_STATUS_SUCCESS;
+}
+
+/// GenCpInitWriteMemPacket() Initialize a WriteMem packet to write a uint64 to regAddr
+GENCP_STATUS	GenCpInitWriteMemPacket(
+	GenCpWriteMemPacket		*	pPacket,
+	uint16_t					requestId,
+	uint64_t					regAddr,
+	uint64_t					regValue,
+	size_t					*	pnBytesSend )
+{
+	const	char 			*	funcName = "GenCpInitWriteMemPacket";
+	if ( pnBytesSend )
+		*pnBytesSend = 0;
+	if ( pPacket == NULL )
+		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
+
+	uint16_t	ccdScdLength = sizeof( uint64_t ) + sizeof(uint64_t);
+	pPacket->serialPrefix.prefixPreamble	= __cpu_to_be16( GENCP_SERIAL_PREAMBLE );
+	pPacket->serialPrefix.prefixChannelId	= 0;
+	pPacket->ccd.ccdFlags					= __cpu_to_be16( GENCP_CCD_FLAG_REQACK );
+	pPacket->ccd.ccdCommandId				= __cpu_to_be16( GENCP_ID_WRITEMEM_CMD );
+	pPacket->ccd.ccdScdLength				= __cpu_to_be16( ccdScdLength );
+	pPacket->ccd.ccdRequestId				= __cpu_to_be16( requestId );
+	pPacket->scd.scdRegAddr					= __cpu_to_be64( regAddr );
+
+	union
+	{
+		__be64		beValue;
+		char		beBytes[4];
+	}	beAccess;
+	beAccess.beValue	= __cpu_to_be64( regValue );
+	memcpy( (char *) &pPacket->scd.scdWriteData[0], beAccess.beBytes, sizeof(uint64_t) );
+
+	// Compute CCD and SCD Checksums
+	uint32_t	ckSumCCD	= GenCpChecksum16(	reinterpret_cast<uint8_t *>( &pPacket->serialPrefix.prefixChannelId ),
+												sizeof(uint16_t) + sizeof(GenCpCCDRequest) );
+	uint32_t	ckSumSCD	= GenCpChecksum16(	reinterpret_cast<uint8_t *>( &pPacket->serialPrefix.prefixChannelId ),
+												sizeof(uint16_t) + sizeof(GenCpCCDRequest) + ccdScdLength );
+	pPacket->serialPrefix.prefixCkSumCCD	= __cpu_to_be16( ckSumCCD );
+	pPacket->serialPrefix.prefixCkSumSCD	= __cpu_to_be16( ckSumSCD );
+
+	if ( pnBytesSend )
+		*pnBytesSend = sizeof(GenCpSerialPrefix) + sizeof(GenCpCCDRequest) + ccdScdLength;
+
+	if ( DEBUG_GENCP >= 2 )
+		printf( "%s: commandId=0x%X, regAddr=0x%llX, scdLength=%u, reqId=%u\n",
+				funcName, GENCP_ID_WRITEMEM_CMD, (long long unsigned int) regAddr, ccdScdLength, requestId );
 	return GENCP_STATUS_SUCCESS;
 }
 

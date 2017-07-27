@@ -157,7 +157,7 @@ typedef struct GENCP_ATTR
 typedef struct GENCP_ATTR
 {
 	uint64_t		scdRegAddr;		// Register address
-	uint8_t			scdWriteData;	// First byte of data to write
+	uint8_t			scdWriteData[GENCP_READMEM_MAX_BYTES];	// Packet payload
 	// Remaining data bytes per scdReadSize follow
 }	GenCpSCDWriteMem;
 
@@ -198,6 +198,23 @@ typedef struct	GENCP_ATTR
 }	GenCpReadMemAck;
 
 ///
+/// GenCP Write Memory Packet
+///
+typedef struct	GENCP_ATTR
+{
+	GenCpSerialPrefix	serialPrefix;
+	GenCpCCDRequest		ccd;
+	GenCpSCDWriteMem	scd;
+}	GenCpWriteMemPacket;
+
+typedef struct	GENCP_ATTR
+{
+	GenCpSerialPrefix	serialPrefix;
+	GenCpCCDAck			ccd;
+	GenCpSCDWriteAck	scd;
+}	GenCpWriteMemAck;
+
+///
 /// GenCP Packet function declarations
 ///
 
@@ -230,6 +247,38 @@ GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
 /// GenCpProcessReadMemAck() 64 bit reg
 GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
 										uint64_t				*	pReg64 );
+
+/// GenCpValidateWriteMemAck() Checks for any errors in a WriteMem acknowledge packet
+GENCP_STATUS	GenCpValidateWriteMemAck( GenCpWriteMemAck		*	pPacket	);
+
+/// GenCpInitWriteMemPacket() Initialize a WriteMem packet to write a string to regAddr
+GENCP_STATUS	GenCpInitWriteMemPacket(GenCpWriteMemPacket		*	pPacket,
+										uint16_t					requestId,
+										uint64_t					regAddr,
+										size_t						numBytes,
+										char					*	pString,
+										size_t					*	pnBytesSend );
+
+/// GenCpInitWriteMemPacket() Initialize a WriteMem packet to write a uint16 to regAddr
+GENCP_STATUS	GenCpInitWriteMemPacket(GenCpWriteMemPacket		*	pPacket,
+										uint16_t					requestId,
+										uint64_t					regAddr,
+										uint16_t					regValue,
+										size_t					*	pnBytesSend );
+
+/// GenCpInitWriteMemPacket() Initialize a WriteMem packet to write a uint32 to regAddr
+GENCP_STATUS	GenCpInitWriteMemPacket(GenCpWriteMemPacket		*	pPacket,
+										uint16_t					requestId,
+										uint64_t					regAddr,
+										uint32_t					regValue,
+										size_t					*	pnBytesSend );
+
+/// GenCpInitWriteMemPacket() Initialize a WriteMem packet to write a uint64 to regAddr
+GENCP_STATUS	GenCpInitWriteMemPacket(GenCpWriteMemPacket		*	pPacket,
+										uint16_t					requestId,
+										uint64_t					regAddr,
+										uint64_t					regValue,
+										size_t					*	pnBytesSend );
 
 /// Convenience functions to hide __be32_to_cpu() and other variants
 extern uint32_t	GenCpBigEndianToCpu( uint32_t	be32Value );
