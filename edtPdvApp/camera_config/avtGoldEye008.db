@@ -7,9 +7,15 @@
 
 record( seq, "$(P)$(R)EdtReConfigSeq" )
 {
-#	field ( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK1, "$(P)$(R)GoldEyeBlackLevel_RBV.PROC"  )
+	field( DLY1, "0.0" ) field( DOL1, "1" ) field( LNK1, "$(P)$(R)GoldEyeAccessPrivilege" )
+	field( DLY2, "0.2" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)Manufacturer_RBV" )
+	field( DLY3, "0.2" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)Model_RBV" )
+	field( DLY4, "0.2" ) field( DOL4, "1" ) field( LNK4, "$(P)$(R)FirmwareVersion_RBV" )
+	field( DLY5, "0.2" ) field( DOL5, "1" ) field( LNK5, "$(P)$(R)SerialNumber_RBV" )
+	field( DLY6, "0.2" ) field( DOL6, "1" ) field( LNK6, "$(P)$(R)GoldEyeModel_RBV" )
+	field( DLY7, "0.2" ) field( DOL7, "1" ) field( LNK7, "$(P)$(R)GoldEyeManufacturer_RBV" )
+#   field( TPRO, 1 )
 #	field( FLNK, "$(P)$(R)EdtReConfigSeq2" )
-    field( TPRO, 1 )
 }
 record( seq, "$(P)$(R)EdtReConfigSeq2" )
 {
@@ -50,20 +56,201 @@ record( longout, "$(P)$(R)GoldEyeAccessPrivilege" )
 	field( OUT,  "@avtGoldEye008.proto SetUint32(0x204) $(PORT).SER" )
 	field( PINI, "YES" )
 	field( FLNK, "$(P)$(R)GoldEyeAccessPrivilege_RBV" )
+    field( SDIS, "$(SerialDisable)")
 }
 # Read at least one register every 3 seconds or camera clears AccessPrivilege
 record( longin, "$(P)$(R)GoldEyeAccessPrivilege_RBV" )
 {
 	field( DTYP, "stream" )
 	field( INP,  "@avtGoldEye008.proto GetUint32(0x204) $(PORT).SER" )
+    field( SDIS, "$(SerialDisable)")
 #	field( SCAN, "1 second" )
 }
 
-record( stringin, "$(P)$(R)GoldEyeCamModel" )
+# Update fields for ADCore records that we get via GenCP
+record( stringin, "$(P)$(R)Manufacturer_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetStr(64,0x4) $(PORT).SER" )
+	field( SCAN, "Passive" )
+	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+# Update fields for ADCore records that we get via GenCP
+record( stringin, "$(P)$(R)Model_RBV" )
 {
 	field( DTYP, "stream" )
 	field( INP,  "@avtGoldEye008.proto GetStr(64,0x44) $(PORT).SER" )
+	field( SCAN, "Passive" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( stringin, "$(P)$(R)GoldEyeModel_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetStr(64,0x44) $(PORT).SER" )
+	field( SCAN, "Passive" )
+	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+# Update fields for ADCore records that we get via GenCP
+record( stringin, "$(P)$(R)GoldEyeFirmwareVersion_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetStr(64,0xC4) $(PORT).SER" )
+	field( SCAN, "Passive" )
+	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+# Update fields for ADCore records that we get via GenCP
+record( stringin, "$(P)$(R)GoldEyeSerialNumber_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetStr(64,0x144) $(PORT).SER" )
+	field( SCAN, "Passive" )
+	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+# Update fields for ADCore records that we get via GenCP
+record( ai, "$(P)$(R)GoldEyeTemperature_RBV" )
+{
+	field( DESC, "Temperature of camera sensor" )
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetFloat32(0x24104) $(PORT).SER" )
+	field( EGU,  "C" )
+	field( PREC, "1" )
+	field( PINI, "YES" )
+#	field( SCAN, "1 second" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( ai, "$(P)$(R)GoldEyeTempMainBd_RBV" )
+{
+	field( DESC, "Temperature of main board" )
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetFloat32(0x24108) $(PORT).SER" )
+	field( EGU,  "C" )
+	field( PREC, "1" )
+	field( PINI, "YES" )
+#	field( SCAN, "1 second" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( ai, "$(P)$(R)GoldEyeTempSensorBd_RBV" )
+{
+	field( DESC, "Temperature of sensor board" )
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetFloat32(0x2410C) $(PORT).SER" )
+	field( EGU,  "C" )
+	field( PREC, "1" )
+	field( PINI, "YES" )
+#	field( SCAN, "1 second" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+# AcquireTime
+record( ao, "$(P)$(R)EdtAcquireTime" )
+{
+	field( PREC, "5" )
+	field( FLNK, "$(P)$(R)GoldEyeAcquireTime" )
+}
+record( calcout, "$(P)$(R)GoldEyeAcquireTime" )
+{
+	field( INPA, "$(P)$(R)EdtAcquireTime NPP MS" )
+	field( CALC, "A*1e6" )
+	field( EGU,  "us" )
+	field( OUT,  "$(P)$(R)GoldEyeExposureValue NPP MS" )
+	field( FLNK, "$(P)$(R)GoldEyeExposureValue" )
+    field( SDIS, "$(SerialDisable)")
+}
+record( longout, "$(P)$(R)GoldEyeExposureValue" )
+{
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x14110) $(PORT).SER" )
+	field( EGU,  "us" )
+	field( LOPR, "6" )
+	field( HOPR, "0x6666666" )
+	field( FLNK, "$(P)$(R)GoldEyeExposureValue_RBV" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( longin, "$(P)$(R)GoldEyeExposureValue_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x14110) $(PORT).SER" )
+	field( EGU,  "us" )
+	field( LOPR, "6" )
+	field( HOPR, "0x6666666" )
+	field( PINI, "YES" )
+	field( FLNK, "$(P)$(R)GoldEyeAcquireTime_RBV" )
+    field( SDIS, "$(SerialDisable)")
+}
+record( calcout, "$(P)$(R)GoldEyeAcquireTime_RBV" )
+{
+	field( INPA, "$(P)$(R)GoldEyeExposureValue_RBV NPP MS" )
+	field( CALC, "A/1e6" )
+	field( OUT,  "$(P)$(R)EdtAcquireTime_RBV NPP MS" )
+	field( FLNK, "$(P)$(R)EdtAcquireTime_RBV" )
+	field( EGU,  "sec" )
+}
+
+record( longout, "$(P)$(R)GoldEyeHeartbeatTimeout" )
+{
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x1E8) $(PORT).SER" )
+	field( EGU,  "ms" )
+	field( FLNK, "$(P)$(R)GoldEyeHeartbeatTimeout_RBV" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( longin, "$(P)$(R)GoldEyeHeartbeatTimeout_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x1E8) $(PORT).SER" )
+	field( EGU,  "ms" )
+	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( longout, "$(P)$(R)GoldEyeBinX" )
+{
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x11108) $(PORT).SER" )
+	field( EGU,  "px" )
+	field( FLNK, "$(P)$(R)GoldEyeBinX_RBV" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( longin, "$(P)$(R)GoldEyeBinX_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x11108) $(PORT).SER" )
+	field( EGU,  "ms" )
+	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( longout, "$(P)$(R)GoldEyeBinY" )
+{
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x11128) $(PORT).SER" )
+	field( EGU,  "px" )
+	field( FLNK, "$(P)$(R)GoldEyeBinY_RBV" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( longin, "$(P)$(R)GoldEyeBinY_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x11128) $(PORT).SER" )
+	field( EGU,  "ms" )
+	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 }
 
 # RegAcquisitionCommand
@@ -76,6 +263,7 @@ record( mbbo, "$(P)$(R)GoldEyeAcquire" )
 	field( ZRVL, "0" ) field( ZRST, "Stop" )
 	field( ONVL, "1" ) field( ONST, "Start" )
 	field( TWVL, "2" ) field( TWST, "Abort" )
+    field( SDIS, "$(SerialDisable)")
 }
 
 record( mbbo, "$(P)$(R)GoldEyeFStartTrMode" )
@@ -137,14 +325,15 @@ record( longout, "$(P)$(R)GoldEyeFStartFullTrMode" )
 	field( DTYP, "stream" )
 	field( OUT,  "@avtGoldEye008.proto SetUint32(0x13410) $(PORT).SER" )
 	field( FLNK, "$(P)$(R)GoldEyeFStartFullTrMode_RBV" )
+    field( SDIS, "$(SerialDisable)")
 }
 
 record( longin, "$(P)$(R)GoldEyeFStartFullTrMode_RBV" )
 {
 	field( DTYP, "stream" )
 	field( INP,  "@avtGoldEye008.proto GetUint32(0x13410) $(PORT).SER" )
+    field( SDIS, "$(SerialDisable)")
 }
-
 
 # RegTriggerSourceInq is 32 bit register w/ bits for whether
 # each trigger source type is selected
@@ -170,6 +359,10 @@ record( longin, "$(P)$(R)GoldEyeFStartFullTrMode_RBV" )
 #	31		FreeRun
 
 # TODO:
+#	0x11108	RegBinningXValue: 1-8
+#	0x11128	RegBinningYValue: 1-8
+#	0x13104	RegAcquisitionMode: 1=Continuous, 2=SingleFrame, 3=MultiFrame via RegAcquisitionFrameCount
+#	0x13108	RegAcquisitionFrameCount: Frame count for MultiFrame AcquisitionMode
 #	0x13138	RegFixedIntervalValue
 #	0x1341C	FrameStartRegTriggerDelay
 #	0x13418	RegTriggerEvent, FStartTrActivation: RisingEdge/FallingEdge/AnyEdge,LevelHigh,LevelLow

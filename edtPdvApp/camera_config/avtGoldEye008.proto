@@ -158,3 +158,28 @@ SetInt64
     out "I64 \$1=%lld";
 	in  "OK";
 }
+
+# Floats
+GetFloat32
+{
+    out "F32 \$1?";
+	in  "R%*#X=%f";
+}
+
+SetFloat32
+{
+    out "F32 \$1=%f";
+	in  "OK";
+}
+
+GetFloat64
+{
+    out "F64 \$1?";
+	in  "R%*#X=%e";
+}
+
+SetFloat64
+{
+    out "F64 \$1=%e";
+	in  "OK";
+}
