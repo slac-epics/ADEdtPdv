@@ -248,6 +248,14 @@ GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
 GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
 										uint64_t				*	pReg64 );
 
+/// GenCpProcessReadMemAck() 32 bit float reg
+GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
+										float					*	pReg32 );
+
+/// GenCpProcessReadMemAck() 64 bit double reg
+GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
+										double					*	pReg64 );
+
 /// GenCpValidateWriteMemAck() Checks for any errors in a WriteMem acknowledge packet
 GENCP_STATUS	GenCpValidateWriteMemAck( GenCpWriteMemAck		*	pPacket	);
 
@@ -278,6 +286,20 @@ GENCP_STATUS	GenCpInitWriteMemPacket(GenCpWriteMemPacket		*	pPacket,
 										uint16_t					requestId,
 										uint64_t					regAddr,
 										uint64_t					regValue,
+										size_t					*	pnBytesSend );
+
+/// GenCpInitWriteMemPacket() Initialize a WriteMem packet to write a float to regAddr
+GENCP_STATUS	GenCpInitWriteMemPacket(GenCpWriteMemPacket		*	pPacket,
+										uint16_t					requestId,
+										uint64_t					regAddr,
+										float						regValue,
+										size_t					*	pnBytesSend );
+
+/// GenCpInitWriteMemPacket() Initialize a WriteMem packet to write a double to regAddr
+GENCP_STATUS	GenCpInitWriteMemPacket(GenCpWriteMemPacket		*	pPacket,
+										uint16_t					requestId,
+										uint64_t					regAddr,
+										double						regValue,
 										size_t					*	pnBytesSend );
 
 /// Convenience functions to hide __be32_to_cpu() and other variants

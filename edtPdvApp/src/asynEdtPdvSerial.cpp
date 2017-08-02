@@ -136,7 +136,7 @@ asynStatus	asynEdtPdvSerial::disconnect(
 				"%s port %s\n", functionName, this->portName );
 
 	epicsMutexLock(m_serialLock);
-    //commented out as the user can connect of disconnect using the AsynIO fields
+    //commented out as the user can connect or disconnect using the AsynIO fields
     //m_pPdvDev		= NULL;
 	m_fConnected	= false;
 	epicsMutexUnlock(m_serialLock);
@@ -293,6 +293,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		case EDT_GENCP_TY_RESP_UINT:
 		case EDT_GENCP_TY_RESP_INT:
 		case EDT_GENCP_TY_RESP_FLOAT:
+		case EDT_GENCP_TY_RESP_DOUBLE:
 			pReadBuffer	= reinterpret_cast<char *>( &genCpReadMemAck );
 			sReadBuffer	= m_GenCPResponseSize;
 			break;
@@ -467,8 +468,32 @@ asynStatus	asynEdtPdvSerial::readOctet(
 				return asynError;
 			}
 			break;
-		case EDT_GENCP_TY_RESP_INT:
 		case EDT_GENCP_TY_RESP_FLOAT:
+			switch ( m_GenCPResponseCount )
+			{
+			case 32:
+				float		floatValue;
+				genStatus = GenCpProcessReadMemAck( pReadAck, &floatValue );
+				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%f\n", m_GenCPRegAddr, floatValue );
+				break;
+			case 64:
+				double		doubleValue;
+				genStatus = GenCpProcessReadMemAck( pReadAck, &doubleValue );
+				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%lf\n", m_GenCPRegAddr, doubleValue );
+				break;
+			default:
+				genStatus	= GENCP_STATUS_INVALID_PARAM;
+				break;
+			}
+			if ( genStatus != GENCP_STATUS_SUCCESS )
+			{
+				// TODO: Add status code to error msg translation here
+				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "ERR %d (0x%X)\n", genStatus, genStatus );
+				fprintf( stderr, "%s: Uint ProcessReadMem Error: %d (0x%X)\n", functionName, genStatus, genStatus );
+				return asynError;
+			}
+			break;
+		case EDT_GENCP_TY_RESP_INT:
 		default:
 			fprintf( stderr, "%s: Unsupported response type: %d\n", functionName, m_GenCPResponseType );
 			return asynError;
@@ -577,6 +602,7 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 		char			cGetSet;	// '?' is a Get, '=' is a Set
 		unsigned int	cmdCount;
 		char		*	pString;
+		double			doubleValue	= 0.0;
 		int64_t			intValue	= 0LL;
 		uint64_t		regAddr		= 0LL;
 		int				scanCount	= -1;
@@ -658,8 +684,48 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 				scanCount = -1;
 			break;
 
-		case 'I':
 		case 'F':
+			scanCount = sscanf( pBuffer, "F%u %Li %c%lf", &cmdCount, (long long int *) &regAddr, &cGetSet, &doubleValue );
+			asynPrint(	pasynUser, ASYN_TRACE_FLOW,
+						"%s %s: scanCount=%d, cmdCount=%u, regAddr=0x%llX, cGetSet=%c, doubleValue=%lf, command: %s\n",
+						functionName, this->portName, scanCount, cmdCount, (long long unsigned int) regAddr, cGetSet, doubleValue, pBuffer );
+			if ( scanCount == 4 && cGetSet == '=' && cmdCount > 0 )
+			{
+				float	floatValue	= static_cast<float>( doubleValue );
+				assert( pEqualSign != NULL );
+				switch ( cmdCount )
+				{
+				case 32:	
+					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCPRequestId++, regAddr,
+															floatValue, &sSendBuffer );
+					break;
+				case 64:	
+					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCPRequestId++, regAddr,
+															doubleValue, &sSendBuffer );
+					break;
+				}
+				pSendBuffer	= reinterpret_cast<char *>( &genCpWriteMemPacket );
+				m_GenCPResponseCount	= cmdCount;
+				m_GenCPResponseType		= EDT_GENCP_TY_RESP_ACK;
+				m_GenCPResponseSize		= sizeof(GenCpWriteMemAck);
+			}
+			else if ( scanCount == 3 && cGetSet == '?' && cmdCount > 0 )
+			{
+				genStatus	= GenCpInitReadMemPacket( &genCpReadMemPacket, m_GenCPRequestId++, regAddr, cmdCount / 8 );
+				pSendBuffer	= reinterpret_cast<char *>( &genCpReadMemPacket );
+				sSendBuffer	= sizeof(genCpReadMemPacket);
+				m_GenCPResponseCount	= cmdCount;
+				if ( cmdCount == 32 )
+					m_GenCPResponseType		= EDT_GENCP_TY_RESP_FLOAT;
+				else
+					m_GenCPResponseType		= EDT_GENCP_TY_RESP_DOUBLE;
+				m_GenCPResponseSize		= sizeof(GenCpSerialPrefix) + sizeof(GenCpCCDAck) + cmdCount / 8;
+			}
+			else
+				scanCount = -1;
+			break;
+
+		case 'I':
 		default:
 			break;
 		}
