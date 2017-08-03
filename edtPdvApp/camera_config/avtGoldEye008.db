@@ -8,17 +8,21 @@
 record( seq, "$(P)$(R)EdtReConfigSeq" )
 {
 	field( DLY1, "0.0" ) field( DOL1, "1" ) field( LNK1, "$(P)$(R)GoldEyeAccessPrivilege" )
-	field( DLY2, "0.2" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)Manufacturer_RBV" )
-	field( DLY3, "0.2" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)Model_RBV" )
-	field( DLY4, "0.2" ) field( DOL4, "1" ) field( LNK4, "$(P)$(R)FirmwareVersion_RBV" )
-	field( DLY5, "0.2" ) field( DOL5, "1" ) field( LNK5, "$(P)$(R)SerialNumber_RBV" )
-	field( DLY6, "0.2" ) field( DOL6, "1" ) field( LNK6, "$(P)$(R)GoldEyeModel_RBV" )
-	field( DLY7, "0.2" ) field( DOL7, "1" ) field( LNK7, "$(P)$(R)GoldEyeManufacturer_RBV" )
+	field( DLY2, "0.2" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)Manufacturer_RBV.PROC" )
+	field( DLY3, "0.2" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)Model_RBV.PROC" )
+	field( DLY4, "0.2" ) field( DOL4, "1" ) field( LNK4, "$(P)$(R)GoldEyeFirmwareVersion_RBV.PROC" )
+	field( DLY5, "0.2" ) field( DOL5, "1" ) field( LNK5, "$(P)$(R)GoldEyeSerialNumber_RBV.PROC" )
+	field( DLY6, "0.2" ) field( DOL6, "1" ) field( LNK6, "$(P)$(R)GoldEyeModel_RBV.PROC" )
+	field( DLY7, "0.2" ) field( DOL7, "1" ) field( LNK7, "$(P)$(R)GoldEyeTempSensorBd_RBV.PROC" )
+	field( DLY8, "0.2" ) field( DOL8, "1" ) field( LNK8, "$(P)$(R)GoldEyeTemperature_RBV.PROC" )
 #   field( TPRO, 1 )
-#	field( FLNK, "$(P)$(R)EdtReConfigSeq2" )
+	field( FLNK, "$(P)$(R)EdtReConfigSeq2" )
 }
 record( seq, "$(P)$(R)EdtReConfigSeq2" )
 {
+	field( DLY1, "0.0" ) field( DOL1, "1" ) field( LNK1, "$(P)$(R)GoldEyeFStartFullTrMode_RBV.PROC" )
+	field( DLY2, "0.0" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)GoldEyeAcqStartFullTrMode_RBV.PROC" )
+	field( DLY3, "0.0" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)GoldEyeAcqStopFullTrMode_RBV.PROC" )
 #	field( FLNK, "$(P)$(R)EdtReConfigSeq3" )
 }
 
@@ -44,6 +48,60 @@ record( longout, "$(P)$(R)SizeY" )
 	field( VAL, "256" )
 }
 
+# Redirect FLNK of EdtBinX to GoldEyeBinX, and
+# DOL for EdtBinX_RBV to GoldEyeBinX_RBV
+# Ditto for BinY, MinX, MinY, SizeX, and SizeY
+record( longin, "$(P)$(R)EdtBinX" )
+{
+	field( FLNK, "$(P)$(R)GoldEyeBinX" )
+}
+record( longout, "$(P)$(R)EdtBinX_RBV" )
+{
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)GoldEyeBinX_RBV NPP MS" )
+}
+record( longin, "$(P)$(R)EdtBinY" )
+{
+	field( FLNK, "$(P)$(R)GoldEyeBinY" )
+}
+record( longout, "$(P)$(R)EdtBinY_RBV" )
+{
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)GoldEyeBinY_RBV NPP MS" )
+}
+record( longin, "$(P)$(R)EdtMinX" )
+{
+	field( FLNK, "$(P)$(R)GoldEyeMinX" )
+}
+record( longout, "$(P)$(R)EdtMinX_RBV" )
+{
+	field( DOL,  "$(P)$(R)GoldEyeMinX_RBV NPP MS" )
+}
+record( longin, "$(P)$(R)EdtMinY" )
+{
+	field( FLNK, "$(P)$(R)GoldEyeMinY" )
+}
+record( longout, "$(P)$(R)EdtMinY_RBV" )
+{
+	field( DOL,  "$(P)$(R)GoldEyeMinY_RBV NPP MS" )
+}
+record( longin, "$(P)$(R)EdtSizeX" )
+{
+	field( FLNK, "$(P)$(R)GoldEyeSizeX" )
+}
+record( longout, "$(P)$(R)EdtSizeX_RBV" )
+{
+	field( DOL,  "$(P)$(R)GoldEyeSizeX_RBV NPP MS" )
+}
+record( longin, "$(P)$(R)EdtSizeY" )
+{
+	field( FLNK, "$(P)$(R)GoldEyeSizeY" )
+}
+record( longout, "$(P)$(R)EdtSizeY_RBV" )
+{
+	field( DOL,  "$(P)$(R)GoldEyeSizeY_RBV NPP MS" )
+}
+
 #
 # AVT GoldEye Register Access PV's
 #
@@ -64,7 +122,17 @@ record( longin, "$(P)$(R)GoldEyeAccessPrivilege_RBV" )
 	field( DTYP, "stream" )
 	field( INP,  "@avtGoldEye008.proto GetUint32(0x204) $(PORT).SER" )
     field( SDIS, "$(SerialDisable)")
-#	field( SCAN, "1 second" )
+	field( SCAN, "1 second" )
+}
+
+# W/O, write 1 to reset device
+record( longout, "$(P)$(R)GoldEyeResetDevice" )
+{
+	field( DESC, "Reset camera to power up state" )
+	field( DOL,  "1" )
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0xF318) $(PORT).SER" )
+    field( SDIS, "$(SerialDisable)")
 }
 
 # Update fields for ADCore records that we get via GenCP
@@ -219,6 +287,8 @@ record( longin, "$(P)$(R)GoldEyeHeartbeatTimeout_RBV" )
 
 record( longout, "$(P)$(R)GoldEyeBinX" )
 {
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)EdtBinX NPP MS" )
 	field( DTYP, "stream" )
 	field( OUT,  "@avtGoldEye008.proto SetUint32(0x11108) $(PORT).SER" )
 	field( EGU,  "px" )
@@ -230,13 +300,16 @@ record( longin, "$(P)$(R)GoldEyeBinX_RBV" )
 {
 	field( DTYP, "stream" )
 	field( INP,  "@avtGoldEye008.proto GetUint32(0x11108) $(PORT).SER" )
-	field( EGU,  "ms" )
+	field( EGU,  "px" )
 	field( PINI, "YES" )
     field( SDIS, "$(SerialDisable)")
+	field( FLNK, "$(P)$(R)EdtBinX_RBV" )
 }
 
 record( longout, "$(P)$(R)GoldEyeBinY" )
 {
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)BinY CPP MS" )
 	field( DTYP, "stream" )
 	field( OUT,  "@avtGoldEye008.proto SetUint32(0x11128) $(PORT).SER" )
 	field( EGU,  "px" )
@@ -251,9 +324,98 @@ record( longin, "$(P)$(R)GoldEyeBinY_RBV" )
 	field( EGU,  "ms" )
 	field( PINI, "YES" )
     field( SDIS, "$(SerialDisable)")
+	field( FLNK, "$(P)$(R)EdtBinY_RBV" )
 }
 
-# RegAcquisitionCommand
+record( longout, "$(P)$(R)GoldEyeMinX" )
+{
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)EdtMinX NPP MS" )
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x1212C) $(PORT).SER" )
+	field( EGU,  "px" )
+	field( FLNK, "$(P)$(R)GoldEyeMinX_RBV" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( longin, "$(P)$(R)GoldEyeMinX_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x1212C) $(PORT).SER" )
+	field( EGU,  "ms" )
+	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+	field( FLNK, "$(P)$(R)EdtMinX_RBV" )
+}
+
+record( longout, "$(P)$(R)GoldEyeMinY" )
+{
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)EdtMinY NPP MS" )
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x12130) $(PORT).SER" )
+	field( EGU,  "px" )
+	field( FLNK, "$(P)$(R)GoldEyeMinY_RBV" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( longin, "$(P)$(R)GoldEyeMinY_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x12130) $(PORT).SER" )
+	field( EGU,  "ms" )
+	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+	field( FLNK, "$(P)$(R)EdtMinY_RBV" )
+}
+
+record( longout, "$(P)$(R)GoldEyeSizeX" )
+{
+	field( DESC, "RegWidth: ROI region width" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)EdtSizeX NPP MS" )
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x12124) $(PORT).SER" )
+	field( EGU,  "px" )
+	field( FLNK, "$(P)$(R)GoldEyeSizeX_RBV" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( longin, "$(P)$(R)GoldEyeSizeX_RBV" )
+{
+	field( DESC, "RegWidth: ROI region width" )
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x12124) $(PORT).SER" )
+	field( EGU,  "ms" )
+	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+	field( FLNK, "$(P)$(R)EdtSizeX_RBV" )
+}
+
+record( longout, "$(P)$(R)GoldEyeSizeY" )
+{
+	field( DESC, "RegHeight: ROI region Height" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)EdtSizeY NPP MS" )
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x12128) $(PORT).SER" )
+	field( EGU,  "px" )
+	field( FLNK, "$(P)$(R)GoldEyeSizeY_RBV" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( longin, "$(P)$(R)GoldEyeSizeY_RBV" )
+{
+	field( DESC, "RegHeight: ROI region Height" )
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x12128) $(PORT).SER" )
+	field( EGU,  "ms" )
+	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+	field( FLNK, "$(P)$(R)EdtSizeY_RBV" )
+}
+
+# RegAcquisitionCommand (AcquisitionStart, valid when AcqStartTrMode is Off
 record( mbbo, "$(P)$(R)GoldEyeAcquire" )
 {
 	field( DOL,  "$(P)$(R)Acquire CPP MS" )
@@ -266,25 +428,108 @@ record( mbbo, "$(P)$(R)GoldEyeAcquire" )
     field( SDIS, "$(SerialDisable)")
 }
 
+# 0x13160, RegSoftwareTrigger
+record( mbbo, "$(P)$(R)GoldEyeSoftwareTrigger" )
+{
+	field( DOL, "0" )
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x13160) $(PORT).SER" )
+	field( ZRVL, "0" ) field( ZRST, "Off" )
+	field( ONVL, "1" ) field( ONST, "On" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+#	0x13418	RegTriggerEvent, FStartTrEvent: RisingEdge/FallingEdge/AnyEdge/LevelHigh/LevelLow
+record( mbbo, "$(P)$(R)GoldEyeFStartTrEvent" )
+{
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x13418) $(PORT).SER" )
+	field( ZRVL, "0" ) field( ZRST, "Rising" )
+	field( ONVL, "1" ) field( ONST, "Falling" )
+	field( TWVL, "2" ) field( TWST, "AnyEdge" )
+	field( THVL, "3" ) field( THST, "LevelHi" )
+	field( FRVL, "4" ) field( FRST, "LevelLo" )
+	field( FLNK, "$(P)$(R)GoldEyeFStartTrEvent_RBV" )
+#	field( PINI, "YES" )
+}
+
+record( mbbi, "$(P)$(R)GoldEyeFStartTrEvent_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x13418) $(PORT).SER" )
+	field( ZRVL, "0" ) field( ZRST, "Rising" )
+	field( ONVL, "1" ) field( ONST, "Falling" )
+	field( TWVL, "2" ) field( TWST, "AnyEdge" )
+	field( THVL, "3" ) field( THST, "LevelHi" )
+	field( FRVL, "4" ) field( FRST, "LevelLo" )
+	field( PINI, "YES" )
+}
+
+#	0x134D8	RegTriggerEvent, AcqStartTrEvent: RisingEdge/FallingEdge/AnyEdge/LevelHigh/LevelLow
+record( mbbo, "$(P)$(R)GoldEyeAcqStartTrEvent" )
+{
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x134D8) $(PORT).SER" )
+	field( ZRVL, "0" ) field( ZRST, "Rising" )
+	field( ONVL, "1" ) field( ONST, "Falling" )
+	field( TWVL, "2" ) field( TWST, "AnyEdge" )
+	field( THVL, "3" ) field( THST, "LevelHi" )
+	field( FRVL, "4" ) field( FRST, "LevelLo" )
+	field( FLNK, "$(P)$(R)GoldEyeAcqStartTrEvent_RBV" )
+#	field( PINI, "YES" )
+}
+
+record( mbbi, "$(P)$(R)GoldEyeAcqStartTrEvent_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x134D8) $(PORT).SER" )
+	field( ZRVL, "0" ) field( ZRST, "Rising" )
+	field( ONVL, "1" ) field( ONST, "Falling" )
+	field( TWVL, "2" ) field( TWST, "AnyEdge" )
+	field( THVL, "3" ) field( THST, "LevelHi" )
+	field( FRVL, "4" ) field( FRST, "LevelLo" )
+	field( PINI, "YES" )
+}
+
+#	0x13518	RegTriggerEvent, AcqStopTrEvent: RisingEdge/FallingEdge/AnyEdge/LevelHigh/LevelLow
+record( mbbo, "$(P)$(R)GoldEyeAcqStopTrEvent" )
+{
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x13518) $(PORT).SER" )
+	field( ZRVL, "0" ) field( ZRST, "Rising" )
+	field( ONVL, "1" ) field( ONST, "Falling" )
+	field( TWVL, "2" ) field( TWST, "AnyEdge" )
+	field( THVL, "3" ) field( THST, "LevelHi" )
+	field( FRVL, "4" ) field( FRST, "LevelLo" )
+	field( FLNK, "$(P)$(R)GoldEyeAcqStopTrEvent_RBV" )
+#	field( PINI, "YES" )
+}
+
+record( mbbi, "$(P)$(R)GoldEyeAcqStopTrEvent_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x13518) $(PORT).SER" )
+	field( ZRVL, "0" ) field( ZRST, "Rising" )
+	field( ONVL, "1" ) field( ONST, "Falling" )
+	field( TWVL, "2" ) field( TWST, "AnyEdge" )
+	field( THVL, "3" ) field( THST, "LevelHi" )
+	field( FRVL, "4" ) field( FRST, "LevelLo" )
+	field( PINI, "YES" )
+}
+
 record( mbbo, "$(P)$(R)GoldEyeFStartTrMode" )
 {
-	field( ZRVL, "0" ) field( ZRST, "FreeRun" )
-	field( ONVL, "1" ) field( ONST, "Line1" )
-	field( TWVL, "2" ) field( TWST, "Line2" )
-	field( THVL, "3" ) field( THST, "Line3" )
-	field( FRVL, "4" ) field( FRST, "Line4" )
-	field( FVVL, "5" ) field( FVST, "CC1" )
-	field( SXVL, "6" ) field( SXST, "CC2" )
-	field( SVVL, "7" ) field( SVST, "CC3" )
-	field( EIVL, "8" ) field( EIST, "CC4" )
-	field( NIVL, "9" ) field( NIST, "FixedRate" )
-	field( TEVL, "9" ) field( TEST, "Software" )
-	field( FLNK, "$(P)$(R)GoldEyeFStartFullTrMode" )
+	field( DOL,  "1" )
+	field( ZRVL, "0" ) field( ZRST, "Off" )
+	field( ONVL, "1" ) field( ONST, "On" )
+	field( PINI, "YES" )
+	field( FLNK, "$(P)$(R)GoldEyeCalcFStartFullTrMode" )
 }
 
 # FrameStart TriggerSource
 record( mbbo, "$(P)$(R)GoldEyeFStartTrSrc" )
 {
+	field( DOL,  "0" )
 	field( ZRVL, "0" ) field( ZRST, "FreeRun" )
 	field( ONVL, "1" ) field( ONST, "Line1" )
 	field( TWVL, "2" ) field( TWST, "Line2" )
@@ -295,8 +540,9 @@ record( mbbo, "$(P)$(R)GoldEyeFStartTrSrc" )
 	field( SVVL, "7" ) field( SVST, "CC3" )
 	field( EIVL, "8" ) field( EIST, "CC4" )
 	field( NIVL, "9" ) field( NIST, "FixedRate" )
-	field( TEVL, "9" ) field( TEST, "Software" )
-	field( FLNK, "$(P)$(R)GoldEyeFStartFullTrMode" )
+	field( TEVL, "10") field( TEST, "Software" )
+	field( FLNK, "$(P)$(R)GoldEyeCalcFStartFullTrMode" )
+	field( PINI, "YES" )
 }
 
 # FrameStopTriggerMode combines several bit fields into one 32 bit register, RegFullTriggerMode
@@ -314,9 +560,9 @@ record( mbbo, "$(P)$(R)GoldEyeFStartTrSrc" )
 record( calcout, "$(P)$(R)GoldEyeCalcFStartFullTrMode" )
 {
 	field( DESC, "FrameStart: Controls image start" )
-	field( INPA, "$(P)$(R)GoldEyeTriggerMode   NPP MS" )
-	field( INPB, "$(P)$(R)GoldEyeTriggerSource NPP MS" )
-	field( CALC, "(B<<16)|(A&0xFFFF)" )
+	field( INPA, "$(P)$(R)GoldEyeFStartTrMode NPP MS" )
+	field( INPB, "$(P)$(R)GoldEyeFStartTrSrc  NPP MS" )
+	field( CALC, "((A&0x1)<<31)|(B&0xFFFF)" )
 	field( OUT,  "$(P)$(R)GoldEyeFStartFullTrMode PP MS" )
 }
 
@@ -332,6 +578,140 @@ record( longin, "$(P)$(R)GoldEyeFStartFullTrMode_RBV" )
 {
 	field( DTYP, "stream" )
 	field( INP,  "@avtGoldEye008.proto GetUint32(0x13410) $(PORT).SER" )
+	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+#
+# Acquisition Start records
+#
+record( mbbo, "$(P)$(R)GoldEyeAcqStartTrMode" )
+{
+	field( ZRVL, "0" ) field( ZRST, "Off" )
+	field( ONVL, "1" ) field( ONST, "On" )
+	field( FLNK, "$(P)$(R)GoldEyeCalcAcqStartFullTrMode" )
+	field( PINI, "YES" )
+}
+
+# Acquisition Start TriggerSource
+record( mbbo, "$(P)$(R)GoldEyeAcqStartTrSrc" )
+{
+	field( DOL, "1" )
+	field( ZRVL, "0" ) field( ZRST, "FreeRun" )
+	field( ONVL, "1" ) field( ONST, "Line1" )
+	field( TWVL, "2" ) field( TWST, "Line2" )
+	field( THVL, "3" ) field( THST, "Line3" )
+	field( FRVL, "4" ) field( FRST, "Line4" )
+	field( FVVL, "5" ) field( FVST, "CC1" )
+	field( SXVL, "6" ) field( SXST, "CC2" )
+	field( SVVL, "7" ) field( SVST, "CC3" )
+	field( EIVL, "8" ) field( EIST, "CC4" )
+	field( NIVL, "9" ) field( NIST, "FixedRate" )
+	field( TEVL, "10") field( TEST, "Software" )
+	field( FLNK, "$(P)$(R)GoldEyeCalcAcqStartFullTrMode" )
+	field( PINI, "YES" )
+}
+
+# FrameStopTriggerMode combines several bit fields into one 32 bit register, RegFullTriggerMode
+# There are 3 of these RegFullTriggerMode registers:
+#	Addr		TriggerType			Name
+#	0x13410		FrameStart			FStartFullTrMode - The trigger that starts each image
+#	0x134D0		AcquisitionStart	AcqStartFullTrMode - The trigger that starts the acquisition process
+#	0x13510		AcquisitionStop		AcqStopFullTrMode  - The trigger that stops  the acquisition process
+
+# Bit numbering for GeniCam: MSB is 0, LSB is 31 for 32 bit register
+# Bit(s)	Name
+#	0		TriggerMode: Off/On
+#	16-31	TriggerSource enum, valid when TriggerMode is On
+#
+record( calcout, "$(P)$(R)GoldEyeCalcAcqStartFullTrMode" )
+{
+	field( DESC, "Acquisition Start: Controls acq process" )
+	field( INPA, "$(P)$(R)GoldEyeAcqStartTrMode NPP NMS" )
+	field( INPB, "$(P)$(R)GoldEyeAcqStartTrSrc  NPP NMS" )
+	field( CALC, "((A&0x1)<<31)|(B&0xFFFF)" )
+	field( OUT,  "$(P)$(R)GoldEyeAcqStartFullTrMode PP MS" )
+}
+
+record( longout, "$(P)$(R)GoldEyeAcqStartFullTrMode" )
+{
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x134D0) $(PORT).SER" )
+	field( FLNK, "$(P)$(R)GoldEyeAcqStartFullTrMode_RBV" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( longin, "$(P)$(R)GoldEyeAcqStartFullTrMode_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x134D0) $(PORT).SER" )
+	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+#
+# Acquisition Stop records
+#
+record( mbbo, "$(P)$(R)GoldEyeAcqStopTrMode" )
+{
+	field( ZRVL, "0" ) field( ZRST, "Off" )
+	field( ONVL, "1" ) field( ONST, "On" )
+	field( FLNK, "$(P)$(R)GoldEyeCalcAcqStopFullTrMode" )
+}
+
+# Acquisition Stop TriggerSource
+record( mbbo, "$(P)$(R)GoldEyeAcqStopTrSrc" )
+{
+	field( DOL, "1" )
+	field( ZRVL, "0" ) field( ZRST, "FreeRun" )
+	field( ONVL, "1" ) field( ONST, "Line1" )
+	field( TWVL, "2" ) field( TWST, "Line2" )
+	field( THVL, "3" ) field( THST, "Line3" )
+	field( FRVL, "4" ) field( FRST, "Line4" )
+	field( FVVL, "5" ) field( FVST, "CC1" )
+	field( SXVL, "6" ) field( SXST, "CC2" )
+	field( SVVL, "7" ) field( SVST, "CC3" )
+	field( EIVL, "8" ) field( EIST, "CC4" )
+	field( NIVL, "9" ) field( NIST, "FixedRate" )
+	field( TEVL, "10") field( TEST, "Software" )
+	field( FLNK, "$(P)$(R)GoldEyeCalcAcqStopFullTrMode" )
+	field( PINI, "YES" )
+}
+
+# FrameStopTriggerMode combines several bit fields into one 32 bit register, RegFullTriggerMode
+# There are 3 of these RegFullTriggerMode registers:
+#	Addr		TriggerType			Name
+#	0x13410		FrameStart			FStartFullTrMode - The trigger that starts each image
+#	0x134D0		AcquisitionStart	AcqStartFullTrMode - The trigger that starts the acquisition process
+#	0x13510		AcquisitionStop		AcqStopFullTrMode  - The trigger that stops  the acquisition process
+
+# Bit numbering for GeniCam: MSB is 0, LSB is 31 for 32 bit register
+# Bit(s)	Name
+#	0		TriggerMode: Off/On
+#	16-31	TriggerSource enum, valid when TriggerMode is On
+#
+record( calcout, "$(P)$(R)GoldEyeCalcAcqStopFullTrMode" )
+{
+	field( DESC, "Acquisition Stop: Controls acq process" )
+	field( INPA, "$(P)$(R)GoldEyeAcqStopTrMode NPP MS" )
+	field( INPB, "$(P)$(R)GoldEyeAcqStopTrSrc  NPP MS" )
+	field( CALC, "((A&0x1)<<31)|(B&0xFFFF)" )
+	field( OUT,  "$(P)$(R)GoldEyeAcqStopFullTrMode PP MS" )
+}
+
+record( longout, "$(P)$(R)GoldEyeAcqStopFullTrMode" )
+{
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x13510) $(PORT).SER" )
+	field( FLNK, "$(P)$(R)GoldEyeAcqStopFullTrMode_RBV" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( longin, "$(P)$(R)GoldEyeAcqStopFullTrMode_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x13510) $(PORT).SER" )
+	field( PINI, "YES" )
     field( SDIS, "$(SerialDisable)")
 }
 
@@ -359,14 +739,17 @@ record( longin, "$(P)$(R)GoldEyeFStartFullTrMode_RBV" )
 #	31		FreeRun
 
 # TODO:
-#	0x11108	RegBinningXValue: 1-8
-#	0x11128	RegBinningYValue: 1-8
+#	0x11020	RegSensorInfo: Bits 31..24=RegSensorType 0=Mono, 1=Bayer
+#	0x11020	RegSensorInfo: Bits 23..16=RegSensorBits
+#	0x12120	RegPixelFormat: 0x1080001=Mono8, 0x1100005=Mono12, 0x1100025=Mono14, 
 #	0x13104	RegAcquisitionMode: 1=Continuous, 2=SingleFrame, 3=MultiFrame via RegAcquisitionFrameCount
 #	0x13108	RegAcquisitionFrameCount: Frame count for MultiFrame AcquisitionMode
-#	0x13138	RegFixedIntervalValue
+#	0x13138	RegFixedIntervalValue	AcquirePeriod
 #	0x1341C	FrameStartRegTriggerDelay
-#	0x13418	RegTriggerEvent, FStartTrActivation: RisingEdge/FallingEdge/AnyEdge,LevelHigh,LevelLow
+#	0x13418	RegTriggerEvent, FStartTrEvent: RisingEdge/FallingEdge/AnyEdge/LevelHigh/LevelLow
 #	0x13424	RegTriggeroverlap:	FStartTriggerOverlap: Ignore/ReTrig
 #	0x1341C	RegTriggerDelay: us 
 #	0x13160	RegSoftwareTrigger: Off/On
+#	0xB00D0	RegAFE_LvdsTestSelector: 4 bytes 0..4
+#	0xB00D4	RegAFE_LvdsTestPattern: 4 bytes 0..65535
 #

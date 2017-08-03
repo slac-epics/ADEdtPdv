@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 49
-y 1662
+x 46
+y 1326
 w 700
 h 579
 font "helvetica-medium-r-12.0"
@@ -24,46 +24,6 @@ showGrid
 snapToGrid
 gridSize 4
 endScreenProperties
-
-# (Related Display)
-object relatedDisplayClass
-beginObjectProperties
-major 4
-minor 4
-release 0
-x 12
-y 388
-w 120
-h 24
-fgColor index 14
-bgColor index 3
-topShadowColor index 1
-botShadowColor index 11
-font "helvetica-medium-r-12.0"
-xPosOffset -200
-yPosOffset -400
-buttonLabel "CAM asynRecord"
-numPvs 4
-numDsps 1
-displayFileName {
-  0 "asynScreens/asynRecord.edl"
-}
-menuLabel {
-  0 "CAM asynRecord"
-}
-setPosition {
-  0 "button"
-}
-symbols {
-  0 "P=$(P),R=$(R)AsynIO"
-}
-replaceSymbols {
-  0 1
-}
-propagateMacros {
-  0 0
-}
-endObjectProperties
 
 # (Static Text)
 object activeXTextClass
@@ -115,47 +75,7 @@ major 4
 minor 4
 release 0
 x 140
-y 388
-w 140
-h 24
-fgColor index 14
-bgColor index 3
-topShadowColor index 1
-botShadowColor index 11
-font "helvetica-medium-r-12.0"
-xPosOffset -200
-yPosOffset -400
-buttonLabel "CAM.SER asynRecord"
-numPvs 4
-numDsps 1
-displayFileName {
-  0 "asynScreens/asynRecord.edl"
-}
-menuLabel {
-  0 "CAM.SER asynRecord"
-}
-setPosition {
-  0 "button"
-}
-symbols {
-  0 "P=$(P),R=$(R)SER:AsynIO"
-}
-replaceSymbols {
-  0 1
-}
-propagateMacros {
-  0 0
-}
-endObjectProperties
-
-# (Related Display)
-object relatedDisplayClass
-beginObjectProperties
-major 4
-minor 4
-release 0
-x 140
-y 360
+y 416
 w 140
 h 24
 fgColor index 14
@@ -188,7 +108,7 @@ major 4
 minor 4
 release 0
 x 12
-y 360
+y 416
 w 120
 h 24
 fgColor index 14
@@ -220,8 +140,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 488
-y 284
+x 132
+y 192
 w 92
 h 20
 controlPv "$(P)$(R)GoldEyeBlackLevel"
@@ -247,9 +167,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 348
-y 284
-w 132
+x 28
+y 192
+w 100
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -266,8 +186,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 588
-y 284
+x 232
+y 192
 w 88
 h 20
 controlPv "$(P)$(R)GoldEyeBlackLevel_RBV"
@@ -291,8 +211,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 588
-y 308
+x 232
+y 216
 w 88
 h 20
 controlPv "$(P)$(R)GoldEyeTestPattern_RBV"
@@ -316,8 +236,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 488
-y 308
+x 132
+y 216
 w 92
 h 20
 controlPv "$(P)$(R)GoldEyeTestPattern"
@@ -342,9 +262,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 348
-y 308
-w 132
+x 28
+y 216
+w 100
 h 20
 font "helvetica-medium-r-12.0"
 fontAlign "right"
@@ -361,8 +281,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 588
-y 188
+x 248
+y 328
 w 88
 h 20
 controlPv "$(P)$(R)GoldEyeDefPixelCorr_RBV"
@@ -386,8 +306,8 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 488
-y 188
+x 148
+y 328
 w 92
 h 20
 fgColor index 25
@@ -406,8 +326,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 348
-y 188
+x 8
+y 328
 w 132
 h 20
 font "helvetica-medium-r-12.0"
@@ -429,7 +349,7 @@ x 144
 y 88
 w 176
 h 20
-controlPv "$(P)$(R)FirmwareVersion_RBV"
+controlPv "$(P)$(R)GoldEyeFirmwareVersion_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -683,7 +603,7 @@ x 144
 y 60
 w 176
 h 20
-controlPv "$(P)$(R)SerialNumber_RBV"
+controlPv "$(P)$(R)GoldEyeSerialNumber_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -810,72 +730,8 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 588
-y 212
-w 88
-h 20
-controlPv "$(P)$(R)GoldEyeDefPixelTest_RBV"
-font "helvetica-medium-r-12.0"
-fontAlign "center"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 40
-smartRefresh
-useHexPrefix
-newPos
-objType "monitors"
-noExecuteClipMask
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 488
-y 212
-w 92
-h 20
-fgColor index 25
-bgColor index 5
-inconsistentColor index 40
-topShadowColor index 2
-botShadowColor index 13
-controlPv "$(P)$(R)GoldEyeDefPixelTest"
-indicatorPv "$(P)$(R)GoldEyeDefPixelTest_RBV"
-font "helvetica-medium-r-14.0"
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 348
-y 212
-w 132
-h 20
-font "helvetica-medium-r-12.0"
-fontAlign "right"
-fgColor index 14
-bgColor index 3
-value {
-  "Defective Pixel Test"
-}
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
 x 604
-y 468
+y 496
 w 88
 h 20
 controlPv "$(P)$(R)AcquireTime_RBV"
@@ -902,7 +758,7 @@ major 4
 minor 7
 release 0
 x 604
-y 444
+y 472
 w 88
 h 20
 controlPv "$(P)$(R)TriggerMode_RBV"
@@ -927,7 +783,7 @@ major 4
 minor 7
 release 0
 x 508
-y 444
+y 472
 w 88
 h 20
 controlPv "$(P)$(R)EdtTriggerMode_RBV"
@@ -952,7 +808,7 @@ major 4
 minor 7
 release 0
 x 508
-y 468
+y 496
 w 88
 h 20
 controlPv "$(P)$(R)EdtAcquireTime_RBV"
@@ -979,7 +835,7 @@ major 4
 minor 1
 release 1
 x 508
-y 420
+y 448
 w 88
 h 20
 font "helvetica-medium-r-12.0"
@@ -998,7 +854,7 @@ major 4
 minor 1
 release 1
 x 604
-y 420
+y 448
 w 88
 h 20
 font "helvetica-medium-r-12.0"
@@ -1017,7 +873,7 @@ major 4
 minor 7
 release 0
 x 364
-y 444
+y 472
 w 88
 h 20
 controlPv "$(P)$(R)GoldEyeTriggerMode_RBV"
@@ -1042,7 +898,7 @@ major 4
 minor 7
 release 0
 x 364
-y 468
+y 496
 w 88
 h 20
 controlPv "$(P)$(R)GoldEyeAcquireTime_RBV"
@@ -1069,7 +925,7 @@ major 4
 minor 1
 release 1
 x 364
-y 420
+y 448
 w 88
 h 20
 font "helvetica-medium-r-12.0"
@@ -1088,7 +944,7 @@ major 4
 minor 1
 release 1
 x 260
-y 420
+y 448
 w 88
 h 20
 font "helvetica-medium-r-12.0"
@@ -1107,7 +963,7 @@ major 4
 minor 7
 release 0
 x 260
-y 468
+y 496
 w 88
 h 20
 controlPv "$(P)$(R)GoldEyeAcquireTime"
@@ -1134,7 +990,7 @@ major 4
 minor 7
 release 0
 x 260
-y 444
+y 472
 w 88
 h 20
 controlPv "$(P)$(R)GoldEyeTriggerMode"
@@ -1159,7 +1015,7 @@ major 4
 minor 7
 release 0
 x 100
-y 444
+y 472
 w 88
 h 20
 controlPv "$(P)$(R)EdtTriggerMode"
@@ -1184,7 +1040,7 @@ major 4
 minor 7
 release 0
 x 100
-y 468
+y 496
 w 88
 h 20
 controlPv "$(P)$(R)EdtAcquireTime"
@@ -1211,7 +1067,7 @@ major 4
 minor 1
 release 1
 x 100
-y 420
+y 448
 w 88
 h 20
 font "helvetica-medium-r-12.0"
@@ -1230,7 +1086,7 @@ major 4
 minor 7
 release 0
 x 4
-y 444
+y 472
 w 88
 h 20
 controlPv "$(P)$(R)TriggerMode"
@@ -1255,7 +1111,7 @@ major 4
 minor 7
 release 0
 x 4
-y 468
+y 496
 w 88
 h 20
 controlPv "$(P)$(R)AcquireTime"
@@ -1282,7 +1138,7 @@ major 4
 minor 1
 release 1
 x 4
-y 420
+y 448
 w 88
 h 20
 font "helvetica-medium-r-12.0"
@@ -1301,7 +1157,7 @@ major 4
 minor 7
 release 0
 x 192
-y 444
+y 472
 w 60
 h 20
 controlPv "$(P)$(R)GoldEyeCalcTriggerMode"
@@ -1326,7 +1182,7 @@ major 4
 minor 7
 release 0
 x 460
-y 444
+y 472
 w 40
 h 20
 controlPv "$(P)$(R)GoldEyeCalcEdtTriggerMode"
@@ -1351,7 +1207,7 @@ major 4
 minor 7
 release 0
 x 260
-y 492
+y 520
 w 88
 h 20
 controlPv "$(P)$(R)GoldEyePulseAcquireTime"
@@ -1378,7 +1234,7 @@ major 4
 minor 7
 release 0
 x 364
-y 492
+y 520
 w 88
 h 20
 controlPv "$(P)$(R)GoldEyePulseAcquireTime_RBV"
@@ -1396,134 +1252,6 @@ showUnits
 newPos
 objType "monitors"
 noExecuteClipMask
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 588
-y 236
-w 88
-h 20
-controlPv "$(P)$(R)GoldEyeAutoExposure_RBV"
-font "helvetica-medium-r-12.0"
-fontAlign "center"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 40
-smartRefresh
-useHexPrefix
-newPos
-objType "monitors"
-noExecuteClipMask
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 488
-y 236
-w 92
-h 20
-fgColor index 25
-bgColor index 5
-inconsistentColor index 40
-topShadowColor index 2
-botShadowColor index 13
-controlPv "$(P)$(R)GoldEyeAutoExposure"
-indicatorPv "$(P)$(R)GoldEyeAutoExposure_RBV"
-font "helvetica-medium-r-14.0"
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 348
-y 236
-w 132
-h 20
-font "helvetica-medium-r-12.0"
-fontAlign "right"
-fgColor index 14
-bgColor index 3
-value {
-  "Auto Exposure Control"
-}
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 588
-y 260
-w 88
-h 20
-controlPv "$(P)$(R)GoldEyeAutoGain_RBV"
-font "helvetica-medium-r-12.0"
-fontAlign "center"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 40
-smartRefresh
-useHexPrefix
-newPos
-objType "monitors"
-noExecuteClipMask
-endObjectProperties
-
-# (Menu Button)
-object activeMenuButtonClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 488
-y 260
-w 92
-h 20
-fgColor index 25
-bgColor index 5
-inconsistentColor index 40
-topShadowColor index 2
-botShadowColor index 13
-controlPv "$(P)$(R)GoldEyeAutoGain"
-indicatorPv "$(P)$(R)GoldEyeAutoGain_RBV"
-font "helvetica-medium-r-14.0"
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 348
-y 260
-w 132
-h 20
-font "helvetica-medium-r-12.0"
-fontAlign "right"
-fgColor index 14
-bgColor index 3
-value {
-  "Auto Gain Control"
-}
 endObjectProperties
 
 # (Text Monitor)
@@ -1772,5 +1500,956 @@ endGroup
 visPv "$(P)$(R)BeamEventCode.DISA"
 visMin "0"
 visMax "1"
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 500
+y 120
+w 92
+h 20
+controlPv "$(P)$(R)GoldEyeFStartTrMode"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+bgColor index 5
+editable
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 360
+y 120
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "FrStart Trigger Mode"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 120
+w 88
+h 20
+controlPv "$(P)$(R)GoldEyeCalcFStartFullTrMode"
+format "hex"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 500
+y 144
+w 92
+h 20
+controlPv "$(P)$(R)GoldEyeFStartTrSrc"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+bgColor index 5
+editable
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 360
+y 144
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "FrStart Trigger Src"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 144
+w 88
+h 20
+controlPv "$(P)$(R)GoldEyeFStartFullTrMode"
+format "hex"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 500
+y 168
+w 92
+h 20
+controlPv "$(P)$(R)GoldEyeFStartFullTrMode"
+format "hex"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+bgColor index 5
+editable
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 360
+y 168
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "FrStart FullTrMode"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 168
+w 88
+h 20
+controlPv "$(P)$(R)GoldEyeFStartFullTrMode_RBV"
+format "hex"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 500
+y 224
+w 92
+h 20
+controlPv "$(P)$(R)GoldEyeAcqStartTrMode"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+bgColor index 5
+editable
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 360
+y 224
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "AcqStart Trigger Mode"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 224
+w 88
+h 20
+controlPv "$(P)$(R)GoldEyeCalcAcqStartFullTrMode"
+format "hex"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 500
+y 248
+w 92
+h 20
+controlPv "$(P)$(R)GoldEyeAcqStartTrSrc"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+bgColor index 5
+editable
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 360
+y 248
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "AcqStart Trigger Src"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 248
+w 88
+h 20
+controlPv "$(P)$(R)GoldEyeAcqStartFullTrMode"
+format "hex"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 500
+y 272
+w 92
+h 20
+controlPv "$(P)$(R)GoldEyeAcqStartFullTrMode"
+format "hex"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+bgColor index 5
+editable
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 360
+y 272
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "AcqStart FullTrMode"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 272
+w 88
+h 20
+controlPv "$(P)$(R)GoldEyeAcqStartFullTrMode_RBV"
+format "hex"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 500
+y 328
+w 92
+h 20
+controlPv "$(P)$(R)GoldEyeAcqStopTrMode"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+bgColor index 5
+editable
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 360
+y 328
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "AcqStop Trigger Mode"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 328
+w 88
+h 20
+controlPv "$(P)$(R)GoldEyeCalcAcqStopFullTrMode"
+format "hex"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 500
+y 352
+w 92
+h 20
+controlPv "$(P)$(R)GoldEyeAcqStopTrSrc"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+bgColor index 5
+editable
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 360
+y 352
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "AcqStop Trigger Src"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 352
+w 88
+h 20
+controlPv "$(P)$(R)GoldEyeAcqStopFullTrMode"
+format "hex"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 500
+y 376
+w 92
+h 20
+controlPv "$(P)$(R)GoldEyeAcqStopFullTrMode"
+format "hex"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+bgColor index 5
+editable
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 360
+y 376
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "AcqStop FullTrMode"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 376
+w 88
+h 20
+controlPv "$(P)$(R)GoldEyeAcqStopFullTrMode_RBV"
+format "hex"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 132
+y 140
+w 92
+h 20
+controlPv "$(P)$(R)GoldEyeAccessPrivilege"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+bgColor index 5
+editable
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 4
+y 140
+w 124
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "AccessPrivilege"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 232
+y 140
+w 88
+h 20
+controlPv "$(P)$(R)GoldEyeAccessPrivilege_RBV"
+format "hex"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 500
+y 192
+w 92
+h 20
+controlPv "$(P)$(R)GoldEyeFStartTrEvent"
+format "hex"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+bgColor index 5
+editable
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 360
+y 192
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "FrStart TrEvent"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 192
+w 88
+h 20
+controlPv "$(P)$(R)GoldEyeFStartTrEvent_RBV"
+format "hex"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 296
+w 88
+h 20
+controlPv "$(P)$(R)GoldEyeAcqStartTrEvent_RBV"
+format "hex"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 360
+y 296
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "AcqStart TrEvent"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 500
+y 296
+w 92
+h 20
+controlPv "$(P)$(R)GoldEyeAcqStartTrEvent"
+format "hex"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+bgColor index 5
+editable
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 500
+y 400
+w 92
+h 20
+controlPv "$(P)$(R)GoldEyeAcqStopTrEvent"
+format "hex"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+bgColor index 5
+editable
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 360
+y 400
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "AcqStop TrEvent"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 600
+y 400
+w 88
+h 20
+controlPv "$(P)$(R)GoldEyeAcqStopTrEvent_RBV"
+format "hex"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 360
+y 92
+w 132
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Software Trigger"
+}
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 500
+y 92
+w 92
+h 20
+fgColor index 14
+onColor index 6
+offColor index 3
+inconsistentColor index 5
+topShadowColor index 1
+botShadowColor index 11
+controlPv "$(P)$(R)GoldEyeSoftwareTrigger"
+onLabel "On"
+offLabel "Off"
+buttonType "push"
+3d
+font "helvetica-medium-r-12.0"
+objType "controls"
 endObjectProperties
 
