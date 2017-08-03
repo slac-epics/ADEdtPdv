@@ -163,6 +163,20 @@ record( longout, "$(P)$(R)EdtMinX_RBV" )
 	field( DOL,  "$(P)$(R)EdtMinX CPP MS" )
 	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_MIN_X" )
 }
+record( longin, "$(P)$(R)EdtBinX" )
+{
+	field( DTYP, "asynInt32" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_BIN_X" )
+	field( SCAN, "I/O Intr" )
+	info( autosaveFields, "" )
+}
+record( longout, "$(P)$(R)EdtBinX_RBV" )
+{
+	field( DTYP, "asynInt32" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)EdtBinX CPP MS" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_BIN_X" )
+}
 record( longin, "$(P)$(R)EdtSizeX" )
 {
 	field( DTYP, "asynInt32" )
@@ -191,6 +205,21 @@ record( longout, "$(P)$(R)EdtMinY_RBV" )
 	field( OMSL, "closed_loop" )
 	field( DOL,  "$(P)$(R)EdtMinY CPP MS" )
 	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_MIN_Y" )
+	info( autosaveFields, "" )
+}
+record( longin, "$(P)$(R)EdtBinY" )
+{
+	field( DTYP, "asynInt32" )
+	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_BIN_Y" )
+	field( SCAN, "I/O Intr" )
+	info( autosaveFields, "" )
+}
+record( longout, "$(P)$(R)EdtBinY_RBV" )
+{
+	field( DTYP, "asynInt32" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)EdtBinY CPP MS" )
+	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_BIN_Y" )
 	info( autosaveFields, "" )
 }
 record( longin, "$(P)$(R)EdtSizeY" )
