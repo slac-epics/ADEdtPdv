@@ -118,7 +118,7 @@ GetUint32
 
 SetUint32
 {
-    out "U32 \$1=%u";
+    out "U32 \$1=0x%-8X";
 	in  "OK";
 }
 
@@ -130,7 +130,7 @@ GetUint64
 
 SetUint64
 {
-    out "U32 \$1=%llu";
+    out "U64 \$1=0x%-16X";
 	in  "OK";
 }
 
@@ -155,7 +155,7 @@ GetInt64
 
 SetInt64
 {
-    out "I64 \$1=%lld";
+    out "I64 \$1=%d";
 	in  "OK";
 }
 
