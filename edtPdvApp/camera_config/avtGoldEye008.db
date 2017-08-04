@@ -115,6 +115,12 @@ record( longout, "$(P)$(R)GoldEyeAccessPrivilege" )
 	field( PINI, "YES" )
 	field( FLNK, "$(P)$(R)GoldEyeAccessPrivilege_RBV" )
     field( SDIS, "$(SerialDisable)")
+# Do we need to repeat setting AccessPrivilege?
+# Have lost AccessPrivilege a few times during testing,
+# usually when SCAN was set to Passive for GoldEyeAccessPrivilege_RBV
+# while testing serial commands, but also lost access once
+# or twice when it should have been reading once/sec. Not clear why access was lost.
+#	field( SCAN, "10 second" )
 }
 # Read at least one register every 3 seconds or camera clears AccessPrivilege
 record( longin, "$(P)$(R)GoldEyeAccessPrivilege_RBV" )
@@ -126,12 +132,13 @@ record( longin, "$(P)$(R)GoldEyeAccessPrivilege_RBV" )
 }
 
 # W/O, write 1 to reset device
-record( longout, "$(P)$(R)GoldEyeResetDevice" )
+record( bo, "$(P)$(R)GoldEyeResetDevice" )
 {
 	field( DESC, "Reset camera to power up state" )
-	field( DOL,  "1" )
 	field( DTYP, "stream" )
 	field( OUT,  "@avtGoldEye008.proto SetUint32(0xF318) $(PORT).SER" )
+    field( ZNAM, "Reset" )
+    field( ONAM, "Resetting!"  )
     field( SDIS, "$(SerialDisable)")
 }
 
@@ -205,7 +212,7 @@ record( ai, "$(P)$(R)GoldEyeTempMainBd_RBV" )
 	field( EGU,  "C" )
 	field( PREC, "1" )
 	field( PINI, "YES" )
-#	field( SCAN, "1 second" )
+	field( SCAN, "2 second" )
     field( SDIS, "$(SerialDisable)")
 }
 
@@ -439,6 +446,124 @@ record( mbbo, "$(P)$(R)GoldEyeSoftwareTrigger" )
     field( SDIS, "$(SerialDisable)")
 }
 
+record( mbbi, "$(P)$(R)EdtTriggerMode" )
+{
+	field( FLNK, "$(P)$(R)GoldEyeCalcTriggerMode" )
+}
+record( calcout, "$(P)$(R)GoldEyeCalcTriggerMode" )
+{
+#	field( TPRO, 2 )
+	field( INPA, "$(P)$(R)EdtTriggerMode NPP NMS" )
+	field( INPB, "$(P)$(R)AcquirePeriod NPP NMS"  )
+	field( CALC, "A==0?(B=0?0:9):1" )
+	field( OUT,  "$(P)$(R)GoldEyeFStartTrSrc PP MS" )
+	field( FLNK, "$(P)$(R)GoldEyeCalcTriggerEdge" )
+}
+
+record( calcout, "$(P)$(R)GoldEyeCalcTriggerEdge" )
+{
+#	field( TPRO, 2 )
+	field( INPA, "$(P)$(R)EdtTriggerMode NPP NMS" )
+	field( CALC, "A==2?3:0" )
+	field( OOPT, "On Change" )
+	field( OUT,  "$(P)$(R)GoldEyeFStartTrEvent PP MS" )
+}
+
+# GoldEyePulseAcquireTime
+# Write the AcquireTime to the trigger pulse width
+record( calcout, "$(P)$(R)GoldEyePulseAcquireTime" )
+{
+	field( INPA, "$(P)$(R)EdtAcquireTime NPP NMS"  )
+	field( INPB, "$(PW_SCALE=1e9)"  )
+	field( CALC, "A*B" )
+	field( OUT,  "$(PWIDTH=)" )
+	field( PREC, "0" )
+	field( EGU,  "ns" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
+}
+
+# GoldEyePulseAcquireTime_RBV
+record( calcout, "$(P)$(R)GoldEyePulseAcquireTime_RBV" )
+{
+	field( INPA, "$(PW_RBV) NPP NMS" )
+	field( INPB, "$(PW_SCALE=1e9)"  )
+	field( CALC, "A/B" )
+	field( PREC, "5" )
+	field( OOPT, "On Change" )
+	field( OUT,  "$(P)$(R)EdtAcquireTime_RBV PP MS" )
+	field( EGU,  "ns" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
+}
+
+record( ao, "$(P)$(R)AcquirePeriod"	)
+{
+	field( DISA, "0" )
+    field( FLNK, "$(P)$(R)GoldEyeCalcAcquirePeriod" )
+	field( PINI, "YES" )
+	info( autosaveFields, "PREC VAL" )
+	info( archiveFields,  "PREC VAL" )
+}
+
+# Min of 0x6666666 from 0x13134 RegFixedIntervalMax
+# Min of 7017 from 0x1313C RegFixedIntervalLimit
+record( calcout, "$(P)$(R)GoldEyeCalcAcquirePeriod" )
+{
+	field( INPA, "$(P)$(R)AcquirePeriod" )
+	field( INPB, "1e-6" )
+	field( CALC, "MIN(A/B,7017)" )
+	field( OUT,  "$(P)$(R)GoldEyeAcquirePeriod PP MS" )
+    field( HOPR,  0x6666666 )
+    field( LOPR,  7017      )
+    field( EGU,  "us"       )
+}
+
+# Set the acquire period, the rep rate for image capture
+# Only works in FreeRun trigger mode
+# Argument is an integer in us
+record( longout, "$(P)$(R)GoldEyeAcquirePeriod" )
+{
+    field( DOL,  10000 )
+    field( DESC, "Set The Frame Period" )
+    field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x13138) $(PORT).SER" )
+    field( FLNK, "$(P)$(R)GoldEyeAcquirePeriod_RBV" )
+    field( HOPR,  0x6666666 )
+    field( LOPR,  7017      )
+    field( EGU,  "us"	  )
+#	field( TPRO, 2 )
+	info( autosaveFields, "DESC VAL" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+
+# Read AcquirePeriod, the rep rate for image capture
+# Only relevant in FreeRun trigger mode
+# Reply value is an integer in us
+record( longin, "$(P)$(R)GoldEyeAcquirePeriod_RBV" )
+{
+    field( DESC, "Frame Period" )
+    field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x13138) $(PORT).SER" )
+    field( EGU,  "us"  )
+	field( FLNK, "$(P)$(R)GoldEyeCalcAcquirePeriod_RBV"	)
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( calcout, "$(P)$(R)GoldEyeCalcAcquirePeriod_RBV" )
+{
+	field( INPA, "$(P)$(R)GoldEyeAcquirePeriod_RBV"	)
+	field( INPB, "1e-6" )
+	field( CALC, "A*B" )
+    field( EGU,  "sec"  )
+	field( OUT,  "$(P)$(R)AcquirePeriod_RBV PP MS"	)
+}
+record( ai, "$(P)$(R)AcquirePeriod_RBV"		)
+{
+	field( DISA, "0" )
+}
+
 #	0x13418	RegTriggerEvent, FStartTrEvent: RisingEdge/FallingEdge/AnyEdge/LevelHigh/LevelLow
 record( mbbo, "$(P)$(R)GoldEyeFStartTrEvent" )
 {
@@ -450,7 +575,7 @@ record( mbbo, "$(P)$(R)GoldEyeFStartTrEvent" )
 	field( THVL, "3" ) field( THST, "LevelHi" )
 	field( FRVL, "4" ) field( FRST, "LevelLo" )
 	field( FLNK, "$(P)$(R)GoldEyeFStartTrEvent_RBV" )
-#	field( PINI, "YES" )
+	field( PINI, "YES" )
 }
 
 record( mbbi, "$(P)$(R)GoldEyeFStartTrEvent_RBV" )
@@ -476,7 +601,7 @@ record( mbbo, "$(P)$(R)GoldEyeAcqStartTrEvent" )
 	field( THVL, "3" ) field( THST, "LevelHi" )
 	field( FRVL, "4" ) field( FRST, "LevelLo" )
 	field( FLNK, "$(P)$(R)GoldEyeAcqStartTrEvent_RBV" )
-#	field( PINI, "YES" )
+	field( PINI, "YES" )
 }
 
 record( mbbi, "$(P)$(R)GoldEyeAcqStartTrEvent_RBV" )
@@ -502,7 +627,7 @@ record( mbbo, "$(P)$(R)GoldEyeAcqStopTrEvent" )
 	field( THVL, "3" ) field( THST, "LevelHi" )
 	field( FRVL, "4" ) field( FRST, "LevelLo" )
 	field( FLNK, "$(P)$(R)GoldEyeAcqStopTrEvent_RBV" )
-#	field( PINI, "YES" )
+	field( PINI, "YES" )
 }
 
 record( mbbi, "$(P)$(R)GoldEyeAcqStopTrEvent_RBV" )
@@ -580,6 +705,41 @@ record( longin, "$(P)$(R)GoldEyeFStartFullTrMode_RBV" )
 	field( INP,  "@avtGoldEye008.proto GetUint32(0x13410) $(PORT).SER" )
 	field( PINI, "YES" )
     field( SDIS, "$(SerialDisable)")
+	field( FLNK, "$(P)$(R)GoldEyeCalcFStartTrSrc_RBV" )
+}
+
+record( calcout, "$(P)$(R)GoldEyeCalcFStartTrSrc_RBV" )
+{
+	field( DESC, "FrameStart: Controls image start" )
+	field( INPA, "$(P)$(R)GoldEyeFStartFullTrMode_RBV NPP MS" )
+	field( CALC, "A&0xFFFF" )
+	field( OUT,  "$(P)$(R)GoldEyeFStartTrSrc_RBV  PP MS" )
+}
+
+record( mbbo, "$(P)$(R)GoldEyeFStartTrSrc_RBV" )
+{
+	field( DOL,  "0" )
+	field( ZRVL, "0" ) field( ZRST, "FreeRun" )
+	field( ONVL, "1" ) field( ONST, "Line1" )
+	field( TWVL, "2" ) field( TWST, "Line2" )
+	field( THVL, "3" ) field( THST, "Line3" )
+	field( FRVL, "4" ) field( FRST, "Line4" )
+	field( FVVL, "5" ) field( FVST, "CC1" )
+	field( SXVL, "6" ) field( SXST, "CC2" )
+	field( SVVL, "7" ) field( SVST, "CC3" )
+	field( EIVL, "8" ) field( EIST, "CC4" )
+	field( NIVL, "9" ) field( NIST, "FixedRate" )
+	field( TEVL, "10") field( TEST, "Software" )
+	field( FLNK, "$(P)$(R)GoldEyeCalcEdtTriggerMode_RBV" )
+}
+
+record( calcout, "$(P)$(R)GoldEyeCalcEdtTriggerMode_RBV" )
+{
+#	field( TPRO, 2 )
+	field( INPA, "$(P)$(R)GoldEyeFStartTrSrc_RBV NPP MS" )
+	field( INPB, "$(P)$(R)GoldEyeFStartTrEvent   NPP MS" )
+	field( CALC, "A=0?0:(B=0?1:2)" )
+	field( OUT,  "$(P)$(R)EdtTriggerMode_RBV PP MS" )
 }
 
 #
