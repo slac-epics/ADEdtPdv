@@ -1,6 +1,38 @@
 #
 # SLAC RELEASE_NOTES
 #
+R2.4.0 2017-08-05	bhill
+	Enhanced GoldEye008 control:
+		Support for FreeRun, External, and Pulse mode.
+		Completed TriggerMode chain from AD to EDT to GoldEye and back.
+		Got ROI working for MinX, SizeX, MinY, and SizeY.
+		Added AcquireTime R/W conversions
+		Added misc features including temperature monitoring, firmware version, serial number, etc.
+	Renamed GenCpTool to edtGenCpTool as it's EDT specific.
+
+R2.3.0 2017-07-27 Bruce Hill
+	Added support for Genicam Common Protocol
+		Includes GenCPTool, a utility for reading Genicam registers via an EDT framegrabber,
+		including reading the genicam XML device file from the camera via camlink.
+	Initial support for Allied Vision GoldEye-008CL camera in FreeRun
+	Use 0x8 bit for ACQ_TRACE_DETAIL to avoid too many debug msgs for DEBUG_EDT_PDV=4
+	Fixed XmitRate units to Px/Sec instead of Bytes/Sec
+	Added CCS trigger select to all ptm4200 cfg files.
+	Also added support for controlling trigger polarity.
+	Updated CamLink transfer time calculation w/ a new formula from Pulnix.
+	Disable BeamEventCode PV by default for cameras that don't need it.  (Only the Orca does)
+
+R2.2.0 2017-06-11 18:35:23 -0700 Bruce Hill 38fa4b3 Applied SerialDisable and ReconfigSeq updates to orca
+	Applied SerialDisable and ReconfigSeq updates to orca
+
+R2.1.0 2017-06-09 Bruce Hill
+	Updating pulnix 4200 support.  Fixed many issues related to XmitTime and added support for HW ROI in the Y dimension.
+	Fixed typo in XmitDelay INPA link and set more typical camlink XmitRate of 40Mhz as default
+	Merged w/ origin
+
+R2.0.0	2017-06-02 Bruce Hill
+	Split out CamLinkXmtTime as a separate PV for easier diagnostics
+
 R1.18.0 2017-06-01  slepicka
     Added SerialDisable to disable the SCAN at some records and avoid issues with StreamDevice
     Removed not supported records from opal1000m_12.db
