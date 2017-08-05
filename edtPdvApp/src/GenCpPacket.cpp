@@ -79,7 +79,8 @@ GENCP_STATUS	GenCpInitReadMemPacket(
 
 /// GenCpValidateReadMemAck()
 GENCP_STATUS	GenCpValidateReadMemAck(
-	GenCpReadMemAck			*	pPacket	)
+	GenCpReadMemAck			*	pPacket,
+	uint32_t					expectedRequestId )
 {
 	const	char 			*	funcName = "GenCpValidateReadMemAck";
 	if ( pPacket == NULL )
@@ -90,6 +91,11 @@ GENCP_STATUS	GenCpValidateReadMemAck(
 	if ( prefixPreamble	!= GENCP_SERIAL_PREAMBLE )
 	{
 		fprintf( stderr, "%s Error: Req %u, Invalid preamble, 0x%02X\n", funcName, ccdRequestId, prefixPreamble );
+		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
+	}
+	if ( expectedRequestId != ccdRequestId )
+	{
+		fprintf( stderr, "%s Error: Req %u, expected req %u\n", funcName, ccdRequestId, expectedRequestId );
 		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
 	}
 
@@ -149,6 +155,7 @@ GENCP_STATUS	GenCpValidateReadMemAck(
 /// GenCpProcessReadMemAck() char buffer
 GENCP_STATUS	GenCpProcessReadMemAck(
 	GenCpReadMemAck			*	pPacket,
+	uint32_t					expectedRequestId,
 	char					*	pBuffer,
 	size_t						numBytes,
 	size_t					*	pnBytesRead )
@@ -163,7 +170,7 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	if ( pnBytesRead != NULL )
 		*pnBytesRead = 0;
 
-	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket );
+	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket, expectedRequestId );
 	if ( statusCode	!= GENCP_STATUS_SUCCESS )
 	{
 		return statusCode;
@@ -207,15 +214,16 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 /// GenCpProcessReadMemAck() 16 bit reg
 GENCP_STATUS	GenCpProcessReadMemAck(
 	GenCpReadMemAck			*	pPacket,
+	uint32_t					expectedRequestId,
 	uint16_t				*	pReg16 )
 {
-	// const	char 			*	funcName = "GenCpProcessReadMemAck";
+	// const	char 			*	funcName = "GenCpProcessReadMemAck(uint16_t)";
 	if ( pPacket == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 	if ( pReg16 == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 
-	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket );
+	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket, expectedRequestId );
 	if ( statusCode	!= GENCP_STATUS_SUCCESS )
 	{
 		return statusCode;
@@ -232,15 +240,16 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 /// GenCpProcessReadMemAck() 32 bit reg
 GENCP_STATUS	GenCpProcessReadMemAck(
 	GenCpReadMemAck			*	pPacket,
+	uint32_t					expectedRequestId,
 	uint32_t				*	pReg32 )
 {
-	const	char 			*	funcName = "GenCpProcessReadMemAck";
+	const	char 			*	funcName = "GenCpProcessReadMemAck(uint32_t)";
 	if ( pPacket == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 	if ( pReg32 == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 
-	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket );
+	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket, expectedRequestId );
 	if ( statusCode	!= GENCP_STATUS_SUCCESS )
 	{
 		fprintf( stderr, "%s Error: %u\n", funcName, statusCode );
@@ -268,24 +277,25 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 /// GenCpProcessReadMemAck() 64 bit reg
 GENCP_STATUS	GenCpProcessReadMemAck(
 	GenCpReadMemAck			*	pPacket,
-	uint64_t				*	pDoubleRet )
+	uint32_t					expectedRequestId,
+	uint64_t				*	pReg64 )
 {
-	// const	char 			*	funcName = "GenCpProcessReadMemAck";
+	// const	char 			*	funcName = "GenCpProcessReadMemAck(uint64_t)";
 	if ( pPacket == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
-	if ( pDoubleRet == NULL )
+	if ( pReg64 == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 
-	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket );
+	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket, expectedRequestId );
 	if ( statusCode	!= GENCP_STATUS_SUCCESS )
 	{
 		return statusCode;
 	}
 
-	if ( pDoubleRet != NULL )
+	if ( pReg64 != NULL )
 	{
 		__be64	*	pBigEndianReg64	= reinterpret_cast<__be64 *>( &pPacket->scd.scdReadData[0] );
-		*pDoubleRet = __be64_to_cpu( *pBigEndianReg64 );
+		*pReg64 = __be64_to_cpu( *pBigEndianReg64 );
 	}
 	return GENCP_STATUS_SUCCESS;
 }
@@ -293,15 +303,16 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 /// GenCpProcessReadMemAck() 32 bit float reg
 GENCP_STATUS	GenCpProcessReadMemAck(
 	GenCpReadMemAck			*	pPacket,
+	uint32_t					expectedRequestId,
 	float					*	pFloatRet )
 {
-	const	char 			*	funcName = "GenCpProcessReadMemAck";
+	const	char 			*	funcName = "GenCpProcessReadMemAck(float)";
 	if ( pPacket == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 	if ( pFloatRet == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 
-	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket );
+	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket, expectedRequestId );
 	if ( statusCode	!= GENCP_STATUS_SUCCESS )
 	{
 		fprintf( stderr, "%s Error: %u\n", funcName, statusCode );
@@ -336,15 +347,16 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 /// GenCpProcessReadMemAck() 64 bit double reg
 GENCP_STATUS	GenCpProcessReadMemAck(
 	GenCpReadMemAck			*	pPacket,
+	uint32_t					expectedRequestId,
 	double					*	pDoubleRet )
 {
-	const	char 			*	funcName = "GenCpProcessReadMemAck";
+	const	char 			*	funcName = "GenCpProcessReadMemAck(double)";
 	if ( pPacket == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 	if ( pDoubleRet == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 
-	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket );
+	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket, expectedRequestId );
 	if ( statusCode	!= GENCP_STATUS_SUCCESS )
 	{
 		fprintf( stderr, "%s Error: %u\n", funcName, statusCode );
@@ -375,7 +387,9 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 }
 
 /// GenCpValidateWriteMemAck() Checks for any errors in a WriteMem acknowledge packet
-GENCP_STATUS	GenCpValidateWriteMemAck( GenCpWriteMemAck		*	pPacket	)
+GENCP_STATUS	GenCpValidateWriteMemAck(
+	GenCpWriteMemAck		*	pPacket,
+	uint32_t					expectedRequestId )
 {
 	const	char 			*	funcName = "GenCpValidateWriteMemAck";
 	if ( pPacket == NULL )
@@ -386,6 +400,11 @@ GENCP_STATUS	GenCpValidateWriteMemAck( GenCpWriteMemAck		*	pPacket	)
 	if ( prefixPreamble	!= GENCP_SERIAL_PREAMBLE )
 	{
 		fprintf( stderr, "%s Error: Req %u, Invalid preamble, 0x%02X\n", funcName, ccdRequestId, prefixPreamble );
+		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
+	}
+	if ( expectedRequestId != ccdRequestId )
+	{
+		fprintf( stderr, "%s Error: Req %u, expected req %u\n", funcName, ccdRequestId, expectedRequestId );
 		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
 	}
 

@@ -85,7 +85,7 @@ GENCP_STATUS PdvGenCpReadUint(
 	{
 		uint16_t	result16 = 0xFF;
 
-		status = GenCpProcessReadMemAck( &ackPacket, &result16 );
+		status = GenCpProcessReadMemAck( &ackPacket, localGenCpRequestId-1, &result16 );
 		if ( status != GENCP_STATUS_SUCCESS )
 		{
 			fprintf( stderr, "GenCP ReadMem16 Validate Error: %d (0x%X)\n", status, status );
@@ -97,7 +97,7 @@ GENCP_STATUS PdvGenCpReadUint(
 	{
 		uint32_t	result32 = static_cast<unsigned int>( -1 );
 
-		status = GenCpProcessReadMemAck( &ackPacket, &result32 );
+		status = GenCpProcessReadMemAck( &ackPacket, localGenCpRequestId-1, &result32 );
 		if ( status != GENCP_STATUS_SUCCESS )
 		{
 			fprintf( stderr, "GenCP ReadMem32 Validate Error: %d (0x%X)\n", status, status );
@@ -109,7 +109,7 @@ GENCP_STATUS PdvGenCpReadUint(
 	{
 		uint64_t	result64 = static_cast<unsigned int>( -1 );
 
-		status = GenCpProcessReadMemAck( &ackPacket, &result64 );
+		status = GenCpProcessReadMemAck( &ackPacket, localGenCpRequestId-1, &result64 );
 		if ( status != GENCP_STATUS_SUCCESS )
 		{
 			fprintf( stderr, "GenCP ReadMem64 Validate Error: %d (0x%X)\n", status, status );
@@ -170,7 +170,7 @@ GENCP_STATUS PdvGenCpReadString(
 	}
 
 	size_t	nBytesRead;
-	status = GenCpProcessReadMemAck( &ackPacket, pBuffer, numBytes, &nBytesRead );
+	status = GenCpProcessReadMemAck( &ackPacket, localGenCpRequestId-1, pBuffer, numBytes, &nBytesRead );
 	if ( status != GENCP_STATUS_SUCCESS )
 	{
 		fprintf( stderr, "GenCP ReadMemString Validate Error: %d (0x%X)\n", status, status );

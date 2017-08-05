@@ -415,7 +415,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		switch ( m_GenCPResponseType )
 		{
 		case EDT_GENCP_TY_RESP_ACK:
-			genStatus = GenCpValidateWriteMemAck( pWriteAck );
+			genStatus = GenCpValidateWriteMemAck( pWriteAck, m_GenCPRequestId );
 			if ( genStatus != GENCP_STATUS_SUCCESS )
 			{
 				// TODO: Add status code to error msg translation here
@@ -427,7 +427,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			break;
 		case EDT_GENCP_TY_RESP_STRING:
 			snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%LX=", m_GenCPRegAddr );
-			genStatus = GenCpProcessReadMemAck( pReadAck, genCpResponseBuffer + strlen(genCpResponseBuffer), (size_t)(EDT_GENCP_RESPONSE_MAX - strlen(genCpResponseBuffer)), &nBytesRead );
+			genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCPRequestId-1, genCpResponseBuffer + strlen(genCpResponseBuffer), (size_t)(EDT_GENCP_RESPONSE_MAX - strlen(genCpResponseBuffer)), &nBytesRead );
 			if ( genStatus != GENCP_STATUS_SUCCESS )
 			{
 				// TODO: Add status code to error msg translation here
@@ -442,17 +442,17 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			{
 			case 16:
 				uint16_t	valueUint16;
-				genStatus = GenCpProcessReadMemAck( pReadAck, &valueUint16 );
+				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCPRequestId-1, &valueUint16 );
 				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%hu (0x%02hX)\n", m_GenCPRegAddr, valueUint16, valueUint16 );
 				break;
 			case 32:
 				uint32_t	valueUint32;
-				genStatus = GenCpProcessReadMemAck( pReadAck, &valueUint32 );
+				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCPRequestId-1, &valueUint32 );
 				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%u (0x%04X)\n", m_GenCPRegAddr, valueUint32, valueUint32 );
 				break;
 			case 64:
 				uint64_t	valueUint64;
-				genStatus = GenCpProcessReadMemAck( pReadAck, &valueUint64 );
+				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCPRequestId-1, &valueUint64 );
 				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%llu (0x%08llX)\n", m_GenCPRegAddr,
 						(long long unsigned int) valueUint64, (long long unsigned int) valueUint64 );
 				break;
@@ -473,12 +473,12 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			{
 			case 32:
 				float		floatValue;
-				genStatus = GenCpProcessReadMemAck( pReadAck, &floatValue );
+				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCPRequestId-1, &floatValue );
 				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%f\n", m_GenCPRegAddr, floatValue );
 				break;
 			case 64:
 				double		doubleValue;
-				genStatus = GenCpProcessReadMemAck( pReadAck, &doubleValue );
+				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCPRequestId-1, &doubleValue );
 				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%lf\n", m_GenCPRegAddr, doubleValue );
 				break;
 			default:

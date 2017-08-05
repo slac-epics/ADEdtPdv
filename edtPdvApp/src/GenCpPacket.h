@@ -228,36 +228,42 @@ GENCP_STATUS	GenCpInitReadMemPacket(	GenCpReadMemPacket		*	pPacket,
 										size_t						numBytes );
 
 /// GenCpValidateReadMemAck() Checks for any errors in a ReadMem acknowledge packet
-GENCP_STATUS	GenCpValidateReadMemAck( GenCpReadMemAck		*	pPacket	);
+GENCP_STATUS	GenCpValidateReadMemAck( GenCpReadMemAck		*	pPacket, uint32_t expectedRequestId	);
 
 /// GenCpProcessReadMemAck() char buffer
 GENCP_STATUS	GenCpProcessReadMemAck(	GenCpReadMemAck			*	pPacket,
+										uint32_t					expectedRequestId,
 										char					*	pBuffer,
 										size_t						sBuffer,
 										size_t					*	pnBytesRead );
 
 /// GenCpProcessReadMemAck() 16 bit reg
 GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
+										uint32_t					expectedRequestId,
 										uint16_t				*	pReg16 );
 
 /// GenCpProcessReadMemAck() 32 bit reg
 GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
+										uint32_t					expectedRequestId,
 										uint32_t				*	pReg32 );
 
 /// GenCpProcessReadMemAck() 64 bit reg
 GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
+										uint32_t					expectedRequestId,
 										uint64_t				*	pReg64 );
 
 /// GenCpProcessReadMemAck() 32 bit float reg
 GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
+										uint32_t					expectedRequestId,
 										float					*	pReg32 );
 
 /// GenCpProcessReadMemAck() 64 bit double reg
 GENCP_STATUS	GenCpProcessReadMemAck( GenCpReadMemAck			*	pPacket,
+										uint32_t					expectedRequestId,
 										double					*	pReg64 );
 
 /// GenCpValidateWriteMemAck() Checks for any errors in a WriteMem acknowledge packet
-GENCP_STATUS	GenCpValidateWriteMemAck( GenCpWriteMemAck		*	pPacket	);
+GENCP_STATUS	GenCpValidateWriteMemAck( GenCpWriteMemAck		*	pPacket, uint32_t expectedRequestId	);
 
 /// GenCpInitWriteMemPacket() Initialize a WriteMem packet to write a string to regAddr
 GENCP_STATUS	GenCpInitWriteMemPacket(GenCpWriteMemPacket		*	pPacket,
