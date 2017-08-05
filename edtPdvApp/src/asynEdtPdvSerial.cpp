@@ -58,12 +58,12 @@ asynEdtPdvSerial::asynEdtPdvSerial(
 	m_fConnected(			false		),
 	m_fInputFlushNeeded(	false		),
 	m_serialLock(						),
-	m_GenCPRegAddr(			0LL			),
-	m_GenCPRequestId(		0			),
-	m_GenCPResponseType(	0			),
-	m_GenCPResponseCount(	0			),
-	m_GenCPResponseSize(	0			),
-	m_GenCPResponsePending(				)
+	m_GenCpRegAddr(			0LL			),
+	m_GenCpRequestId(		0			),
+	m_GenCpResponseType(	0			),
+	m_GenCpResponseCount(	0			),
+	m_GenCpResponseSize(	0			),
+	m_GenCpResponsePending(				)
 {
 	const char		*	functionName	= "asynEdtPdvSerial::asynEdtPdvSerial";
 	//	asynStatus			status;
@@ -262,14 +262,14 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	if ( strncmp( m_pPdvDev->dd_p->serial_trigger, "GenCP", MAXSER ) == 0 )
 	{
 		fGenCP		= TRUE;
-		size_t		nBytesPending = strlen( m_GenCPResponsePending );
+		size_t		nBytesPending = strlen( m_GenCpResponsePending );
 		if ( nBytesPending > 0 )
 		{
 			// Unable to return entire response on last call
 			// Typically because streamdevice sets nBytesReadMax to 1 on first call
 			*pnRead = nBytesPending;
-			strncpy( pBuffer, m_GenCPResponsePending, nBytesReadMax );
-			m_GenCPResponsePending[0] = '\0';
+			strncpy( pBuffer, m_GenCpResponsePending, nBytesReadMax );
+			m_GenCpResponsePending[0] = '\0';
 			if ( eomReason )
 				*eomReason = ASYN_EOM_EOS;
 
@@ -284,11 +284,11 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			return asynSuccess;
 		}
 
-		switch ( m_GenCPResponseType )
+		switch ( m_GenCpResponseType )
 		{
 		case EDT_GENCP_TY_RESP_ACK:
 			pReadBuffer	= reinterpret_cast<char *>( &genCpWriteMemAck );
-			sReadBuffer	= m_GenCPResponseSize;
+			sReadBuffer	= m_GenCpResponseSize;
 			break;
 		case EDT_GENCP_TY_RESP_STRING:
 		case EDT_GENCP_TY_RESP_UINT:
@@ -296,7 +296,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		case EDT_GENCP_TY_RESP_FLOAT:
 		case EDT_GENCP_TY_RESP_DOUBLE:
 			pReadBuffer	= reinterpret_cast<char *>( &genCpReadMemAck );
-			sReadBuffer	= m_GenCPResponseSize;
+			sReadBuffer	= m_GenCpResponseSize;
 			break;
 		}
 	}
@@ -415,10 +415,10 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		GenCpReadMemAck		*	pReadAck	= reinterpret_cast<GenCpReadMemAck *>(	pReadBuffer );
 		GenCpWriteMemAck	*	pWriteAck	= reinterpret_cast<GenCpWriteMemAck *>(	pReadBuffer );
 
-		switch ( m_GenCPResponseType )
+		switch ( m_GenCpResponseType )
 		{
 		case EDT_GENCP_TY_RESP_ACK:
-			genStatus = GenCpValidateWriteMemAck( pWriteAck, m_GenCPRequestId );
+			genStatus = GenCpValidateWriteMemAck( pWriteAck, m_GenCpRequestId );
 			if ( genStatus != GENCP_STATUS_SUCCESS )
 			{
 				// TODO: Add status code to error msg translation here
@@ -430,8 +430,8 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			strncpy( genCpResponseBuffer, "OK\n", EDT_GENCP_RESPONSE_MAX );
 			break;
 		case EDT_GENCP_TY_RESP_STRING:
-			snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%LX=", m_GenCPRegAddr );
-			genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCPRequestId-1, genCpResponseBuffer + strlen(genCpResponseBuffer), (size_t)(EDT_GENCP_RESPONSE_MAX - strlen(genCpResponseBuffer)), &nBytesRead );
+			snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%LX=", m_GenCpRegAddr );
+			genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCpRequestId-1, genCpResponseBuffer + strlen(genCpResponseBuffer), (size_t)(EDT_GENCP_RESPONSE_MAX - strlen(genCpResponseBuffer)), &nBytesRead );
 			if ( genStatus != GENCP_STATUS_SUCCESS )
 			{
 				// TODO: Add status code to error msg translation here
@@ -443,22 +443,22 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			strcat( genCpResponseBuffer, "\n" );
 			break;
 		case EDT_GENCP_TY_RESP_UINT:
-			switch ( m_GenCPResponseCount )
+			switch ( m_GenCpResponseCount )
 			{
 			case 16:
 				uint16_t	valueUint16;
-				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCPRequestId-1, &valueUint16 );
-				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%hu (0x%02hX)\n", m_GenCPRegAddr, valueUint16, valueUint16 );
+				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCpRequestId-1, &valueUint16 );
+				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%hu (0x%02hX)\n", m_GenCpRegAddr, valueUint16, valueUint16 );
 				break;
 			case 32:
 				uint32_t	valueUint32;
-				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCPRequestId-1, &valueUint32 );
-				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%u (0x%04X)\n", m_GenCPRegAddr, valueUint32, valueUint32 );
+				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCpRequestId-1, &valueUint32 );
+				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%u (0x%04X)\n", m_GenCpRegAddr, valueUint32, valueUint32 );
 				break;
 			case 64:
 				uint64_t	valueUint64;
-				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCPRequestId-1, &valueUint64 );
-				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%llu (0x%08llX)\n", m_GenCPRegAddr,
+				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCpRequestId-1, &valueUint64 );
+				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%llu (0x%08llX)\n", m_GenCpRegAddr,
 						(long long unsigned int) valueUint64, (long long unsigned int) valueUint64 );
 				break;
 			default:
@@ -475,17 +475,17 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			}
 			break;
 		case EDT_GENCP_TY_RESP_FLOAT:
-			switch ( m_GenCPResponseCount )
+			switch ( m_GenCpResponseCount )
 			{
 			case 32:
 				float		floatValue;
-				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCPRequestId-1, &floatValue );
-				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%f\n", m_GenCPRegAddr, floatValue );
+				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCpRequestId-1, &floatValue );
+				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%f\n", m_GenCpRegAddr, floatValue );
 				break;
 			case 64:
 				double		doubleValue;
-				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCPRequestId-1, &doubleValue );
-				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%lf\n", m_GenCPRegAddr, doubleValue );
+				genStatus = GenCpProcessReadMemAck( pReadAck, m_GenCpRequestId-1, &doubleValue );
+				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "R0x%llX=%lf\n", m_GenCpRegAddr, doubleValue );
 				break;
 			default:
 				genStatus	= GENCP_STATUS_INVALID_PARAM;
@@ -502,7 +502,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			break;
 		case EDT_GENCP_TY_RESP_INT:
 		default:
-			fprintf( stderr, "%s: Unsupported response type: %d\n", functionName, m_GenCPResponseType );
+			fprintf( stderr, "%s: Unsupported response type: %d\n", functionName, m_GenCpResponseType );
 			return asynError;
 			break;
 		}
@@ -519,7 +519,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			if ( eomReason )
 				*eomReason = ASYN_EOM_CNT;
 			// Save remaining response characters for next call to readOctet
-			strncpy( m_GenCPResponsePending, genCpResponseBuffer + nBytesReadMax, EDT_GENCP_RESPONSE_MAX - 1 );
+			strncpy( m_GenCpResponsePending, genCpResponseBuffer + nBytesReadMax, EDT_GENCP_RESPONSE_MAX - 1 );
 		}
 		else
 		{
@@ -627,7 +627,7 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 		char		*	pEqualSign	= strchr( pBuffer, '=' );
 
 		fGenCP		= TRUE;	// GenCP Protocol
-		m_GenCPResponsePending[0] = '\0';
+		m_GenCpResponsePending[0] = '\0';
 
 		// Parse the simple streamdevice ascii protocol and replace it w/ a GenCpReadMemPacket.
 		switch ( *pBuffer )
@@ -638,21 +638,21 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 			{
 				assert( pEqualSign != NULL );
 				pString		= pEqualSign + 1;
-				genStatus	= GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCPRequestId++, regAddr,
+				genStatus	= GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
 														cmdCount, pString, &sSendBuffer );
 				pSendBuffer	= reinterpret_cast<char *>( &genCpWriteMemPacket );
-				m_GenCPResponseCount	= cmdCount;
-				m_GenCPResponseType		= EDT_GENCP_TY_RESP_ACK;
-				m_GenCPResponseSize		= sizeof(GenCpWriteMemAck);
+				m_GenCpResponseCount	= cmdCount;
+				m_GenCpResponseType		= EDT_GENCP_TY_RESP_ACK;
+				m_GenCpResponseSize		= sizeof(GenCpWriteMemAck);
 			}
 			else if ( scanCount == 3 && cGetSet == '?' && cmdCount > 0 )
 			{
-				genStatus	= GenCpInitReadMemPacket( &genCpReadMemPacket, m_GenCPRequestId++, regAddr, cmdCount );
+				genStatus	= GenCpInitReadMemPacket( &genCpReadMemPacket, m_GenCpRequestId++, regAddr, cmdCount );
 				pSendBuffer	= reinterpret_cast<char *>( &genCpReadMemPacket );
 				sSendBuffer	= sizeof(genCpReadMemPacket);
-				m_GenCPResponseCount	= cmdCount;
-				m_GenCPResponseType		= EDT_GENCP_TY_RESP_STRING;
-				m_GenCPResponseSize		= sizeof(GenCpSerialPrefix) + sizeof(GenCpCCDAck) + cmdCount;
+				m_GenCpResponseCount	= cmdCount;
+				m_GenCpResponseType		= EDT_GENCP_TY_RESP_STRING;
+				m_GenCpResponseSize		= sizeof(GenCpSerialPrefix) + sizeof(GenCpCCDAck) + cmdCount;
 			}
 			else
 				scanCount = -1;
@@ -672,31 +672,31 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 				switch ( cmdCount )
 				{
 				case 16:
-					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCPRequestId++, regAddr,
+					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
 															value16, &sSendBuffer );
 					break;
 				case 32:	
-					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCPRequestId++, regAddr,
+					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
 															value32, &sSendBuffer );
 					break;
 				case 64:	
-					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCPRequestId++, regAddr,
+					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
 															value64, &sSendBuffer );
 					break;
 				}
 				pSendBuffer	= reinterpret_cast<char *>( &genCpWriteMemPacket );
-				m_GenCPResponseCount	= cmdCount;
-				m_GenCPResponseType		= EDT_GENCP_TY_RESP_ACK;
-				m_GenCPResponseSize		= sizeof(GenCpWriteMemAck);
+				m_GenCpResponseCount	= cmdCount;
+				m_GenCpResponseType		= EDT_GENCP_TY_RESP_ACK;
+				m_GenCpResponseSize		= sizeof(GenCpWriteMemAck);
 			}
 			else if ( scanCount == 3 && cGetSet == '?' && cmdCount > 0 )
 			{
-				genStatus	= GenCpInitReadMemPacket( &genCpReadMemPacket, m_GenCPRequestId++, regAddr, cmdCount / 8 );
+				genStatus	= GenCpInitReadMemPacket( &genCpReadMemPacket, m_GenCpRequestId++, regAddr, cmdCount / 8 );
 				pSendBuffer	= reinterpret_cast<char *>( &genCpReadMemPacket );
 				sSendBuffer	= sizeof(genCpReadMemPacket);
-				m_GenCPResponseCount	= cmdCount;
-				m_GenCPResponseType		= EDT_GENCP_TY_RESP_UINT;
-				m_GenCPResponseSize		= sizeof(GenCpSerialPrefix) + sizeof(GenCpCCDAck) + cmdCount / 8;
+				m_GenCpResponseCount	= cmdCount;
+				m_GenCpResponseType		= EDT_GENCP_TY_RESP_UINT;
+				m_GenCpResponseSize		= sizeof(GenCpSerialPrefix) + sizeof(GenCpCCDAck) + cmdCount / 8;
 			}
 			else
 				scanCount = -1;
@@ -714,30 +714,30 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 				switch ( cmdCount )
 				{
 				case 32:	
-					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCPRequestId++, regAddr,
+					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
 															floatValue, &sSendBuffer );
 					break;
 				case 64:	
-					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCPRequestId++, regAddr,
+					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
 															doubleValue, &sSendBuffer );
 					break;
 				}
 				pSendBuffer	= reinterpret_cast<char *>( &genCpWriteMemPacket );
-				m_GenCPResponseCount	= cmdCount;
-				m_GenCPResponseType		= EDT_GENCP_TY_RESP_ACK;
-				m_GenCPResponseSize		= sizeof(GenCpWriteMemAck);
+				m_GenCpResponseCount	= cmdCount;
+				m_GenCpResponseType		= EDT_GENCP_TY_RESP_ACK;
+				m_GenCpResponseSize		= sizeof(GenCpWriteMemAck);
 			}
 			else if ( scanCount == 3 && cGetSet == '?' && cmdCount > 0 )
 			{
-				genStatus	= GenCpInitReadMemPacket( &genCpReadMemPacket, m_GenCPRequestId++, regAddr, cmdCount / 8 );
+				genStatus	= GenCpInitReadMemPacket( &genCpReadMemPacket, m_GenCpRequestId++, regAddr, cmdCount / 8 );
 				pSendBuffer	= reinterpret_cast<char *>( &genCpReadMemPacket );
 				sSendBuffer	= sizeof(genCpReadMemPacket);
-				m_GenCPResponseCount	= cmdCount;
+				m_GenCpResponseCount	= cmdCount;
 				if ( cmdCount == 32 )
-					m_GenCPResponseType		= EDT_GENCP_TY_RESP_FLOAT;
+					m_GenCpResponseType		= EDT_GENCP_TY_RESP_FLOAT;
 				else
-					m_GenCPResponseType		= EDT_GENCP_TY_RESP_DOUBLE;
-				m_GenCPResponseSize		= sizeof(GenCpSerialPrefix) + sizeof(GenCpCCDAck) + cmdCount / 8;
+					m_GenCpResponseType		= EDT_GENCP_TY_RESP_DOUBLE;
+				m_GenCpResponseSize		= sizeof(GenCpSerialPrefix) + sizeof(GenCpCCDAck) + cmdCount / 8;
 			}
 			else
 				scanCount = -1;
@@ -747,7 +747,7 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 		default:
 			break;
 		}
-		m_GenCPRegAddr = regAddr;
+		m_GenCpRegAddr = regAddr;
 
 		if ( scanCount == -1 )
 		{
@@ -760,7 +760,7 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 
 		asynPrint(	pasynUser, ASYN_TRACE_FLOW,
 					"%s %s: responseType=%u, responseCount=%u, responseSize=%u\n",
-					functionName, this->portName, m_GenCPResponseType, m_GenCPResponseCount, m_GenCPResponseSize );
+					functionName, this->portName, m_GenCpResponseType, m_GenCpResponseCount, m_GenCpResponseSize );
 	}
 
 	// Note: 

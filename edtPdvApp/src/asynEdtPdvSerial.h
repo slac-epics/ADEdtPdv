@@ -86,12 +86,12 @@ public:		//	Public member functions
 	bool				m_fConnected;
 	bool				m_fInputFlushNeeded;
 	epicsMutexId		m_serialLock;
-	unsigned long long	m_GenCPRegAddr;
-	epicsUInt32			m_GenCPRequestId;
-	unsigned int		m_GenCPResponseType;
-	unsigned int		m_GenCPResponseCount;
-	unsigned int		m_GenCPResponseSize;
-	char				m_GenCPResponsePending[EDT_GENCP_RESPONSE_MAX];
+	unsigned long long	m_GenCpRegAddr;
+	epicsUInt32			m_GenCpRequestId;
+	unsigned int		m_GenCpResponseType;
+	unsigned int		m_GenCpResponseCount;
+	unsigned int		m_GenCpResponseSize;
+	char				m_GenCpResponsePending[EDT_GENCP_RESPONSE_MAX];
 };
 
 #endif	//	asynEdtPdvSerial_H
