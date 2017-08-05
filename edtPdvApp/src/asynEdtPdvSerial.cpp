@@ -56,6 +56,7 @@ asynEdtPdvSerial::asynEdtPdvSerial(
 	m_outputEosOctet(		NULL		),
 	m_outputEosLenOctet(	0			),
 	m_fConnected(			false		),
+	m_fInputFlushNeeded(	false		),
 	m_serialLock(						),
 	m_GenCPRegAddr(			0LL			),
 	m_GenCPRequestId(		0			),
@@ -370,6 +371,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 							functionName, this->portName, pasynUser->errorMessage );
 				status = asynError;
 				m_fConnected = false;
+				m_fInputFlushNeeded = TRUE;
 				pasynManager->exceptionDisconnect( pasynUser );
 				if ( eomReason )
 					*eomReason = ASYN_EOM_EOS;
@@ -389,6 +391,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 							"%s: %s read error: %s\n",
 							functionName, this->portName, strerror(errno)	);
 			status = asynError;
+			m_fInputFlushNeeded = TRUE;
 			break;		/* If we have an error, we're done. */
 		}
 		if ( pasynUser->timeout > 0 )
@@ -421,6 +424,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 				// TODO: Add status code to error msg translation here
 				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "ERR %d (0x%X)\n", genStatus, genStatus );
 				fprintf( stderr, "%s: ReadMemString Validate Error: %d (0x%X)\n", functionName, genStatus, genStatus );
+				m_fInputFlushNeeded = TRUE;
 				return asynError;
 			}
 			strncpy( genCpResponseBuffer, "OK\n", EDT_GENCP_RESPONSE_MAX );
@@ -433,6 +437,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 				// TODO: Add status code to error msg translation here
 				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "ERR %d (0x%X)\n", genStatus, genStatus );
 				fprintf( stderr, "%s: ReadMemString Validate Error: %d (0x%X)\n", functionName, genStatus, genStatus );
+				m_fInputFlushNeeded = TRUE;
 				return asynError;
 			}
 			strcat( genCpResponseBuffer, "\n" );
@@ -465,6 +470,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 				// TODO: Add status code to error msg translation here
 				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "ERR %d (0x%X)\n", genStatus, genStatus );
 				fprintf( stderr, "%s: Uint ProcessReadMem Error: %d (0x%X)\n", functionName, genStatus, genStatus );
+				m_fInputFlushNeeded = TRUE;
 				return asynError;
 			}
 			break;
@@ -490,6 +496,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 				// TODO: Add status code to error msg translation here
 				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "ERR %d (0x%X)\n", genStatus, genStatus );
 				fprintf( stderr, "%s: Uint ProcessReadMem Error: %d (0x%X)\n", functionName, genStatus, genStatus );
+				m_fInputFlushNeeded = TRUE;
 				return asynError;
 			}
 			break;
@@ -582,13 +589,24 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 	{
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
 						"%s: %s pdvDev disconnected!\n", functionName, this->portName );
+		m_fInputFlushNeeded = TRUE;
 		return asynError;
 	}
 	if ( !m_fConnected )
 	{
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
 						"%s Error: %s disconnected:", functionName, this->portName );
+		m_fInputFlushNeeded = TRUE;
 		return asynError;
+	}
+
+	// See if we need to flush the serial input buffer
+	if ( m_fInputFlushNeeded )
+	{
+		// Flush the read buffer
+		char		flushBuf[1000];
+		(void) pdv_serial_read( m_pPdvDev, flushBuf, 1000 );
+		m_fInputFlushNeeded = FALSE;
 	}
 
 	bool				fGenCP		= FALSE;
@@ -736,6 +754,7 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 			epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
 							"%s: %s Invalid GenCP command: %s\n",
 							functionName, this->portName, pBuffer	);
+			m_fInputFlushNeeded = TRUE;
 			return asynError;
 		}
 
@@ -779,6 +798,7 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 						"%s: %s write error: %s\n",
 						functionName, this->portName, strerror(errno)	);
 		status = asynError;
+		m_fInputFlushNeeded = TRUE;
 	}
 
     callParamCallbacks();

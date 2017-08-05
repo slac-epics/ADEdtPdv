@@ -84,6 +84,7 @@ public:		//	Public member functions
 	char			*	m_outputEosOctet;
 	int					m_outputEosLenOctet;
 	bool				m_fConnected;
+	bool				m_fInputFlushNeeded;
 	epicsMutexId		m_serialLock;
 	unsigned long long	m_GenCPRegAddr;
 	epicsUInt32			m_GenCPRequestId;
