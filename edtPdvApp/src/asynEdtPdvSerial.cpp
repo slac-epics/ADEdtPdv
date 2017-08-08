@@ -56,7 +56,7 @@ asynEdtPdvSerial::asynEdtPdvSerial(
 	m_outputEosOctet(		NULL		),
 	m_outputEosLenOctet(	0			),
 	m_fConnected(			false		),
-	m_fInputFlushNeeded(	false		),
+	m_fInputFlushNeeded(	true		),
 	m_serialLock(						),
 	m_GenCpRegAddr(			0LL			),
 	m_GenCpRequestId(		0			),
@@ -314,8 +314,8 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		 */
 		if ( m_pPdvDev && m_fConnected )
 		{
-            int nMsTimeout = 500; // Default timeout of 500 milliseconds
-			if ( pasynUser->timeout > 0 )
+            int nMsTimeout = 1000; // Default timeout of 500 milliseconds
+			if ( pasynUser->timeout > 0 && pasynUser->timeout < nMsTimeout )
 				nMsTimeout	= static_cast<int>( pasynUser->timeout * 1000 );
 			nAvailToRead = pdv_serial_wait( m_pPdvDev, nMsTimeout, sReadBuffer );
 		}
@@ -371,7 +371,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 							functionName, this->portName, pasynUser->errorMessage );
 				status = asynError;
 				m_fConnected = false;
-				m_fInputFlushNeeded = TRUE;
+				m_fInputFlushNeeded = true;
 				pasynManager->exceptionDisconnect( pasynUser );
 				if ( eomReason )
 					*eomReason = ASYN_EOM_EOS;
@@ -391,7 +391,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 							"%s: %s read error: %s\n",
 							functionName, this->portName, strerror(errno)	);
 			status = asynError;
-			m_fInputFlushNeeded = TRUE;
+			m_fInputFlushNeeded = true;
 			break;		/* If we have an error, we're done. */
 		}
 		if ( pasynUser->timeout > 0 )
@@ -414,17 +414,20 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		GENCP_STATUS			genStatus;
 		GenCpReadMemAck		*	pReadAck	= reinterpret_cast<GenCpReadMemAck *>(	pReadBuffer );
 		GenCpWriteMemAck	*	pWriteAck	= reinterpret_cast<GenCpWriteMemAck *>(	pReadBuffer );
+		assert( GetRequestId(&pReadAck->ccd) == GetRequestId(&pWriteAck->ccd) );
+		if ( DEBUG_EDT_PDV >= 3 )
+			printf( "REQUESTID %-5hu: Received %u bytes\n", GetRequestId(&pReadAck->ccd), nRead );
 
 		switch ( m_GenCpResponseType )
 		{
 		case EDT_GENCP_TY_RESP_ACK:
-			genStatus = GenCpValidateWriteMemAck( pWriteAck, m_GenCpRequestId );
+			genStatus = GenCpValidateWriteMemAck( pWriteAck, m_GenCpRequestId-1 );
 			if ( genStatus != GENCP_STATUS_SUCCESS )
 			{
 				// TODO: Add status code to error msg translation here
 				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "ERR %d (0x%X)\n", genStatus, genStatus );
 				fprintf( stderr, "%s: ReadMemString Validate Error: %d (0x%X)\n", functionName, genStatus, genStatus );
-				m_fInputFlushNeeded = TRUE;
+				m_fInputFlushNeeded = true;
 				return asynError;
 			}
 			strncpy( genCpResponseBuffer, "OK\n", EDT_GENCP_RESPONSE_MAX );
@@ -437,7 +440,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 				// TODO: Add status code to error msg translation here
 				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "ERR %d (0x%X)\n", genStatus, genStatus );
 				fprintf( stderr, "%s: ReadMemString Validate Error: %d (0x%X)\n", functionName, genStatus, genStatus );
-				m_fInputFlushNeeded = TRUE;
+				m_fInputFlushNeeded = true;
 				return asynError;
 			}
 			strcat( genCpResponseBuffer, "\n" );
@@ -470,7 +473,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 				// TODO: Add status code to error msg translation here
 				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "ERR %d (0x%X)\n", genStatus, genStatus );
 				fprintf( stderr, "%s: Uint ProcessReadMem Error: %d (0x%X)\n", functionName, genStatus, genStatus );
-				m_fInputFlushNeeded = TRUE;
+				m_fInputFlushNeeded = true;
 				return asynError;
 			}
 			break;
@@ -496,7 +499,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 				// TODO: Add status code to error msg translation here
 				snprintf( genCpResponseBuffer, EDT_GENCP_RESPONSE_MAX, "ERR %d (0x%X)\n", genStatus, genStatus );
 				fprintf( stderr, "%s: Uint ProcessReadMem Error: %d (0x%X)\n", functionName, genStatus, genStatus );
-				m_fInputFlushNeeded = TRUE;
+				m_fInputFlushNeeded = true;
 				return asynError;
 			}
 			break;
@@ -511,6 +514,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	if ( fGenCP )
 	{
 		size_t		nBytesResponse = strlen( genCpResponseBuffer );
+		m_GenCpResponsePending[0] = '\0';
 		if ( nBytesResponse > nBytesReadMax )
 		{
 			// Copy requested number of characters to return buffer
@@ -519,7 +523,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			if ( eomReason )
 				*eomReason = ASYN_EOM_CNT;
 			// Save remaining response characters for next call to readOctet
-			strncpy( m_GenCpResponsePending, genCpResponseBuffer + nBytesReadMax, EDT_GENCP_RESPONSE_MAX - 1 );
+			strncpy( m_GenCpResponsePending, genCpResponseBuffer + nBytesReadMax, EDT_GENCP_RESPONSE_MAX - nBytesReadMax );
 		}
 		else
 		{
@@ -589,14 +593,14 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 	{
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
 						"%s: %s pdvDev disconnected!\n", functionName, this->portName );
-		m_fInputFlushNeeded = TRUE;
+		m_fInputFlushNeeded = true;
 		return asynError;
 	}
 	if ( !m_fConnected )
 	{
 		epicsSnprintf(	pasynUser->errorMessage, pasynUser->errorMessageSize,
 						"%s Error: %s disconnected:", functionName, this->portName );
-		m_fInputFlushNeeded = TRUE;
+		m_fInputFlushNeeded = true;
 		return asynError;
 	}
 
@@ -605,13 +609,21 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 	{
 		// Flush the read buffer
 		char		flushBuf[1000];
-		(void) pdv_serial_read( m_pPdvDev, flushBuf, 1000 );
-		m_fInputFlushNeeded = FALSE;
+		int	nAvailToRead = pdv_serial_wait( m_pPdvDev, 500, 1000 );
+#if 0
+		if ( nAvailToRead > 0 )
+			(void) pdv_serial_read( m_pPdvDev, flushBuf, nAvailToRead );
+#else
+		nAvailToRead = pdv_serial_read( m_pPdvDev, flushBuf, 1000 );
+#endif
+		printf( "%s: Flushed %d bytes\n", functionName, nAvailToRead );
+		m_fInputFlushNeeded = false;
 	}
 
 	bool				fGenCP		= FALSE;
 	const char		*	pSendBuffer	= pBuffer;
 	size_t				sSendBuffer	= maxChars;
+	uint16_t			requestId	= 0xFFFF;
 	GenCpReadMemPacket	genCpReadMemPacket;
 	GenCpWriteMemPacket	genCpWriteMemPacket;
 	if ( strncmp( m_pPdvDev->dd_p->serial_trigger, "GenCP", MAXSER ) == 0 )
@@ -638,6 +650,7 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 			{
 				assert( pEqualSign != NULL );
 				pString		= pEqualSign + 1;
+				requestId	= m_GenCpRequestId;
 				genStatus	= GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
 														cmdCount, pString, &sSendBuffer );
 				pSendBuffer	= reinterpret_cast<char *>( &genCpWriteMemPacket );
@@ -647,6 +660,7 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 			}
 			else if ( scanCount == 3 && cGetSet == '?' && cmdCount > 0 )
 			{
+				requestId	= m_GenCpRequestId;
 				genStatus	= GenCpInitReadMemPacket( &genCpReadMemPacket, m_GenCpRequestId++, regAddr, cmdCount );
 				pSendBuffer	= reinterpret_cast<char *>( &genCpReadMemPacket );
 				sSendBuffer	= sizeof(genCpReadMemPacket);
@@ -672,15 +686,18 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 				switch ( cmdCount )
 				{
 				case 16:
-					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
+					requestId	= m_GenCpRequestId;
+					genStatus	= GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
 															value16, &sSendBuffer );
 					break;
 				case 32:	
-					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
+					requestId	= m_GenCpRequestId;
+					genStatus	= GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
 															value32, &sSendBuffer );
 					break;
 				case 64:	
-					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
+					requestId	= m_GenCpRequestId;
+					genStatus	= GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
 															value64, &sSendBuffer );
 					break;
 				}
@@ -691,6 +708,7 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 			}
 			else if ( scanCount == 3 && cGetSet == '?' && cmdCount > 0 )
 			{
+				requestId	= m_GenCpRequestId;
 				genStatus	= GenCpInitReadMemPacket( &genCpReadMemPacket, m_GenCpRequestId++, regAddr, cmdCount / 8 );
 				pSendBuffer	= reinterpret_cast<char *>( &genCpReadMemPacket );
 				sSendBuffer	= sizeof(genCpReadMemPacket);
@@ -714,11 +732,13 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 				switch ( cmdCount )
 				{
 				case 32:	
-					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
+					requestId	= m_GenCpRequestId;
+					genStatus	= GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
 															floatValue, &sSendBuffer );
 					break;
 				case 64:	
-					genStatus = GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
+					requestId	= m_GenCpRequestId;
+					genStatus	= GenCpInitWriteMemPacket(	&genCpWriteMemPacket, m_GenCpRequestId++, regAddr,
 															doubleValue, &sSendBuffer );
 					break;
 				}
@@ -729,6 +749,7 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 			}
 			else if ( scanCount == 3 && cGetSet == '?' && cmdCount > 0 )
 			{
+				requestId	= m_GenCpRequestId;
 				genStatus	= GenCpInitReadMemPacket( &genCpReadMemPacket, m_GenCpRequestId++, regAddr, cmdCount / 8 );
 				pSendBuffer	= reinterpret_cast<char *>( &genCpReadMemPacket );
 				sSendBuffer	= sizeof(genCpReadMemPacket);
@@ -775,6 +796,8 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 	// the many camera models we may need to support.
 	int		pdv_status	= -1;
 	epicsMutexLock( m_serialLock );
+	if ( requestId != 0xFFFF && DEBUG_EDT_PDV >= 3 )
+		printf( "REQUESTID %-5hu: Sending  %zu bytes\n", requestId, sSendBuffer );
 	if ( m_pPdvDev )
 		pdv_status = pdv_serial_write( m_pPdvDev, pSendBuffer, sSendBuffer );
 	epicsMutexUnlock( m_serialLock );

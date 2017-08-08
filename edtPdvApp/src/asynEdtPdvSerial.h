@@ -87,7 +87,7 @@ public:		//	Public member functions
 	bool				m_fInputFlushNeeded;
 	epicsMutexId		m_serialLock;
 	unsigned long long	m_GenCpRegAddr;
-	epicsUInt32			m_GenCpRequestId;
+	epicsUInt16			m_GenCpRequestId;
 	unsigned int		m_GenCpResponseType;
 	unsigned int		m_GenCpResponseCount;
 	unsigned int		m_GenCpResponseSize;
