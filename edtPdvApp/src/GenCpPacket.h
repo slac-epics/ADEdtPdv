@@ -125,6 +125,8 @@ typedef struct GENCP_ATTR
 	uint16_t		ccdRequestId;		// Incrementing request id
 }	GenCpCCDRequest;
 
+extern uint16_t	GetRequestId( GenCpCCDRequest * pCCD );
+
 /// Common Acknowledge Packet Layout (CCD)
 typedef struct GENCP_ATTR
 {
@@ -133,6 +135,8 @@ typedef struct GENCP_ATTR
 	uint16_t		ccdScdLength;		// Length of SCD section
 	uint16_t		ccdRequestId;		// Request id (from matching command packet)
 }	GenCpCCDAck;
+
+extern uint16_t	GetRequestId( GenCpCCDAck * pCCD );
 
 ///
 /// Specific Command Data Section (SCD)

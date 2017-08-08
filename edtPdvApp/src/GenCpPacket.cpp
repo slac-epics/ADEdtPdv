@@ -43,6 +43,16 @@ uint16_t GenCpChecksum16( uint8_t* pBuffer, uint32_t nNumBytes )
 	return(~((uint16_t) nChecksum));
 }
 
+uint16_t	GetRequestId( GenCpCCDRequest * pCCD )
+{
+	return( __cpu_to_be16( pCCD->ccdRequestId ) );
+}
+
+uint16_t	GetRequestId( GenCpCCDAck * pCCD )
+{
+	return( __cpu_to_be16( pCCD->ccdRequestId ) );
+}
+
 /// GenCpInitReadMemPacket()
 GENCP_STATUS	GenCpInitReadMemPacket(
 	GenCpReadMemPacket		*	pPacket,
@@ -160,7 +170,7 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	size_t						numBytes,
 	size_t					*	pnBytesRead )
 {
-	const	char 			*	funcName = "GenCpProcessReadMemAck";
+	const	char 			*	funcName = "GenCpProcessReadMemAck(char*)";
 	if ( pPacket == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 	if ( pBuffer == NULL )
@@ -173,6 +183,7 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket, expectedRequestId );
 	if ( statusCode	!= GENCP_STATUS_SUCCESS )
 	{
+		fprintf( stderr, "%s Error: %u\n", funcName, statusCode );
 		return statusCode;
 	}
 
@@ -217,7 +228,7 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	uint32_t					expectedRequestId,
 	uint16_t				*	pReg16 )
 {
-	// const	char 			*	funcName = "GenCpProcessReadMemAck(uint16_t)";
+	const	char 			*	funcName = "GenCpProcessReadMemAck(uint16_t)";
 	if ( pPacket == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 	if ( pReg16 == NULL )
@@ -226,6 +237,7 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket, expectedRequestId );
 	if ( statusCode	!= GENCP_STATUS_SUCCESS )
 	{
+		fprintf( stderr, "%s Error: %u\n", funcName, statusCode );
 		return statusCode;
 	}
 
@@ -253,7 +265,7 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	if ( statusCode	!= GENCP_STATUS_SUCCESS )
 	{
 		fprintf( stderr, "%s Error: %u\n", funcName, statusCode );
-		// return statusCode;
+		return statusCode;
 	}
 
 	uint16_t	ccdCommandId	= __be16_to_cpu( pPacket->ccd.ccdCommandId	);
@@ -280,7 +292,7 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	uint32_t					expectedRequestId,
 	uint64_t				*	pReg64 )
 {
-	// const	char 			*	funcName = "GenCpProcessReadMemAck(uint64_t)";
+	const	char 			*	funcName = "GenCpProcessReadMemAck(uint64_t)";
 	if ( pPacket == NULL )
 		return GENCP_STATUS_GENERIC_ERROR | GENCP_SC_ERROR;
 	if ( pReg64 == NULL )
@@ -289,6 +301,7 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	GENCP_STATUS	statusCode	= GenCpValidateReadMemAck( pPacket, expectedRequestId );
 	if ( statusCode	!= GENCP_STATUS_SUCCESS )
 	{
+		fprintf( stderr, "%s Error: %u\n", funcName, statusCode );
 		return statusCode;
 	}
 
@@ -316,7 +329,7 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	if ( statusCode	!= GENCP_STATUS_SUCCESS )
 	{
 		fprintf( stderr, "%s Error: %u\n", funcName, statusCode );
-		// return statusCode;
+		return statusCode;
 	}
 
 	uint16_t	ccdCommandId	= __be16_to_cpu( pPacket->ccd.ccdCommandId	);
@@ -360,7 +373,7 @@ GENCP_STATUS	GenCpProcessReadMemAck(
 	if ( statusCode	!= GENCP_STATUS_SUCCESS )
 	{
 		fprintf( stderr, "%s Error: %u\n", funcName, statusCode );
-		// return statusCode;
+		return statusCode;
 	}
 
 	uint16_t	ccdCommandId	= __be16_to_cpu( pPacket->ccd.ccdCommandId	);
@@ -405,7 +418,7 @@ GENCP_STATUS	GenCpValidateWriteMemAck(
 	if ( expectedRequestId != ccdRequestId )
 	{
 		fprintf( stderr, "%s Error: Req %u, expected req %u\n", funcName, ccdRequestId, expectedRequestId );
-		return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
+		// return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
 	}
 
 	// Validate CCD Checksum
