@@ -1,6 +1,13 @@
 #
 # SLAC RELEASE_NOTES
 #
+R2.5.0 2017-08-09	bhill
+	Added calcout record to reassert AccessPrivilege if needed.
+	Added autosave for Trigger mode and src pvs and disabled temp pv's
+		for now till comms are more robust.
+	Added GoldEyeHeartbeatTimeout, GoldEyeResetDevice
+	Added requestId to diag msgs and added timeout on flush
+	Added m_fInputFlushNeeded flag to flush read buffer after errors and before sending new request.
 R2.4.0 2017-08-05	bhill
 	Enhanced GoldEye008 control:
 		Support for FreeRun, External, and Pulse mode.
