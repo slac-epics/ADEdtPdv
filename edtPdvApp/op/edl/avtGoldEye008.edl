@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 898
-y 1104
+x 1188
+y 1115
 w 700
 h 579
 font "helvetica-medium-r-12.0"
@@ -215,7 +215,7 @@ x 232
 y 216
 w 88
 h 20
-controlPv "$(P)$(R)GoldEyeTestPattern_RBV"
+controlPv "$(P)$(R)GoldEyeHeartbeatTimeout_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -239,8 +239,8 @@ release 0
 x 132
 y 216
 w 92
-h 20
-controlPv "$(P)$(R)GoldEyeTestPattern"
+h 14
+controlPv "$(P)$(R)GoldEyeHeartbeatTimeout"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
@@ -271,7 +271,7 @@ fontAlign "right"
 fgColor index 14
 bgColor index 3
 value {
-  "Test Pattern"
+  "Heartbeat Timeout"
 }
 endObjectProperties
 
