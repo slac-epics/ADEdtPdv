@@ -271,10 +271,13 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			strncpy( pBuffer, m_GenCpResponsePending, nBytesReadMax );
 			m_GenCpResponsePending[0] = '\0';
 			if ( eomReason )
-				*eomReason = ASYN_EOM_EOS;
+				*eomReason = ASYN_EOM_END;
 
 			if ( DEBUG_EDT_PDV >= 3 )
 				printf( "%s: %s Read pending %zu: %s\n", functionName, this->portName, nBytesPending, pBuffer );
+			asynPrintIO(	pasynUser, ASYN_TRACEIO_DRIVER, pBuffer, nBytesPending,
+							"%s: %s read %zu of %zu\n",
+							functionName, this->portName, nBytesPending, nBytesPending );
 			asynPrint(	pasynUser, ASYN_TRACE_FLOW,
 						"%s: %s read pending %zu, status %d, Buffer: %s\n",
 						functionName, this->portName, nBytesPending, status, pBuffer	);
@@ -531,7 +534,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			strncpy( pBuffer, genCpResponseBuffer, nBytesReadMax );
 			*pnRead = nBytesResponse;
 			if ( eomReason )
-				*eomReason = ASYN_EOM_EOS;
+				*eomReason = ASYN_EOM_END;
 		}
 	}
 	else
@@ -556,11 +559,11 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		if ( DEBUG_EDT_PDV >= 3 )
 			printf( "%s: %s Read %zu: %s\n", functionName, this->portName, *pnRead, pBuffer );
 		asynPrintIO(	pasynUser, ASYN_TRACEIO_DRIVER, pBuffer, nRead,
-						"%s: %s read %d of %d\n", functionName, this->portName,
-						nRead, nAvailToRead );
-		asynPrint(	pasynUser, ASYN_TRACE_FLOW,
-					"%s: %s read %zu, status %d, Buffer: %s\n",
-					functionName, this->portName, *pnRead, status, pBuffer	);
+						"%s: %s read %d of %d\n",
+						functionName, this->portName, nRead, nAvailToRead );
+		asynPrint(		pasynUser, ASYN_TRACE_FLOW,
+						"%s: %s read %zu, status %d, Buffer: %s\n",
+						functionName, this->portName, *pnRead, status, pBuffer	);
 
 		// Call the parameter callbacks
 		callParamCallbacks();
