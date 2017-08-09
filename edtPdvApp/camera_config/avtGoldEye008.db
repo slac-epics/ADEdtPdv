@@ -7,22 +7,24 @@
 
 record( seq, "$(P)$(R)EdtReConfigSeq" )
 {
-	field( DLY1, "0.0" ) field( DOL1, "1" ) field( LNK1, "$(P)$(R)GoldEyeAccessPrivilege" )
-	field( DLY2, "0.2" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)Manufacturer_RBV.PROC" )
-	field( DLY3, "0.2" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)Model_RBV.PROC" )
-	field( DLY4, "0.2" ) field( DOL4, "1" ) field( LNK4, "$(P)$(R)GoldEyeFirmwareVersion_RBV.PROC" )
-	field( DLY5, "0.2" ) field( DOL5, "1" ) field( LNK5, "$(P)$(R)GoldEyeSerialNumber_RBV.PROC" )
-	field( DLY6, "0.2" ) field( DOL6, "1" ) field( LNK6, "$(P)$(R)GoldEyeModel_RBV.PROC" )
-	field( DLY7, "0.2" ) field( DOL7, "1" ) field( LNK7, "$(P)$(R)GoldEyeTempSensorBd_RBV.PROC" )
-	field( DLY8, "0.2" ) field( DOL8, "1" ) field( LNK8, "$(P)$(R)GoldEyeTemperature_RBV.PROC" )
+	field( DLY0, "0.0" ) field( DOL0, "1" ) field( LNK0, "$(P)$(R)GoldEyeAccessPrivilege.PROC" )
+	field( DLY1, "0.0" ) field( DOL1, "1" ) field( LNK1, "$(P)$(R)Model_RBV.PROC" )
+	field( DLY2, "0.0" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)Manufacturer_RBV.PROC" )
+	field( DLY3, "0.0" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)GoldEyeSerialNumber_RBV.PROC" )
+	field( DLY4, "0.0" ) field( DOL4, "1" ) field( LNK4, "$(P)$(R)GoldEyeFirmwareVersion_RBV.PROC" )
+	field( DLY5, "0.0" ) field( DOL5, "1" ) field( LNK5, "$(P)$(R)GoldEyeModel_RBV.PROC" )
+	field( DLY6, "0.0" ) field( DOL6, "1" ) field( LNK6, "$(P)$(R)GoldEyeTempMainBd_RBV.PROC" )
+	field( DLY7, "0.0" ) field( DOL7, "1" ) field( LNK7, "$(P)$(R)GoldEyeTempSensorBd_RBV.PROC" )
+	field( DLY8, "0.0" ) field( DOL8, "1" ) field( LNK8, "$(P)$(R)GoldEyeTemperature_RBV.PROC" )
 #   field( TPRO, 1 )
 	field( FLNK, "$(P)$(R)EdtReConfigSeq2" )
 }
 record( seq, "$(P)$(R)EdtReConfigSeq2" )
 {
-	field( DLY1, "0.0" ) field( DOL1, "1" ) field( LNK1, "$(P)$(R)GoldEyeFStartFullTrMode_RBV.PROC" )
+	field( DLY0, "0.0" ) field( DOL0, "0" ) field( LNK0, "$(P)$(R)GoldEyeFStartFullTrMode_RBV.PROC" )
 	field( DLY2, "0.0" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)GoldEyeAcqStartFullTrMode_RBV.PROC" )
 	field( DLY3, "0.0" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)GoldEyeAcqStopFullTrMode_RBV.PROC" )
+	field( DLY4, "0.0" ) field( DOL4, "1" ) field( LNK4, "$(P)$(R)GoldEyeHeartbeatTimeout_RBV.PROC" )
 #	field( FLNK, "$(P)$(R)EdtReConfigSeq3" )
 }
 
@@ -115,13 +117,8 @@ record( longout, "$(P)$(R)GoldEyeAccessPrivilege" )
 	field( PINI, "YES" )
 	field( FLNK, "$(P)$(R)GoldEyeAccessPrivilege_RBV" )
     field( SDIS, "$(SerialDisable)")
-# Do we need to repeat setting AccessPrivilege?
-# Have lost AccessPrivilege a few times during testing,
-# usually when SCAN was set to Passive for GoldEyeAccessPrivilege_RBV
-# while testing serial commands, but also lost access once
-# or twice when it should have been reading once/sec. Not clear why access was lost.
-#	field( SCAN, "10 second" )
 }
+
 # Read at least one register every 3 seconds or camera clears AccessPrivilege
 record( longin, "$(P)$(R)GoldEyeAccessPrivilege_RBV" )
 {
@@ -129,6 +126,16 @@ record( longin, "$(P)$(R)GoldEyeAccessPrivilege_RBV" )
 	field( INP,  "@avtGoldEye008.proto GetUint32(0x204) $(PORT).SER" )
     field( SDIS, "$(SerialDisable)")
 	field( SCAN, "1 second" )
+	field( FLNK, "$(P)$(R)GoldEyeCalcAccessPrivilege" )
+}
+
+# Reassert AccessPrivilege if we don't have it
+record( calcout, "$(P)$(R)GoldEyeCalcAccessPrivilege" )
+{
+	field( INPA, "$(P)$(R)GoldEyeAccessPrivilege_RBV NPP NMS" )
+	field( CALC, "A!=1" )
+	field( OUT,  "$(P)$(R)GoldEyeAccessPrivilege PP MS" )
+	field( OOPT, "When Non-zero" )
 }
 
 # W/O, write 1 to reset device
@@ -200,6 +207,7 @@ record( ai, "$(P)$(R)GoldEyeTemperature_RBV" )
 	field( EGU,  "C" )
 	field( PREC, "1" )
 	field( PINI, "YES" )
+# Temp SCAN fields disabled till comms are more robust
 #	field( SCAN, "1 second" )
     field( SDIS, "$(SerialDisable)")
 }
@@ -212,7 +220,7 @@ record( ai, "$(P)$(R)GoldEyeTempMainBd_RBV" )
 	field( EGU,  "C" )
 	field( PREC, "1" )
 	field( PINI, "YES" )
-	field( SCAN, "2 second" )
+#	field( SCAN, "5 second" )
     field( SDIS, "$(SerialDisable)")
 }
 
@@ -224,7 +232,7 @@ record( ai, "$(P)$(R)GoldEyeTempSensorBd_RBV" )
 	field( EGU,  "C" )
 	field( PREC, "1" )
 	field( PINI, "YES" )
-#	field( SCAN, "1 second" )
+#	field( SCAN, "2 second" )
     field( SDIS, "$(SerialDisable)")
 }
 
@@ -241,7 +249,8 @@ record( calcout, "$(P)$(R)GoldEyeAcquireTime" )
 	field( EGU,  "us" )
 	field( OUT,  "$(P)$(R)GoldEyeExposureValue NPP MS" )
 	field( FLNK, "$(P)$(R)GoldEyeExposureValue" )
-    field( SDIS, "$(SerialDisable)")
+    field( SDIS, "$(SerialDisable)" )
+    field( PINI, "YES" )
 }
 record( longout, "$(P)$(R)GoldEyeExposureValue" )
 {
@@ -576,6 +585,8 @@ record( mbbo, "$(P)$(R)GoldEyeFStartTrEvent" )
 	field( FRVL, "4" ) field( FRST, "LevelLo" )
 	field( FLNK, "$(P)$(R)GoldEyeFStartTrEvent_RBV" )
 	field( PINI, "YES" )
+	info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
 }
 
 record( mbbi, "$(P)$(R)GoldEyeFStartTrEvent_RBV" )
@@ -587,6 +598,7 @@ record( mbbi, "$(P)$(R)GoldEyeFStartTrEvent_RBV" )
 	field( TWVL, "2" ) field( TWST, "AnyEdge" )
 	field( THVL, "3" ) field( THST, "LevelHi" )
 	field( FRVL, "4" ) field( FRST, "LevelLo" )
+	field( FLNK, "$(P)$(R)GoldEyeCalcEdtTriggerMode_RBV" )
 	field( PINI, "YES" )
 }
 
@@ -649,6 +661,8 @@ record( mbbo, "$(P)$(R)GoldEyeFStartTrMode" )
 	field( ONVL, "1" ) field( ONST, "On" )
 	field( PINI, "YES" )
 	field( FLNK, "$(P)$(R)GoldEyeCalcFStartFullTrMode" )
+	info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
 }
 
 # FrameStart TriggerSource
@@ -668,6 +682,8 @@ record( mbbo, "$(P)$(R)GoldEyeFStartTrSrc" )
 	field( TEVL, "10") field( TEST, "Software" )
 	field( FLNK, "$(P)$(R)GoldEyeCalcFStartFullTrMode" )
 	field( PINI, "YES" )
+	info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
 }
 
 # FrameStopTriggerMode combines several bit fields into one 32 bit register, RegFullTriggerMode
@@ -736,8 +752,8 @@ record( mbbo, "$(P)$(R)GoldEyeFStartTrSrc_RBV" )
 record( calcout, "$(P)$(R)GoldEyeCalcEdtTriggerMode_RBV" )
 {
 #	field( TPRO, 2 )
-	field( INPA, "$(P)$(R)GoldEyeFStartTrSrc_RBV NPP MS" )
-	field( INPB, "$(P)$(R)GoldEyeFStartTrEvent   NPP MS" )
+	field( INPA, "$(P)$(R)GoldEyeFStartTrSrc_RBV NPP NMS" )
+	field( INPB, "$(P)$(R)GoldEyeFStartTrEvent   NPP NMS" )
 	field( CALC, "A=0?0:(B=0?1:2)" )
 	field( OUT,  "$(P)$(R)EdtTriggerMode_RBV PP MS" )
 }
@@ -751,6 +767,8 @@ record( mbbo, "$(P)$(R)GoldEyeAcqStartTrMode" )
 	field( ONVL, "1" ) field( ONST, "On" )
 	field( FLNK, "$(P)$(R)GoldEyeCalcAcqStartFullTrMode" )
 	field( PINI, "YES" )
+	info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
 }
 
 # Acquisition Start TriggerSource
@@ -770,6 +788,8 @@ record( mbbo, "$(P)$(R)GoldEyeAcqStartTrSrc" )
 	field( TEVL, "10") field( TEST, "Software" )
 	field( FLNK, "$(P)$(R)GoldEyeCalcAcqStartFullTrMode" )
 	field( PINI, "YES" )
+	info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
 }
 
 # FrameStopTriggerMode combines several bit fields into one 32 bit register, RegFullTriggerMode
@@ -817,6 +837,9 @@ record( mbbo, "$(P)$(R)GoldEyeAcqStopTrMode" )
 	field( ZRVL, "0" ) field( ZRST, "Off" )
 	field( ONVL, "1" ) field( ONST, "On" )
 	field( FLNK, "$(P)$(R)GoldEyeCalcAcqStopFullTrMode" )
+	field( PINI, "YES" )
+	info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
 }
 
 # Acquisition Stop TriggerSource
@@ -836,6 +859,8 @@ record( mbbo, "$(P)$(R)GoldEyeAcqStopTrSrc" )
 	field( TEVL, "10") field( TEST, "Software" )
 	field( FLNK, "$(P)$(R)GoldEyeCalcAcqStopFullTrMode" )
 	field( PINI, "YES" )
+	info( autosaveFields, "VAL" )
+	info( archiveFields,  "VAL" )
 }
 
 # FrameStopTriggerMode combines several bit fields into one 32 bit register, RegFullTriggerMode
