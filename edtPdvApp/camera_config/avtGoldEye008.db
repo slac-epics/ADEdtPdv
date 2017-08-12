@@ -900,6 +900,27 @@ record( longin, "$(P)$(R)GoldEyeAcqStopFullTrMode_RBV" )
     field( SDIS, "$(SerialDisable)")
 }
 
+#	0x151D0	RegLineInGlitch Filter[Line1]: 4 byte minimum trigger width in ns
+record( longout, "$(P)$(R)GoldEyeLine1GlitchFilter" )
+{
+	field( DOL,  "1000" )
+	field( DTYP, "stream" )
+	field( OUT,  "@avtGoldEye008.proto SetUint32(0x151D0) $(PORT).SER" )
+	field( EGU,  "ns" )
+	field( FLNK, "$(P)$(R)GoldEyeLine1GlitchFilter_RBV" )
+#	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+	info( autosaveFields, "VAL" )
+}
+record( longin, "$(P)$(R)GoldEyeLine1GlitchFilter_RBV" )
+{
+	field( DTYP, "stream" )
+	field( INP,  "@avtGoldEye008.proto GetUint32(0x151D0) $(PORT).SER" )
+	field( EGU,  "ns" )
+	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
+}
+
 # RegTriggerSourceInq is 32 bit register w/ bits for whether
 # each trigger source type is selected
 # There are 3 of these RegTriggerSourceInq registers:
@@ -929,12 +950,7 @@ record( longin, "$(P)$(R)GoldEyeAcqStopFullTrMode_RBV" )
 #	0x12120	RegPixelFormat: 0x1080001=Mono8, 0x1100005=Mono12, 0x1100025=Mono14, 
 #	0x13104	RegAcquisitionMode: 1=Continuous, 2=SingleFrame, 3=MultiFrame via RegAcquisitionFrameCount
 #	0x13108	RegAcquisitionFrameCount: Frame count for MultiFrame AcquisitionMode
-#	0x13138	RegFixedIntervalValue	AcquirePeriod
-#	0x1341C	FrameStartRegTriggerDelay
-#	0x13418	RegTriggerEvent, FStartTrEvent: RisingEdge/FallingEdge/AnyEdge/LevelHigh/LevelLow
 #	0x13424	RegTriggeroverlap:	FStartTriggerOverlap: Ignore/ReTrig
-#	0x1341C	RegTriggerDelay: us 
-#	0x13160	RegSoftwareTrigger: Off/On
 #	0xB00D0	RegAFE_LvdsTestSelector: 4 bytes 0..4
 #	0xB00D4	RegAFE_LvdsTestPattern: 4 bytes 0..65535
 #
