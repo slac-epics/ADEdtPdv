@@ -13,12 +13,13 @@
 //	Asyn device support using EDT framegrabber serial interface via CamLink
 //
 
+#include <epicsExport.h>
 #include "asynEdtPdvSerial.h"
 #include "GenCpPacket.h"
 
 #include "edtinc.h"
 
-extern int	DEBUG_EDT_PDV;
+int	DEBUG_EDT_SER	= 2;
 
 #define	MAX_ADDR		1
 #define	NUM_PARAMS		1
@@ -73,7 +74,7 @@ asynEdtPdvSerial::asynEdtPdvSerial(
 	// Create mutexes
     m_serialLock	= epicsMutexMustCreate();
 
-	if ( DEBUG_EDT_PDV >= 1 )
+	if ( DEBUG_EDT_SER >= 1 )
 		printf(  "%s: %s\n", functionName, portName );
 
 	/*
@@ -160,7 +161,7 @@ asynEdtPdvSerial::pdvDevConnected(
 	asynStatus			status			= asynSuccess;
 	const char		*	functionName	= "asynEdtPdvSerial::pdvDevConnected";
 
-	if ( DEBUG_EDT_PDV >= 1 )
+	if ( DEBUG_EDT_SER >= 1 )
 		printf( "%s: %s Connecting %s\n", functionName, this->portName,
 				(pPdvDev != NULL ? pdv_get_camera_model( pPdvDev ) : "NULL") );
 
@@ -191,11 +192,11 @@ asynEdtPdvSerial::pdvDevDisconnected(
 {
 	asynStatus			status			= asynSuccess;
 	const char		*	functionName	= "asynEdtPdvSerial::pdvDevDisconnected";
-	if ( DEBUG_EDT_PDV >= 1 )
+	if ( DEBUG_EDT_SER >= 1 )
 		printf( "%s: %s Disconnecting ...\n", functionName, this->portName );
 
 	epicsMutexLock(m_serialLock);
-	if ( DEBUG_EDT_PDV >= 3 )
+	if ( DEBUG_EDT_SER >= 3 )
 		printf( "%s: %s Have serial lock ...\n", functionName, this->portName );
 
 	if ( pasynManager->exceptionDisconnect( this->pasynUserSelf ) != asynSuccess )
@@ -208,7 +209,7 @@ asynEdtPdvSerial::pdvDevDisconnected(
 	m_pPdvDev		= NULL;
 	epicsMutexUnlock(m_serialLock);
 
-	if ( DEBUG_EDT_PDV >= 3 )
+	if ( DEBUG_EDT_SER >= 3 )
 		printf( "%s: %s Disconnected\n", functionName, this->portName );
 	return status;
 }
@@ -273,7 +274,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			if ( eomReason )
 				*eomReason = ASYN_EOM_END;
 
-			if ( DEBUG_EDT_PDV >= 3 )
+			if ( DEBUG_EDT_SER >= 3 )
 				printf( "%s: %s Read pending %zu: %s\n", functionName, this->portName, nBytesPending, pBuffer );
 			asynPrintIO(	pasynUser, ASYN_TRACEIO_DRIVER, pBuffer, nBytesPending,
 							"%s: %s read %zu of %zu\n",
@@ -308,7 +309,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	for (;;)
 	{
 		epicsMutexLock(m_serialLock);
-		if ( DEBUG_EDT_PDV >= 4 )
+		if ( DEBUG_EDT_SER >= 4 )
 			printf( "%s: %s Have serial lock, nBytesReadMax %zu, sReadBuffer %zu, timeout %e ...\n",
 					functionName, this->portName, nBytesReadMax, sReadBuffer, pasynUser->timeout );
 		/*
@@ -327,7 +328,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			int		nToRead	= nAvailToRead;
 			if( nToRead > static_cast<int>(sReadBuffer) )
 			{
-				if ( DEBUG_EDT_PDV >= 3 )
+				if ( DEBUG_EDT_SER >= 3 )
 					printf( "%s: %s Clipping nAvailToRead %d to sReadBuffer %zu\n",
 							functionName, this->portName, nAvailToRead, sReadBuffer );
 				nToRead = static_cast<int>(sReadBuffer);
@@ -336,14 +337,14 @@ asynStatus	asynEdtPdvSerial::readOctet(
 						"%s: %s nToRead %d\n", functionName, this->portName, nToRead );
 
 			epicsMutexLock(m_serialLock);
-			if ( DEBUG_EDT_PDV >= 3 )
+			if ( DEBUG_EDT_SER >= 3 )
 				printf( "%s: %s Have serial lock, reading %d ...\n", functionName, this->portName, nToRead );
 			if ( m_pPdvDev && m_fConnected )
 				nRead = pdv_serial_read( m_pPdvDev, pReadBuffer, nToRead );
 			else
 				nRead = -1;
 			epicsMutexUnlock(m_serialLock);
-			if ( DEBUG_EDT_PDV >= 3 )
+			if ( DEBUG_EDT_SER >= 3 )
 				printf( "%s: %s Released serial lock, read %d ...\n", functionName, this->portName, nRead );
 		}
 		else
@@ -351,14 +352,14 @@ asynStatus	asynEdtPdvSerial::readOctet(
             // nAvailToRead <=0 so nothing to do here... fly away!
             *pnRead = 0;
             epicsMutexUnlock(m_serialLock);
-            if ( DEBUG_EDT_PDV >= 4 )
+            if ( DEBUG_EDT_SER >= 4 )
                 printf( "%s: %s Released serial lock, nRead=0, nAvailToRead %d ...\n", functionName, this->portName, nAvailToRead );
 
             return asynSuccess;
         }
 
         epicsMutexUnlock(m_serialLock);
-		if ( DEBUG_EDT_PDV >= 4 )
+		if ( DEBUG_EDT_SER >= 4 )
 			printf( "%s: %s Released serial lock, nAvailToRead %d ...\n", functionName, this->portName, nAvailToRead );
 
 
@@ -401,7 +402,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			break;			/* If we aren't waiting forever, we're done. */
 	}	// end forever loop
 
-	if ( DEBUG_EDT_PDV >= 4 )
+	if ( DEBUG_EDT_SER >= 4 )
 		printf( "%s: %s Read %d\n", functionName, this->portName, nRead );
 
 	if ( nRead == 0 && (pasynUser->timeout > 0) && (status == asynSuccess))	/* If we don't have anything, not even an error	*/
@@ -418,7 +419,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		GenCpReadMemAck		*	pReadAck	= reinterpret_cast<GenCpReadMemAck *>(	pReadBuffer );
 		GenCpWriteMemAck	*	pWriteAck	= reinterpret_cast<GenCpWriteMemAck *>(	pReadBuffer );
 		assert( GetRequestId(&pReadAck->ccd) == GetRequestId(&pWriteAck->ccd) );
-		if ( DEBUG_EDT_PDV >= 3 )
+		if ( DEBUG_EDT_SER >= 3 )
 			printf( "REQUESTID %-5hu: Received %u bytes\n", GetRequestId(&pReadAck->ccd), nRead );
 
 		switch ( m_GenCpResponseType )
@@ -556,7 +557,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 
 	if ( *pnRead > 0 )
 	{
-		if ( DEBUG_EDT_PDV >= 3 )
+		if ( DEBUG_EDT_SER >= 3 )
 			printf( "%s: %s Read %zu: %s\n", functionName, this->portName, *pnRead, pBuffer );
 		asynPrintIO(	pasynUser, ASYN_TRACEIO_DRIVER, pBuffer, nRead,
 						"%s: %s read %d of %d\n",
@@ -799,8 +800,11 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 	// the many camera models we may need to support.
 	int		pdv_status	= -1;
 	epicsMutexLock( m_serialLock );
-	if ( requestId != 0xFFFF && DEBUG_EDT_PDV >= 3 )
-		printf( "REQUESTID %-5hu: Sending  %zu bytes\n", requestId, sSendBuffer );
+	if ( requestId != 0xFFFF )
+	{
+		if ( DEBUG_EDT_SER >= 3 )
+			printf( "REQUESTID %-5hu: Sending  %zu bytes\n", requestId, sSendBuffer );
+	}
 	if ( m_pPdvDev )
 		pdv_status = pdv_serial_write( m_pPdvDev, pSendBuffer, sSendBuffer );
 	epicsMutexUnlock( m_serialLock );
@@ -910,3 +914,8 @@ void asynEdtPdvSerial::report( FILE * fp, int details )
 }
 
 //	Private member variables
+
+extern "C"
+{
+	epicsExportAddress( int, DEBUG_EDT_SER );
+}

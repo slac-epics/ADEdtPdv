@@ -11,6 +11,7 @@ registrar(	edtPdvConfigRegister		)
 registrar(	edtPdvConfigFullRegister	)
 registrar(	edt_set_verbosityRegister	)
 variable(	DEBUG_EDT_PDV,	int	)
+variable(	DEBUG_EDT_SER,	int	)
 
 #function(HWroiInit)
 #function(HWroiProc)
