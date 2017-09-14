@@ -495,11 +495,17 @@ asynStatus edtPdvCamera::ConnectCamera( )
 	epicsMutexUnlock(	m_reconfigLock );
 
 	if ( status != asynSuccess )
-        return asynError;
+	{
+		printf( "%s: Error %d from pdvDevConnected!\n", functionName, status );
+		return asynError;
+	}
 
     // Enable the Serial Communication
     SetSerDisable(0);
 	UpdateStatus( ADStatusIdle );
+
+	if ( DEBUG_EDT_PDV >= 1 )
+		printf( "%s: connected and serial re-enabled in thread %s ...\n", functionName, epicsThreadGetNameSelf() );
 
     return status;
 }
@@ -1566,8 +1572,14 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 		m_ReArmTimer.StopTimer( );
 #endif	//	USE_DIAG_TIMER
 		if ( DEBUG_EDT_PDV >= 1 )
-			printf(	"%s: Image Timeout: Failed to acquire image!\n", functionName );
+		{
+			if ( pPdvBuffer == NULL )
+				printf(	"%s: Image Timeout: Failed to acquire image! edtWaitStatus=%d\n", functionName, edtWaitStatus );
+			else
+				printf(	"%s: Image Timeout: edtWaitStatus=%d\n", functionName, edtWaitStatus );
+		}
 		pdv_timeout_restart( m_pPdvDev, 0 );
+		UpdateStatus( ADStatusError );
 		return asynError;
 	}
 
@@ -1726,7 +1738,7 @@ NDArray * edtPdvCamera::AllocNDArray( )
 	// Set the NDArray parameters
 	assert( pNDArray			!= NULL );
 	pNDArray->ndims				= ndims;
-#ifdef NDBitsPerPixel
+#ifdef NDBitsPerPixelString
 	pNDArray->bitsPerElement	= m_ClNumBits;
 #endif
 
@@ -1894,7 +1906,7 @@ int	 edtPdvCamera::CheckData(	edtImage	*	pImage	)
 void edtPdvCamera::ReleaseData(	edtImage	*	pImage	)
 {
 	CONTEXT_TIMER( "ReleaseData" );
-	UpdateStatus( ADStatusIdle );
+	// UpdateStatus( ADStatusIdle ); No need to set status to Idle after each image buffer released
 	if ( pImage == NULL )
 		return;
 	this->lock();
