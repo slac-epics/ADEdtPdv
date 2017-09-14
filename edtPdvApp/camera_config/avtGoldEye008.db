@@ -474,7 +474,6 @@ record( calcout, "$(P)$(R)GoldEyeCalcTriggerEdge" )
 #	field( TPRO, 2 )
 	field( INPA, "$(P)$(R)EdtTriggerMode NPP NMS" )
 	field( CALC, "A==2?3:0" )
-	field( OOPT, "On Change" )
 	field( OUT,  "$(P)$(R)GoldEyeFStartTrEvent PP MS" )
 }
 
