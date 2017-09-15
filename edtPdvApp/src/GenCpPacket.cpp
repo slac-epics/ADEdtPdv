@@ -482,7 +482,7 @@ GENCP_STATUS	GenCpInitWriteMemPacket(
 	uint16_t					requestId,
 	uint64_t					regAddr,
 	size_t						numBytes,
-	char					*	pString,
+	const char				*	pString,
 	size_t					*	pnBytesSend )
 {
 	const	char 			*	funcName = "GenCpInitWriteMemPacket";

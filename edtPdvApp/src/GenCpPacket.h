@@ -274,7 +274,7 @@ GENCP_STATUS	GenCpInitWriteMemPacket(GenCpWriteMemPacket		*	pPacket,
 										uint16_t					requestId,
 										uint64_t					regAddr,
 										size_t						numBytes,
-										char					*	pString,
+										const char				*	pString,
 										size_t					*	pnBytesSend );
 
 /// GenCpInitWriteMemPacket() Initialize a WriteMem packet to write a uint16 to regAddr

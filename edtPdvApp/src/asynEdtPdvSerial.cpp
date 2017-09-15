@@ -360,7 +360,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 
         epicsMutexUnlock(m_serialLock);
 		if ( DEBUG_EDT_SER >= 4 )
-			printf( "%s: %s Released serial lock, nAvailToRead %d ...\n", functionName, this->portName, nAvailToRead );
+			printf( "%s: %s Released serial lock, Read %d, nAvailToRead %d ...\n", functionName, this->portName, nRead, nAvailToRead );
 
 
 		// If we read something
@@ -635,12 +635,12 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 		GENCP_STATUS	genStatus;
 		char			cGetSet;	// '?' is a Get, '=' is a Set
 		unsigned int	cmdCount;
-		char		*	pString;
+		const char	*	pString;
 		double			doubleValue	= 0.0;
 		int64_t			intValue	= 0LL;
 		uint64_t		regAddr		= 0LL;
 		int				scanCount	= -1;
-		char		*	pEqualSign	= strchr( pBuffer, '=' );
+		const char	*	pEqualSign	= strchr( pBuffer, '=' );
 
 		fGenCP		= TRUE;	// GenCP Protocol
 		m_GenCpResponsePending[0] = '\0';
