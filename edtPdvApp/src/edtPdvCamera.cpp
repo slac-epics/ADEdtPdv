@@ -1013,7 +1013,7 @@ int edtPdvCamera::SetupROI( )
 		// Pad up to next largest size 
 		int		hactv	= ( (GetSizeX()+m_ClHTaps-1) / m_ClHTaps ) * m_ClHTaps;
 		int		vactv	= ( (GetSizeY()+m_ClVTaps-1) / m_ClVTaps ) * m_ClVTaps;
-		if ( DEBUG_EDT_PDV >= 2 )
+		if ( DEBUG_EDT_PDV >= 3 )
 			printf(	"%s: Setting PDV ROI to hskip %d, hactv %d, vskip %d, vactv %d\n",
 					functionName,	hskip, hactv, vskip, vactv );
 		pdv_set_roi(	m_pPdvDev,	hskip, hactv, vskip, vactv );
@@ -1031,7 +1031,7 @@ int edtPdvCamera::SetupROI( )
 		int		vactv	= ( (m_ClMaxHeight + m_ClVTaps - 1) / m_ClVTaps ) * m_ClVTaps;
 		assert(	hactv == (int) m_ClMaxWidth	);
 		assert(	vactv == (int) m_ClMaxHeight	);
-		if ( DEBUG_EDT_PDV >= 2 )
+		if ( DEBUG_EDT_PDV >= 3 )
 			printf(	"%s: Disabling PDV ROI, restoring hskip %d, hactv %d, vskip %d, vactv %d\n",
 					functionName,	hskip, hactv, vskip, vactv );
 		pdv_set_roi(	m_pPdvDev,	hskip, hactv, vskip, vactv );
@@ -1421,9 +1421,6 @@ int edtPdvCamera::StartAcquisition( )
 	// Start grabbing images
 	pdv_start_images( m_pPdvDev, m_NumMultiBuf );
 
-	if ( DEBUG_EDT_PDV >= 1 )
-        printf(	"%s: Start acquire, count = %d\n",
-				functionName, m_acquireCount );
 	asynPrint(	this->pasynUserSelf, ASYN_TRACEIO_DRIVER,
         		"%s: Start acquire, count = %d\n",
 				functionName, m_acquireCount );
@@ -1571,12 +1568,12 @@ int edtPdvCamera::AcquireData( edtImage	*	pImage )
 #ifdef	USE_DIAG_TIMER
 		m_ReArmTimer.StopTimer( );
 #endif	//	USE_DIAG_TIMER
-		if ( DEBUG_EDT_PDV >= 1 )
+		if ( DEBUG_EDT_PDV >= 2 )
 		{
 			if ( pPdvBuffer == NULL )
 				printf(	"%s: Image Timeout: Failed to acquire image! edtWaitStatus=%d\n", functionName, edtWaitStatus );
 			else
-				printf(	"%s: Image Timeout: edtWaitStatus=%d\n", functionName, edtWaitStatus );
+				printf(	"%s: Image Timeout: Stale Image, edtWaitStatus=%d\n", functionName, edtWaitStatus );
 		}
 		pdv_timeout_restart( m_pPdvDev, 0 );
 		UpdateStatus( ADStatusError );
