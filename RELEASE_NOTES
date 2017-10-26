@@ -1,6 +1,9 @@
 #
 # SLAC RELEASE_NOTES
 #
+R2.7.1 2017-10-26	bhill
+	Update to diagTimer/R1.9.1
+
 R2.7.0 2017-10-25	bhill
 	Tweaking diag output on image timeout
 	Added Line1GlitchFilter widgets to AVT GoldEye screen
