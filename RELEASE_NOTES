@@ -1,6 +1,11 @@
 #
 # SLAC RELEASE_NOTES
 #
+R2.7.0 2017-10-25	bhill
+	Tweaking diag output on image timeout
+	Added Line1GlitchFilter widgets to AVT GoldEye screen
+	Update to ADCore/R2.6-2.3.0
+
 R2.6.0 2017-09-14	bhill
 	Fixed bitsPerPixel support, broken for some time now.
 	Added additional diagnostics for timeouts
