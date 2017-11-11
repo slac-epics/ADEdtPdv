@@ -214,7 +214,7 @@ asynEdtPdvSerial::pdvDevDisconnected(
 	return status;
 }
 
-bool isAscii( char * pBuf, int sBuf )
+bool isAscii( const char * pBuf, int sBuf )
 {
 	if ( pBuf == NULL || sBuf == 0 )
 		return false;
@@ -260,7 +260,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	size_t				sReadBuffer	= nBytesReadMax;
 	GenCpReadMemAck		genCpReadMemAck;
 	GenCpWriteMemAck	genCpWriteMemAck;
-	if ( strncmp( m_pPdvDev->dd_p->serial_trigger, "GenCP", MAXSER ) == 0 )
+	if ( 0 && strncmp( m_pPdvDev->dd_p->serial_trigger, "GenCP", MAXSER ) == 0 )
 	{
 		fGenCP		= TRUE;
 		size_t		nBytesPending = strlen( m_GenCpResponsePending );
@@ -557,14 +557,25 @@ asynStatus	asynEdtPdvSerial::readOctet(
 
 	if ( *pnRead > 0 )
 	{
-		if ( DEBUG_EDT_SER >= 3 )
-			printf( "%s: %s Read %zu: %s\n", functionName, this->portName, *pnRead, pBuffer );
-		asynPrintIO(	pasynUser, ASYN_TRACEIO_DRIVER, pBuffer, nRead,
-						"%s: %s read %d of %d\n",
-						functionName, this->portName, nRead, nAvailToRead );
-		asynPrint(		pasynUser, ASYN_TRACE_FLOW,
-						"%s: %s read %zu, status %d, Buffer: %s\n",
-						functionName, this->portName, *pnRead, status, pBuffer	);
+		if ( isAscii( pBuffer, strlen(pBuffer) ) )
+		{
+			if ( DEBUG_EDT_SER >= 3 )
+				printf( "%s: %s Read %zu: %s\n", functionName, this->portName, *pnRead, pBuffer );
+			asynPrintIO(	pasynUser, ASYN_TRACEIO_DRIVER, pBuffer, nRead,
+							"%s: %s read %d of %d\n",
+							functionName, this->portName, nRead, nAvailToRead );
+			asynPrint(		pasynUser, ASYN_TRACE_FLOW,
+							"%s: %s read %zu, status %d, Buffer: %s\n",
+							functionName, this->portName, *pnRead, status, pBuffer	);
+		}
+		else
+		{
+			if ( DEBUG_EDT_SER >= 3 )
+				printf( "%s: %s Read %zu\n", functionName, this->portName, *pnRead );
+			asynPrint(		pasynUser, ASYN_TRACE_FLOW,
+							"%s: %s read %zu, status %d\n",
+							functionName, this->portName, *pnRead, status );
+		}
 
 		// Call the parameter callbacks
 		callParamCallbacks();
@@ -630,7 +641,7 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 	uint16_t			requestId	= 0xFFFF;
 	GenCpReadMemPacket	genCpReadMemPacket;
 	GenCpWriteMemPacket	genCpWriteMemPacket;
-	if ( strncmp( m_pPdvDev->dd_p->serial_trigger, "GenCP", MAXSER ) == 0 )
+	if ( 0 && strncmp( m_pPdvDev->dd_p->serial_trigger, "GenCP", MAXSER ) == 0 )
 	{
 		GENCP_STATUS	genStatus;
 		char			cGetSet;	// '?' is a Get, '=' is a Set
@@ -816,11 +827,20 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 		else
 			*pnWritten = sSendBuffer;
 
-		asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
-					"%s: wrote %zu to %s: %s\n",
-					functionName, *pnWritten, this->portName, pBuffer	);
-		asynPrintIO(	pasynUser, ASYN_TRACEIO_DRIVER, pBuffer, *pnWritten,
+		if ( isAscii( pBuffer, strlen(pBuffer) ) )
+		{
+			asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
+						"%s: wrote %zu to %s: %s\n",
+						functionName, *pnWritten, this->portName, pBuffer	);
+			asynPrintIO(pasynUser, ASYN_TRACEIO_DRIVER, pBuffer, *pnWritten,
 						"%s: %s wrote %zu\n", functionName, this->portName, *pnWritten );
+		}
+		else
+		{
+			asynPrint(	pasynUser,	ASYN_TRACE_FLOW,
+						"%s: wrote %zu to %s\n",
+						functionName, *pnWritten, this->portName );
+		}
 	}
 	else if ( pdv_status != 0 )
 	{
