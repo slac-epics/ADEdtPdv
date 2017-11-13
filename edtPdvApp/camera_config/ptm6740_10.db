@@ -17,14 +17,6 @@ record( stringin, "$(P)$(R)CamModelScreen" )
 	field( PINI, "YES" )
 }
 
-# ADCore MinX, MinY, SizeX and SizeY not supported via serial
-# However, they appear to be supported via camlink interface
-# record( longout, "$(P)$(R)MinX"  ) { field( DISA, "1" ) }
-# record( longout, "$(P)$(R)MinY"  ) { field( DISA, "1" ) }
-# record( longout, "$(P)$(R)SizeX" ) { field( DISA, "1" ) }
-# record( longout, "$(P)$(R)SizeY" ) { field( DISA, "1" ) }
-
-# TODO: Add support for BinX, BinY
 
 # Redirect FLNK's from Gain to EdtGain to PulnixGain
 # Gain and EdtGain use range 0..100
@@ -100,6 +92,7 @@ record( longout, "$(P)$(R)PulnixSetGainA" )
 	field( DRVL, "0x042" )
 	field( HOPR, "0x1E8" )
 	field( LOPR, "0x042" )
+    field( SDIS, "$(SerialDisable)")
 }
 record( longout, "$(P)$(R)PulnixSetGainB" )
 {
@@ -112,6 +105,7 @@ record( longout, "$(P)$(R)PulnixSetGainB" )
 	field( DRVL, "0x042" )
 	field( HOPR, "0x1E8" )
 	field( LOPR, "0x042" )
+    field( SDIS, "$(SerialDisable)")
 }
 
 record( longout, $(P)$(R)EdtReConfigCount )
@@ -138,6 +132,7 @@ record( longout, "$(P)$(R)PulnixRefVoltA" )
 	field( LOPR, "0x000" )
 	field( HOPR, "0x1FF" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "VAL" )
 }
 record( longin, "$(P)$(R)PulnixRefVoltA_RBV" )
@@ -148,6 +143,7 @@ record( longin, "$(P)$(R)PulnixRefVoltA_RBV" )
 	field( LOPR, "0x000" )
 	field( HOPR, "0x1FF" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 }
 
 
@@ -161,6 +157,7 @@ record( longout, "$(P)$(R)PulnixRefVoltB" )
 	field( LOPR, "0x000" )
 	field( HOPR, "0x1FF" )
 	field( PINI, "YES" )
+    field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "VAL" )
 }
 record( longin, "$(P)$(R)PulnixRefVoltB_RBV" )
@@ -168,6 +165,7 @@ record( longin, "$(P)$(R)PulnixRefVoltB_RBV" )
 	field( DESC, "Get ref voltage for ch B" )
 	field( DTYP, "stream" )
 	field( INP,	 "@ptm6740_10.proto GetRefVoltB $(PORT).SER" )
+    field( SDIS, "$(SerialDisable)")
 	field( LOPR, "0x000" )
 	field( HOPR, "0x1FF" )
 	field( PINI, "YES" )
@@ -175,8 +173,12 @@ record( longin, "$(P)$(R)PulnixRefVoltB_RBV" )
 
 record( ao, "$(P)$(R)AcquireTime" )
 {
-	field( FLNK, "$(P)$(R)PulnixFreeRunAcquireTime" )
+	field( FLNK, "$(P)$(R)EdtAcquireTime" )
 	field( PREC, "5" )
+}
+record( ao, "$(P)$(R)EdtAcquireTime" )
+{
+	field( FLNK, "$(P)$(R)PulnixFreeRunAcquireTime" )
 }
 
 # PulnixFreeRunAcquireTime
@@ -211,8 +213,8 @@ record( calcout, "$(P)$(R)PulnixExtTrigAcquireTime" )
 	field( INPA,  "$(P)$(R)AcquireTime NPP NMS"  )
 	field( CALC,  "MAX(1,MIN(8,8-LN(.002/A)/LN(2)))" )
 	field( PREC, "0" )
-#	field( FLNK, "$(P)$(R)PulnixPulseAcquireTime" )
-	field( FLNK, "$(P)$(R)PulnixShutterReadSelect" )
+	field( FLNK, "$(P)$(R)PulnixPulseAcquireTime" )
+#	field( FLNK, "$(P)$(R)PulnixShutterReadSelect" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
@@ -240,27 +242,10 @@ record( longin, "$(P)$(R)PulnixGetRawShutter" )
 	field( DESC, "Raw Numeric shutter value" )
 	field( DTYP, "stream" )
 	field( INP,	 "@ptm6740_10.proto GetShutter $(PORT).SER " )
+    field( SDIS, "$(SerialDisable)")
 	field( PINI, "YES" )
 #	field( FLNK, "$(P)$(R)PulnixShutterReadSelect" )
 	field( FLNK, "$(P)$(R)PulnixGetRawTriggerMode" )
-}
-
-# Sends :SHR?
-# Recvs o<mode>S<num>
-# where mode is:
-#	A - Async  shutter mode
-#	D - Direct shutter mode
-#	M - Manual shutter mode
-# and num is an integer whose meaning varies w/ the shutter mode
-record( longin, "$(P)$(R)PulnixGetRawTriggerMode" )
-{
-	field( DESC, "Raw shutter trigger mode" )
-	field( DTYP, "stream" )
-	field( INP,	 "@ptm6740_10.proto GetTriggerMode $(PORT).SER " )
-# I/O Intr not working in current streamDevice version
-#	field( SCAN, "I/O Intr" )
-	field( TPRO, "2" )
-	field( FLNK, "$(P)$(R)PulnixCalcTriggerMode" )
 }
 
 record( longout, "$(P)$(R)PulnixRawShutter" )
@@ -353,6 +338,25 @@ record( mbbo, "$(P)$(R)PulnixTriggerMode" )
 	field( FLNK, "$(P)$(R)PulnixShutterCmdSelect" )
 }
 
+# Sends :SHR?
+# Recvs o<mode>S<num>
+# where mode is:
+#	A - Async  shutter mode
+#	D - Direct shutter mode
+#	M - Manual shutter mode
+# and num is an integer whose meaning varies w/ the shutter mode
+record( longin, "$(P)$(R)PulnixGetRawTriggerMode" )
+{
+	field( DESC, "Raw shutter trigger mode" )
+	field( DTYP, "stream" )
+	field( INP,	 "@ptm6740_10.proto GetTriggerMode $(PORT).SER " )
+    field( SDIS, "$(SerialDisable)")
+# I/O Intr not working in current streamDevice version
+#	field( SCAN, "I/O Intr" )
+	field( TPRO, "2" )
+	field( FLNK, "$(P)$(R)PulnixCalcTriggerMode" )
+}
+
 record( calcout, "$(P)$(R)PulnixCalcTriggerMode" )
 {
 	field( INPA,  "$(P)$(R)PulnixGetRawTriggerMode NPP NMS"  )
@@ -405,6 +409,7 @@ record( longout, "$(P)$(R)PulnixSetExtTrigShutter" )
 	field( DESC, "Select Async shutter speeds" )
 	field( DTYP, "stream" )
 	field( OUT,	 "@ptm6740_10.proto SetAsyncShutter $(PORT).SER " )
+    field( SDIS, "$(SerialDisable)")
 	field( FLNK, "$(P)$(R)PulnixGetRawShutter PP" )
 }
 
@@ -413,6 +418,7 @@ record( longout, "$(P)$(R)PulnixSetDirectShutter" )
 	field( DESC, "Direct shutter setting" )
 	field( DTYP, "stream" )
 	field( OUT,	 "@ptm6740_10.proto SetDirectShutter $(PORT).SER " )
+    field( SDIS, "$(SerialDisable)")
 	field( FLNK, "$(P)$(R)PulnixGetRawShutter PP" )
 }
 
@@ -423,6 +429,7 @@ record( longout, "$(P)$(R)PulnixSetPulseShutter" )
 	field( DESC, "Select Async pulse width shutter" )
 	field( DTYP, "stream" )
 	field( OUT,	 "@ptm6740_10.proto SetAsyncShutter $(PORT).SER " )
+    field( SDIS, "$(SerialDisable)")
 	field( FLNK, "$(P)$(R)PulnixSetTrigPulseWidth" )
 }
 record( calcout, "$(P)$(R)PulnixSetTrigPulseWidth" )
@@ -444,6 +451,7 @@ record( longout, "$(P)$(R)PulnixSetFreeRunShutter" )
 	field( DESC, "Select FreeRun shutter speeds" )
 	field( DTYP, "stream" )
 	field( OUT,	 "@ptm6740_10.proto SetManualShutter $(PORT).SER " )
+    field( SDIS, "$(SerialDisable)")
 	field( FLNK, "$(P)$(R)PulnixGetRawShutter PP" )
 }
 
@@ -469,6 +477,7 @@ record( bo, "$(P)$(R)PulnixAutoGain" )
 	field( DESC, "Auto Gain Balance" )
 	field( DTYP, "stream" )
 	field( OUT,	 "@ptm6740_10.proto SetAutoGain $(PORT).SER" )
+    field( SDIS, "$(SerialDisable)")
 	field( ZNAM, "Disabled" )
 	field( ONAM, "Enabled" )
 	field( PINI, "YES" )
@@ -480,6 +489,7 @@ record( stringin, "$(P)$(R)PulnixModelID_RBV" )
 	field( DESC, "Camera reported model" )
 	field( DTYP, "stream" )
 	field( INP,	 "@ptm6740_10.proto GetModel $(PORT).SER" )
+    field( SDIS, "$(SerialDisable)")
 	field( PINI, "YES" )
 }
 
@@ -488,6 +498,7 @@ record( stringin, "$(P)$(R)PulnixFirmware_RBV" )
 	field( DESC, "Camera reported vers" )
 	field( DTYP, "stream" )
 	field( INP,	 "@ptm6740_10.proto GetVers $(PORT).SER" )
+    field( SDIS, "$(SerialDisable)")
 	field( PINI, "YES" )
 }
 
