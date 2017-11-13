@@ -2,16 +2,18 @@
 # EPICS database for
 # Allied Vision Technoligies GoldEye-008CL
 #
+# GoldEye uses rising edge on trigger, so use normal trigger polarity
+#
 # Protocol root must match db filename root
 # i.e. avtGoldEye008.proto
 
 record( seq, "$(P)$(R)EdtReConfigSeq" )
 {
 	field( DLY0, "0.0" ) field( DOL0, "1" ) field( LNK0, "$(P)$(R)GoldEyeAccessPrivilege.PROC" )
-	field( DLY1, "0.0" ) field( DOL1, "1" ) field( LNK1, "$(P)$(R)Model_RBV.PROC" )
-	field( DLY2, "0.0" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)Manufacturer_RBV.PROC" )
-	field( DLY3, "0.0" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)GoldEyeSerialNumber_RBV.PROC" )
-	field( DLY4, "0.0" ) field( DOL4, "1" ) field( LNK4, "$(P)$(R)GoldEyeFirmwareVersion_RBV.PROC" )
+	field( DLY1, "0.1" ) field( DOL1, "1" ) field( LNK1, "$(P)$(R)Model_RBV.PROC" )
+	field( DLY2, "0.1" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)Manufacturer_RBV.PROC" )
+	field( DLY3, "0.1" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)GoldEyeSerialNumber_RBV.PROC" )
+	field( DLY4, "0.1" ) field( DOL4, "1" ) field( LNK4, "$(P)$(R)GoldEyeFirmwareVersion_RBV.PROC" )
 	field( DLY5, "0.0" ) field( DOL5, "1" ) field( LNK5, "$(P)$(R)GoldEyeModel_RBV.PROC" )
 	field( DLY6, "0.0" ) field( DOL6, "1" ) field( LNK6, "$(P)$(R)GoldEyeTempMainBd_RBV.PROC" )
 	field( DLY7, "0.0" ) field( DOL7, "1" ) field( LNK7, "$(P)$(R)GoldEyeTempSensorBd_RBV.PROC" )
@@ -21,10 +23,13 @@ record( seq, "$(P)$(R)EdtReConfigSeq" )
 }
 record( seq, "$(P)$(R)EdtReConfigSeq2" )
 {
-	field( DLY0, "0.0" ) field( DOL0, "0" ) field( LNK0, "$(P)$(R)GoldEyeFStartFullTrMode_RBV.PROC" )
-	field( DLY2, "0.0" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)GoldEyeAcqStartFullTrMode_RBV.PROC" )
-	field( DLY3, "0.0" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)GoldEyeAcqStopFullTrMode_RBV.PROC" )
-	field( DLY4, "0.0" ) field( DOL4, "1" ) field( LNK4, "$(P)$(R)GoldEyeHeartbeatTimeout_RBV.PROC" )
+	field( DLY0, "0.1" ) field( DOL0, "0" ) field( LNK0, "$(P)$(R)GoldEyeFStartFullTrMode_RBV.PROC" )
+	field( DLY2, "0.1" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)GoldEyeAcqStartFullTrMode_RBV.PROC" )
+	field( DLY3, "0.1" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)GoldEyeAcqStopFullTrMode_RBV.PROC" )
+	field( DLY4, "0.1" ) field( DOL4, "1" ) field( LNK4, "$(P)$(R)GoldEyeHeartbeatTimeout_RBV.PROC" )
+	field( DLY5, "0.1" ) field( DOL5, "1" ) field( LNK5, "$(P)$(R)AcquireTime.PROC" )
+	field( DLY6, "0.1" ) field( DOL6, "1" ) field( LNK6, "$(P)$(R)GoldEyeLine1GlitchFilter.PROC" )
+	field( DLY7, "0.1" ) field( DOL7, "1" ) field( LNK7, "$(P)$(R)GoldEyeFStartTrSrc.PROC" )
 #	field( FLNK, "$(P)$(R)EdtReConfigSeq3" )
 }
 
@@ -207,8 +212,7 @@ record( ai, "$(P)$(R)GoldEyeTemperature_RBV" )
 	field( EGU,  "C" )
 	field( PREC, "1" )
 	field( PINI, "YES" )
-# Temp SCAN fields disabled till comms are more robust
-#	field( SCAN, "1 second" )
+ 	field( SCAN, "5 second" )
     field( SDIS, "$(SerialDisable)")
 }
 
@@ -220,7 +224,7 @@ record( ai, "$(P)$(R)GoldEyeTempMainBd_RBV" )
 	field( EGU,  "C" )
 	field( PREC, "1" )
 	field( PINI, "YES" )
-#	field( SCAN, "5 second" )
+	field( SCAN, "5 second" )
     field( SDIS, "$(SerialDisable)")
 }
 
@@ -232,7 +236,7 @@ record( ai, "$(P)$(R)GoldEyeTempSensorBd_RBV" )
 	field( EGU,  "C" )
 	field( PREC, "1" )
 	field( PINI, "YES" )
-#	field( SCAN, "2 second" )
+	field( SCAN, "5 second" )
     field( SDIS, "$(SerialDisable)")
 }
 
@@ -899,6 +903,32 @@ record( longin, "$(P)$(R)GoldEyeAcqStopFullTrMode_RBV" )
     field( SDIS, "$(SerialDisable)")
 }
 
+# Custom xmit time estimate
+#record( ao, "$(P)$(R)XmitRate" )
+#{
+#    field( DOL,  "40.0e6" )
+#    field( EGU,  "Bytes/Sec" )
+#    field( PREC, "3" )
+#    field( PINI, "YES" )
+#    info( autosaveFields, "VAL" )
+#}
+#record( calc, "$(P)$(R)CamlinkXmitTime" )
+#{
+#    field( INPA, "$(P)$(R)ArraySize_RBV CP MS" )
+#    field( INPB, "$(P)$(R)XmitRate CPP MS" )
+#    field( INPC, "$(P)$(R)HTaps_RBV CPP MS" )
+#    field( INPD, "$(P)$(R)VTaps_RBV CPP MS" )
+#    field( CALC, "(A/B/C/D)" )
+#    field( EGU,  "Sec" )
+#    field( PREC, "5" ) 
+#	field( FLNK, "$(P)$(R)XmitDelay" )
+#}
+# Needed to add about 3ms to get avg 0.5ms DiffVsExp
+record( ao, "$(P)$(R)CamProcDelay" )
+{
+    field( DOL,  "3.0e-3" )
+}
+
 #	0x151D0	RegLineInGlitch Filter[Line1]: 4 byte minimum trigger width in ns
 record( longout, "$(P)$(R)GoldEyeLine1GlitchFilter" )
 {
@@ -907,7 +937,7 @@ record( longout, "$(P)$(R)GoldEyeLine1GlitchFilter" )
 	field( OUT,  "@avtGoldEye008.proto SetUint32(0x151D0) $(PORT).SER" )
 	field( EGU,  "ns" )
 	field( FLNK, "$(P)$(R)GoldEyeLine1GlitchFilter_RBV" )
-#	field( PINI, "YES" )
+	field( PINI, "YES" )
     field( SDIS, "$(SerialDisable)")
 	info( autosaveFields, "VAL" )
 }
