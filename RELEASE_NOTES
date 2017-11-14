@@ -5,6 +5,7 @@ R2.8.0 2017-11-13	bhill
 	Removed genicam related code as it's now working in asyn interpose module asynInterposeGenicam.
 	Tweaked avtGoldEye008 and ptm6740 PINI and ReConfig sequences for more reliable startup and mode changes.
 	Add HOPR and LOPR for opal1000 gain so slider works
+	Update to ADCore/R2.4.0
 
 R2.7.1 2017-10-26	bhill
 	Update to diagTimer/R1.9.1
