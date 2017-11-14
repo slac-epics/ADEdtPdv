@@ -507,6 +507,11 @@ record( bi, "$(P)$(R)OpalAutoGain_RBV" )
 	field( PINI, "YES" )
 }
 
+record( ao, "$(P)$(R)Gain" )
+{
+    field( HOPR, 32 )
+    field( LOPR, 1  )
+}
 record( ao, "$(P)$(R)EdtGain" )
 {
 #	field( TPRO, 2 )
