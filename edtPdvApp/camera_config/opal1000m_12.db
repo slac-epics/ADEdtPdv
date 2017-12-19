@@ -638,7 +638,7 @@ record( calcout, "$(P)$(R)OpalCalcAcquireTime" )
 # Write the AcquireTime to the trigger pulse width
 record( calcout, "$(P)$(R)OpalPulseAcquireTime" )
 {
-	field( INPA, "$(P)$(R)AcquireTime NPP NMS"  )
+	field( INPA, "$(P)$(R)EdtAcquireTime NPP NMS"  )
 	field( INPB, "$(PW_SCALE=1e9)"  )
 	field( CALC, "A*B" )
 	field( OUT,  "$(PWIDTH=) CA NMS" )
@@ -689,7 +689,7 @@ record( fanout, "$(P)$(R)OpalGetAcquireTimeFanout" )
 	field( SELM, "Specified" )
 	field( LNK1, "$(P)$(R)OpalAcquireTime_RBV" )
 	field( LNK2, "$(P)$(R)OpalAcquireTime_RBV" )
-	field( LNK3, "$(P)$(R)OpalPulseAcquireTime_RBV" )
+#	field( LNK3, "$(P)$(R)OpalPulseAcquireTime_RBV" )
 	field( PINI, "YES" )
 }
 
