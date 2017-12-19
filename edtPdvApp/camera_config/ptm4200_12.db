@@ -114,12 +114,12 @@ record( longout, "$(P)$(R)PulnixSetGainB" )
 
 record( seq, "$(P)$(R)EdtReConfigSeq" )
 {
-	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK1, "$(P)$(R)PulnixRefVoltA_RBV.PROC" )
-	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK2, "$(P)$(R)PulnixRefVoltB_RBV.PROC" )
-	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK3, "$(P)$(R)PulnixGetRawShutter.PROC" )
-	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK4, "$(P)$(R)PulnixGetRawTriggerMode.PROC" )
-	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK5, "$(P)$(R)PulnixModelID_RBV.PROC" )
-	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK6, "$(P)$(R)PulnixFirmware_RBV.PROC" )
+	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK1, "$(P)$(R)PulnixRefVoltA_RBV.PROC CA NMS" )
+	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK2, "$(P)$(R)PulnixRefVoltB_RBV.PROC CA NMS" )
+	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK3, "$(P)$(R)PulnixGetRawShutter.PROC CA NMS" )
+	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK4, "$(P)$(R)PulnixGetRawTriggerMode.PROC CA NMS" )
+	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK5, "$(P)$(R)PulnixModelID_RBV.PROC CA NMS" )
+	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK6, "$(P)$(R)PulnixFirmware_RBV.PROC CA NMS" )
 }
 
 # Reference voltage commands
