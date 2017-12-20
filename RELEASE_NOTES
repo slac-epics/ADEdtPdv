@@ -1,6 +1,12 @@
 #
 # SLAC RELEASE_NOTES
 #
+R2.9.0 2017-12-29	bhill
+	Fixed reconfig sequence links to use CA NMS so delays work properly.
+	Fix CA link settings for pulse width links
+	Fixed errors in how orca overrides CamEventCode vs BeamEventCode.
+		Now Orca CamEventCode is locked via DOL to 40 but gui can set BeamEventCode to 140 or slower beam rates.
+
 R2.8.0 2017-11-13	bhill
 	Removed genicam related code as it's now working in asyn interpose module asynInterposeGenicam.
 	Tweaked avtGoldEye008 and ptm6740 PINI and ReConfig sequences for more reliable startup and mode changes.
