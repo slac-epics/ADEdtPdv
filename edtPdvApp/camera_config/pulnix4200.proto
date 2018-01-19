@@ -1,10 +1,11 @@
 #
 InTerminator	= CR;
 OutTerminator	= CR;
+PeekSize		= 0;
 ReplyTimeout	= 800;
-ReadTimeout	= 100;
+ReadTimeout		= 100;
 WriteTimeout	= 100;
-ExtraInput	= Ignore;
+ExtraInput		= Ignore;
 
 # Safe command to send to test communications
 ComTest

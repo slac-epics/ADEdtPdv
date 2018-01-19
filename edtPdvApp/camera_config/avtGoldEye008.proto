@@ -94,6 +94,7 @@ OutTerminator	= LF;
 ReplyTimeout	= 800;
 ReadTimeout		= 100;
 WriteTimeout	= 500;
+PeekSize		= 0;
 ExtraInput		= Ignore;
 
 # Strings

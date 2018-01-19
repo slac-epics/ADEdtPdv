@@ -10,6 +10,7 @@
 #
 InTerminator	= CR;
 OutTerminator	= CR;
+PeekSize		= 0;
 ReplyTimeout	= 800;
 ReadTimeout		= 100;
 WriteTimeout	= 500;
