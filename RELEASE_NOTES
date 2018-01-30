@@ -1,6 +1,12 @@
 #
 # SLAC RELEASE_NOTES
 #
+R2.9.1 2018-1-29	bhill
+	Updated to ADCore/R3.1-2.0.0 and asyn/R4.32-1.0.0
+	Set PeekSize to 0 in protocol files for EDT cameras.
+		No need to make two calls to read 1 byte then subsequent bytes.
+	Add up900 model specific screen.
+
 R2.9.0 2017-12-29	bhill
 	Fixed reconfig sequence links to use CA NMS so delays work properly.
 	Fix CA link settings for pulse width links
