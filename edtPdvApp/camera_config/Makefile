@@ -1,7 +1,7 @@
-# Specify T_A as host arch so we don't create O.$(ARCH) directories and
-# can use DB_INSTALLS directly to install our model specific files
-# No need to do ARCH specific builds here.
-T_A=$(EPICS_HOST_ARCH)
+# # Specify T_A as host arch so we don't create O.$(ARCH) directories and
+# # can use DB_INSTALLS directly to install our model specific files
+# # No need to do ARCH specific builds here.
+# T_A=$(EPICS_HOST_ARCH)
 TOP=../..
 include $(TOP)/configure/CONFIG
 
@@ -10,36 +10,20 @@ include $(TOP)/configure/CONFIG
 #----------------------------------------------------
 
 # Install all models with env files
-MODELS := $(wildcard *.env)
+MODELS := $(wildcard ../*.env)
 MODELS := $(subst .env,,$(MODELS))
-
-# Hamamatsu Orca Flash 4.0 Scientific CMOS Camera
-#MODELS += hamaOrcaFlash4_0
-
-# Uniq UP685
-#MODELS += up685
-
-# Uniq UP900
-#MODELS += up900
-
-# Pulnix 6740 10 bit
-#MODELS += ptm6740_10
-
-# Pulnix 4200 12 bit
-#MODELS += ptm4200_12
-
-# Adimec Opal 1000 12bit
-#MODELS += opal1000m_12
+MODELS := $(subst ../,,$(MODELS))
 
 # Expand to install all needed files
 # Symbolic links can be used if desired for shared files, but
 # each model installed get's its own copy of each file installed
-DB_INSTALLS += $(addsuffix  .db,    $(MODELS))
-DB_INSTALLS += $(addsuffix f.cfg,   $(MODELS))
-DB_INSTALLS += $(addsuffix p.cfg,   $(MODELS))
-DB_INSTALLS += $(addsuffix t.cfg,   $(MODELS))
-DB_INSTALLS += $(addsuffix  .env,   $(MODELS))
-DB_INSTALLS += $(addsuffix  .proto, $(MODELS))
+DB += $(addsuffix  .db,    $(MODELS))
+MODEL_FILES += $(addsuffix f.cfg,   $(MODELS))
+MODEL_FILES += $(addsuffix p.cfg,   $(MODELS))
+MODEL_FILES += $(addsuffix t.cfg,   $(MODELS))
+MODEL_FILES += $(addsuffix  .env,   $(MODELS))
+MODEL_FILES += $(addsuffix  .proto, $(MODELS))
+DB_INSTALLS =  $(addprefix  $(TOP)/edtPdvApp/camera_config/, $(MODEL_FILES))
 
 include $(TOP)/configure/RULES
 #----------------------------------------

@@ -1,0 +1,15 @@
+# A simple MODEL substitutions file which preserves macro defaults
+# but expands any inluded rbvMonitor.template or other templates.
+file hamaOrcaFlash4_0.template
+{
+	{
+		P				= "\$(P)",
+		R				= "\$(R)",
+		PORT			= "\$(PORT)",
+		BEAM_EC_RBV		= "\$(BEAM_EC_RBV=$(P)$(R)CamEventCode_RBV)",
+		BEAM_RATE_RBV	= "\$(BEAM_RATE_RBV=$(P)$(R)CamRepRate_RBV)",
+		PWIDTH			= "\$(PWIDTH=TRIG:PULSE:WIDTH)",
+		PW_SCALE		= "\$(PW_SCALE=1e9)",
+		SerialDisable	= "\$(SerialDisable)"
+	}
+}
