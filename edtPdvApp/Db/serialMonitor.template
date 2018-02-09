@@ -1,10 +1,10 @@
 # serialMonitor.template.template: Use 'substitute "PV=XXX:YYY:PV2MONITOR"' before including this file
 record( calcout, "$(SER_OK_PV):MON_SER" )
 {
-	field( INPA, "$(SER_OK_PV).SEVR NPP MS" )
+	field( INPA, "$(SER_OK_PV).SEVR NPP NMS" )
 	field( CALC, "A>=2" )
 	field( OOPT, "When Non-zero" )
-	field( OUT,	 "$(SER_OK_PV).PROC PP MS" )
+	field( OUT,	 "$(SER_OK_PV).PROC PP NMS" )
 	field( SCAN, "$(MON_SCAN=10 second)" )
 	field( HIGH, "1" )
 	field( HSV,  "MINOR" )
