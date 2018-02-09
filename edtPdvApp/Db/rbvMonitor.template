@@ -1,0 +1,14 @@
+# rbvMonitor.template: Use 'substitute "MON_PV=XXX:YYY:PV2MONITOR"' before including this file
+record( calcout, "$(MON_PV):MON" )
+{
+	field( INPA, "$(SER_OK_PV).SEVR NPP MS" )
+	field( INPB, "$(MON_PV).SEVR NPP MS" )
+	field( CALC, "(A<2) && (B>=2)" )
+	field( OOPT, "When Non-zero" )
+	field( OUT,	 "$(MON_PV).PROC PP MS" )
+	field( SCAN, "$(MON_SCAN=10 second)" )
+	field( HIGH, "1" )
+	field( HSV,  "MINOR" )
+	info( autosaveFields, "" )
+	info( archiveFields,  "" )
+}
