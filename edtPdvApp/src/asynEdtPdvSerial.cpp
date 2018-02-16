@@ -377,10 +377,10 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			if ( DEBUG_EDT_SER >= 3 )
 				printf( "%s: %s Read %zu: %s\n", functionName, this->portName, *pnRead, pBuffer );
 			asynPrintIO(	pasynUser, ASYN_TRACEIO_DRIVER, pBuffer, nRead,
-							"%s: %s read %d of %d\n",
+							"%s: %s  read  %d of %d\n",
 							functionName, this->portName, nRead, nAvailToRead );
 			asynPrint(		pasynUser, ASYN_TRACE_FLOW,
-							"%s: %s read %zu, status %d, Buffer: %s\n",
+							"%s: %s  read  %zu, status %d, Buffer: %s\n",
 							functionName, this->portName, *pnRead, status, pBuffer	);
 		}
 		else
