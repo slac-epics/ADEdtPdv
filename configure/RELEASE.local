@@ -19,7 +19,7 @@
 # Don't set your version to anything such as "test" that
 # could match a directory name.
 # ==========================================================
-ADCORE_MODULE_VERSION		= R3.1-2.0.0
+ADCORE_MODULE_VERSION		= R3.1-2.1.0
 ASYN_MODULE_VERSION			= R4.32-1.0.0
 DIAG_TIMER_MODULE_VERSION	= R1.9.1
 
@@ -39,9 +39,7 @@ EPICS_BASE              = $(EPICS_SITE_TOP)/base/$(BASE_MODULE_VERSION)
 # Check for undefined EPICS_BASE
 -include $(TOP)/../../EPICS_BASE.check
 
-
 #MY_MODULES	= /reg/neh/home/bhill/git-wa-neh/modules
-#MY_MODULES	= /reg/neh/home/bhill/wa2/trunk/pcds/epics/modules
 #ADCORE		= $(MY_MODULES)/ADCore-git
-#ASYN		= $(MY_MODULES)/asyn/current
-#DIAG_TIMER	= $(MY_MODULES)/diagTimer/current
+#ASYN		= $(MY_MODULES)/asyn-git
+#DIAG_TIMER	= $(MY_MODULES)/diagTimer-git
