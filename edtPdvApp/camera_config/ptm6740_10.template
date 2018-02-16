@@ -114,11 +114,11 @@ record( longout, $(P)$(R)EdtReConfigCount )
 }
 record( fanout, $(P)$(R)PulnixReReadFanout )
 {
-	field( LNK1, "$(P)$(R)PulnixRefVoltA_RBV" )
-	field( LNK2, "$(P)$(R)PulnixRefVoltB_RBV" )
-	field( LNK3, "$(P)$(R)PulnixGetRawShutter" )
-	field( LNK5, "$(P)$(R)PulnixModelID_RBV" )
-	field( LNK6, "$(P)$(R)PulnixFirmware_RBV" )
+#	field( LNK1, "$(P)$(R)PulnixRefVoltA_RBV" )
+#	field( LNK2, "$(P)$(R)PulnixRefVoltB_RBV" )
+#	field( LNK3, "$(P)$(R)PulnixGetRawShutter" )
+#	field( LNK5, "$(P)$(R)PulnixModelID_RBV" )
+#	field( LNK6, "$(P)$(R)PulnixFirmware_RBV" )
 }
 
 # Reference voltage commands
@@ -551,3 +551,59 @@ record( ao, "$(P)$(R)XmitRate" )
 #	USSx;y and USS?x	Set and read user defined strings
 #	RQ		Initiate soft request readout
 #	ROIx;y;w;h		Set ROI x offset, y offset, width, and height
+
+# Monitor and reprocess these records automatically when they're undefined
+# Macros:
+#	SER_OK_PV:	PV used to verify serial link, blocks reprocess when UDF 
+#	MON_PV:		PV to monitor
+#	MON_SCAN:	PV used to verify serial link
+
+# Include a serialMonitor.template monitor
+# This should be the first PV you process in the EdtReConfigSeq
+substitute "MON_SCAN=10 second"
+substitute "SER_OK_PV=$(P)$(R)PulnixGetRawShutter"
+include "serialMonitor.template"
+
+# 1 second RBV monitors
+substitute "MON_SCAN=1 second"
+substitute "MON_PV=$(P)$(R)PulnixGetRawTriggerMode"
+include "rbvMonitor.template"
+
+# 10 second RBV monitors
+substitute "MON_SCAN=10 second"
+substitute "MON_PV=$(P)$(R)PulnixRefVoltA_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)PulnixRefVoltB_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)PulnixModelID_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)PulnixFirmware_RBV"
+include "rbvMonitor.template"
+
+# 1 second PUT monitors
+substitute "MON_SCAN=1 second"
+substitute "MON_PV= $(P)$(R)PulnixMinY"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSetExtTrigShutter"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSetDirectShutter"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSetPulseShutter"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSetFreeRunShutter"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSizeY"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSetGainA"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSetGainB"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixRefVoltA"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixRefVoltB"
+include "putMonitor.template"
+
+# 10 second PUT monitors
+substitute "MON_SCAN=10 second"
+substitute "MON_PV= $(P)$(R)PulnixAutoGain"
+include "putMonitor.template"

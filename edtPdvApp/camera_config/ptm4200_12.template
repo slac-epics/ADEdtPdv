@@ -114,12 +114,12 @@ record( longout, "$(P)$(R)PulnixSetGainB" )
 
 record( seq, "$(P)$(R)EdtReConfigSeq" )
 {
-	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK1, "$(P)$(R)PulnixRefVoltA_RBV.PROC CA NMS" )
-	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK2, "$(P)$(R)PulnixRefVoltB_RBV.PROC CA NMS" )
-	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK3, "$(P)$(R)PulnixGetRawShutter.PROC CA NMS" )
-	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK4, "$(P)$(R)PulnixGetRawTriggerMode.PROC CA NMS" )
-	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK5, "$(P)$(R)PulnixModelID_RBV.PROC CA NMS" )
-	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK6, "$(P)$(R)PulnixFirmware_RBV.PROC CA NMS" )
+#	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK1, "$(P)$(R)PulnixRefVoltA_RBV.PROC CA NMS" )
+#	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK2, "$(P)$(R)PulnixRefVoltB_RBV.PROC CA NMS" )
+#	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK3, "$(P)$(R)PulnixGetRawShutter.PROC CA NMS" )
+#	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK4, "$(P)$(R)PulnixGetRawTriggerMode.PROC CA NMS" )
+#	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK5, "$(P)$(R)PulnixModelID_RBV.PROC CA NMS" )
+#	field( DLY1, 0.5 ) field( DOL1, "1" )	field( LNK6, "$(P)$(R)PulnixFirmware_RBV.PROC CA NMS" )
 }
 
 # Reference voltage commands
@@ -595,3 +595,61 @@ record( mbbo, "$(P)$(R)PulnixTriggerPolarity" )
 	field( ONVL, "1" )	field( ONST, "ActiveHigh" )
 	info( autosaveFields, "VAL" )
 }
+
+# Monitor and reprocess these records automatically when they're undefined
+# Macros:
+#	SER_OK_PV:	PV used to verify serial link, blocks reprocess when UDF 
+#	MON_PV:		PV to monitor
+#	MON_SCAN:	PV used to verify serial link
+
+# Include a serialMonitor.template monitor
+# This should be the first PV you process in the EdtReConfigSeq
+substitute "MON_SCAN=10 second"
+substitute "SER_OK_PV=$(P)$(R)PulnixGetRawShutter"
+include "serialMonitor.template"
+
+# 1 second RBV monitors
+substitute "MON_SCAN=1 second"
+substitute "MON_PV=$(P)$(R)PulnixGetRawTriggerMode"
+include "rbvMonitor.template"
+
+# 10 second RBV monitors
+substitute "MON_SCAN=10 second"
+substitute "MON_PV=$(P)$(R)PulnixRefVoltA_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)PulnixRefVoltB_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)PulnixModelID_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)PulnixFirmware_RBV"
+include "rbvMonitor.template"
+
+# 1 second PUT monitors
+substitute "MON_SCAN=1 second"
+substitute "MON_PV= $(P)$(R)PulnixMinY"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSetExtTrigShutter"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSetDirectShutter"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSetPulseShutter"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSetFreeRunShutter"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSizeY"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSetGainA"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSetGainB"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixRefVoltA"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixRefVoltB"
+include "putMonitor.template"
+
+# 10 second PUT monitors
+substitute "MON_SCAN=10 second"
+substitute "MON_PV= $(P)$(R)PulnixAutoGain"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixTriggerPolarity"
+include "putMonitor.template"

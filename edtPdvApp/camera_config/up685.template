@@ -233,3 +233,37 @@ record( ao, "$(P)$(R)XmitRate" )
 #	USSx;y and USS?x	Set and read user defined strings
 #	RQ		Initiate soft request readout
 #	ROIx;y;w;h		Set ROI x offset, y offset, width, and height
+
+# Monitor and reprocess these records automatically when they're undefined
+# Macros:
+#	SER_OK_PV:	PV used to verify serial link, blocks reprocess when UDF 
+#	MON_PV:		PV to monitor
+#	MON_SCAN:	PV used to verify serial link
+
+# Include a serialMonitor.template monitor
+# This should be the first PV you process in the EdtReConfigSeq
+substitute "MON_SCAN=10 second"
+substitute "SER_OK_PV= $(P)$(R):Report"
+include "serialMonitor.template"
+
+# 1 second RBV monitors
+substitute "MON_SCAN=1 second"
+substitute "MON_PV= $(P)$(R):ReadRawShutter"
+include "rbvMonitor.template"
+substitute "MON_PV= $(P)$(R):ReadGain"
+include "rbvMonitor.template"
+substitute "MON_PV= $(P)$(R):ShutterMode"
+include "rbvMonitor.template"
+
+# 10 second RBV monitors
+substitute "MON_SCAN=10 second"
+substitute "MON_PV= $(P)$(R):ReadReference"
+include "rbvMonitor.template"
+substitute "MON_PV= $(P)$(R):ReadDoubleSpeed"
+include "rbvMonitor.template"
+
+substitute "MON_SCAN=1 second"
+substitute "MON_PV= $(P)$(R):SetGain"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R):SetRawShutter"
+include "putMonitor.template"

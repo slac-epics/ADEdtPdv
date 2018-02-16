@@ -10,26 +10,27 @@
 record( seq, "$(P)$(R)EdtReConfigSeq" )
 {
 	field( DLY0, "0.0" ) field( DOL0, "1" ) field( LNK0, "$(P)$(R)GoldEyeAccessPrivilege.PROC CA NMS" )
-	field( DLY1, "0.1" ) field( DOL1, "1" ) field( LNK1, "$(P)$(R)Model_RBV.PROC CA NMS" )
-	field( DLY2, "0.1" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)Manufacturer_RBV.PROC CA NMS" )
-	field( DLY3, "0.1" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)GoldEyeSerialNumber_RBV.PROC CA NMS" )
-	field( DLY4, "0.1" ) field( DOL4, "1" ) field( LNK4, "$(P)$(R)GoldEyeFirmwareVersion_RBV.PROC CA NMS" )
-	field( DLY5, "0.0" ) field( DOL5, "1" ) field( LNK5, "$(P)$(R)GoldEyeModel_RBV.PROC CA NMS" )
-	field( DLY6, "0.0" ) field( DOL6, "1" ) field( LNK6, "$(P)$(R)GoldEyeTempMainBd_RBV.PROC CA NMS" )
-	field( DLY7, "0.0" ) field( DOL7, "1" ) field( LNK7, "$(P)$(R)GoldEyeTempSensorBd_RBV.PROC CA NMS" )
-	field( DLY8, "0.0" ) field( DOL8, "1" ) field( LNK8, "$(P)$(R)GoldEyeTemperature_RBV.PROC CA NMS" )
+	field( DLY1, "0.1" ) field( DOL1, "1" ) field( LNK1, "$(P)$(R)GoldEyeExposureValue_RBV.PROC CA NMS" )
+	field( DLY2, "0.1" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)GoldEyeAcqStartFullTrMode_RBV.PROC CA NMS" )
+	field( DLY3, "0.1" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)GoldEyeAcqStopFullTrMode_RBV.PROC CA NMS" )
+	field( DLY5, "0.1" ) field( DOL5, "0" ) field( LNK0, "$(P)$(R)GoldEyeFStartFullTrMode_RBV.PROC CA NMS" )
+	field( DLY6, "0.1" ) field( DOL6, "1" ) field( LNK6, "$(P)$(R)GoldEyeLine1GlitchFilter.PROC CA NMS" )
+	field( DLY7, "0.1" ) field( DOL7, "1" ) field( LNK7, "$(P)$(R)GoldEyeFStartTrSrc.PROC CA NMS" )
+	field( DLY8, "0.1" ) field( DOL4, "1" ) field( LNK8, "$(P)$(R)GoldEyeHeartbeatTimeout_RBV.PROC CA NMS" )
 #   field( TPRO, 1 )
 	field( FLNK, "$(P)$(R)EdtReConfigSeq2" )
 }
 record( seq, "$(P)$(R)EdtReConfigSeq2" )
 {
-	field( DLY0, "0.1" ) field( DOL0, "0" ) field( LNK0, "$(P)$(R)GoldEyeFStartFullTrMode_RBV.PROC CA NMS" )
-	field( DLY2, "0.1" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)GoldEyeAcqStartFullTrMode_RBV.PROC CA NMS" )
-	field( DLY3, "0.1" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)GoldEyeAcqStopFullTrMode_RBV.PROC CA NMS" )
-	field( DLY4, "0.1" ) field( DOL4, "1" ) field( LNK4, "$(P)$(R)GoldEyeHeartbeatTimeout_RBV.PROC CA NMS" )
-	field( DLY5, "0.1" ) field( DOL5, "1" ) field( LNK5, "$(P)$(R)AcquireTime.PROC CA NMS" )
-	field( DLY6, "0.1" ) field( DOL6, "1" ) field( LNK6, "$(P)$(R)GoldEyeLine1GlitchFilter.PROC CA NMS" )
-	field( DLY7, "0.1" ) field( DOL7, "1" ) field( LNK7, "$(P)$(R)GoldEyeFStartTrSrc.PROC CA NMS" )
+
+#	field( DLY1, "0.1" ) field( DOL1, "1" ) field( LNK1, "$(P)$(R)Model_RBV.PROC CA NMS" )
+#	field( DLY2, "0.1" ) field( DOL2, "1" ) field( LNK2, "$(P)$(R)Manufacturer_RBV.PROC CA NMS" )
+#	field( DLY3, "0.1" ) field( DOL3, "1" ) field( LNK3, "$(P)$(R)GoldEyeSerialNumber_RBV.PROC CA NMS" )
+#	field( DLY4, "0.1" ) field( DOL4, "1" ) field( LNK4, "$(P)$(R)GoldEyeFirmwareVersion_RBV.PROC CA NMS" )
+#	field( DLY5, "0.0" ) field( DOL5, "1" ) field( LNK5, "$(P)$(R)GoldEyeModel_RBV.PROC CA NMS" )
+#	field( DLY6, "0.1" ) field( DOL6, "1" ) field( LNK6, "$(P)$(R)GoldEyeTempMainBd_RBV.PROC CA NMS" )
+#	field( DLY7, "0.1" ) field( DOL7, "1" ) field( LNK7, "$(P)$(R)GoldEyeTempSensorBd_RBV.PROC CA NMS" )
+#	field( DLY8, "0.1" ) field( DOL8, "1" ) field( LNK8, "$(P)$(R)GoldEyeTemperature_RBV.PROC CA NMS" )
 #	field( FLNK, "$(P)$(R)EdtReConfigSeq3" )
 }
 
@@ -983,3 +984,100 @@ record( longin, "$(P)$(R)GoldEyeLine1GlitchFilter_RBV" )
 #	0xB00D0	RegAFE_LvdsTestSelector: 4 bytes 0..4
 #	0xB00D4	RegAFE_LvdsTestPattern: 4 bytes 0..65535
 #
+
+# Monitor and reprocess these records automatically when they're undefined
+# Macros:
+#	SER_OK_PV:	PV used to verify serial link, blocks reprocess when UDF 
+#	MON_PV:		PV to monitor
+#	MON_SCAN:	PV used to verify serial link
+
+# Include a serialMonitor.template monitor
+# This should be the first PV you process in the EdtReConfigSeq
+substitute "MON_SCAN=10 second"
+substitute "SER_OK_PV=$(P)$(R)GoldEyeAccessPrivilege.PROC"
+include "serialMonitor.template"
+
+# 1 second RBV monitors
+substitute "MON_SCAN=1 second"
+substitute "MON_PV=$(P)$(R)GoldEyeExposureValue_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)GoldEyeAcqStartFullTrMode_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)GoldEyeAcqStopFullTrMode_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)GoldEyeHeartbeatTimeout_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)GoldEyeFStartFullTrMode_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)GoldEyeLine1GlitchFilter"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)GoldEyeFStartTrSrc"
+include "rbvMonitor.template"
+
+# 10 second RBV monitors
+substitute "MON_SCAN=10 second"
+substitute "MON_PV=$(P)$(R)OrcaHeight_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)Model_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)Manufacturer_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)GoldEyeSerialNumber_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)GoldEyeFirmwareVersion_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)GoldEyeModel_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)GoldEyeTempMainBd_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)GoldEyeTempSensorBd_RBV"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)GoldEyeTemperature_RBV"
+include "rbvMonitor.template"
+
+# 1 second PUT monitors
+substitute "MON_SCAN=1 second"
+substitute "MON_PV= $(P)$(R)GoldEyeAccessPrivilege"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)GoldEyeExposureValue"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)GoldEyeBinX"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)GoldEyeBinY"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)GoldEyeMinX"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)GoldEyeMinY"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)GoldEyeSizeX"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)GoldEyeSizeY"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)GoldEyeAcquirePeriod"
+include "putMonitor.template"
+substitute "MON_PV= $(R)GoldEyeFStartTrEvent"
+include "putMonitor.template"
+substitute "MON_PV= $(R)GoldEyeAcqStartTrEvent"
+include "putMonitor.template"
+substitute "MON_PV= $(R)GoldEyeAcqStopTrEvent"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)GoldEyeFStartFullTrMode"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)GoldEyeAcqStartFullTrMode"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)GoldEyeAcqStopFullTrMode"
+include "putMonitor.template"
+substitute "MON_PV= $(R)GoldEyeAcquire"
+include "putMonitor.template"
+substitute "MON_PV= $(R)GoldEyeResetDevice"
+include "putMonitor.template"
+
+# 10 second PUT monitors
+substitute "MON_SCAN=10 second"
+substitute "MON_PV= $(P)$(R)GoldEyeLine1GlitchFilter"
+include "putMonitor.template"
+substitute "MON_PV= $(R)GoldEyeSoftwareTrigger"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)GoldEyeHeartbeatTimeout"
+include "putMonitor.template"
+
