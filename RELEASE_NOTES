@@ -1,6 +1,11 @@
 #
 # SLAC RELEASE_NOTES
 #
+R3.0.0 2018-4-2	bhill
+	Updated to ADCore/R3.1-2.1.1
+	Made the monitor db links NMS to avoid propagating INVALID status via links.
+	Adding new put, rbv, and serial PV monitor templates.
+
 R2.9.1 2018-1-29	bhill
 	Updated to ADCore/R3.1-2.0.0 and asyn/R4.32-1.0.0
 	Set PeekSize to 0 in protocol files for EDT cameras.
