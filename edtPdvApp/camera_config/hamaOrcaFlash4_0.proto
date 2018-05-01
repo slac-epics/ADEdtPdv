@@ -12,8 +12,8 @@ ExtraInput		= Ignore;
 # Safe command to send to test communications
 ComTest
 {
-	out	"?CAI T";
-	in	 "CAI T %s";
+	out	"?VER";
+	in	 "VER %s";
 }
 
 # Get firmware version

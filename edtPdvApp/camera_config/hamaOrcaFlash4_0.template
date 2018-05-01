@@ -305,11 +305,17 @@ record( ai, "$(P)$(R)Gain_RBV"    ) { field( DISA, "1" ) }
 # SizeY is derived from (MaxSizeY_RBV - MinY)
 record( longout, "$(P)$(R)SizeY"  ) { field( DISA, "1" ) }
 
-# Limit SizeX to 2048 
+# Limit SizeX to 2048 since columns 2049 and 2050 contain non-pixel data
 record(longout, "$(P)$(R)SizeX")
 {
    field( VAL,  2048 )
+   field( DRVH, 2048 )
    field( HOPR, 2048 )
+   field( HIGH, 2049 )
+   field( HSV,  "MINOR" )
+}
+record(longin, "$(P)$(R)SizeX_RBV")
+{
    field( HIGH, 2049 )
    field( HSV,  "MINOR" )
 }
