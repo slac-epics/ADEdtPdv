@@ -474,6 +474,7 @@ record( bo, "$(P)$(R)PulnixAutoGain" )
     field( SDIS, "$(SerialDisable)")
 	field( ZNAM, "Disabled" )
 	field( ONAM, "Enabled" )
+	field( PINI, "YES" )
 }
 
 record( stringin, "$(P)$(R)PulnixModelID_RBV" )
@@ -584,7 +585,7 @@ record( ao, "$(P)$(R)CamProcDelay" )
     field( DOL,  "3.0e-4" )
 }
 
-# TODO: Add support for trigger polarity
+# Pulnix trigger polarity
 # Set via :TAH={ActiveLow,ActiveHigh}
 record( mbbo, "$(P)$(R)PulnixTriggerPolarity" )
 {
@@ -593,6 +594,7 @@ record( mbbo, "$(P)$(R)PulnixTriggerPolarity" )
 	field( OUT,  "@ptm4200_12.proto SetTrigPolarity $(PORT).SER" )
 	field( ZRVL, "0" )	field( ZRST, "ActiveLow" )
 	field( ONVL, "1" )	field( ONST, "ActiveHigh" )
+	field( PINI, "YES" )
 	info( autosaveFields, "VAL" )
 }
 
