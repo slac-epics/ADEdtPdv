@@ -19,7 +19,7 @@ ctlBgColor1 index 12
 ctlBgColor2 index 5
 topShadowColor index 1
 botShadowColor index 11
-title "Pulnix 4200/CL"
+title "Uniq UP900-CL"
 showGrid
 snapToGrid
 gridSize 4
@@ -156,7 +156,7 @@ x 144
 y 32
 w 176
 h 20
-controlPv "$(P)$(R)PulnixModelID_RBV"
+controlPv "$(P)$(R)Up900ModelID_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -180,7 +180,7 @@ x 328
 y 192
 w 108
 h 20
-controlPv "$(P)$(R)PulnixRefVoltB_RBV"
+controlPv "$(P)$(R)Up900ReadDoubleSpeed"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -310,7 +310,7 @@ x 144
 y 88
 w 176
 h 20
-controlPv "$(P)$(R)PulnixFirmware_RBV"
+controlPv "$(P)$(R)Up900Firmware_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -592,7 +592,7 @@ x 328
 y 164
 w 108
 h 20
-controlPv "$(P)$(R)PulnixRefVoltA_RBV"
+controlPv "$(P)$(R)Up900ReadReference"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -779,7 +779,7 @@ x 372
 y 360
 w 88
 h 20
-controlPv "$(P)$(R)PulnixTriggerMode_RBV"
+controlPv "$(P)$(R)Up900ReadGain"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -809,7 +809,7 @@ fontAlign "center"
 fgColor index 14
 bgColor index 3
 value {
-  "Pulnix"
+  "Up900"
 }
 endObjectProperties
 
@@ -828,7 +828,7 @@ fontAlign "center"
 fgColor index 14
 bgColor index 3
 value {
-  "Pulnix"
+  "Up900"
 }
 endObjectProperties
 
@@ -842,7 +842,7 @@ x 372
 y 384
 w 88
 h 20
-controlPv "$(P)$(R)PulnixCalcFreeRunShutter"
+controlPv "$(P)$(R)Up900FreeRunShutter"
 format "gfloat"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
@@ -869,7 +869,7 @@ x 300
 y 360
 w 64
 h 20
-controlPv "$(P)$(R)PulnixTriggerMode"
+controlPv "$(P)$(R)Up900SetGain"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -1036,7 +1036,7 @@ x 464
 y 360
 w 40
 h 20
-controlPv "$(P)$(R)PulnixCalcTriggerMode"
+controlPv "$(P)$(R)Up900CalcTriggerMode"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -1061,7 +1061,7 @@ x 372
 y 408
 w 88
 h 20
-controlPv "$(P)$(R)PulnixCalcExtTrigShutter"
+controlPv "$(P)$(R)Up900TrigShutter"
 format "float"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
@@ -1088,7 +1088,7 @@ x 372
 y 432
 w 88
 h 20
-controlPv "$(P)$(R)PulnixPulseAcquireTime_RBV"
+controlPv "$(P)$(R)Up900AcquireTimeSelect_RBV"
 format "float"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
@@ -1172,7 +1172,7 @@ x 300
 y 432
 w 64
 h 20
-controlPv "$(P)$(R)PulnixPulseAcquireTime"
+controlPv "$(P)$(R)Up900AcquireTimeSelect"
 format "float"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
@@ -1199,7 +1199,7 @@ x 300
 y 408
 w 64
 h 20
-controlPv "$(P)$(R)PulnixExtTrigAcquireTime"
+controlPv "$(P)$(R)Up900ExtTrigAcquireTime"
 format "float"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
@@ -1226,7 +1226,7 @@ x 300
 y 384
 w 64
 h 20
-controlPv "$(P)$(R)PulnixPulseAcquireTime"
+controlPv "$(P)$(R)Up900AcquireTimeSelect"
 format "gfloat"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
@@ -1291,7 +1291,7 @@ x 216
 y 164
 w 100
 h 20
-controlPv "$(P)$(R)PulnixRefVoltA"
+controlPv "$(P)$(R)Up900RefVoltA"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
@@ -1319,7 +1319,7 @@ x 216
 y 192
 w 100
 h 20
-controlPv "$(P)$(R)PulnixRefVoltB"
+controlPv "$(P)$(R)Up900RefVoltB"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
