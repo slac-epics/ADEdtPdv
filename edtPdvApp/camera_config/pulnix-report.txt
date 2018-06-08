@@ -1,0 +1,63 @@
+# Report Current Status
+> :RPST
+:oRR0320069E032503E8BF982C2CFFFFFFFF00000800081F06AB
+> :RPST
+:oRR000000000302081BBF992C2C0000B43A00000800081F0800
+0000	# Master Gain
+0000	# R Ch Fine Gain
+0302	# Master Offset
+081B	# R Channel Fine Offset
+BF		# Byte 9: Pixel Order C, ScanArea U
+		#	Bit 0-3 Scan Area: 0000=A(2048x2048), 0001=B(2048x1000), 00010=C(2048x500), 0011=D(2048x250),
+		# 		0100=T(2x2 binned 2048x2048), 1111=U(User Prog), 1000=DigZoomX1, 1001=DigZoomX2
+		#	Bits 4-5 reserved
+		#	Bits 6-7 pixel output order: 00=A, 01=B, 10=C
+99		# Byte 10: 12Bit, Trig Preset, PulseWidthCtrl
+		#	Bits 0-3 Trigger Mode: 0000=AsyncNoShutter, 0001-?=AsyncPreset1-8, 1001=PWC, 1010=PIV,1011=PIV-PWC
+		#	Bits 4-5 Shutter Mode: 00=Continuous, 01=Trig Preset, 10=Trig Prog, 11=Cont Prog
+		#	Bits 6-7 Data Bits: 00=8bit, 01=10bit, 10=12bit
+2C		# Byte 11: Pos LUT, Dual Tap, Active High Trig, Hirose12pin, Linear LUT
+		#	Bits 0-1 Lookup Table: 00=Linear, 01=Gamma.45, 10=User
+		#	Bit 2 Reserved
+		#	Bit 3 Ctrl Signals: 0=Camlink, 1=Hirose 12pin
+		#	Bit 4 Reserved
+		#	Bit 5 Trigger Polarity: 0=Active Low, 1=Active High
+		#	Bit 6 Dual/Single Tap: 0=Dual Tap, 1=Single Tap
+		#	Bit 7 Pos/Neg LUT: 0=Positive LUT, 1=Negative LUT
+2C		# Byte 12: TestPatternOff, PasswordOff, AutoOffsetOff, AutoGainOff
+		#	Bit 0 R Ch Auto Gain: 0=Disable, 1=Enable
+		#	Bit 1 R Ch Auto Offset: 0=Disable, 1=Enable
+		#	Bits 2-3 reserved
+		#	Bit 4 Blemish compensation: 0=Disable, 1=Enable
+		#	Bit 5 reserved
+		#	Bit 6 password: 0=Disabled, 1=Enable
+		#	Bit 7 Test Pattern: 0=Disabled, 1=Enable
+0000	# Byte 13-14 Knee 1 coordinate
+B43A	# Byte 15-16 Knee 2 coordinate
+0000	# Byte 17-18 Start Line Prog Scan
+0800	# Byte 19-20 Total Lines Prog Scan
+081F	# Byte 21-22 Shutter Speed Prog Shutter
+0800	# Byte 23-24 Vsub Voltage
+
+> :RDPG 1
+:e
+
+# Report Page 1, Power up settings
+> :RDPG1
+:oP1032007D0030208343099642C0000B43AFFFFFFFF081F0800
+0320
+07D0
+0302
+0834
+30		# Byte 9: Pixel order A, ScanArea=A
+99		# Byte 10: 12Bit, Trig Preset, PulseWidthCtrl
+64		# Byte 11: Pos LUT, Single Tap, Active High Trig, CamLinkTrig, Linear LUT
+2C		# Byte 12: TestPatternOff, PasswordOff, AutoOffsetOff, AutoGainOff
+0000
+B43A
+FFFF
+FFFF
+081F
+0800
+
+
