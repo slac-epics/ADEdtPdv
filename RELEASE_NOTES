@@ -1,6 +1,13 @@
 #
 # SLAC RELEASE_NOTES
 #
+R3.1.0 2018-6-8	bhill
+	Hardened 2048 limit on Orca SizeX to clip non-pixel columns
+	Fixed Pulnix 4200 10bit vs 12 bit EDT cfg error in freerun and triggered mode.
+	Pulnix 4200 fix for TriggerMode_RBV not updating.
+	Added more PVs to up900 and ptm4200_12 screens.
+	Fix linuxRT-x86_64 build.
+
 R3.0.0 2018-4-2	bhill
 	Updated to ADCore/R3.1-2.1.1
 	Made the monitor db links NMS to avoid propagating INVALID status via links.
