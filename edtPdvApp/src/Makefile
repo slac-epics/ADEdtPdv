@@ -3,7 +3,9 @@ include $(TOP)/configure/CONFIG
 #----------------------------------------
 #  ADD MACRO DEFINITIONS AFTER THIS LINE
 
-PROD_IOC	+= edtGenCpTool
+ifneq '$(T_A)' 'linuxRT-x86_64'
+PROD_IOC_Linux	+= edtGenCpTool
+endif
 
 edtGenCpTool_SRCS	+= GenCpPacket.cpp
 edtGenCpTool_SRCS	+= edtGenCpTool.cpp
