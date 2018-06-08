@@ -16,6 +16,10 @@ ComTest
 
 
 # Get shutter setting
+# :SHR?
+# oAS8
+# Shutter mode    is AS  {Manual|Async|Direct}
+# Shutter setting is 8
 GetShutter
 {
 	out	":SHR?";	in	":o%*{M|A|D}S%X";
@@ -23,6 +27,10 @@ GetShutter
 }
 
 # Get shutter mode
+# :SHR?
+# oAS8
+# Shutter mode    is AS  {Manual|Async|Direct}
+# Shutter setting is 8
 GetTriggerMode
 {
 	out ":SHR?";
@@ -33,13 +41,6 @@ GetTriggerMode
 	@init { out	":SHR?";	in	":o%{M|A|D}S%*X"; }
 }
 
-# Get shutter mode
-GetShutterMode
-{
-	out ":SHR?";
-	in	":o%{M|A|D}S%*X";
-	@init { out	":SHR?";	in	":o%{M|A|D}S%*X"; }
-}
 
 # Set direct shutter speed
 # Shutter stays open for specified number of scan lines

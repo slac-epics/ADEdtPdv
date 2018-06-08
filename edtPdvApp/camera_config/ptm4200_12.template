@@ -235,6 +235,7 @@ record( calcout, "$(P)$(R)PulnixPulseAcquireTime" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
 
+# Raw Shutter Setting: 0-9
 record( longin, "$(P)$(R)PulnixGetRawShutter" )
 {
 	field( DESC, "Raw Numeric shutter value" )
@@ -342,11 +343,14 @@ record( mbbo, "$(P)$(R)PulnixTriggerMode" )
 #	D - Direct shutter mode
 #	M - Manual shutter mode
 # and num is an integer whose meaning varies w/ the shutter mode
-record( longin, "$(P)$(R)PulnixGetRawTriggerMode" )
+record( mbbi, "$(P)$(R)PulnixGetRawTriggerMode" )
 {
 	field( DESC, "Raw shutter trigger mode" )
 	field( DTYP, "stream" )
 	field( INP,	 "@ptm4200_12.proto GetTriggerMode $(PORT).SER " )
+	field( ZRVL, "0" )	field( ZRST, "Manual" )
+	field( ONVL, "1" )	field( ONST, "Async" )
+	field( TWVL, "2" )	field( TWST, "Direct" )
     field( SDIS, "$(SerialDisable)")
 	field( PINI, "YES" )
 	field( FLNK, "$(P)$(R)PulnixCalcTriggerMode" )
@@ -355,7 +359,7 @@ record( longin, "$(P)$(R)PulnixGetRawTriggerMode" )
 record( calcout, "$(P)$(R)PulnixCalcTriggerMode" )
 {
 	field( INPA,  "$(P)$(R)PulnixGetRawTriggerMode NPP NMS"  )
-	field( INPB,  "$(P)$(R)PulnixGetRawShutter NPP NMS"  )
+	field( INPB,  "$(P)$(R)PulnixGetRawShutter CPP NMS"  )
 	field( CALC,  "A==0?0:(A==1?(B!=9?1:2):3)" )
 	field( PREC, "0" )
 	field( OUT,  "$(P)$(R)PulnixTriggerMode_RBV PP MS" )
