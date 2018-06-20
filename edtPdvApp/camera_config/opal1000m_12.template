@@ -557,7 +557,7 @@ record( longin, "$(P)$(R)OpalGain_RBV" )
     field( INP,	 "@opal1000m_12.proto GetInt(GA) $(PORT).SER" )
 	field( PINI, "YES" )
     field( FLNK, "$(P)$(R)OpalCalcGain_RBV" )
-	info( autosaveFields, "DESC VAL" )
+	info( autosaveFields, "DESC" )
 	info( archiveFields,  "DESC VAL" )
     field( SDIS, "$(SerialDisable)")
 }
