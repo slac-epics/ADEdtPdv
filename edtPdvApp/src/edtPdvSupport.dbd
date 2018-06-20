@@ -13,6 +13,7 @@ registrar(	edt_set_verbosityRegister	)
 variable(	DEBUG_EDT_PDV,	int	)
 variable(	DEBUG_EDT_SER,	int	)
 
+function( Up900Shutter_Process )
 #function(HWroiInit)
 #function(HWroiProc)
 #function(resetImageTiming)

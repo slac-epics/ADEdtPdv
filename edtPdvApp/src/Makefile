@@ -27,6 +27,7 @@ LIB_SRCS += asynEdtPdvSerial.cpp
 LIB_SRCS += edtPdvCamera.cpp
 LIB_SRCS += syncDataAcq.cpp
 LIB_SRCS += GenCpPacket.cpp
+LIB_SRCS += aSubs.cpp
 
 # TODO: Remove this local copy of an EDT src file for
 # future pdv lib versions that provide it

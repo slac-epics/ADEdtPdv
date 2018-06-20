@@ -10,39 +10,46 @@ ExtraInput	= Ignore;
 ComTest
 {
 	out	"rp";
-	in	"G %*x R %*x S %*i %*{NS|DS} %*{AM|NM} %*s\r\r"
+	in	"G %*x R %*x S %*x %*{NS|DS} %*{AM|NM} %*s\r"
 }
 
 # Report camera settings
 Report
 {
 	out	"rp";
-	in	"G %*x R %*x S %*i %*{NS|DS} %{AM|NM} %*s\r\r"
+	in	"G %*x R %*x S %*x %*{NS|DS} %{AM|NM} %*s\r"
+#	     G 000 R 000 S 0   NS         AM      PC
 }
 
 ReadGain
 {
-	in	"G %x R %*x S %*i %*{NS|DS} %*{AM|NM} %*s\r\r"
+	out	"rp";
+	in	"G %x R %*x S %*x %*{NS|DS} %*{AM|NM} %*s\r"
 }
 
 ReadReference
 {
-	in	"G %*x R %x S %*i %*{NS|DS} %*{AM|NM} %*s\r\r"
+	out	"rp";
+	in	"G %*x R %x S %*x %*{NS|DS} %*{AM|NM} %*s\r"
 }
 
 ReadShutterMode
 {
-	in	"G %*x R %*x S %i %*{NS|DS} %*{AM|NM} %*s\r\r"
-}
-
-ReadDoubleSpeed
-{
-	in	"G %*x R %*x S %*i %{NS|DS} %*{AM|NM} %*s\r\r"
+	out	"rp";
+	in	"G %*x R %*x S %x %*{NS|DS} %*{AM|NM} %*s\r"
+#	     G 000 R 000 S 0   NS         AM      PC
 }
 
 ReadFreeRun
 {
-	in	"G %*x R %*x S %*i %*{NS|DS} %{AM|NM} %*s\r\r"
+	out	"rp";
+	in	"G %*x R %*x S %*x %*{NS|DS} %{AM|NM} %*s\r"
+}
+
+ReadDoubleSpeed
+{
+	out	"rp";
+	in	"G %*x R %*x S %*x %{NS|DS} %*{AM|NM} %*s\r"
 }
 
 # Set shutter speed

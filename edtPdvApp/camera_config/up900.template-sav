@@ -30,6 +30,14 @@ record( longin,	"$(P)$(R)Up900Report" )
 	field( INP,		"@up900.proto Report $(PORT).SER" )
 }
 
+record( longin,	"$(P)$(R)Up900ReadGain" )
+{
+	field( DESC,	"Gain from camera report" )
+	field( DTYP,	"stream" )
+	field( INP,		"@up900.proto ReadGain $(PORT).SER" )
+#	field( SCAN,	"I/O Intr" )
+}
+
 record( longin,	"$(P)$(R)Up900ReadReference" )
 {
 	field( DESC,	"Reference from camera report" )
@@ -46,62 +54,28 @@ record( longin,	"$(P)$(R)Up900ReadDoubleSpeed" )
 #	field( SCAN,	"I/O Intr" )
 }
 
-record( ao, "$(P)$(R)Gain" )
-{
-	field( HOPR,	"100.0" )
-	field( LOPR,	"0.0" )
-	field( EGU,     "%" )
-	field( PREC,    "2" )
-}
-record( ao, "$(P)$(R)EdtGain" )
-{
-	field( HOPR,	"100.0" )
-	field( LOPR,	"0.0" )
-	field( EGU,     "%" )
-	field( PREC,    "2" )
-	field( FLNK,	"$(P)$(R)Up900CalcGain" )
-}
-record( calc, "$(P)$(R)Up900CalcGain" )
-{
-	field( INPA, "$(P)$(R)EdtGain NPP NMS" )
-	field( CALC, "A*1023/100" )
-	field( FLNK, "$(P)$(R)Up900Gain" )
-	field( PREC, "2" )
-}
 record( ao, "$(P)$(R)Up900Gain" )
 {
 	field( DESC,	"Camera gain (0..1023)" )
-	field( DOL,		"$(P)$(R)Up900CalcGain" )
+	field( DRVH,	"1023" )
+	field( DRVL,	"0" )
+	field( HOPR,	"1023" )
+	field( LOPR,	"0" )
+	field( PINI,	"YES" )
+	field( FLNK,	"$(P)$(R)Up900SetGain" )
+}
+
+record( ao, "$(P)$(R)Up900SetGain" )
+{
+	field( DESC,	"Set camera gain (0..1023)" )
+	field( DOL,		"$(P)$(R)Up900Gain" )
 	field( OMSL,	"closed_loop" )
 	field( DTYP,	"stream" )
 	field( OUT,		"@up900.proto SetGain $(PORT).SER" )
 	field( DRVH,	"1023" )
 	field( DRVL,	"0" )
-	field( HOPR,	"1023" )
-	field( LOPR,	"0" )
+	field( PINI,	"YES" )
 	field( FLNK,	"$(P)$(R)Up900DoReport" )
-}
-
-record( longin,	"$(P)$(R)Up900Gain_RBV" )
-{
-	field( DESC,	"Gain from camera report" )
-	field( DTYP,	"stream" )
-	field( INP,		"@up900.proto ReadGain $(PORT).SER" )
-#	field( SCAN,	"I/O Intr" )
-    field( FLNK,	"$(P)$(R)Up900CalcGain_RBV" )
-}
-record( calcout, "$(P)$(R)Up900CalcGain_RBV" )
-{
-	field( INPA, "$(P)$(R)Up900Gain_RBV NPP NMS" )
-	field( CALC, "A*100/1023" )
-	field( OUT,  "$(P)$(R)EdtGain_RBV PP MS" )
-	field( PREC, "2" )
-}
-record( ao, "$(P)$(R)EdtGain_RBV" )
-{
-#	field( TPRO, 2 )
-	field( EGU,  "%" )
-	field( PREC, "2" )
 }
 
 record( ao, "$(P)$(R)EdtAcquireTime" )
@@ -211,7 +185,7 @@ record( calcout, "$(P)$(R)Up900CalcShutterOut" )
 {
 	field( DESC,	"Calc shtr val" )
 	field( INPA,	"$(P)$(R)Up900Shutter CPP" )
-	field( INPB,	"$(P)$(R)Up900RawShutterMode_RBV CPP" )
+	field( INPB,	"$(P)$(R)Up900ShutterMode CPP" )
 	field( CALC,	"B ? A : (A>2?A-1:1)" )
 	field( OUT,		"$(P)$(R)Up900SetRawShutter PP" )
 	field( OOPT,	"On Change" )
@@ -224,6 +198,7 @@ record( longout, "$(P)$(R)Up900SetRawShutter" )
 	field( OUT,		"@up900.proto SetShutter $(PORT).SER" )
 	field( DRVL,    "0" )
 	field( DRVH,    "15" )
+#	field( FLNK,	"$(P)$(R)Up900DoReport" )
 	field( FLNK,	"$(P)$(R)Up900ReadRawShutter" )
 }
 
@@ -232,22 +207,33 @@ record( longin,	"$(P)$(R)Up900ReadRawShutter" )
 	field( DESC,	"Shutter from camera report" )
 	field( DTYP,	"stream" )
 	field( INP,		"@up900.proto ReadShutterMode $(PORT).SER" )
-#	field( SCAN,	"I/O Intr" )
+#	field( FLNK,	"$(P)$(R)Up900CalcShutterSel" )
 	field( FLNK,	"$(P)$(R)Up900ShutterASub" )
+#	field( SCAN,	"I/O Intr" )
 }
 
-record( mbbo, "$(P)$(R)Up900RawShutterMode" )
+#record( calc, "$(P)$(R)Up900CalcShutterSel" )
+#{
+#	field( INPA, 	"$(P)$(R)Up900ReadRawShutter NPP NMS"  )
+#	field( CALC,	"A+1" )
+#	field( FLNK,	"$(P)$(R)Up900RawShutterFanout" )
+#	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+#	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
+#}
+
+# SELL=0 AM: triggered mode
+# SELL=1 NM: normal free-run mode
+record( dfanout, "$(P)$(R)Up900RawShutterFanout" )
 {
-	field( DESC,	"Numeric shutter value" )
-	field( DTYP,	"stream" )
-	field( OUT,		"@up900.proto SetShutterMode $(PORT).SER" )
-	field( ZRVL,	"0"	)
-	field( ONVL,	"1"	)
-	field( ZRST,	"Trig"		)
-	field( ONST,	"FreeRun"	)
-	field( FLNK,	"$(P)$(R)Up900RawShutterMode_RBV" )
+	field( DESC,	"Calc shtr val" )
+	field( SELM,	"Specified" )
+	field( SELL,	"$(P)$(R)Up900ShutterMode NPP" )
+	field( DOL,     "1" )
+	field( OUTA,    "$(P)$(R)Up900TrigAcquireTime_RBV.PROC PP NMS" )
+	field( OUTB,    "$(P)$(R)Up900FreeRunAcquireTime_RBV.PROC PP NMS" )
 }
-record( mbbi,	"$(P)$(R)Up900RawShutterMode_RBV" )
+
+record( mbbi,	"$(P)$(R)Up900ShutterMode" )
 {
 	field( DESC,	"Camera shutter mode" )
 	field( DTYP,	"stream" )
@@ -257,6 +243,7 @@ record( mbbi,	"$(P)$(R)Up900RawShutterMode_RBV" )
 	field( ONVL,	"1"	)
 	field( ZRST,	"Trig"		)
 	field( ONST,	"FreeRun"	)
+#	field( FLNK,	"$(P)$(R)Up900CalcShutterIn" )
 	field( FLNK,	"$(P)$(R)Up900ShutterASub" )
 }
 
@@ -266,7 +253,7 @@ record( aSub, "$(P)$(R)Up900ShutterASub" )
 #	field( INAM,	"Up900Shutter_Init" )
 	field( SNAM,	"Up900Shutter_Process" )
 	field( FTA,		"LONG"	)	field( INPA,	"$(P)$(R)Up900ReadRawShutter NPP MS" )
-	field( FTB,		"LONG"	)	field( INPB,	"$(P)$(R)Up900RawShutterMode_RBV    NPP MS" )
+	field( FTB,		"LONG"	)	field( INPB,	"$(P)$(R)Up900ShutterMode    NPP MS" )
 	field( FTC,		"DOUBLE")	field( INPC,	"$(PW_RBV=1e6)"   )
 	field( FTD,		"DOUBLE")	field( INPD,	"$(PW_SCALE=1e9)" )
 
@@ -274,6 +261,80 @@ record( aSub, "$(P)$(R)Up900ShutterASub" )
 	field( FTVB,	"LONG"	)	field( OUTB,	"$(P)$(R)EdtTriggerMode_RBV  PP  MS" )
 }
 
+record( sel,	"$(P)$(R)Up900FreeRunAcquireTime_RBV" )
+{
+	field( DESC, "Calc Normal AcquireTime" )
+	field( SELM, "Specified" )
+	field( NVL,	 "$(P)$(R)Up900CalcShutterSel NPP NMS" )
+	field( INPA, "0.06666" )
+	field( INPB, "0.03333" )
+	field( INPC, "0.01666" )
+	field( INPD, "0.00800" )
+	field( INPE, "0.00400" )
+	field( INPF, "0.00200" )
+	field( INPG, "0.00100" )
+	field( INPH, "0.00050" )
+	field( INPI, "0.0003333" )
+	field( INPJ, "0.0002500" )
+	field( INPK, "0.0002000" )
+	field( INPL, "0.0001667" )
+#	field( OUT,  "$(P)$(R)EdtAcquireTime_RBV PP MS" )
+}
+
+# UP900 Async mode (Triggered) shutter select codes
+#	0	No Shutter, trigger rate determines AcquireTime_RBV
+#	1	1/60		16.6ms
+#	2	1/125		8ms
+#	3	1/250		4ms
+#	4	1/500		2ms
+#	5	1/1000		1ms
+#	6	1/2000		500us
+#	7	1/3000		333us
+#	8	1/4000		250us
+#	9	1/5000		200us
+#	10	1/6000		166us
+#	11	1/7500		133us
+#	12	1/10000		100us
+#	13	1/15000		 66us
+#	14	1/31000		 32us
+#   15  Pulse Width Control
+# TODO: Create a C function for this and use an asub record
+record( calcout,	"$(P)$(R)Up900TrigAcquireTime_Calc" )
+{
+	field( DESC, "Calc Pulse Width Shutter Select" )
+	field( INPA, "$(P)$(R)Up900CalcShutterSel NPP NMS" )
+	field( INPB, "$(PW_RBV=1e6)"  )
+	field( INPC, "$(PW_SCALE=1e9)"  )
+	field( CALC, "A==15?(B/C):0" )
+	field( OOPT, "When Non-zero" )
+	field( OUT,  "$(P)$(R)EdtAcquireTime_RBV PP NMS"  )
+	field( PREC, "0" )
+	field( EGU,  "ns" )
+	field( FLNK, "$(P)$(R)Up900TrigAcquireTime_Sel" )
+	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
+	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
+}
+
+# AM: Async Mode, triggered acquire time
+record( sel,	"$(P)$(R)Up900TrigAcquireTime_Sel" )
+{
+	field( DESC, "Calc Trig Shutter Select" )
+	field( SELM, "Specified" )
+	field( NVL,	 "$(P)$(R)Up900CalcShutterSel NPP NMS" )
+	field( INPA, "1.0" )
+	field( INPB, "0.01667" )
+	field( INPC, "0.06667" )
+	field( INPD, "0.03333" )
+	field( INPE, "0.00200" )
+	field( INPF, "0.00100" )
+	field( INPG, "0.00050" )
+	field( INPH, "0.0003333" )
+	field( INPI, "0.0002500" )
+	field( INPJ, "0.0002000" )
+	field( INPK, "0.0001667" )
+	field( INPL, "0.0001333" )
+#	field( OUT,	 "$(P)$(R)EdtAcquireTime_RBV PP" )
+}
 
 record( bo,	"$(P)$(R)Up900AutoGain" )
 {
@@ -310,19 +371,19 @@ include "serialMonitor.template"
 
 # 1 second RBV monitors
 substitute "MON_SCAN=1 second"
-#substitute "MON_PV= $(P)$(R)Up900ReadRawShutter"
-#include "rbvMonitor.template"
-#substitute "MON_PV= $(P)$(R)Up900ReadGain"
-#include "rbvMonitor.template"
-#substitute "MON_PV= $(P)$(R)Up900RawShutterMode_RBV"
-#include "rbvMonitor.template"
+substitute "MON_PV= $(P)$(R)Up900ReadRawShutter"
+include "rbvMonitor.template"
+substitute "MON_PV= $(P)$(R)Up900ReadGain"
+include "rbvMonitor.template"
+substitute "MON_PV= $(P)$(R)Up900ShutterMode"
+include "rbvMonitor.template"
 
 # 10 second RBV monitors
 substitute "MON_SCAN=10 second"
-#substitute "MON_PV= $(P)$(R)Up900ReadReference"
-#include "rbvMonitor.template"
-#substitute "MON_PV= $(P)$(R)Up900ReadDoubleSpeed"
-#include "rbvMonitor.template"
+substitute "MON_PV= $(P)$(R)Up900ReadReference"
+include "rbvMonitor.template"
+substitute "MON_PV= $(P)$(R)Up900ReadDoubleSpeed"
+include "rbvMonitor.template"
 
 substitute "MON_SCAN=1 second"
 substitute "MON_PV= $(P)$(R)Up900SetGain"

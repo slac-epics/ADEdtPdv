@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 50
-y 50
+x 1981
+y 1148
 w 700
 h 600
 font "helvetica-medium-r-12.0"
@@ -118,7 +118,7 @@ fontAlign "right"
 fgColor index 14
 bgColor index 3
 value {
-  "Reference Voltage B"
+  "DoubleSpeed"
 }
 endObjectProperties
 
@@ -298,50 +298,6 @@ propagateMacros {
   0 0
 }
 icon
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 144
-y 88
-w 176
-h 20
-controlPv "$(P)$(R)Up900Firmware_RBV"
-font "helvetica-medium-r-12.0"
-fontAlign "center"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 40
-smartRefresh
-useHexPrefix
-newPos
-objType "monitors"
-noExecuteClipMask
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 4
-y 88
-w 136
-h 20
-font "helvetica-medium-r-12.0"
-fontAlign "right"
-fgColor index 14
-bgColor index 3
-value {
-  "Firmware Version"
-}
 endObjectProperties
 
 # (Text Monitor)
@@ -623,7 +579,7 @@ fontAlign "right"
 fgColor index 14
 bgColor index 3
 value {
-  "Reference Voltage A"
+  "Reference Voltage"
 }
 endObjectProperties
 
@@ -1281,6 +1237,51 @@ value {
 }
 endObjectProperties
 
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 328
+y 220
+w 108
+h 20
+controlPv "$(P)$(R)Up900Gain_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 32
+y 220
+w 172
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Gain"
+}
+endObjectProperties
+
 # (Text Control)
 object activeXTextDspClass
 beginObjectProperties
@@ -1288,10 +1289,10 @@ major 4
 minor 7
 release 0
 x 216
-y 164
+y 220
 w 100
-h 20
-controlPv "$(P)$(R)Up900RefVoltA"
+h 18
+controlPv "$(P)$(R)Up900Gain"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
@@ -1309,6 +1310,51 @@ objType "controls"
 noExecuteClipMask
 endObjectProperties
 
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 328
+y 248
+w 108
+h 20
+controlPv "$(P)$(R)Up900ReadRawShutter"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 32
+y 248
+w 172
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Raw Shutter Value"
+}
+endObjectProperties
+
 # (Text Control)
 object activeXTextDspClass
 beginObjectProperties
@@ -1316,10 +1362,10 @@ major 4
 minor 7
 release 0
 x 216
-y 192
+y 248
 w 100
-h 20
-controlPv "$(P)$(R)Up900RefVoltB"
+h 18
+controlPv "$(P)$(R)Up900SetRawShutter"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
@@ -1335,5 +1381,50 @@ useHexPrefix
 newPos
 objType "controls"
 noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 328
+y 276
+w 108
+h 20
+controlPv "$(P)$(R)Up900ShutterMode"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 32
+y 276
+w 172
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Raw Shutter Mode"
+}
 endObjectProperties
 
