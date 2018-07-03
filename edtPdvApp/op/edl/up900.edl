@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1981
-y 1148
+x 1985
+y 1172
 w 700
 h 600
 font "helvetica-medium-r-12.0"
@@ -90,25 +90,6 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 4
-y 32
-w 136
-h 20
-font "helvetica-medium-r-12.0"
-fontAlign "right"
-fgColor index 14
-bgColor index 3
-value {
-  "Model ID"
-}
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
 x 32
 y 192
 w 172
@@ -152,35 +133,11 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 144
-y 32
-w 176
-h 20
-controlPv "$(P)$(R)Up900ModelID_RBV"
-font "helvetica-medium-r-12.0"
-fontAlign "center"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 25
-smartRefresh
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
 x 328
 y 192
 w 108
 h 20
-controlPv "$(P)$(R)Up900ReadDoubleSpeed"
+controlPv "$(P)$(R)Up900DoubleSpeed_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -548,7 +505,7 @@ x 328
 y 164
 w 108
 h 20
-controlPv "$(P)$(R)Up900ReadReference"
+controlPv "$(P)$(R)Up900Reference_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -702,7 +659,7 @@ fontAlign "center"
 fgColor index 14
 bgColor index 3
 value {
-  "EDT"
+  "EDT RBV"
 }
 endObjectProperties
 
@@ -721,7 +678,7 @@ fontAlign "center"
 fgColor index 14
 bgColor index 3
 value {
-  "ADCore"
+  "ADCore RBV"
 }
 endObjectProperties
 
@@ -735,7 +692,7 @@ x 372
 y 360
 w 88
 h 20
-controlPv "$(P)$(R)Up900ReadGain"
+controlPv "$(P)$(R)Up900RawShutterMode_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -765,7 +722,7 @@ fontAlign "center"
 fgColor index 14
 bgColor index 3
 value {
-  "Up900"
+  "Up900 RBV"
 }
 endObjectProperties
 
@@ -798,7 +755,7 @@ x 372
 y 384
 w 88
 h 20
-controlPv "$(P)$(R)Up900FreeRunShutter"
+controlPv "$(P)$(R)Up900RawShutterSpeed_RBV"
 format "gfloat"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
@@ -825,7 +782,7 @@ x 300
 y 360
 w 64
 h 20
-controlPv "$(P)$(R)Up900SetGain"
+controlPv "$(P)$(R)Up900RawShutterMode"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -988,201 +945,11 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 464
-y 360
-w 40
-h 20
-controlPv "$(P)$(R)Up900CalcTriggerMode"
-font "helvetica-medium-r-12.0"
-fontAlign "center"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 40
-smartRefresh
-useHexPrefix
-newPos
-objType "monitors"
-noExecuteClipMask
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 372
-y 408
-w 88
-h 20
-controlPv "$(P)$(R)Up900TrigShutter"
-format "float"
-font "helvetica-medium-r-12.0"
-fontAlign "center"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 40
-smartRefresh
-useHexPrefix
-showUnits
-newPos
-objType "monitors"
-noExecuteClipMask
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 372
-y 432
-w 88
-h 20
-controlPv "$(P)$(R)Up900AcquireTimeSelect_RBV"
-format "float"
-font "helvetica-medium-r-12.0"
-fontAlign "center"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 40
-smartRefresh
-useHexPrefix
-showUnits
-newPos
-objType "monitors"
-noExecuteClipMask
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 248
-y 384
-w 48
-h 20
-font "helvetica-medium-r-12.0"
-fontAlign "right"
-fgColor index 14
-bgColor index 3
-value {
-  "FreeRun"
-}
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 248
-y 408
-w 48
-h 20
-font "helvetica-medium-r-12.0"
-fontAlign "right"
-fgColor index 14
-bgColor index 3
-value {
-  "ExtTrig"
-}
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 248
-y 432
-w 48
-h 20
-font "helvetica-medium-r-12.0"
-fontAlign "right"
-fgColor index 14
-bgColor index 3
-value {
-  "Pulse"
-}
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 300
-y 432
-w 64
-h 20
-controlPv "$(P)$(R)Up900AcquireTimeSelect"
-format "float"
-font "helvetica-medium-r-12.0"
-fontAlign "center"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 40
-smartRefresh
-useHexPrefix
-showUnits
-newPos
-objType "monitors"
-noExecuteClipMask
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 300
-y 408
-w 64
-h 20
-controlPv "$(P)$(R)Up900ExtTrigAcquireTime"
-format "float"
-font "helvetica-medium-r-12.0"
-fontAlign "center"
-fgColor index 15
-fgAlarm
-bgColor index 12
-limitsFromDb
-nullColor index 40
-smartRefresh
-useHexPrefix
-showUnits
-newPos
-objType "monitors"
-noExecuteClipMask
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 7
-release 0
 x 300
 y 384
 w 64
 h 20
-controlPv "$(P)$(R)Up900AcquireTimeSelect"
+controlPv "$(P)$(R)Up900RawShutterSpeed"
 format "gfloat"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
@@ -1320,7 +1087,7 @@ x 328
 y 248
 w 108
 h 20
-controlPv "$(P)$(R)Up900ReadRawShutter"
+controlPv "$(P)$(R)Up900RawShutterSpeed_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -1365,7 +1132,7 @@ x 216
 y 248
 w 100
 h 18
-controlPv "$(P)$(R)Up900SetRawShutter"
+controlPv "$(P)$(R)Up900RawShutterSpeed"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
@@ -1393,7 +1160,7 @@ x 328
 y 276
 w 108
 h 20
-controlPv "$(P)$(R)Up900ShutterMode"
+controlPv "$(P)$(R)Up900RawShutterMode"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -1403,7 +1170,6 @@ limitsFromDb
 nullColor index 40
 smartRefresh
 useHexPrefix
-showUnits
 newPos
 objType "monitors"
 noExecuteClipMask
@@ -1426,5 +1192,32 @@ bgColor index 3
 value {
   "Raw Shutter Mode"
 }
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 216
+y 276
+w 100
+h 18
+controlPv "$(P)$(R)Up900RawShutterMode"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+autoHeight
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
 endObjectProperties
 

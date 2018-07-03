@@ -53,7 +53,7 @@ ReadDoubleSpeed
 }
 
 # Set shutter speed
-SetShutter
+SetShutterSpeed
 {
 	out	"sm%x";
 	in	"\r";

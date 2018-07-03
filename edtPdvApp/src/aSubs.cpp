@@ -40,21 +40,117 @@ extern "C" long Up900Shutter_Init(	aSubRecord	*	pSub	)
 //	Up900Shutter_Process
 //	Computes EdtAcquireTime_RBV and EdtTriggerMode_RBV from UP900 raw shutter values
 //	Inputs:
-//		A:	LONG, Up900ReadRawShutter
-//		B:	LONG, Up900ShutterMode
+//		A:	DOUBLE, EdtAcquireTime, sec
+//		B:	LONG,	EdtTriggerMode
+//		C:	DOUBLE, PulseWidthScale_RBV
+//
+//	Outputs
+//		A:	LONG,   Up900RawShutterSpeed
+//		B:	LONG,   Up900RawShutterMode
+//		C:	DOUBLE, PulseWidth
+//
+extern "C" long Up900Shutter_Process( aSubRecord	*	pSub	)
+{
+	int			status		= 0;
+
+	// Get input value pointers
+	double		*	pAcquireTimeVal	= static_cast<double     *>( pSub->a );
+	epicsInt32	*	pTriggerModeVal	= static_cast<epicsInt32 *>( pSub->b );
+	double		*	pPulseWidthScale= static_cast<double	 *>( pSub->c );
+	
+	// Get output value pointers
+	epicsInt32	*	pRawShutterSpeed= static_cast<epicsInt32 *>( pSub->vala );
+	epicsInt32	*	pRawShutterMode	= static_cast<epicsInt32 *>( pSub->valb );
+	double		*	pPulseWidthVal	= static_cast<double	 *>( pSub->valc );
+	
+	if ( pTriggerModeVal == NULL || pTriggerModeVal	== NULL || pPulseWidthScale == NULL )
+		return 0;
+
+	double		acquireTime 	= *pAcquireTimeVal;
+	epicsInt32	triggerMode 	= *pTriggerModeVal;
+	double		pulseScale  	= *pPulseWidthScale;
+	epicsInt32	rawShutterSpeed	= 0;
+	epicsInt32	rawShutterMode	= 0;
+	switch ( triggerMode )
+	{
+	case 0:
+		rawShutterMode   = 1;			//	NM, Normal FreeRun Mode
+		if ( acquireTime >= 1.0/15    ) { rawShutterSpeed = 0;  break; }
+		if ( acquireTime >= 1.0/30    ) { rawShutterSpeed = 1;  break; }
+		if ( acquireTime >= 1.0/60    ) { rawShutterSpeed = 2;  break; }
+		if ( acquireTime >= 1.0/125   ) { rawShutterSpeed = 3;  break; }
+		if ( acquireTime >= 1.0/250   ) { rawShutterSpeed = 4;  break; }
+		if ( acquireTime >= 1.0/500   ) { rawShutterSpeed = 5;  break; }
+		if ( acquireTime >= 1.0/1000  ) { rawShutterSpeed = 6;  break; }
+		if ( acquireTime >= 1.0/2000  ) { rawShutterSpeed = 7;  break; }
+		if ( acquireTime >= 1.0/3000  ) { rawShutterSpeed = 8;  break; }
+		if ( acquireTime >= 1.0/4000  ) { rawShutterSpeed = 9;  break; }
+		if ( acquireTime >= 1.0/5000  ) { rawShutterSpeed = 10; break; }
+		if ( acquireTime >= 1.0/6000  ) { rawShutterSpeed = 11; break; }
+		if ( acquireTime >= 1.0/7500  ) { rawShutterSpeed = 12; break; }
+		if ( acquireTime >= 1.0/10000 ) { rawShutterSpeed = 13; break; }
+		if ( acquireTime >= 1.0/15000 ) { rawShutterSpeed = 14; break; }
+		rawShutterSpeed = 15;
+		break;
+
+	case 1:
+		// External trigger mode
+		rawShutterMode  = 0;	// AM, Async Triggered Mode
+		rawShutterSpeed = 0;	// No shutter
+		if ( acquireTime	> 1.0/10    ) { rawShutterSpeed = 0;  break; }
+		if ( acquireTime	> 1.0/125   ) { rawShutterSpeed = 1;  break; }
+		if ( acquireTime	> 1.0/250   ) { rawShutterSpeed = 2;  break; }
+		if ( acquireTime	> 1.0/500   ) { rawShutterSpeed = 3;  break; }
+		if ( acquireTime	> 1.0/1000  ) { rawShutterSpeed = 4;  break; }
+		if ( acquireTime	> 1.0/2000  ) { rawShutterSpeed = 5;  break; }
+		if ( acquireTime	> 1.0/3000  ) { rawShutterSpeed = 6;  break; }
+		if ( acquireTime	> 1.0/4000  ) { rawShutterSpeed = 7;  break; }
+		if ( acquireTime	> 1.0/5000  ) { rawShutterSpeed = 8;  break; }
+		if ( acquireTime	> 1.0/6000  ) { rawShutterSpeed = 9;  break; }
+		if ( acquireTime	> 1.0/7500  ) { rawShutterSpeed = 10; break; }
+		if ( acquireTime	> 1.0/10000 ) { rawShutterSpeed = 11; break; }
+		if ( acquireTime	> 1.0/15000 ) { rawShutterSpeed = 12; break; }
+		if ( acquireTime	> 1.0/31000 ) { rawShutterSpeed = 13; break; }
+		rawShutterSpeed = 14;
+		break;
+
+	case 2:
+		// External trigger mode
+		rawShutterMode  = 0;	// AM, Async Triggered Mode
+		rawShutterSpeed = 15;	// Pulse Width Mode
+		if ( pPulseWidthVal  != NULL )
+			*pPulseWidthVal = acquireTime * pulseScale;
+		break;
+	}
+
+	if ( pRawShutterSpeed != NULL )
+		*pRawShutterSpeed = rawShutterSpeed;
+	if ( pRawShutterMode  != NULL )
+		*pRawShutterMode = rawShutterMode;
+
+	return status;
+}
+
+//	Up900Shutter_RBV_Process
+//	Computes EdtAcquireTime_RBV and EdtTriggerMode_RBV from UP900 raw shutter values
+//	Inputs:
+//		A:	LONG, Up900RawShutterSpeed_RBV
+//		B:	LONG, Up900RawShutterMode_RBV
+//		C:	DOUBLE, PulseWidth_RBV
+//		D:	DOUBLE, PulseWidthScale_RBV
 //
 //	Outputs
 //		A:	DOUBLE, EdtAcquireTime_RBV, sec
 //		B:	LONG,	EdtTriggerMode_RBV,	mbbo
 //
-extern "C" long Up900Shutter_Process( aSubRecord	*	pSub	)
+extern "C" long Up900Shutter_RBV_Process( aSubRecord	*	pSub	)
 {
 	int			status		= 0;
 	double		acquireTime	= 0;
 
 	// Get input value pointers
-	epicsInt32	*	pRawShutterVal	= static_cast<epicsInt32 *>( pSub->a );
-	epicsInt32	*	pShutterModeVal	= static_cast<epicsInt32 *>( pSub->b );
+	epicsInt32	*	pRawShutterSpeed	= static_cast<epicsInt32 *>( pSub->a );
+	epicsInt32	*	pRawShutterMode	= static_cast<epicsInt32 *>( pSub->b );
 	double		*	pPulseWidthVal	= static_cast<double	 *>( pSub->c );
 	double		*	pPulseWidthScale= static_cast<double	 *>( pSub->d );
 	
@@ -62,12 +158,12 @@ extern "C" long Up900Shutter_Process( aSubRecord	*	pSub	)
 	double		*	pAcquireTimeVal	= static_cast<double *>(		pSub->vala );
 	epicsInt32	*	pTriggerModeVal	= static_cast<epicsInt32 *>(	pSub->valb );
 	
-	if ( pShutterModeVal == NULL )
+	if ( pRawShutterMode == NULL )
 		return 0;
-	if ( *pShutterModeVal == 0 )
+	if ( *pRawShutterMode == 0 )
 	{
 		//	NM, Normal FreeRun Mode
-		switch ( *pRawShutterVal )
+		switch ( *pRawShutterSpeed )
 		{
 			default:
 			case 0:		acquireTime	= 1.0/15;		break;
@@ -97,7 +193,7 @@ extern "C" long Up900Shutter_Process( aSubRecord	*	pSub	)
 		epicsInt32	triggerMode = 1;	// External
 
 		//	AM, Async Triggered Mode
-		switch ( *pRawShutterVal )
+		switch ( *pRawShutterSpeed )
 		{
 			default:
 			case 0:		acquireTime	= 10.0;			break;
@@ -136,5 +232,6 @@ extern "C"
 {
 // epicsRegisterFunction(	Up900Shutter_Init		);
 epicsRegisterFunction(	Up900Shutter_Process	);
+epicsRegisterFunction(	Up900Shutter_RBV_Process	);
 }
 
