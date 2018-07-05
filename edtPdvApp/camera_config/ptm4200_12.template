@@ -230,7 +230,7 @@ record( calcout, "$(P)$(R)PulnixPulseAcquireTime" )
 	field( OUT,  "$(PWIDTH=) CA NMS" )
 	field( CALC, "9" )
 	field( PREC, "0" )
-	field( FLNK, "$(P)$(R)PulnixShutterCmdSelect" )
+	#field( FLNK, "$(P)$(R)PulnixShutterCmdSelect" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
@@ -243,7 +243,7 @@ record( longin, "$(P)$(R)PulnixGetRawShutter" )
 	field( INP,	 "@ptm4200_12.proto GetShutter $(PORT).SER " )
     field( SDIS, "$(SerialDisable)")
 	field( PINI, "YES" )
-	field( FLNK, "$(P)$(R)PulnixShutterReadSelect" )
+	#field( FLNK, "$(P)$(R)PulnixShutterReadSelect" )
 }
 
 record( longout, "$(P)$(R)PulnixRawShutter" )
@@ -255,7 +255,7 @@ record( longout, "$(P)$(R)PulnixRawShutter" )
 record( calc, "$(P)$(R)PulnixShutterReadSelect" )
 {
 	field( CALC, "A+1" )
-	field( INPA, "$(P)$(R)PulnixTriggerMode" )
+	field( INPA, "$(P)$(R)PulnixTriggerMode CPP" )
 	field( FLNK, "$(P)$(R)PulnixShutterReadFanout" )
 }
 
@@ -333,7 +333,7 @@ record( mbbo, "$(P)$(R)PulnixTriggerMode" )
 	field( ZRVL, "0" )	field( ZRST, "FreeRun" )
 	field( ONVL, "1" )	field( ONST, "External" )
 	field( TWVL, "2" )	field( TWST, "Pulse" )
-	field( FLNK, "$(P)$(R)PulnixShutterCmdSelect" )
+	#field( FLNK, "$(P)$(R)PulnixShutterCmdSelect" )
 }
 
 # Sends :SHR?
@@ -383,7 +383,7 @@ record( mbbo, "$(P)$(R)EdtTriggerMode_RBV" )
 record( calc, "$(P)$(R)PulnixShutterCmdSelect" )
 {
 	field( CALC, "A+1" )
-	field( INPA, "$(P)$(R)PulnixTriggerMode NPP NMS" )
+	field( INPA, "$(P)$(R)PulnixTriggerMode CPP NMS" )
 	field( FLNK, "$(P)$(R)PulnixShutterCmdFanout" )
 }
 
