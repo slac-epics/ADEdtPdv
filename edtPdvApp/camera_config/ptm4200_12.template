@@ -573,12 +573,14 @@ record( longin,  "$(P)$(R)BinY_RBV" )
 # full 2048 line readout matches this formula pretty well,
 # but setting SizeY to small numbers results in too long a XmitTime
 # compared to when the image is received.  Needs more work.
+# TODO this is where I need to change the formula
 record( calc, "$(P)$(R)CamlinkXmitTime" )
 {
     field( INPA, "$(P)$(R)MinY_RBV CP MS" )
     field( INPB, "$(P)$(R)SizeY_RBV CPP MS" )
     field( INPC, "32.5e-6" )
-    field( CALC, "(CEIL((A+16)/8)+CEIL((2056-B-A)/8)+B)*C" )
+   #field( CALC, "(CEIL((A+16)/8)+CEIL((2056-B-A)/8)+B)*C" )
+    field( CALC, "(CEIL((A+16)/8)+32+CEIL((2056-B-A)/8)+B)*C" )
     field( EGU,  "Sec" )
     field( PREC, "5" ) 
 	field( FLNK, "$(P)$(R)XmitDelay" )
