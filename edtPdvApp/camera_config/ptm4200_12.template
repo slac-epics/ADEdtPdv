@@ -222,15 +222,15 @@ record( calcout, "$(P)$(R)PulnixExtTrigAcquireTime" )
 # TODO: Actual exposure is pulse width + 20.5us (p.40)
 record( calcout, "$(P)$(R)PulnixPulseAcquireTime" )
 {
-	field( INPA, "$(P)$(R)AcquireTime NPP NMS"  )
+	field( INPA, "$(P)$(R)EdtAcquireTime NPP NMS"  )
 	field( INPB, "$(PW_SCALE=1e9)"  )
 	field( DOPT, "Use OCAL" )
-	field( OOPT, "On Change" )
+	field( OOPT, "Every Time" )
 	field( OCAL, "A*B" )
 	field( OUT,  "$(PWIDTH=) CA NMS" )
 	field( CALC, "9" )
 	field( PREC, "0" )
-	#field( FLNK, "$(P)$(R)PulnixShutterCmdSelect" )
+#	field( FLNK, "$(P)$(R)PulnixShutterCmdSelect" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
@@ -243,7 +243,7 @@ record( longin, "$(P)$(R)PulnixGetRawShutter" )
 	field( INP,	 "@ptm4200_12.proto GetShutter $(PORT).SER " )
     field( SDIS, "$(SerialDisable)")
 	field( PINI, "YES" )
-	#field( FLNK, "$(P)$(R)PulnixShutterReadSelect" )
+#	field( FLNK, "$(P)$(R)PulnixShutterReadSelect" )
 }
 
 record( longout, "$(P)$(R)PulnixRawShutter" )
@@ -252,10 +252,13 @@ record( longout, "$(P)$(R)PulnixRawShutter" )
 	field( PINI, "YES" )
 }
 
+# Keep INPB and INPC so we process when EdtAcquireTime changes or PulseWidth RBV changes
 record( calc, "$(P)$(R)PulnixShutterReadSelect" )
 {
 	field( CALC, "A+1" )
-	field( INPA, "$(P)$(R)PulnixTriggerMode CPP" )
+	field( INPA, "$(P)$(R)PulnixTriggerMode CPP MS" )
+	field( INPB, "$(P)$(R)EdtAcquireTime CPP NMS" )
+	field( INPC, "$(PW_RBV) CPP NMS" )
 	field( FLNK, "$(P)$(R)PulnixShutterReadFanout" )
 }
 
@@ -526,6 +529,7 @@ record( longout, "$(P)$(R)PulnixMinY" )
 	field( HOPR, "2047" )
 	field( OUT,  "@ptm4200_12.proto SetHWROI($(P)$(R)) $(PORT).SER" )
     field( SDIS, "$(SerialDisable)")
+	field( PINI, "YES" )
 	field( FLNK, "$(P)$(R)PulnixMinY_RBV" )
 }
 
@@ -569,17 +573,12 @@ record( longin,  "$(P)$(R)BinY_RBV" )
 # Should be 67.6ms for full res 15Hz, i.e. 2080 * 32.5us.
 # Revised formula from JAI Help Center
 # XmitTime = (CEIL((MinY_RBV+16)/8)+16+CEIL((2056-MinY_RBV-SizeY_RBV)/8)+SizeY_RBV)*32.5us
-# In testing, ?
-# full 2048 line readout matches this formula pretty well,
-# but setting SizeY to small numbers results in too long a XmitTime
-# compared to when the image is received.  Needs more work.
-# TODO this is where I need to change the formula
+# Formula adjusted by Ram Dahal based on testing with a series of SizeY values.
 record( calc, "$(P)$(R)CamlinkXmitTime" )
 {
     field( INPA, "$(P)$(R)MinY_RBV CP MS" )
     field( INPB, "$(P)$(R)SizeY_RBV CPP MS" )
     field( INPC, "32.5e-6" )
-   #field( CALC, "(CEIL((A+16)/8)+CEIL((2056-B-A)/8)+B)*C" )
     field( CALC, "(CEIL((A+16)/8)+32+CEIL((2056-B-A)/8)+B)*C" )
     field( EGU,  "Sec" )
     field( PREC, "5" ) 
