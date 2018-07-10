@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1932
-y 603
+x 2129
+y 254
 w 700
 h 600
 font "helvetica-medium-r-12.0"
@@ -1222,11 +1222,11 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 300
+x 464
 y 456
-w 64
+w 40
 h 20
-controlPv "$(P)$(R)PulnixPulseAcquireTime"
+controlPv "$(P)$(R)PulnixGetRawShutter"
 format "gfloat"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
@@ -1791,7 +1791,6 @@ limitsFromDb
 nullColor index 40
 smartRefresh
 useHexPrefix
-showUnits
 newPos
 objType "monitors"
 noExecuteClipMask
@@ -1859,5 +1858,32 @@ bgColor index 3
 value {
   "Pulnix Raw Trigger Setting"
 }
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 300
+y 456
+w 64
+h 20
+controlPv "$(P)$(R)PulnixFreeRunAcquireTime"
+format "float"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
 endObjectProperties
 
