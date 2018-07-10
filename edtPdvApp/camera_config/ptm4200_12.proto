@@ -53,7 +53,7 @@ SetDirectShutter
 # Set manual shutter speed
 # Internal timing - free run mode
 #	0	-	Manual No Shutter
-#	1-8	-	1=1/60, 2=1/125, 3=1/250, 4=2/500, 5=1/1000, 6=1/2000, 7=1/4000, 8=1/8000, 9=1/16000
+#	1-8	-	1=1/60, 2=1/125, 3=1/250, 4=1/500, 5=1/1000, 6=1/2000, 7=1/4000, 8=1/8000, 9=1/16000
 SetManualShutter
 {
 	out	":MSH=%X";	in	":o";

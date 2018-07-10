@@ -182,7 +182,7 @@ record( ao, "$(P)$(R)EdtAcquireTime" )
 # Map AcquireTime in sec to Pulnix manual shutter values
 # Pulnix ManualShutter Values
 #	0	-	Manual No Shutter
-#	1-8	-	1=1/60, 2=1/125, 3=1/250, 4=2/500, 5=1/1000, 6=1/2000, 7=1/4000, 8=1/8000, 9=1/16000
+#	1-8	-	1=1/60, 2=1/125, 3=1/250, 4=1/500, 5=1/1000, 6=1/2000, 7=1/4000, 8=1/8000, 9=1/16000
 # Internal shutter speeds are powers of 2 relative to 1/250, so
 # A = 1/(60.5*2**(X-1)
 # 2**(X-1) = (0.017/A)
@@ -192,11 +192,12 @@ record( calc, "$(P)$(R)PulnixFreeRunAcquireTime" )
 {
 	field( INPA,  "$(P)$(R)AcquireTime NPP NMS"  )
 	field( CALC,  "MAX(0,MIN(9,LN(0.017/A)/LN(2)+1))" )
-	field( PREC, "0" )
+	field( PREC,  "1" )
 	field( FLNK, "$(P)$(R)PulnixExtTrigAcquireTime" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
+
 # PulnixExtTrigAcquireTime
 # Map AcquireTime in sec to Pulnix internal shutter values
 #	1-8	-	1=1/16000, 2=1/8000, 3=1/4000, 4=1/2000, 5=1/1000,6=1/500,7=1/250,8=1/125
@@ -209,7 +210,7 @@ record( calcout, "$(P)$(R)PulnixExtTrigAcquireTime" )
 {
 	field( INPA,  "$(P)$(R)AcquireTime NPP NMS"  )
 	field( CALC,  "MAX(1,MIN(8,8-LN(.004/A)/LN(2)))" )
-	field( PREC, "0" )
+	field( PREC, "1" )
 	field( FLNK, "$(P)$(R)PulnixPulseAcquireTime" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
@@ -229,7 +230,7 @@ record( calcout, "$(P)$(R)PulnixPulseAcquireTime" )
 	field( OCAL, "A*B" )
 	field( OUT,  "$(PWIDTH=) CA NMS" )
 	field( CALC, "9" )
-	field( PREC, "0" )
+	field( PREC, "1" )
 #	field( FLNK, "$(P)$(R)PulnixShutterCmdSelect" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
@@ -244,12 +245,6 @@ record( longin, "$(P)$(R)PulnixGetRawShutter" )
     field( SDIS, "$(SerialDisable)")
 	field( PINI, "YES" )
 #	field( FLNK, "$(P)$(R)PulnixShutterReadSelect" )
-}
-
-record( longout, "$(P)$(R)PulnixRawShutter" )
-{
-	field( DESC, "Raw Numeric shutter value" )
-	field( PINI, "YES" )
 }
 
 # Keep INPB and INPC so we process when EdtAcquireTime changes or PulseWidth RBV changes
@@ -280,7 +275,7 @@ record( dfanout, "$(P)$(R)PulnixShutterReadFanout" )
 # Map Pulnix manual shutter values to AcquireTime in sec
 # Pulnix ManualShutter Values
 #	0	-	Manual No Shutter
-#	1-8	-	1=1/60, 2=1/125, 3=1/250, 4=2/500, 5=1/1000, 6=1/2000, 7=1/4000, 8=1/8000, 9=1/16000
+#	1-8	-	1=1/60, 2=1/125, 3=1/250, 4=1/500, 5=1/1000, 6=1/2000, 7=1/4000, 8=1/8000, 9=1/16000
 # Internal shutter speeds are powers of 2 relative to 1/250, so
 # X = 1/(60.5*2**(A-1)
 record( calcout, "$(P)$(R)PulnixCalcFreeRunShutter" )
@@ -455,23 +450,6 @@ record( longout, "$(P)$(R)PulnixSetFreeRunShutter" )
     field( SDIS, "$(SerialDisable)")
 	field( FLNK, "$(P)$(R)PulnixGetRawShutter PP" )
 }
-
-#record( mbbi, "$(P)$(R)PulnixShutter" )
-#{
-#	field( DESC, "Camera shutter speed" )
-#	field( ZRVL, "0"	) field( ZRST, "1/250"	)
-#	field( ONVL, "1"	) field( ONST, "1/500"	)
-#	field( TWVL, "2"	) field( TWST, "1/1000"	)
-#	field( THVL, "3"	) field( THST, "1/2000"	)
-#	field( FRVL, "4"	) field( FRST, "1/4000"	 )
-#	field( FVVL, "5"	) field( FVST, "1/8000"	 )
-#	field( SXVL, "6"	) field( SXST, "1/16000" )
-#	field( SVVL, "7"	) field( SVST, "1/32000" )
-#	field( EIVL, "8"	) field( EIST, "1/64000" )
-#	field( NIVL, "9"	) field( NIST, "Pulse"	 )
-#	field( FLNK, "$(P)$(R)PulnixTriggerModeFanout PP" )
-#	field( PINI, "YES" )
-#}
 
 record( bo, "$(P)$(R)PulnixAutoGain" )
 {
