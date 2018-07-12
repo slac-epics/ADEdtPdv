@@ -382,6 +382,8 @@ record( calc, "$(P)$(R)PulnixShutterCmdSelect" )
 {
 	field( CALC, "A+1" )
 	field( INPA, "$(P)$(R)PulnixTriggerMode CPP NMS" )
+	field( INPB, "$(P)$(R)PulnixFreeRunAcquireTime CPP NMS" )
+	field( INPC, "$(P)$(R)PulnixExtTrigAcquireTime CPP NMS" )
 	field( FLNK, "$(P)$(R)PulnixShutterCmdFanout" )
 }
 
