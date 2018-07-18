@@ -554,12 +554,13 @@ record( longin,  "$(P)$(R)BinY_RBV" )
 # Revised formula from JAI Help Center
 # XmitTime = (CEIL((MinY_RBV+16)/8)+16+CEIL((2056-MinY_RBV-SizeY_RBV)/8)+SizeY_RBV)*32.5us
 # Formula adjusted by Ram Dahal based on testing with a series of SizeY values.
+# XmitTime = (CEIL((MinY_RBV+16)/8)-250+10*2^(FLOOR(LOG(SizeY_RBV+1)/LOG(2))-6)+CEIL((2056-MinY_RBV-SizeY_RBV)/8)+SizeY_RBV)*32.5us" )
 record( calc, "$(P)$(R)CamlinkXmitTime" )
 {
     field( INPA, "$(P)$(R)MinY_RBV CP MS" )
     field( INPB, "$(P)$(R)SizeY_RBV CPP MS" )
     field( INPC, "32.5e-6" )
-    field( CALC, "(CEIL((A+16)/8)+32+CEIL((2056-B-A)/8)+B)*C" )
+    field( CALC, "(CEIL((A+16)/8)-250+10*2^(FLOOR(LOG(B+1)/LOG(2))-6)+CEIL((2056-B-A)/8)+B)*C")
     field( EGU,  "Sec" )
     field( PREC, "5" ) 
     field( FLNK, "$(P)$(R)XmitDelay" )
