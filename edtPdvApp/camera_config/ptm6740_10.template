@@ -110,15 +110,6 @@ record( longout, "$(P)$(R)PulnixSetGainB" )
 
 record( longout, $(P)$(R)EdtReConfigCount )
 {
-	field( FLNK, "$(P)$(R)PulnixReReadFanout" )
-}
-record( fanout, $(P)$(R)PulnixReReadFanout )
-{
-#	field( LNK1, "$(P)$(R)PulnixRefVoltA_RBV" )
-#	field( LNK2, "$(P)$(R)PulnixRefVoltB_RBV" )
-#	field( LNK3, "$(P)$(R)PulnixGetRawShutter" )
-#	field( LNK5, "$(P)$(R)PulnixModelID_RBV" )
-#	field( LNK6, "$(P)$(R)PulnixFirmware_RBV" )
 }
 
 # Reference voltage commands
@@ -185,7 +176,7 @@ record( ao, "$(P)$(R)EdtAcquireTime" )
 # Map AcquireTime in sec to Pulnix manual shutter values
 # Pulnix ManualShutter Values
 #	0	-	Manual No Shutter
-#	1-8	-	1=1/250, 2=2/500, 3=1/1000, 4=1/2000, 5=1/4000, 6=1/8000, 7=1/16000, 8=1/32000, 9=1/64000
+#	1-8	-	1=1/250, 2=1/500, 3=1/1000, 4=1/2000, 5=1/4000, 6=1/8000, 7=1/16000, 8=1/32000, 9=1/64000
 # Internal shutter speeds are powers of 2 relative to 1/250, so
 # A = 1/(250*2**(X-1)
 # 2**(X-1) = (0.004/A)
@@ -244,14 +235,7 @@ record( longin, "$(P)$(R)PulnixGetRawShutter" )
 	field( INP,	 "@ptm6740_10.proto GetShutter $(PORT).SER " )
     field( SDIS, "$(SerialDisable)")
 	field( PINI, "YES" )
-#	field( FLNK, "$(P)$(R)PulnixShutterReadSelect" )
 	field( FLNK, "$(P)$(R)PulnixGetRawTriggerMode" )
-}
-
-record( longout, "$(P)$(R)PulnixRawShutter" )
-{
-	field( DESC, "Raw Numeric shutter value" )
-	field( PINI, "YES" )
 }
 
 record( calc, "$(P)$(R)PulnixShutterReadSelect" )
@@ -353,7 +337,7 @@ record( longin, "$(P)$(R)PulnixGetRawTriggerMode" )
     field( SDIS, "$(SerialDisable)")
 # I/O Intr not working in current streamDevice version
 #	field( SCAN, "I/O Intr" )
-	field( TPRO, "2" )
+#	field( TPRO, "2" )
 	field( FLNK, "$(P)$(R)PulnixCalcTriggerMode" )
 }
 
@@ -364,7 +348,6 @@ record( calcout, "$(P)$(R)PulnixCalcTriggerMode" )
 	field( CALC,  "A==0?0:(A==1?(B!=9?1:2):3)" )
 	field( PREC, "0" )
 	field( OUT,  "$(P)$(R)PulnixTriggerMode_RBV PP MS" )
-#	field( FLNK, "$(P)$(R)PulnixPulseAcquireTime" )
 	field( FLNK, "$(P)$(R)PulnixShutterReadSelect" )
 }
 record( mbbi, "$(P)$(R)PulnixTriggerMode_RBV" )
@@ -582,18 +565,12 @@ include "rbvMonitor.template"
 
 # 1 second PUT monitors
 substitute "MON_SCAN=1 second"
-substitute "MON_PV= $(P)$(R)PulnixMinY"
-include "putMonitor.template"
 substitute "MON_PV= $(P)$(R)PulnixSetExtTrigShutter"
 include "putMonitor.template"
-substitute "MON_PV= $(P)$(R)PulnixSetDirectShutter"
-include "putMonitor.template"
-substitute "MON_PV= $(P)$(R)PulnixSetPulseShutter"
-include "putMonitor.template"
-substitute "MON_PV= $(P)$(R)PulnixSetFreeRunShutter"
-include "putMonitor.template"
-substitute "MON_PV= $(P)$(R)PulnixSizeY"
-include "putMonitor.template"
+#substitute "MON_PV= $(P)$(R)PulnixSetPulseShutter"
+#include "putMonitor.template"
+#substitute "MON_PV= $(P)$(R)PulnixSetFreeRunShutter"
+#include "putMonitor.template"
 substitute "MON_PV= $(P)$(R)PulnixSetGainA"
 include "putMonitor.template"
 substitute "MON_PV= $(P)$(R)PulnixSetGainB"
