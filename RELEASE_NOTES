@@ -1,6 +1,25 @@
 #
 # SLAC RELEASE_NOTES
 #
+R3.3.0 2018-7-19 bhill
+	Change enum SerialDisable names to Enabled and Disabled in edtPdvBase.template
+	Pulnix 6740:
+		Added lots of additional info and widgets to ptm6740_10.edl
+		Disabled some put monitors for unsupported values in ptm6740_10.template.
+
+R3.2.0 2018-7-18 dahal01
+	Pulnix 4200:
+		Fixed Pulnix 4200 synchronization for small ROI
+		Updated the formula to calculate XmitTime
+		Fixed INP link names for PulnixShutterCmdSelect to fix setting freeRun and ext shutter cmds
+		Fixed some issues w how PulseAcquireTime was not propagating.
+		Added missing SDIS SerialDisable that was locking up serial comms
+	Uniq UP900:
+		Cleanup of UP900 db record names and protocol.
+		Numerous UP900 improvements including aSub records for AcquireTime and ShutterMode
+	Opal 1000:
+		Removed autosaveFields VAL from OpalGain_RBV
+
 R3.1.0 2018-6-8	bhill
 	Hardened 2048 limit on Orca SizeX to clip non-pixel columns
 	Fixed Pulnix 4200 10bit vs 12 bit EDT cfg error in freerun and triggered mode.
