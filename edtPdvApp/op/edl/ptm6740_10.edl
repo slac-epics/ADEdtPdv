@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 280
-y 1706
+x 956
+y 380
 w 700
 h 600
 font "helvetica-medium-r-12.0"
@@ -584,7 +584,7 @@ major 4
 minor 7
 release 0
 x 596
-y 384
+y 440
 w 96
 h 20
 controlPv "$(P)$(R)AcquireTime_RBV"
@@ -611,7 +611,7 @@ major 4
 minor 7
 release 0
 x 596
-y 360
+y 416
 w 96
 h 20
 controlPv "$(P)$(R)TriggerMode_RBV"
@@ -636,7 +636,7 @@ major 4
 minor 7
 release 0
 x 508
-y 360
+y 416
 w 80
 h 20
 controlPv "$(P)$(R)EdtTriggerMode_RBV"
@@ -661,7 +661,7 @@ major 4
 minor 7
 release 0
 x 508
-y 384
+y 440
 w 80
 h 20
 controlPv "$(P)$(R)EdtAcquireTime_RBV"
@@ -688,7 +688,7 @@ major 4
 minor 1
 release 1
 x 508
-y 336
+y 392
 w 80
 h 20
 font "helvetica-medium-r-12.0"
@@ -707,7 +707,7 @@ major 4
 minor 1
 release 1
 x 596
-y 336
+y 392
 w 96
 h 20
 font "helvetica-medium-r-12.0"
@@ -726,7 +726,7 @@ major 4
 minor 7
 release 0
 x 372
-y 360
+y 416
 w 88
 h 20
 controlPv "$(P)$(R)PulnixTriggerMode_RBV"
@@ -751,7 +751,7 @@ major 4
 minor 1
 release 1
 x 372
-y 336
+y 392
 w 88
 h 20
 font "helvetica-medium-r-12.0"
@@ -770,7 +770,7 @@ major 4
 minor 1
 release 1
 x 300
-y 336
+y 392
 w 64
 h 20
 font "helvetica-medium-r-12.0"
@@ -789,7 +789,7 @@ major 4
 minor 7
 release 0
 x 372
-y 384
+y 440
 w 88
 h 20
 controlPv "$(P)$(R)PulnixCalcFreeRunShutter"
@@ -816,7 +816,7 @@ major 4
 minor 7
 release 0
 x 300
-y 360
+y 416
 w 64
 h 20
 controlPv "$(P)$(R)PulnixTriggerMode"
@@ -841,7 +841,7 @@ major 4
 minor 7
 release 0
 x 172
-y 360
+y 416
 w 68
 h 20
 controlPv "$(P)$(R)EdtTriggerMode"
@@ -866,7 +866,7 @@ major 4
 minor 7
 release 0
 x 172
-y 384
+y 440
 w 68
 h 20
 controlPv "$(P)$(R)EdtAcquireTime"
@@ -893,7 +893,7 @@ major 4
 minor 1
 release 1
 x 172
-y 336
+y 392
 w 68
 h 20
 font "helvetica-medium-r-12.0"
@@ -912,7 +912,7 @@ major 4
 minor 7
 release 0
 x 84
-y 360
+y 416
 w 80
 h 20
 controlPv "$(P)$(R)TriggerMode"
@@ -937,7 +937,7 @@ major 4
 minor 7
 release 0
 x 84
-y 384
+y 440
 w 80
 h 20
 controlPv "$(P)$(R)AcquireTime"
@@ -964,7 +964,7 @@ major 4
 minor 1
 release 1
 x 84
-y 336
+y 392
 w 80
 h 20
 font "helvetica-medium-r-12.0"
@@ -983,7 +983,7 @@ major 4
 minor 7
 release 0
 x 464
-y 360
+y 416
 w 40
 h 20
 controlPv "$(P)$(R)PulnixCalcTriggerMode"
@@ -1008,7 +1008,7 @@ major 4
 minor 7
 release 0
 x 372
-y 408
+y 464
 w 88
 h 20
 controlPv "$(P)$(R)PulnixCalcExtTrigShutter"
@@ -1035,7 +1035,7 @@ major 4
 minor 7
 release 0
 x 372
-y 432
+y 488
 w 88
 h 20
 controlPv "$(P)$(R)PulnixPulseAcquireTime_RBV"
@@ -1062,7 +1062,7 @@ major 4
 minor 1
 release 1
 x 248
-y 384
+y 440
 w 48
 h 20
 font "helvetica-medium-r-12.0"
@@ -1081,7 +1081,7 @@ major 4
 minor 1
 release 1
 x 248
-y 408
+y 464
 w 48
 h 20
 font "helvetica-medium-r-12.0"
@@ -1100,7 +1100,7 @@ major 4
 minor 1
 release 1
 x 248
-y 432
+y 488
 w 48
 h 20
 font "helvetica-medium-r-12.0"
@@ -1119,7 +1119,7 @@ major 4
 minor 7
 release 0
 x 300
-y 432
+y 488
 w 64
 h 20
 controlPv "$(P)$(R)PulnixPulseAcquireTime"
@@ -1146,7 +1146,7 @@ major 4
 minor 7
 release 0
 x 300
-y 408
+y 464
 w 64
 h 20
 controlPv "$(P)$(R)PulnixExtTrigAcquireTime"
@@ -1173,10 +1173,10 @@ major 4
 minor 7
 release 0
 x 300
-y 384
+y 440
 w 64
 h 20
-controlPv "$(P)$(R)PulnixPulseAcquireTime"
+controlPv "$(P)$(R)PulnixFreeRunAcquireTime"
 format "gfloat"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
@@ -1200,7 +1200,7 @@ major 4
 minor 1
 release 1
 x 4
-y 360
+y 416
 w 76
 h 20
 font "helvetica-medium-r-12.0"
@@ -1219,7 +1219,7 @@ major 4
 minor 1
 release 1
 x 4
-y 384
+y 440
 w 76
 h 20
 font "helvetica-medium-r-12.0"
@@ -1238,7 +1238,7 @@ major 4
 minor 7
 release 0
 x 212
-y 260
+y 280
 w 52
 h 20
 controlPv "$(P)$(R)PulnixGainB"
@@ -1262,7 +1262,7 @@ major 4
 minor 7
 release 0
 x 212
-y 236
+y 256
 w 52
 h 20
 controlPv "$(P)$(R)PulnixGainA"
@@ -1288,7 +1288,7 @@ major 4
 minor 1
 release 1
 x 92
-y 260
+y 280
 w 112
 h 20
 font "helvetica-medium-r-12.0"
@@ -1307,7 +1307,7 @@ major 4
 minor 1
 release 1
 x 92
-y 236
+y 256
 w 112
 h 20
 font "helvetica-medium-r-12.0"
@@ -1326,7 +1326,7 @@ major 4
 minor 1
 release 1
 x 92
-y 208
+y 228
 w 112
 h 20
 font "helvetica-medium-r-12.0"
@@ -1345,7 +1345,7 @@ major 4
 minor 7
 release 0
 x 212
-y 208
+y 228
 w 108
 h 20
 controlPv "$(P)$(R)PulnixGainOffset"
@@ -1389,9 +1389,9 @@ object activeBarClass
 beginObjectProperties
 major 4
 minor 1
-release 1
+release 2
 x 272
-y 236
+y 256
 w 52
 h 20
 indicatorColor index 15
@@ -1408,53 +1408,15 @@ object activeBarClass
 beginObjectProperties
 major 4
 minor 1
-release 1
+release 2
 x 272
-y 260
+y 280
 w 52
 h 20
 indicatorColor index 15
 fgColor index 14
 bgColor index 12
 indicatorPv "$(P)$(R)PulnixSetGainB"
-font "helvetica-medium-r-12.0"
-limitsFromDb
-scaleFormat "FFloat"
-endObjectProperties
-
-# (Bar)
-object activeBarClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 272
-y 128
-w 52
-h 20
-indicatorColor index 15
-fgColor index 14
-bgColor index 12
-indicatorPv "$(P)$(R)PulnixRefVoltA_RBV"
-font "helvetica-medium-r-12.0"
-limitsFromDb
-scaleFormat "FFloat"
-endObjectProperties
-
-# (Bar)
-object activeBarClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 272
-y 152
-w 52
-h 20
-indicatorColor index 15
-fgColor index 14
-bgColor index 12
-indicatorPv "$(P)$(R)PulnixRefVoltA_RBV"
 font "helvetica-medium-r-12.0"
 limitsFromDb
 scaleFormat "FFloat"
@@ -1537,5 +1499,445 @@ offLabel "No AutoGain"
 3d
 font "helvetica-medium-r-12.0"
 objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 272
+y 128
+w 52
+h 20
+controlPv "$(P)$(R)PulnixRefVoltA_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 272
+y 152
+w 52
+h 20
+controlPv "$(P)$(R)PulnixRefVoltB_RBV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 32
+y 328
+w 172
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "PulnixSetExtTrigShutter"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 32
+y 304
+w 172
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "PulnixSetFreeRunShutter"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 212
+y 304
+w 52
+h 20
+controlPv "$(P)$(R)PulnixSetFreeRunShutter"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 212
+y 328
+w 52
+h 20
+controlPv "$(P)$(R)PulnixSetExtTrigShutter"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 512
+y 304
+w 52
+h 20
+controlPv "$(P)$(R)PulnixGetRawShutter"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 512
+y 328
+w 52
+h 20
+controlPv "$(P)$(R)PulnixGetRawTriggerMode"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 336
+y 304
+w 172
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "PulnixGetRawShutter"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 336
+y 328
+w 172
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "PulnixGetRawTriggerMode"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 212
+y 352
+w 52
+h 20
+controlPv "$(P)$(R)PulnixSetPulseShutter"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 32
+y 352
+w 172
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "PulnixSetPulseShutter"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 328
+y 108
+w 44
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "Range"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 328
+y 128
+w 44
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "0 - 511"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 328
+y 152
+w 44
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "0 - 511"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 328
+y 256
+w 44
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "66-488"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 328
+y 280
+w 44
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "66-488"
+}
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 212
+y 204
+w 108
+h 20
+controlPv "$(P)$(R)Gain"
+format "decimal"
+font "helvetica-medium-r-12.0"
+fgColor index 25
+fgAlarm
+bgColor index 5
+editable
+motifWidget
+nullColor index 40
+smartRefresh
+fastUpdate
+useHexPrefix
+newPos
+objType "controls"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 92
+y 204
+w 112
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Gain"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 328
+y 204
+w 44
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 3
+value {
+  "0 - 100"
+}
 endObjectProperties
 
