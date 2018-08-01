@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 2129
-y 254
+x 2133
+y 278
 w 700
 h 600
 font "helvetica-medium-r-12.0"
@@ -1634,16 +1634,13 @@ release 0
 x 188
 y 288
 w 100
-h 18
+h 20
 controlPv "$(P)$(R)PulnixMinY"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
 fgAlarm
 bgColor index 5
-editable
-autoHeight
-motifWidget
 nullColor index 40
 smartRefresh
 fastUpdate
@@ -1708,7 +1705,7 @@ x 300
 y 312
 w 108
 h 20
-controlPv "$(P)$(R)PulnixSizeY"
+controlPv "$(P)$(R)PulnixSizeY_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -1752,16 +1749,13 @@ release 0
 x 188
 y 312
 w 100
-h 18
+h 20
 controlPv "$(P)$(R)PulnixSizeY"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
 fgAlarm
 bgColor index 5
-editable
-autoHeight
-motifWidget
 nullColor index 40
 smartRefresh
 fastUpdate
