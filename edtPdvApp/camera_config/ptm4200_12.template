@@ -503,7 +503,8 @@ record( longin, "$(P)$(R)EdtSizeY" )
 
 record( longout, "$(P)$(R)PulnixMinY" )
 {
-    field( DOL,  "0" )
+    field( DOL,  "$(P)$(R)EdtMinY" )
+    field( OMSL, "closed_loop" )
     field( DTYP, "stream" )
     field( LOPR, "0" )
     field( HOPR, "2047" )
@@ -521,12 +522,19 @@ record( longin, "$(P)$(R)PulnixMinY_RBV" )
 
 record( longout, "$(P)$(R)PulnixSizeY" )
 {
-    field( DOL,  "2048" )
+    field( DOL,  "$(P)$(R)EdtSizeY" )
+    field( OMSL, "closed_loop" )
     field( DTYP, "stream" )
     field( LOPR, "1" )
     field( HOPR, "2048" )
     field( OUT,  "@ptm4200_12.proto SetHWROI($(P)$(R)) $(PORT).SER" )
     field( SDIS, "$(SerialDisable)")
+    field( FLNK, "$(P)$(R)PulnixSizeY_RBV" )
+}
+
+record( longin, "$(P)$(R)PulnixSizeY_RBV" )
+{
+    field( INP,  "$(P)$(R)PulnixSizeY NPP MS" )
     field( FLNK, "$(P)$(R)EdtSizeY_RBV" )
 }
 
