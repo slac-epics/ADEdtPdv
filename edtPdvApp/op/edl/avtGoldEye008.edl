@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 858
-y 413
+x 862
+y 437
 w 700
 h 619
 font "helvetica-medium-r-12.0"
@@ -2376,7 +2376,7 @@ fgColor index 14
 bgColor index 12
 useDisplayBg
 value {
-  "AcquireMode"
+  "AcquireTime"
 }
 endObjectProperties
 
@@ -2888,5 +2888,25 @@ useHexPrefix
 newPos
 objType "monitors"
 noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 136
+y 500
+w 144
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 12
+useDisplayBg
+value {
+  "Pulse mode AcquireTime"
+}
 endObjectProperties
 
