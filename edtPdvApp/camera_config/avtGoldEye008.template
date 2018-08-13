@@ -466,6 +466,8 @@ record( calcout, "$(P)$(R)GoldEyeCalcTriggerMode" )
 #	field( TPRO, 2 )
 	field( INPA, "$(P)$(R)EdtTriggerMode NPP NMS" )
 	field( INPB, "$(P)$(R)AcquirePeriod NPP NMS"  )
+# Disable till I get this working
+	field( INPB, "0" )
 	field( CALC, "A==0?(B=0?0:9):1" )
 	field( OUT,  "$(P)$(R)GoldEyeFStartTrSrc PP MS" )
 	field( OOPT, "On Change" )
@@ -478,6 +480,14 @@ record( calcout, "$(P)$(R)GoldEyeCalcTriggerEdge" )
 	field( INPA, "$(P)$(R)EdtTriggerMode NPP NMS" )
 	field( CALC, "A==2?3:0" )
 	field( OUT,  "$(P)$(R)GoldEyeFStartTrEvent PP MS" )
+	field( FLNK, "$(P)$(R)GoldEyePulseAcquireTime_Fanout" )
+}
+
+record( fanout, "$(P)$(R)GoldEyePulseAcquireTime_Fanout" )
+{
+	field( SELM, "Specified" )
+	field( SELL, "$(P)$(R)EdtTriggerMode NPP NMS" )
+	field( LNK2, "$(P)$(R)GoldEyePulseAcquireTime" )
 }
 
 # GoldEyePulseAcquireTime
@@ -490,6 +500,7 @@ record( calcout, "$(P)$(R)GoldEyePulseAcquireTime" )
 	field( OUT,  "$(PWIDTH=) CA NMS" )
 	field( PREC, "0" )
 	field( EGU,  "ns" )
+	field( FLNK, "$(P)$(R)GoldEyePulseAcquireTime_RBV" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
@@ -510,11 +521,14 @@ record( calcout, "$(P)$(R)GoldEyePulseAcquireTime_RBV" )
 
 record( ao, "$(P)$(R)AcquirePeriod"	)
 {
-	field( DISA, "0" )
     field( FLNK, "$(P)$(R)GoldEyeCalcAcquirePeriod" )
     field( LOPR, "7017e-6"      )
     field( HOPR, "7.374" )
 	field( PINI, "YES" )
+# Disable till I get this working
+# Looks like we can only write this value when
+# GoldEyeFStartTrSrc is FixedRate or GoldEyeFStartTrMode is Off
+	field( DISV, "0" )
 	info( autosaveFields, "PREC VAL" )
 	info( archiveFields,  "PREC VAL" )
 }
@@ -548,6 +562,9 @@ record( longout, "$(P)$(R)GoldEyeAcquirePeriod" )
 #	field( TPRO, 2 )
 	info( autosaveFields, "DESC VAL" )
     field( SDIS, "$(P)$(R)GoldEyeSerialDisable" )
+# Disable till I get this working
+	field( DISV, "0" )
+	field( SDIS, "" )
 }
 
 
@@ -574,7 +591,7 @@ record( calcout, "$(P)$(R)GoldEyeCalcAcquirePeriod_RBV" )
 }
 #record( ai, "$(P)$(R)AcquirePeriod_RBV"		)
 #{
-#	field( DISA, "0" )
+#	field( DISV, "0" )
 #}
 
 #	0x13418	RegTriggerEvent, FStartTrEvent: RisingEdge/FallingEdge/AnyEdge/LevelHigh/LevelLow
@@ -761,7 +778,7 @@ record( calcout, "$(P)$(R)GoldEyeCalcEdtTriggerMode_RBV" )
 	field( INPB, "$(P)$(R)GoldEyeFStartTrEvent   NPP NMS" )
 	field( CALC, "(A=0||A=9)?0:(B=0?1:2)" )
 	field( OUT,  "$(P)$(R)EdtTriggerMode_RBV PP MS" )
-	field( OOPT, "On Change" )
+#	field( OOPT, "On Change" )
 }
 
 #
@@ -1000,6 +1017,7 @@ substitute "SER_OK_PV=$(P)$(R)GoldEyeAccessPrivilege"
 include "serialMonitor.template"
 
 # 1 second RBV monitors
+# Note: Requires SER_OK_PV macro defined above
 substitute "MON_SCAN=1 second"
 substitute "MON_PV= $(P)$(R)GoldEyeAccessPrivilege_RBV"
 include "rbvMonitor.template"
