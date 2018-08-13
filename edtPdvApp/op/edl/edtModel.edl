@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 111
-y 374
+x 920
+y 417
 w 739
 h 659
 font "helvetica-medium-r-12.0"
@@ -47,8 +47,8 @@ beginObjectProperties
 major 4
 minor 1
 release 0
-x 660
-y 8
+x 696
+y 0
 w 32
 h 24
 fgColor index 14
@@ -85,8 +85,8 @@ beginObjectProperties
 major 4
 minor 4
 release 0
-x 584
-y 8
+x 660
+y 0
 w 32
 h 24
 fgColor index 14
@@ -185,5 +185,190 @@ endGroup
 visPv "$(P)$(R)EdtModelScreen.SEVR"
 visMin "0"
 visMax "1"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 616
+y 24
+w 120
+h 20
+controlPv "$(CAM):IOC_NAME"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+limitsFromDb
+nullColor index 0
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 208
+y 0
+w 76
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 12
+useDisplayBg
+value {
+  "POWER_PV: "
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 288
+y 0
+w 236
+h 20
+controlPv "$(CAM):POWER_PV"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 0
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 208
+y 20
+w 52
+h 20
+controlPv "$(CAM):COM_TYPE"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+limitsFromDb
+nullColor index 0
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 280
+y 20
+w 72
+h 20
+controlPv "$(CAM):COM_PORT"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+limitsFromDb
+nullColor index 0
+useHexPrefix
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 528
+y 0
+w 36
+h 20
+fgColor index 25
+onColor index 6
+offColor index 5
+topShadowColor index 1
+botShadowColor index 11
+controlPv "$(CAM):SET_POWER_PV"
+pressValue "1"
+onLabel "On"
+offLabel "On"
+3d
+font "helvetica-medium-r-12.0"
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 564
+y 0
+w 36
+h 20
+fgColor index 25
+onColor index 6
+offColor index 5
+topShadowColor index 1
+botShadowColor index 11
+controlPv "$(CAM):SET_POWER_PV"
+pressValue "0"
+onLabel "Off"
+offLabel "Off"
+3d
+font "helvetica-medium-r-12.0"
+endObjectProperties
+
+# (Message Button)
+object activeMessageButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 600
+y 0
+w 48
+h 20
+fgColor index 25
+onColor index 6
+offColor index 5
+topShadowColor index 1
+botShadowColor index 11
+controlPv "$(CAM):SET_POWER_PV"
+pressValue "2"
+onLabel "Cycle"
+offLabel "Cycle"
+3d
+font "helvetica-medium-r-12.0"
 endObjectProperties
 
