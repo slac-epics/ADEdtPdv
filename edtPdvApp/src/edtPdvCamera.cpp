@@ -132,7 +132,7 @@ edtPdvCamera::edtPdvCamera(
 							NUM_EDT_PARAMS,
 							maxBuffers, maxMemory,
 							asynOctetMask,	0,	// Supports an asynOctect interface w/ no interrupts
-							ASYN_CANBLOCK,	1,	// ASYN_CANBLOCK=1, ASYN_MULTIDEVICE=0, autoConnect=1
+							ASYN_CANBLOCK,	1,	// ASYN_CANBLOCK=1, autoConnect=1
 							priority, stackSize	),
 		m_fAcquireMode(		false			    ),
 		m_fExitApp(			false			    ),
@@ -1898,6 +1898,7 @@ int	 edtPdvCamera::CheckData(	edtImage	*	pImage	)
 	int		nOverrun	= pdv_overrun( m_pPdvDev );
 	setIntegerParam( EdtOverrun, nOverrun );
 
+#if 0	// TODO: Implement EdtTimeouts parameter
 	// Check for timeouts in the framegrabber
 	int		timeoutCount	= 0;
 	// getIntegerParam( EdtTimeouts, &timeoutCount );
@@ -1911,6 +1912,7 @@ int	 edtPdvCamera::CheckData(	edtImage	*	pImage	)
 	{
 		// setIntegerParam( EdtTimeout, 0 );
 	}
+#endif
 
 	return 0;
 }
@@ -1955,7 +1957,8 @@ int	edtPdvCamera::TimeStampImage(
 	//	We can't construct an epicsTime directly from our epicsTimeStamp as we sometimes
 	//	set the nSec field > 1e9
 	epicsTimeStamp	newTimeStamp( newEvrTime );
-	if (	newTimeStamp.secPastEpoch	== m_priorTimeStamp.secPastEpoch
+	if (	m_TriggerModeReq			== TRIGMODE_FREERUN
+		&&	newTimeStamp.secPastEpoch	== m_priorTimeStamp.secPastEpoch
 		&&	newTimeStamp.nsec			== m_priorTimeStamp.nsec )
 	{
 		char	acBuffer[32];
