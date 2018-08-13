@@ -14,7 +14,9 @@
 // GenCp Request ID, start at 0, increment each request
 static uint16_t		localGenCpRequestId	= 0;
 
-void usage( char * msg )
+int		verboseMode	= 0;
+
+void usage( const char * msg )
 {
     printf( "%s", msg );
     printf( "edtGenCpTool Usage: \n" );
@@ -300,7 +302,7 @@ GENCP_STATUS EdtGenCpReadUint(
     pPdv = pdv_open_channel(EDT_INTERFACE, iUnit, iChannel);
     if ( pPdv == NULL )
     {
-        pdv_perror( EDT_INTERFACE );
+        pdv_perror( (char *) EDT_INTERFACE );
         return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
     }
 	pdv_serial_read_enable( pPdv );
@@ -346,7 +348,7 @@ GENCP_STATUS EdtGenCpReadString(
     pPdv = pdv_open_channel(EDT_INTERFACE, iUnit, iChannel);
     if ( pPdv == NULL )
     {
-        pdv_perror( EDT_INTERFACE );
+        pdv_perror( (char *) EDT_INTERFACE );
         return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
     }
 	pdv_serial_read_enable( pPdv );
@@ -390,7 +392,7 @@ GENCP_STATUS EdtGenCpReadXmlFile(
     pPdv = pdv_open_channel(EDT_INTERFACE, iUnit, iChannel);
     if ( pPdv == NULL )
     {
-        pdv_perror( EDT_INTERFACE );
+        pdv_perror( (char *) EDT_INTERFACE );
         return GENCP_STATUS_INVALID_PARAM | GENCP_SC_ERROR;
     }
 	pdv_serial_read_enable( pPdv );
@@ -413,11 +415,10 @@ GENCP_STATUS EdtGenCpReadXmlFile(
 
 int main( int argc, char **argv )
 {
-	int				status;
+	int				status	= 0;
     unsigned int	channel = 0;
     unsigned int	unit 	= 0;
 	unsigned int	iFile	= 0;
-    bool	     	verbose = FALSE;
 
     for ( int iArg = 1; iArg < argc; iArg++ )
     {
@@ -501,7 +502,7 @@ int main( int argc, char **argv )
 		else if (	strcmp( argv[iArg], "-v" ) == 0
 				||	strcmp( argv[iArg], "--verbose" ) == 0 )
         {
-			verbose = 1;
+			verboseMode = 1;
 		}
 		else if (	strcmp( argv[iArg], "-h" ) == 0
 				||	strcmp( argv[iArg], "--help" ) == 0 )
@@ -517,5 +518,5 @@ int main( int argc, char **argv )
 		}
     }
 
-    return (0);
+    return (status);
 }
