@@ -3,10 +3,10 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 257
-y 1274
+x 111
+y 374
 w 739
-h 595
+h 659
 font "helvetica-medium-r-12.0"
 ctlFont "helvetica-medium-r-12.0"
 btnFont "helvetica-medium-r-12.0"
@@ -157,7 +157,7 @@ release 0
 x 8
 y 48
 w 720
-h 544
+h 604
 
 beginGroup
 
@@ -170,7 +170,7 @@ release 0
 x 8
 y 48
 w 720
-h 544
+h 604
 fgColor index 14
 bgColor index 0
 topShadowColor index 1
