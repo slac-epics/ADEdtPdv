@@ -1,9 +1,11 @@
 # putMonitor.template: Use 'substitute "MON_PV=XXX:YYY:PV2MONITOR"' before including this file
+# Reprocess serial command if its SEVR is MAJOR or INVALID or STAT is DISABLE.
 record( calcout, "$(MON_PV):MON_PUT" )
 {
 	field( INPA, "$(SER_OK_PV).SEVR NPP NMS" )
 	field( INPB, "$(MON_PV).SEVR NPP NMS" )
-	field( CALC, "(A<2) && (B>=2)" )
+	field( INPC, "$(MON_PV).STAT NPP NMS" )
+	field( CALC, "(A<2) && ((B>=2) || (C==18))" )
 	field( OOPT, "When Non-zero" )
 	field( OUT,	 "$(MON_PV).PROC PP NMS" )
 	field( SCAN, "$(MON_SCAN=10 second)" )
