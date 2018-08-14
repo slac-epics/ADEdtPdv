@@ -1089,9 +1089,10 @@ record( stringin, "$(P)$(R)OpalModelID_RBV" )
 
 # Opal processing w/ Vertical Remapping enabled is
 # 2us + 7.5us + 4.7ms
+# Adding another 100us based on timing tests
 record( ao, "$(P)$(R)CamProcDelay" )
 {
-    field( DOL,  "4.7095e-3" )
+    field( DOL,  "4.8095e-3" )
     field( EGU,  "Sec" )
     field( PREC, "3" ) 
     field( PINI, "YES" )
