@@ -903,6 +903,21 @@ int edtPdvCamera::_Reconfigure( )
 	setIntegerParam( ADMaxSizeX,		m_ClMaxWidth	);
 	setIntegerParam( ADMaxSizeY,		m_ClMaxHeight	);
 
+	// Make sure we have valid size and binning settings
+	int		intParam;
+	getIntegerParam( ADBinX,	&intParam	);
+	if ( intParam == 0 )
+		setIntegerParam( ADBinX, 1 );
+	getIntegerParam( ADBinY,	&intParam	);
+	if ( intParam == 0 )
+		setIntegerParam( ADBinY, 1 );
+	getIntegerParam( ADSizeX,	&intParam	);
+	if ( intParam == 0 )
+		setIntegerParam( ADSizeX, m_ClMaxWidth	);
+	getIntegerParam( ADSizeY,	&intParam	);
+	if ( intParam == 0 )
+		setIntegerParam( ADSizeY, m_ClMaxHeight	);
+
 	// Fetch the pixel depth and update ADBase DataType and BitsPerPixel
     m_ClNumBits		= pdv_get_depth(	m_pPdvDev );
 	if ( m_ClNumBits <= 8 )
