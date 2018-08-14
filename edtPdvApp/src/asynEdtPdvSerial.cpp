@@ -245,7 +245,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 						"%s: %s nBytesReadMax is 0! Why?\n", functionName, this->portName );
 		return asynError;
 	}
-	
+
 	char			*	pReadBuffer	= pBuffer;
 	size_t				sReadBuffer	= nBytesReadMax;
 
@@ -254,7 +254,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 	{
 		epicsMutexLock(m_serialLock);
 		if ( DEBUG_EDT_SER >= 4 )
-			printf( "%s: %s Have serial lock, nBytesReadMax %zu, sReadBuffer %zu, timeout %e ...\n",
+			printf( "%s: %s Have serial lock, nBytesReadMax %zu, sReadBuffer %zu, timeout %.3f ...\n",
 					functionName, this->portName, nBytesReadMax, sReadBuffer, pasynUser->timeout );
 		/*
 		 * Follow streamdevice usage on timeout: <= 0 is don't wait, > 0 specifies delay in sec
@@ -346,8 +346,6 @@ asynStatus	asynEdtPdvSerial::readOctet(
 			break;			/* If we aren't waiting forever, we're done. */
 	}	// end forever loop
 
-	if ( DEBUG_EDT_SER >= 4 )
-		printf( "%s: %s Read %d\n", functionName, this->portName, nRead );
 
 	if ( nRead == 0 && (pasynUser->timeout > 0) && (status == asynSuccess))	/* If we don't have anything, not even an error	*/
 	{
@@ -392,6 +390,7 @@ asynStatus	asynEdtPdvSerial::readOctet(
 							functionName, this->portName, *pnRead, status );
 		}
 
+		// TODO: Do we need callParamCallbacks() here?
 		// Call the parameter callbacks
 		callParamCallbacks();
 	}
@@ -503,6 +502,8 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 		m_fInputFlushNeeded = TRUE;
 	}
 
+	// TODO: Do we need callParamCallbacks() here?
+	// Call the parameter callbacks
     callParamCallbacks();
 
     return status;
@@ -510,6 +511,7 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 
 
 #if 0
+# TODO: Should we support flushOctet?
 asynStatus asynEdtPdvSerial::flushOctet(
 	asynUser			*	pasynUser	)
 {
