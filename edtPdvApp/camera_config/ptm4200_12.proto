@@ -10,35 +10,41 @@ ExtraInput		= Ignore;
 # Safe command to send to test communications
 ComTest
 {
-	out	":SHR?";	in	":o%*{M|A|D}S%*X";
-	@init { out	":SHR?";	in	":o%*{M|A|D}S%*X"; }
+	out	":SHR?";
+	in	":o%{MS|AS|AD}%*X";
+	@init { out	":SHR?";	in	":o%{MS|AS|AD}%*X"; }
 }
 
 
 # Get shutter setting
 # :SHR?
+# oAD008
 # oAS8
-# Shutter mode    is AS  {Manual|Async|Direct}
+# oMS8
+# Shutter mode    is MS|AS|AD  {Manual|Async|Direct}
 # Shutter setting is 8
 GetShutter
 {
-	out	":SHR?";	in	":o%*{M|A|D}S%X";
-	@init { out	":SHR?";	in	":o%*{M|A|D}S%X"; }
+	out	":SHR?";
+	in	":o%*{MS|AS|AD}%X";
+	@init { out	":SHR?";	in	":o%*{MS|AS|AD}%X"; }
 }
 
 # Get shutter mode
 # :SHR?
+# oAD008
 # oAS8
-# Shutter mode    is AS  {Manual|Async|Direct}
+# oMS2
+# Shutter mode    is MS|AS|AD  {Manual|Async|Direct}
 # Shutter setting is 8
 GetTriggerMode
 {
 	out ":SHR?";
-	in	":o%{M|A|D}S%*X";
+	in	":o%{MS|AS|AD}%*X";
 # or to grab the shutter setting to a PV
 # INP: @ptm4200_12.proto GetTriggerMode($(P)$(R)PulnixRawShutter)
-#	in	":o%{M|A|D}S%\$1X";
-	@init { out	":SHR?";	in	":o%{M|A|D}S%*X"; }
+#	in	":o%{MS|AS|AD}%\$1X";
+	@init { out	":SHR?";	in	":o%{MS|AS|AD}%*X"; }
 }
 
 
