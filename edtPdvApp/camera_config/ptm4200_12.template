@@ -115,12 +115,10 @@ record( longout, "$(P)$(R)PulnixSetGainB" )
 
 record( seq, "$(P)$(R)EdtReConfigSeq" )
 {
-#   field( DLY1, 0.5 ) field( DOL1, "1" )   field( LNK1, "$(P)$(R)PulnixRefVoltA_RBV.PROC CA NMS" )
-#   field( DLY1, 0.5 ) field( DOL1, "1" )   field( LNK2, "$(P)$(R)PulnixRefVoltB_RBV.PROC CA NMS" )
-#   field( DLY1, 0.5 ) field( DOL1, "1" )   field( LNK3, "$(P)$(R)PulnixGetRawShutter.PROC CA NMS" )
-#   field( DLY1, 0.5 ) field( DOL1, "1" )   field( LNK4, "$(P)$(R)PulnixGetRawTriggerMode.PROC CA NMS" )
-#   field( DLY1, 0.5 ) field( DOL1, "1" )   field( LNK5, "$(P)$(R)PulnixModelID_RBV.PROC CA NMS" )
-#   field( DLY1, 0.5 ) field( DOL1, "1" )   field( LNK6, "$(P)$(R)PulnixFirmware_RBV.PROC CA NMS" )
+   field( DLY1, 0.5 ) field( DOL1, "1" )   field( LNK1, "$(P)$(R)PulnixShutterReadSelect.PROC CA NMS" )
+   field( DLY2, 0.5 ) field( DOL2, "1" )   field( LNK2, "$(P)$(R)PulnixShutterCmdFanout.PROC CA NMS" )
+   field( DLY3, 0.5 ) field( DOL3, "1" )   field( LNK3, "$(P)$(R)PulnixMinY.PROC CA NMS" )
+   field( DLY4, 0.1 ) field( DOL4, "1" )   field( LNK4, "$(P)$(R)PulnixSizeY.PROC CA NMS" )
 }
 
 # Reference voltage commands
@@ -249,12 +247,14 @@ record( longin, "$(P)$(R)PulnixGetRawShutter" )
 }
 
 # Keep INPB and INPC so we process when EdtAcquireTime changes or PulseWidth RBV changes
+# and INPD to process on new raw shutter values
 record( calc, "$(P)$(R)PulnixShutterReadSelect" )
 {
     field( CALC, "A+1" )
     field( INPA, "$(P)$(R)PulnixTriggerMode CPP MS" )
     field( INPB, "$(P)$(R)EdtAcquireTime CPP NMS" )
     field( INPC, "$(PW_RBV) CPP NMS" )
+    field( INPD, "$(P)$(R)PulnixGetRawShutter CPP NMS" )
     field( FLNK, "$(P)$(R)PulnixShutterReadFanout" )
 }
 
@@ -571,7 +571,7 @@ record( calc, "$(P)$(R)CamlinkXmitTime" )
 {
     field( INPA, "$(P)$(R)MinY_RBV CP MS" )
     field( INPB, "$(P)$(R)SizeY_RBV CPP MS" )
-    field( INPC, "34.23e-6" )
+    field( INPC, "33.5e-6" )
     field( CALC, "(A%8+B+(7-(A+B-1)%8))*C" )
     field( EGU,  "Sec" )
     field( PREC, "5" ) 
@@ -580,7 +580,7 @@ record( calc, "$(P)$(R)CamlinkXmitTime" )
 
 record( ao, "$(P)$(R)CamProcDelay" )
 {
-    field( DOL,  "519e-6" )
+    field( DOL,  "100e-6" )
 }
 
 # Pulnix trigger polarity
