@@ -141,7 +141,6 @@ record( longin, "$(P)$(R)PulnixRefVoltA_RBV" )
     field( INP,  "@ptm4200_12.proto GetRefVoltA $(PORT).SER" )
     field( PINI, "YES" )
     field( SDIS, "$(SerialDisable)")
-    info( autosaveFields, "VAL" )
 }
 
 
@@ -152,6 +151,8 @@ record( longout, "$(P)$(R)PulnixRefVoltB" )
     field( OUT,  "@ptm4200_12.proto SetRefVoltB $(PORT).SER" )
     field( DRVL, "0x000" )
     field( DRVH, "0xFFF" )
+    field( LOPR, "0x000" )
+    field( HOPR, "0xFFF" )
     field( PINI, "YES" )
     field( FLNK, "$(P)$(R)PulnixRefVoltB_RBV" )
     field( SDIS, "$(SerialDisable)")
@@ -164,7 +165,6 @@ record( longin, "$(P)$(R)PulnixRefVoltB_RBV" )
     field( INP,  "@ptm4200_12.proto GetRefVoltB $(PORT).SER" )
     field( SDIS, "$(SerialDisable)")
     field( PINI, "YES" )
-    info( autosaveFields, "VAL" )
 }
 
 record( ao, "$(P)$(R)AcquireTime" )
@@ -611,11 +611,16 @@ include "serialMonitor.template"
 
 # 1 second RBV monitors
 substitute "MON_SCAN=1 second"
+substitute "MON_DISABLED=1"
 substitute "MON_PV=$(P)$(R)PulnixGetRawTriggerMode"
 include "rbvMonitor.template"
 
 # 10 second RBV monitors
 substitute "MON_SCAN=10 second"
+substitute "MON_PV=$(P)$(R)PulnixGetGainA"
+include "rbvMonitor.template"
+substitute "MON_PV=$(P)$(R)PulnixGetGainB"
+include "rbvMonitor.template"
 substitute "MON_PV=$(P)$(R)PulnixRefVoltA_RBV"
 include "rbvMonitor.template"
 substitute "MON_PV=$(P)$(R)PulnixRefVoltB_RBV"
@@ -624,11 +629,25 @@ substitute "MON_PV=$(P)$(R)PulnixModelID_RBV"
 include "rbvMonitor.template"
 substitute "MON_PV=$(P)$(R)PulnixFirmware_RBV"
 include "rbvMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixAutoGain_RBV"
+include "rbvMonitor.template"
 
 # 1 second PUT monitors
 substitute "MON_SCAN=1 second"
 substitute "MON_PV= $(P)$(R)PulnixMinY"
 include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixSizeY"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixGainA"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixGainB"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixRefVoltA"
+include "putMonitor.template"
+substitute "MON_PV= $(P)$(R)PulnixRefVoltB"
+include "putMonitor.template"
+
+substitute "MON_DISABLED=0"
 substitute "MON_PV= $(P)$(R)PulnixSetExtTrigShutter"
 include "putMonitor.template"
 substitute "MON_PV= $(P)$(R)PulnixSetDirectShutter"
@@ -637,20 +656,13 @@ substitute "MON_PV= $(P)$(R)PulnixSetPulseShutter"
 include "putMonitor.template"
 substitute "MON_PV= $(P)$(R)PulnixSetFreeRunShutter"
 include "putMonitor.template"
-substitute "MON_PV= $(P)$(R)PulnixSizeY"
-include "putMonitor.template"
-substitute "MON_PV= $(P)$(R)PulnixSetGainA"
-include "putMonitor.template"
-substitute "MON_PV= $(P)$(R)PulnixSetGainB"
-include "putMonitor.template"
-substitute "MON_PV= $(P)$(R)PulnixRefVoltA"
-include "putMonitor.template"
-substitute "MON_PV= $(P)$(R)PulnixRefVoltB"
-include "putMonitor.template"
 
 # 10 second PUT monitors
 substitute "MON_SCAN=10 second"
-substitute "MON_PV= $(P)$(R)PulnixAutoGain"
-include "putMonitor.template"
+substitute "MON_DISABLED=1"
 substitute "MON_PV= $(P)$(R)PulnixTriggerPolarity"
+include "putMonitor.template"
+
+substitute "MON_DISABLED=0"
+substitute "MON_PV= $(P)$(R)PulnixAutoGain"
 include "putMonitor.template"

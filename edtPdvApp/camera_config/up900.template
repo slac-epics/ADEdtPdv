@@ -326,6 +326,7 @@ substitute "MON_SCAN=1 second"
 
 # 10 second RBV monitors
 substitute "MON_SCAN=10 second"
+substitute "MON_DISABLED=1"
 substitute "MON_PV= $(P)$(R)Up900RawShutterSpeed_RBV"
 include "rbvMonitor.template"
 substitute "MON_PV= $(P)$(R)Up900Gain_RBV"
@@ -339,6 +340,7 @@ include "rbvMonitor.template"
 
 # Put monitors
 substitute "MON_SCAN=1 second"
+substitute "MON_DISABLED=1"
 substitute "MON_PV= $(P)$(R)Up900SetGain"
 include "putMonitor.template"
 substitute "MON_PV= $(P)$(R)Up900RawShutterSpeed"

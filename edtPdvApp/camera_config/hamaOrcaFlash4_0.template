@@ -12,30 +12,13 @@ record( seq, "$(P)$(R)EdtReConfigSeq" )
 	field( DLY1, 0   ) field( DOL1, "1" )	field( LNK1, "$(P)$(R)OrcaAcquireTime_RBV.PROC CA NMS"  )
 	field( DLY2, 0.2 ) field( DOL2, "1" )	field( LNK2, "$(P)$(R)OrcaTriggerMode_RBV.PROC CA NMS"  )
 	field( DLY3, 0.2 ) field( DOL3, "1" )	field( LNK3, "$(P)$(R)OrcaScanSize_RBV.PROC CA NMS"  )
-# These get processed at least once via PINI and now have rbvMonitor's so no need to reread
-#	field( DLY4, 0.5 ) field( DOL4, "1" )	field( LNK4, "$(P)$(R)OrcaHeight_RBV.PROC CA NMS"  )
-#	field( DLY5, 0.5 ) field( DOL5, "1" )	field( LNK5, "$(P)$(R)OrcaWidth_RBV.PROC CA NMS"  )
-#	field( DLY6, 0.5 ) field( DOL6, "1" )	field( LNK6, "$(P)$(R)OrcaScanMode_RBV.PROC CA NMS"  )
-#	field( DLY7, 0.5 ) field( DOL7, "1" )	field( LNK7, "$(P)$(R)OrcaScanSpeed_RBV.PROC CA NMS"  )
-#	field( DLY8, 0.5 ) field( DOL8, "1" )	field( LNK8, "$(P)$(R)OrcaActualExposure_RBV.PROC CA NMS"  )
-#	field( DLY9, 0.5 ) field( DOL9, "1" )	field( LNK9, "$(P)$(R)OrcaInfo_RBV.PROC CA NMS"  )
-#	field( DLYA, 0.5 ) field( DOLA, "1" )	field( LNKA, "$(P)$(R)OrcaModel_RBV.PROC CA NMS"  )
-	field( FLNK, "$(P)$(R)EdtReConfigSeq2" )
+#	field( FLNK, "$(P)$(R)EdtReConfigSeq2" )
 }
 
-record( seq, "$(P)$(R)EdtReConfigSeq2" )
-{
-# These get processed at least once via PINI and now have rbvMonitor's so no need to reread
-#	field( DLY1, 1   ) field( DOL1, "1" )	field( LNK1, "$(P)$(R)OrcaExtTrigPolarity_RBV.PROC CA NMS"  )
-#	field( DLY2, 1   ) field( DOL2, "1" )	field( LNK2, "$(P)$(R)OrcaSerialNumber_RBV.PROC CA NMS"  )
-#	field( DLY3, 1   ) field( DOL3, "1" )	field( LNK3, "$(P)$(R)OrcaFirmware_RBV.PROC CA NMS"  )
-#	field( DLY4, 1   ) field( DOL4, "1" )	field( LNK4, "$(P)$(R)OrcaCoolingMethod_RBV.PROC CA NMS"  )
-#	field( DLY5, 1   ) field( DOL5, "1" )	field( LNK5, "$(P)$(R)OrcaExtTrigDelay_RBV.PROC CA NMS"  )
-#	field( DLY6, 1   ) field( DOL6, "1" )	field( LNK6, "$(P)$(R)OrcaCoolingMode_RBV.PROC CA NMS"  )
-#	field( DLY7, 1   ) field( DOL7, "1" )	field( LNK7, "$(P)$(R)OrcaExtTrigMode_RBV.PROC CA NMS"  )
-#	field( DLY8, 1   ) field( DOL8, "1" )	field( LNK8, "$(P)$(R)OrcaPixelCorr_RBV.PROC CA NMS"  )
+#record( seq, "$(P)$(R)EdtReConfigSeq2" )
+#{
 #	field( FLNK, "$(P)$(R)EdtReConfigSeq3" )
-}
+#}
 
 record( stringin, "$(P)$(R)CamModel" )
 {
@@ -167,7 +150,7 @@ record( mbbo, "$(P)$(R)OrcaExtTrigMode" )
 	field( FLNK, "$(P)$(R)OrcaExtTrigMode_RBV" )
 	field( PINI, "YES" )
     field( SDIS, "$(SerialDisable)")
-	info( autosaveFields, "VAL" )
+#	info( autosaveFields, "VAL" )
 	info( archiveFields,  "VAL" )
 }
 
@@ -738,11 +721,12 @@ record( ao, "$(P)$(R)XmitRate" )
 # Include a serialMonitor.template monitor
 # This should be the first PV you process in the EdtReConfigSeq
 substitute "MON_SCAN=10 second"
-substitute "SER_OK_PV=$(P)$(R)OrcaAcquireTime_RBV
+substitute "SER_OK_PV=$(P)$(R)OrcaAcquireTime_RBV"
 include "serialMonitor.template"
 
 # 1 second RBV monitors
 substitute "MON_SCAN=1 second"
+substitute "MON_DISABLED=0"
 substitute "MON_PV=$(P)$(R)OrcaTriggerMode_RBV"
 include "rbvMonitor.template"
 substitute "MON_PV=$(P)$(R)OrcaScanSize_RBV"
@@ -750,6 +734,7 @@ include "rbvMonitor.template"
 
 # 10 second RBV monitors
 substitute "MON_SCAN=10 second"
+substitute "MON_DISABLED=1"
 substitute "MON_PV=$(P)$(R)OrcaHeight_RBV"
 include "rbvMonitor.template"
 substitute "MON_PV=$(P)$(R)OrcaWidth_RBV"
@@ -783,6 +768,7 @@ include "rbvMonitor.template"
 
 # 1 second put monitors
 substitute "MON_SCAN=1 second"
+substitute "MON_DISABLED=1"
 substitute "MON_PV=$(P)$(R)OrcaAcquireTime"
 include "putMonitor.template"
 substitute "MON_PV=$(P)$(R)OrcaTriggerMode"
@@ -792,6 +778,7 @@ include "putMonitor.template"
 
 # 10 second put monitors
 substitute "MON_SCAN=10 second"
+substitute "MON_DISABLED=1"
 substitute "MON_PV=$(P)$(R)OrcaScanMode"
 include "putMonitor.template"
 substitute "MON_PV=$(P)$(R)OrcaScanSpeed"

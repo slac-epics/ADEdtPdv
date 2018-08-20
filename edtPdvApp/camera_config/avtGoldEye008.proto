@@ -62,7 +62,7 @@
 # 0x00000044	C64		64 character Model Name
 # 0x000001D0	U64		Manifest table address (XML feature files)
 # 0x000001E0	U64		Device Configuration: Bit 0=HeartbeatEnable, Bit1=MultiEventEnable
-# 0x000001E8	U32		Heartbeat Timeout in ms
+# 0x000001E8	U32		Heartbeat Timeout in ms (default 3000)
 # 0x00000204	U32		AccessPrivilege, 0=Avail (no image streaming), 1=Exclusive
 # NOTE: Must set AccessPrivilege in BRM to 1 for write access and read or write at
 # least once every 3 sec so heartbeat won't timeout and stop image streaming!

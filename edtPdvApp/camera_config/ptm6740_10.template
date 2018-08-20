@@ -549,11 +549,13 @@ include "serialMonitor.template"
 
 # 1 second RBV monitors
 substitute "MON_SCAN=1 second"
+substitute "MON_DISABLED=1"
 substitute "MON_PV=$(P)$(R)PulnixGetRawTriggerMode"
 include "rbvMonitor.template"
 
 # 10 second RBV monitors
 substitute "MON_SCAN=10 second"
+substitute "MON_DISABLED=1"
 substitute "MON_PV=$(P)$(R)PulnixRefVoltA_RBV"
 include "rbvMonitor.template"
 substitute "MON_PV=$(P)$(R)PulnixRefVoltB_RBV"
@@ -565,12 +567,15 @@ include "rbvMonitor.template"
 
 # 1 second PUT monitors
 substitute "MON_SCAN=1 second"
+substitute "MON_DISABLED=0"
 substitute "MON_PV= $(P)$(R)PulnixSetExtTrigShutter"
 include "putMonitor.template"
 #substitute "MON_PV= $(P)$(R)PulnixSetPulseShutter"
 #include "putMonitor.template"
 #substitute "MON_PV= $(P)$(R)PulnixSetFreeRunShutter"
 #include "putMonitor.template"
+
+substitute "MON_DISABLED=1"
 substitute "MON_PV= $(P)$(R)PulnixSetGainA"
 include "putMonitor.template"
 substitute "MON_PV= $(P)$(R)PulnixSetGainB"
@@ -582,5 +587,6 @@ include "putMonitor.template"
 
 # 10 second PUT monitors
 substitute "MON_SCAN=10 second"
+substitute "MON_DISABLED=0"
 substitute "MON_PV= $(P)$(R)PulnixAutoGain"
 include "putMonitor.template"

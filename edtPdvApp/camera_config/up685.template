@@ -248,6 +248,7 @@ include "serialMonitor.template"
 
 # 1 second RBV monitors
 substitute "MON_SCAN=1 second"
+substitute "MON_DISABLED=1"
 substitute "MON_PV= $(P)$(R):ReadRawShutter"
 include "rbvMonitor.template"
 substitute "MON_PV= $(P)$(R):ReadGain"
@@ -257,12 +258,14 @@ include "rbvMonitor.template"
 
 # 10 second RBV monitors
 substitute "MON_SCAN=10 second"
+substitute "MON_DISABLED=1"
 substitute "MON_PV= $(P)$(R):ReadReference"
 include "rbvMonitor.template"
 substitute "MON_PV= $(P)$(R):ReadDoubleSpeed"
 include "rbvMonitor.template"
 
 substitute "MON_SCAN=1 second"
+substitute "MON_DISABLED=1"
 substitute "MON_PV= $(P)$(R):SetGain"
 include "putMonitor.template"
 substitute "MON_PV= $(P)$(R):SetRawShutter"

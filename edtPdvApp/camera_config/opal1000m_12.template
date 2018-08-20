@@ -1139,6 +1139,7 @@ include "serialMonitor.template"
 
 # 1 second RBV monitors
 substitute "MON_SCAN=1 second"
+substitute "MON_DISABLED=1"
 substitute "MON_PV=$(P)$(R)OpalTriggerMode_RBV"
 include "rbvMonitor.template"
 substitute "MON_PV=$(P)$(R)OpalBitsPerPixel_RBV"
