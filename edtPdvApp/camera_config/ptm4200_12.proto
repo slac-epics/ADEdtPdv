@@ -12,7 +12,6 @@ ComTest
 {
 	out	":SHR?";
 	in	":o%{MS|AS|AD}%*X";
-	@init { out	":SHR?";	in	":o%{MS|AS|AD}%*X"; }
 }
 
 
@@ -27,7 +26,6 @@ GetShutter
 {
 	out	":SHR?";
 	in	":o%*{MS|AS|AD}%X";
-	@init { out	":SHR?";	in	":o%*{MS|AS|AD}%X"; }
 }
 
 # Get shutter mode
@@ -44,7 +42,6 @@ GetTriggerMode
 # or to grab the shutter setting to a PV
 # INP: @ptm4200_12.proto GetTriggerMode($(P)$(R)PulnixRawShutter)
 #	in	":o%{MS|AS|AD}%\$1X";
-	@init { out	":SHR?";	in	":o%{MS|AS|AD}%*X"; }
 }
 
 
@@ -80,22 +77,24 @@ SetGainA
 {
 	out	":MGA=%03X";
 	in	":o";
-	wait 200;
+}
+
+GetGainA
+{
 	out	":MGA?";
-	in  ":oMG%03X";
-	wait 200;
-	@init { out	":MGA?"; in      ":oMG%03X"; }
+    in  ":oMG%03X";
 }
 
 SetGainB
 {
 	out	":MGB=%03X";
 	in	":o";
-	wait 200;
+}
+
+GetGainB
+{
 	out	":MGB?";
     in  ":oSG%03X";
-	wait 200;
-	@init { out	":MGB?"; in      ":oSG%03X"; }
 }
 
 GetRefVoltA
@@ -110,35 +109,40 @@ GetRefVoltB
     in  ":oSF%03X";
 }
 
-# TODO: Should probably move the @init
-# to GetRefVoltA and link Set to Get via DB FLNK
 SetRefVoltA
 {
 	out	":VRA=%03X";
 	in	":o";
-	out	":VRA?";
-    in  ":oMF%03X";
-	@init { out	":VRA?"; in      ":oMF%03X"; }
 }
 
 SetRefVoltB
 {
 	out	":VRB=%03X";
 	in	":o";
-	out	":VRB?";
-    in  ":oSF%03X";
-	@init { out	":VRB?"; in      ":oSF%03X"; }
 }
 
 SetAutoGain
 {
 	out	":%{DABL|EABL}";
-	in	":o";
+	wait 1000;
+	in	":oAB%*01X";
+}
+
+GetAutoGain
+{
+	out	":ABL?";
+	in	":oAB%01X";
 }
 
 SetHWROI
 {
 	out	":SMDU=%(\$1MinY)04X%(\$1SizeY)04X";
+	in	":o";
+}
+
+SetTestPattern
+{
+	out	":TPTN%1X";
 	in	":o";
 }
 
@@ -151,11 +155,9 @@ SetTrigPolarity
 GetModel
 {
 	out	":CAM?";	in	":o%#s";
-	@init { out	":CAM?";	in	":o%#s"; }
 }
 
 GetVers
 {
 	out	":VER?";	in	":o%#s";
-	@init { out	":VER?";	in	":o%#s"; }
 }
