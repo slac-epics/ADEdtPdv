@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 2133
-y 278
+x 821
+y 1128
 w 700
 h 600
 font "helvetica-medium-r-12.0"
@@ -32,7 +32,7 @@ major 4
 minor 4
 release 0
 x 420
-y 120
+y 112
 w 120
 h 24
 fgColor index 14
@@ -201,7 +201,7 @@ major 4
 minor 4
 release 0
 x 548
-y 120
+y 112
 w 140
 h 24
 fgColor index 14
@@ -241,7 +241,7 @@ major 4
 minor 4
 release 0
 x 548
-y 92
+y 84
 w 140
 h 24
 fgColor index 14
@@ -274,7 +274,7 @@ major 4
 minor 4
 release 0
 x 420
-y 92
+y 84
 w 120
 h 24
 fgColor index 14
@@ -1343,11 +1343,11 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 300
+x 340
 y 192
-w 108
+w 68
 h 20
-controlPv "$(P)$(R)PulnixGainA"
+controlPv "$(P)$(R)PulnixGetGainA"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -1390,9 +1390,9 @@ minor 7
 release 0
 x 188
 y 192
-w 100
+w 68
 h 18
-controlPv "$(P)$(R)PulnixGainA"
+controlPv "$(P)$(R)Gain"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
@@ -1401,10 +1401,10 @@ bgColor index 5
 editable
 autoHeight
 motifWidget
+precision 1
 nullColor index 40
 smartRefresh
 fastUpdate
-useHexPrefix
 newPos
 objType "controls"
 noExecuteClipMask
@@ -1418,9 +1418,9 @@ minor 7
 release 0
 x 188
 y 216
-w 100
+w 68
 h 18
-controlPv "$(P)$(R)PulnixGainB"
+controlPv "$(P)$(R)PulnixGainFine"
 format "decimal"
 font "helvetica-medium-r-12.0"
 fgColor index 25
@@ -1429,10 +1429,10 @@ bgColor index 5
 editable
 autoHeight
 motifWidget
+precision 1
 nullColor index 40
 smartRefresh
 fastUpdate
-useHexPrefix
 newPos
 objType "controls"
 noExecuteClipMask
@@ -1463,11 +1463,11 @@ beginObjectProperties
 major 4
 minor 7
 release 0
-x 300
+x 340
 y 216
-w 108
+w 68
 h 20
-controlPv "$(P)$(R)PulnixGainB"
+controlPv "$(P)$(R)PulnixGetGainB"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -1493,7 +1493,7 @@ x 300
 y 240
 w 108
 h 20
-controlPv "$(P)$(R)PulnixAutoGain"
+controlPv "$(P)$(R)PulnixAutoGain_RBV"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15
@@ -1525,33 +1525,6 @@ bgColor index 3
 value {
   "Pulnix Auto Gain"
 }
-endObjectProperties
-
-# (Text Control)
-object activeXTextDspClass
-beginObjectProperties
-major 4
-minor 7
-release 0
-x 188
-y 240
-w 100
-h 18
-controlPv "$(P)$(R)PulnixAutoGain"
-format "decimal"
-font "helvetica-medium-r-12.0"
-fgColor index 25
-fgAlarm
-bgColor index 5
-editable
-autoHeight
-nullColor index 40
-smartRefresh
-fastUpdate
-useHexPrefix
-newPos
-objType "controls"
-noExecuteClipMask
 endObjectProperties
 
 # (Text Control)
@@ -1866,6 +1839,216 @@ w 64
 h 20
 controlPv "$(P)$(R)PulnixFreeRunAcquireTime"
 format "float"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 188
+y 236
+w 100
+h 24
+fgColor index 25
+onColor index 6
+offColor index 5
+inconsistentColor index 40
+topShadowColor index 1
+botShadowColor index 11
+controlPv "$(P)$(R)PulnixAutoGain"
+onLabel "Initiating"
+offLabel "RunAutoGain"
+labelType "literal"
+buttonType "push"
+3d
+font "helvetica-medium-r-12.0"
+objType "controls"
+endObjectProperties
+
+# (Motif Slider)
+object activeMotifSliderClass
+beginObjectProperties
+major 4
+minor 2
+release 0
+x 420
+y 144
+w 120
+h 20
+fgColor index 14
+bgColor index 2
+2ndBgColor index 14
+topShadowColor index 2
+botShadowColor index 14
+increment 40
+controlPv "$(CAM):PulnixRefVoltA"
+controlLabelType "pvName"
+font "helvetica-medium-r-12.0"
+limitsFromDb
+endObjectProperties
+
+# (Motif Slider)
+object activeMotifSliderClass
+beginObjectProperties
+major 4
+minor 2
+release 0
+x 420
+y 168
+w 120
+h 20
+fgColor index 14
+bgColor index 2
+2ndBgColor index 14
+topShadowColor index 2
+botShadowColor index 14
+increment 40
+controlPv "$(CAM):PulnixRefVoltB"
+controlLabelType "pvName"
+font "helvetica-medium-r-12.0"
+limitsFromDb
+endObjectProperties
+
+# (Motif Slider)
+object activeMotifSliderClass
+beginObjectProperties
+major 4
+minor 2
+release 0
+x 420
+y 192
+w 120
+h 20
+fgColor index 14
+bgColor index 2
+2ndBgColor index 14
+topShadowColor index 2
+botShadowColor index 14
+increment 40
+controlPv "$(CAM):Gain"
+controlLabelType "pvName"
+font "helvetica-medium-r-12.0"
+limitsFromDb
+endObjectProperties
+
+# (Motif Slider)
+object activeMotifSliderClass
+beginObjectProperties
+major 4
+minor 2
+release 0
+x 420
+y 216
+w 120
+h 20
+fgColor index 14
+bgColor index 2
+2ndBgColor index 14
+topShadowColor index 2
+botShadowColor index 14
+increment 40
+controlPv "$(CAM):PulnixGainFine"
+controlLabelType "pvName"
+font "helvetica-medium-r-12.0"
+limitsFromDb
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 188
+y 116
+w 100
+h 24
+fgColor index 25
+fgAlarm
+onColor index 6
+offColor index 5
+inconsistentColor index 40
+topShadowColor index 1
+botShadowColor index 11
+controlPv "$(P)$(R)PulnixTestPattern"
+onLabel "TestPattern"
+offLabel "Inactive"
+3d
+font "helvetica-medium-r-12.0"
+objType "controls"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 4
+y 116
+w 172
+h 20
+font "helvetica-medium-r-12.0"
+fontAlign "right"
+fgColor index 14
+bgColor index 3
+value {
+  "Test Pattern"
+}
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 264
+y 216
+w 68
+h 20
+controlPv "$(P)$(R)PulnixGainB"
+font "helvetica-medium-r-12.0"
+fontAlign "center"
+fgColor index 15
+fgAlarm
+bgColor index 12
+limitsFromDb
+nullColor index 40
+smartRefresh
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+noExecuteClipMask
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 7
+release 0
+x 264
+y 192
+w 68
+h 20
+controlPv "$(P)$(R)PulnixGainA"
 font "helvetica-medium-r-12.0"
 fontAlign "center"
 fgColor index 15

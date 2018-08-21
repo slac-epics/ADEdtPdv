@@ -40,77 +40,121 @@ record( longout, "$(P)$(R)SizeY" )
 }
 
 # Redirect FLNK's from Gain to EdtGain to PulnixGain
-# Gain and EdtGain use range 0..16k
-# TODO: Recheck this for Pulnix 4200.   Doesn't look right w/ slider.
+# Normalize gain to range 0..100
 record( ao, "$(P)$(R)Gain" )
 {
-    field( DRVH, "0xFFFFFF" )
+    field( DRVH, "100.0" )
     field( DRVL, "0" )
-    field( HOPR, "0xFFFFFF" )
+    field( HOPR, "100.0" )
     field( LOPR, "0" )
     field( FLNK, "$(P)$(R)EdtGain" )
     field( PINI, "YES" )
 }
 record( ao, "$(P)$(R)EdtGain" )
 {
-    field( DRVH, "0xFFFFFF" )
+    field( DRVH, "100.0" )
     field( DRVL, "0" )
-    field( HOPR, "0xFFFFFF" )
+    field( HOPR, "100.0" )
     field( LOPR, "0" )
-    field( FLNK, "$(P)$(R)PulnixGain" )
+    field( FLNK, "$(P)$(R)PulnixGainACalc" )
 }
 #
 # The Pulnix 4200 camera has 2 gain controls, A & B
-# with range 0x000 to 0xFFF
-# A is master gain, and B is fine gain
+# with range from min, 0xFFF to max, 0x000
+# A is master gain, B is fine gain adj relative to master gain
 # For compatibility w/ ADCore's single gain control,
 # calc records are used to set A & B
-record( dfanout, "$(P)$(R)PulnixGain" )
-{
-    field( OMSL, "closed_loop" )
-    field( DOL,  "$(P)$(R)EdtGain MS" )
-    field( DESC, "Set camera gain" )
-    field( HOPR, "0xFFFFFF" )
-    field( LOPR, "0" )
-    field( FLNK, "$(P)$(R)PulnixGainA" )
-}
-record( calcout, "$(P)$(R)PulnixGainA" )
+# ADCore's Gain is mapped to GainA, normalized to min, 0 to max, 100%
+# PulnixGainFine, 0 to 100%, is mapped to GainB
+record( calcout, "$(P)$(R)PulnixGainACalc" )
 {
     field( DESC, "Gain A, master" )
-    field( INPG, "$(P)$(R)PulnixGain" )
-    field( CALC, "G>>12" )
-    field( OUT,  "$(P)$(R)PulnixSetGainA PP" )
-    field( FLNK, "$(P)$(R)PulnixGainB" )
-}
-record( calcout, "$(P)$(R)PulnixGainB" )
-{
-    field( DESC, "Gain A, find" )
-    field( INPG, "$(P)$(R)PulnixGain" )
-    field( CALC, "G&0xFFF" )
-    field( OUT,  "$(P)$(R)PulnixSetGainB PP" )
+    field( INPG, "$(P)$(R)EdtGain" )
+    field( CALC, "(G*0xFFF)/100.0" )
+    field( FLNK, "$(P)$(R)PulnixGainA" )
 }
 
-record( longout, "$(P)$(R)PulnixSetGainA" )
+record( ao, "$(P)$(R)PulnixGainFine" )
+{
+    field( DRVH, "100.0" )
+    field( DRVL, "0" )
+    field( HOPR, "100.0" )
+    field( LOPR, "0" )
+    field( DESC, "Gain B, fine (right)" )
+    field( PINI, "YES" )
+    field( FLNK, "$(P)$(R)PulnixGainBCalc" )
+#	info( autosaveFields, "VAL" )
+}
+record( calcout, "$(P)$(R)PulnixGainBCalc" )
+{
+    field( INPG, "$(P)$(R)PulnixGainFine CPP MS" )
+    field( CALC, "(G*0xFFF)/100.0" )
+    field( FLNK, "$(P)$(R)PulnixGainB" )
+}
+
+record( longout, "$(P)$(R)PulnixGainA" )
 {
     field( DESC, "Set camera gain A" )
-    field( OMSL, "closed_loop" )
-    field( DOL,  "$(P)$(R)PulnixGainA CPP" )
     field( DTYP, "stream" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)PulnixGainACalc CPP MS" )
     field( OUT,  "@ptm4200_12.proto SetGainA $(PORT).SER" )
     field( DRVH, "0xFFF" )
     field( DRVL, "0x000" )
     field( SDIS, "$(SerialDisable)")
+    field( FLNK, "$(P)$(R)PulnixGetGainA" )
 }
-record( longout, "$(P)$(R)PulnixSetGainB" )
+
+record( longout, "$(P)$(R)PulnixGainB" )
 {
     field( DESC, "Set camera gain B" )
-    field( OMSL, "closed_loop" )
-    field( DOL,  "$(P)$(R)PulnixGainB CPP" )
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)PulnixGainBCalc CPP MS" )
     field( DTYP, "stream" )
     field( OUT,  "@ptm4200_12.proto SetGainB $(PORT).SER" )
     field( DRVH, "0xFFF" )
     field( DRVL, "0x000" )
+    field( HOPR, "0xFFF" )
+    field( LOPR, "0x000" )
     field( SDIS, "$(SerialDisable)")
+    field( FLNK, "$(P)$(R)PulnixGetGainB" )
+}
+
+record( longin, "$(P)$(R)PulnixGetGainA" )
+{
+    field( DESC, "Set camera gain A" )
+    field( DTYP, "stream" )
+    field( INP,  "@ptm4200_12.proto GetGainA $(PORT).SER" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( longin, "$(P)$(R)PulnixGetGainB" )
+{
+    field( DESC, "Set camera gain B" )
+    field( DTYP, "stream" )
+    field( INP,  "@ptm4200_12.proto GetGainB $(PORT).SER" )
+    field( SDIS, "$(SerialDisable)")
+}
+
+record( calcout, "$(P)$(R)PulnixGainA_RBV" )
+{
+    field( DESC, "GainA, master" )
+    field( INPG, "$(P)$(R)PulnixGetGainA CPP MS" )
+    field( CALC, "(G*100.0)/0xFFF" )
+#    field( OUT,  "$(P)$(R)EdtGain_RBV PP" )
+    field( FLNK, "$(P)$(R)EdtGain_RBV PP" )
+}
+
+record( calcout, "$(P)$(R)PulnixGainB_RBV" )
+{
+    field( DESC, "GainB, fine right" )
+    field( INPG, "$(P)$(R)PulnixGetGainB CPP MS" )
+    field( CALC, "(G*100.0)/0xFFF" )
+}
+
+record( ao, "$(P)$(R)EdtGain_RBV" )
+{
+	field( DOL,  "$(P)$(R)PulnixGainA_RBV NPP MS" )
 }
 
 record( seq, "$(P)$(R)EdtReConfigSeq" )
@@ -129,6 +173,8 @@ record( longout, "$(P)$(R)PulnixRefVoltA" )
     field( OUT,  "@ptm4200_12.proto SetRefVoltA $(PORT).SER" )
     field( DRVL, "0x000" )
     field( DRVH, "0xFFF" )
+    field( LOPR, "0x000" )
+    field( HOPR, "0xFFF" )
     field( PINI, "YES" )
     field( FLNK, "$(P)$(R)PulnixRefVoltA_RBV" )
     field( SDIS, "$(SerialDisable)")
@@ -451,18 +497,43 @@ record( longout, "$(P)$(R)PulnixSetFreeRunShutter" )
     field( DTYP, "stream" )
     field( OUT,  "@ptm4200_12.proto SetManualShutter $(PORT).SER " )
     field( SDIS, "$(SerialDisable)")
-    field( FLNK, "$(P)$(R)PulnixGetRawShutter PP" )
+    field( FLNK, "$(P)$(R)PulnixGetRawShutter" )
 }
 
+# TODO: This serial command actually initiates the camera setting gain.
+# TODO: While the camera is setting the gain it does not respond to serial commands.
 record( bo, "$(P)$(R)PulnixAutoGain" )
 {
-    field( DESC, "Auto Gain Balance" )
+    field( DESC, "Perform Auto Gain Adj" )
     field( DTYP, "stream" )
     field( OUT,  "@ptm4200_12.proto SetAutoGain $(PORT).SER" )
     field( SDIS, "$(SerialDisable)")
-    field( ZNAM, "Disabled" )
-    field( ONAM, "Enabled" )
+    field( ZNAM, "Inactive" )
+    field( ONAM, "Initiate" )
     field( PINI, "YES" )
+    field( FLNK, "$(P)$(R)PulnixAutoGain_RBV" )
+}
+
+record( bi, "$(P)$(R)PulnixAutoGain_RBV" )
+{
+    field( DESC, "Auto Gain Adj Status" )
+    field( DTYP, "stream" )
+    field( INP,  "@ptm4200_12.proto GetAutoGain $(PORT).SER" )
+    field( SDIS, "$(SerialDisable)")
+    field( ZNAM, "Inactive" )
+    field( ONAM, "Active" )
+}
+
+record( bo, "$(P)$(R)PulnixTestPattern" )
+{
+    field( DESC, "Test pattern" )
+    field( DTYP, "stream" )
+    field( OUT,  "@ptm4200_12.proto SetTestPattern $(PORT).SER" )
+    field( SDIS, "$(SerialDisable)")
+    field( ZNAM, "Inactive" )
+    field( ONAM, "Active" )
+    field( PINI, "YES" )
+	field( OSV,  "MINOR" )
 }
 
 record( stringin, "$(P)$(R)PulnixModelID_RBV" )
@@ -662,7 +733,6 @@ substitute "MON_SCAN=10 second"
 substitute "MON_DISABLED=1"
 substitute "MON_PV= $(P)$(R)PulnixTriggerPolarity"
 include "putMonitor.template"
-
-substitute "MON_DISABLED=0"
-substitute "MON_PV= $(P)$(R)PulnixAutoGain"
+substitute "MON_PV= $(P)$(R)PulnixTestPattern"
 include "putMonitor.template"
+
