@@ -22,7 +22,6 @@
 int	DEBUG_EDT_SER	= 2;
 
 #define	MAX_ADDR		1
-#define	NUM_PARAMS		1
 
 using namespace	std;
 
@@ -43,7 +42,6 @@ asynEdtPdvSerial::asynEdtPdvSerial(
 	)	:
 	asynPortDriver(			portName,
 							MAX_ADDR,
-							NUM_PARAMS,
 							asynOctetMask,		// Interface mask
 							asynOctetMask,		// Interrupt mask
 							ASYN_CANBLOCK,
