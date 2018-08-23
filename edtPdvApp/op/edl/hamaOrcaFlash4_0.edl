@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 138
-y 1262
+x 853
+y 476
 w 700
 h 600
 font "helvetica-medium-r-8.0"
@@ -479,7 +479,7 @@ fontAlign "right"
 fgColor index 14
 bgColor index 3
 value {
-  "Ext Trigger type"
+  "Ext Trigger mode"
 }
 endObjectProperties
 
