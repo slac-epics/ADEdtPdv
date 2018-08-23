@@ -148,8 +148,8 @@ record( ai, "$(P)$(R)AcquireTime_RBV" )
 #
 # Note: EdtMinX is a longin record instead of longout, while
 # EdtMinX_RBV is longout.  This is the opposite pattern of most
-# ADCore record names, as these are used to communicate between
-# ADCore and the camera specific ROI PV's.
+# ADCore record names, as these are used to communicate ROI settings between
+# ADCore, EDT framegrabber API, and the camera specific ROI PV's.
 # Same logic applies to the other HW ROI related PV's
 record( longin, "$(P)$(R)EdtMinX" )
 {
@@ -229,14 +229,13 @@ record( longin, "$(P)$(R)EdtSizeY" )
 	field( DTYP, "asynInt32" )
 	field( INP,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SIZE_Y" )
 	field( SCAN, "I/O Intr" )
-	field( FLNK, "$(P)$(R)EdtSizeY_RBV" )
 	info( autosaveFields, "" )
 }
 record( longout, "$(P)$(R)EdtSizeY_RBV" )
 {
 	field( DTYP, "asynInt32" )
 	field( OMSL, "closed_loop" )
-	field( DOL,  "$(P)$(R)EdtSizeY NPP MS" )
+	field( DOL,  "$(P)$(R)EdtSizeY CPP MS" )
 	field( OUT,  "@asyn($(PORT),$(ADDR=0),$(TIMEOUT=1))EDT_SIZE_Y" )
 	info( autosaveFields, "" )
 }

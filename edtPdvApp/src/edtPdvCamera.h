@@ -204,8 +204,6 @@ public:		//	Public member functions
 	int		SetSizeX(		size_t	value	);
 	size_t	GetSizeX( ) const
 	{
-		if ( m_SizeX == 0 )
-			return m_ClMaxWidth;
 		return m_SizeX;
 	}
 
@@ -213,8 +211,6 @@ public:		//	Public member functions
 	int		SetSizeY(		size_t	value	);
 	size_t	GetSizeY( ) const
 	{
-		if ( m_SizeY == 0 )
-			return m_ClMaxHeight;
 		return m_SizeY;
 	}
 

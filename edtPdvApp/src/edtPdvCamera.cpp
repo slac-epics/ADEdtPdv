@@ -164,12 +164,17 @@ edtPdvCamera::edtPdvCamera(
 		m_TriggerMode(		TRIGMODE_FREERUN	),
 		m_TriggerModeReq(	TRIGMODE_FREERUN	),
 		m_BinX(				1					),
+		m_BinXReq(			1					),
 		m_BinY(				1					),
+		m_BinYReq(			1					),
 		m_MinX(				0					),
+		m_MinXReq(			1					),
 		m_MinY(				0					),
+		m_MinYReq(			1					),
 		m_SizeX(			0					),
+		m_SizeXReq(			0					),
 		m_SizeY(			0					),
-		// Do we need ADBase ROI values here?  m_BinX, m_BinY, m_MinX, m_SizeY, ...
+		m_SizeYReq(			0					),
 		m_Gain(				0					),
 		m_HwHRoi(			0					),
 		m_HwVRoi(			0					),
@@ -908,16 +913,28 @@ int edtPdvCamera::_Reconfigure( )
 	int		intParam;
 	getIntegerParam( ADBinX,	&intParam	);
 	if ( intParam == 0 )
+	{
+		m_BinX = m_BinXReq = 1;
 		setIntegerParam( ADBinX, 1 );
+	}
 	getIntegerParam( ADBinY,	&intParam	);
 	if ( intParam == 0 )
+	{
+		m_BinY = m_BinYReq = 1;
 		setIntegerParam( ADBinY, 1 );
+	}
 	getIntegerParam( ADSizeX,	&intParam	);
 	if ( intParam == 0 )
+	{
+		m_SizeX = m_SizeXReq = m_ClMaxWidth;
 		setIntegerParam( ADSizeX, m_ClMaxWidth	);
+	}
 	getIntegerParam( ADSizeY,	&intParam	);
 	if ( intParam == 0 )
+	{
+		m_SizeY = m_SizeYReq = m_ClMaxHeight;
 		setIntegerParam( ADSizeY, m_ClMaxHeight	);
+	}
 
 	// Fetch the pixel depth and update ADBase DataType and BitsPerPixel
     m_ClNumBits		= pdv_get_depth(	m_pPdvDev );
@@ -1523,8 +1540,8 @@ int edtPdvCamera::DeIntlvRoiOnly16( NDArray * pNDArray, void	*	pRawData )
 	for (	size_t	row = 0;	row < m_ClCurHeight;	row ++	)
 	{
 		epicsUInt16	*	pPixelSrc	= pDmaBuffer + row * m_ClCurWidth;
-		epicsUInt16	*	pPixelDst	= pArrayData + row * GetSizeX();
-		memcpy( pPixelDst, pPixelSrc, GetSizeX() * 2 );
+		epicsUInt16	*	pPixelDst	= pArrayData + row * m_SizeX;
+		memcpy( pPixelDst, pPixelSrc, m_SizeX * 2 );
 	}
 	return 0;
 }

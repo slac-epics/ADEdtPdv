@@ -24,7 +24,7 @@ record(longout, "$(P)$(R)SizeX")
     field( LOPR, 2048 )
     field( HOPR, 2048 )
     field( HIGH, 2049 )
-    field( VAL, "2048" )
+    field( DOL, "2048" )
     field( HSV,  "MINOR" )
 }
 
@@ -34,7 +34,7 @@ record( longout, "$(P)$(R)SizeY" )
     field( LOPR, 2 )
     field( HOPR, 2048 )
     field( HIGH, 2049 )
-    field( VAL, "2048" )
+    field( DOL, "2048" )
     field( HSV,  "MINOR" )
     field( FLNK, "$(P)$(R)EdtSizeY" )
 }
@@ -557,7 +557,7 @@ record( stringin, "$(P)$(R)PulnixFirmware_RBV" )
 # Pulnix 4200 supports Vertical ROI in the camera
 record( longout, "$(P)$(R)EdtHwVROI_RBV" )
 {
-    field( VAL,  "1" )
+    field( DOL,  "1" )
 }
 
 # Redirect FLNK of EdtMinY to PulnixMinY
@@ -569,7 +569,6 @@ record( longin, "$(P)$(R)EdtMinY" )
 # Redirect FLNK of EdtSizeY to PulnixSizeY
 record( longin, "$(P)$(R)EdtSizeY" )
 {
-    field( VAL,  "2048" )
     field( FLNK, "$(P)$(R)PulnixSizeY" )
 }
 
@@ -621,12 +620,10 @@ record( longout, "$(P)$(R)BinX" ) { field( DISA, 1 ) }
 record( longout, "$(P)$(R)BinY" ) { field( DISA, 1 ) }
 record( longin,  "$(P)$(R)BinX_RBV" )
 {
-    field( VAL,  "1" )
     field( PINI, "YES" )
 }
 record( longin,  "$(P)$(R)BinY_RBV" )
 {
-    field( VAL,  "1" )
     field( PINI, "YES" )
 }
 
