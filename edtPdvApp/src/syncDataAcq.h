@@ -293,11 +293,18 @@ template < class Dev, class Data >	class syncDataAcq
 				// Failed to acquire an image!
 				ACQ_TRACE( ACQ_TRACE_DETAIL, "%s: AcquireData error %d\n", functionName, status );
 				// Should we return here to avoid trying to acquire data too often?
+				m_Device.ReleaseData( pImage );
 				return status;
 				// Looks like Opal is ok w/ continue here
 				// but Pulnix needs a restart if the trigger goes away and comes back
 				// continue;
 			}
+
+			//	Get image timestamp immediately after AcquireData()
+			epicsTimeStamp	tsEvent;
+			int				pulseID;
+			int				timeStampSyncStatus;
+			timeStampSyncStatus = m_Device.TimeStampImage( pImage, &tsEvent, &pulseID );
 
 			// Check for image errors
 			status	= m_Device.CheckData( pImage );
@@ -309,11 +316,8 @@ template < class Dev, class Data >	class syncDataAcq
 
             m_Device.IncrSyncTotalCount();
 
-			//	Get image timestamp
-			epicsTimeStamp	tsEvent;
-			int				pulseID;
-			status = m_Device.TimeStampImage( pImage, &tsEvent, &pulseID );
-			if ( status != 0 )
+			//	Handle timeStamp synchronization issues
+			if ( timeStampSyncStatus != 0 )
 			{
                 m_Device.IncrSyncBadTSCount();
 				if ( GetPolicyBadTimeStamp() == SKIP_OBJECT )
