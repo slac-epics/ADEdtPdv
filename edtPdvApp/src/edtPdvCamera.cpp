@@ -1010,6 +1010,8 @@ int edtPdvCamera::_Reconfigure( )
 	// Should be OK to just FLNK it in edtPdvBase.template
 	// setDoubleParam(  SerGain,			m_Gain		);
 
+	(void) ResetSyncCounters();
+
 #ifdef	SETUP_ROI_IN_RECONFIG
 	SetupROI();
 
@@ -1274,7 +1276,11 @@ int edtPdvCamera::ResetSyncCounters()
     m_SyncBadTS = 0;
     m_SyncBadSync = 0;
 
-    return asynSuccess;
+	int		status;
+	status	= setIntegerParam( SyncTotal, m_SyncTotal );
+	status	= setIntegerParam( SyncBadTS, m_SyncBadTS );
+	status	= setIntegerParam( SyncBadSync, m_SyncBadSync );
+    return status;
 }
 
 int edtPdvCamera::IncrSyncTotalCount()
