@@ -1958,7 +1958,7 @@ int	edtPdvCamera::TimeStampImage(
 	//	We can't construct an epicsTime directly from our epicsTimeStamp as we sometimes
 	//	set the nSec field > 1e9
 	epicsTimeStamp	newTimeStamp( newEvrTime );
-	if (	m_TriggerModeReq			== TRIGMODE_FREERUN
+	if (	m_TriggerMode				!= TRIGMODE_FREERUN
 		&&	newTimeStamp.secPastEpoch	== m_priorTimeStamp.secPastEpoch
 		&&	newTimeStamp.nsec			== m_priorTimeStamp.nsec )
 	{
