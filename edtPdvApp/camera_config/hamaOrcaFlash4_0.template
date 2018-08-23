@@ -196,8 +196,6 @@ record( mbbi, "$(P)$(R)OrcaExtTrigPolarity_RBV" )
 record( mbbo, "$(P)$(R)OrcaScanMode" )
 {
 	field( DTYP, "stream" )
-#	field( OMSL, "closed_loop" )
-#	field( DOL,  "$(P)$(R)ScanMode NPP NMS" )
 	field( OUT,  "@hamaOrcaFlash4_0.proto SetScanMode $(PORT).SER" )
 	field( ZRVL, "0" )	field( ZRST, "Normal"  )
 	field( ONVL, "1" )	field( ONST, "Binning" )
@@ -232,8 +230,8 @@ record( mbbo, "$(P)$(R)OrcaScanSpeed" )
 	field( ZRVL, "0" )	field( ZRST, "High"  )
 	field( ONVL, "1" )	field( ONST, "Slow" )
 	field( FLNK, "$(P)$(R)OrcaScanSpeed_RBV" )
-	field( PINI, "YES" )
     field( SDIS, "$(SerialDisable)")
+#	field( PINI, "YES" )
 # Taking out of autosave for now.
 # ScanSpeed gets set by the cfg file, so we may want
 # to remove this PV so user's can't change it directly.
@@ -791,10 +789,10 @@ include "putMonitor.template"
 # 10 second put monitors
 substitute "MON_SCAN=10 second"
 substitute "MON_DISABLED=1"
-substitute "MON_PV=$(P)$(R)OrcaScanMode"
-include "putMonitor.template"
-substitute "MON_PV=$(P)$(R)OrcaScanSpeed"
-include "putMonitor.template"
+#substitute "MON_PV=$(P)$(R)OrcaScanMode"
+#include "putMonitor.template"
+#substitute "MON_PV=$(P)$(R)OrcaScanSpeed"
+#include "putMonitor.template"
 substitute "MON_PV=$(P)$(R)OrcaExtTrigMode"
 include "putMonitor.template"
 substitute "MON_PV=$(P)$(R)OrcaExtTrigDelay"
