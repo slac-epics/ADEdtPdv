@@ -138,6 +138,7 @@ record( ai, "$(P)$(R)OrcaActualExposure_RBV" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV PREC VAL" )
 }
 
+# TODO: This needs to be set based on EdtTriggerMode
 record( mbbo, "$(P)$(R)OrcaExtTrigMode" )
 {
 	field( DTYP, "stream" )
@@ -372,7 +373,12 @@ record( mbbi, "$(P)$(R)EdtTriggerMode" )
 {
 	field( FLNK, "$(P)$(R)OrcaTriggerMode" )
 }
+
 # Send Orca serial trigger mode command
+# TODO: Logic here is wrong for pulse mode as it sets OrcaTriggerMode=2
+# EdtTriggerMode	OrcaTriggerMode		OrcaExtTrigMode
+#	External		1=ExtTrig			0=Edge
+#	Pulse			1=ExtTrig			1=Level
 record( mbbo, "$(P)$(R)OrcaTriggerMode" )
 {
 #	field( TPRO, 2 )
@@ -513,10 +519,16 @@ record( longout, "$(P)$(R)EdtSizeY_RBV" )
 # allow for separate BEAM_EC and BEAM_RATE_RBV macro substitutions
 
 # Orca camera should always be triggered with this camera event code
-record( longout, "$(P)$(R)CamEventCode" )
+record( longout, "$(P)$(R)OrcaEventCode" )
 {
 	field( OMSL, "closed_loop" )
 	field( DOL,  "40" )
+	field( PINI, "YES" )
+}
+record( longout, "$(P)$(R)CamEventCode" )
+{
+	field( OMSL, "closed_loop" )
+	field( DOL,  "$(P)$(R)OrcaEventCode NPP NMS`" )
 }
 # But image acuisition is filtered with this beam event code
 # so we enable it by setting DISA to 0
@@ -531,7 +543,7 @@ record( longin, "$(P)$(R)BeamEventCode_RBV" )
 {
 	field( INP,  "$(BEAM_EC_RBV=$(P)$(R)CamEventCode_RBV) CPP MS" )
 }
-record( ai, "$(P)$(R)EdtBeamRepRate_RBV" )
+record( ai, "$(P)$(R)BeamRepRate_RBV" )
 {
 	field( INP,  "$(BEAM_RATE_RBV=$(P)$(R)CamRepRate_RBV) CPP MS" )
 }
