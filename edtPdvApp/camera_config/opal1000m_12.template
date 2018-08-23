@@ -60,11 +60,11 @@ record( stringin, "$(P)$(R)CamModelScreen" )
 # Provide defaults for ADCore SizeX and SizeY
 record( longout, "$(P)$(R)SizeX" )
 {
-	field( VAL, "1024" )
+	field( DOL, "1024" )
 }
 record( longout, "$(P)$(R)SizeY" )
 {
-	field( VAL, "1024" )
+	field( DOL, "1024" )
 }
 
 # Set black level

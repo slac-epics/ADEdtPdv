@@ -290,7 +290,7 @@ record( longout, "$(P)$(R)SizeY"  ) { field( DISA, "1" ) }
 # Limit SizeX to 2048 since columns 2049 and 2050 contain non-pixel data
 record(longout, "$(P)$(R)SizeX")
 {
-   field( VAL,  2048 )
+   field( DOL,  2048 )
    field( DRVH, 2048 )
    field( HOPR, 2048 )
    field( HIGH, 2049 )
@@ -418,7 +418,7 @@ record( mbbo, "$(P)$(R)EdtTriggerMode_RBV" )
 # Orca supports Vertical ROI in the camera
 record( longout, "$(P)$(R)EdtHwVROI_RBV" )
 {
-	field( VAL,  "1" )
+	field( DOL,  "1" )
 }
 
 # Redirect FLNK of EdtMinY to OrcaScanTop
@@ -532,7 +532,7 @@ record( longout, "$(P)$(R)CamEventCode" )
 # so we enable it by setting DISA to 0
 record( longout, "$(P)$(R)BeamEventCode" )
 {
-	field( VAL,  "140" )
+	field( DOL,  "140" )
 	field( PINI, "YES" )
 	field( DISA, "0" )
 	field( OUT,  "$(BEAM_EC) CPP NMS" )

@@ -28,11 +28,11 @@ record( stringin, "$(P)$(R)CamModelScreen" )
 # Provide defaults for ADCore SizeX and SizeY
 record( longout, "$(P)$(R)SizeX" )
 {
-	field( VAL, "324" )
+	field( DOL, "324" )
 }
 record( longout, "$(P)$(R)SizeY" )
 {
-	field( VAL, "256" )
+	field( DOL, "256" )
 }
 
 # Redirect FLNK of EdtBinX to GoldEyeBinX, and
