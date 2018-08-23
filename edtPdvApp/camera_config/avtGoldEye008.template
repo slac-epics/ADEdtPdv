@@ -40,7 +40,7 @@ record( longout, "$(P)$(R)SizeY" )
 # Ditto for BinY, MinX, MinY, SizeX, and SizeY
 record( longin, "$(P)$(R)EdtBinX" )
 {
-	field( FLNK, "$(P)$(R)GoldEyeBinX" )
+#	field( FLNK, "$(P)$(R)GoldEyeBinX" )
 }
 record( longout, "$(P)$(R)EdtBinX_RBV" )
 {
@@ -49,7 +49,7 @@ record( longout, "$(P)$(R)EdtBinX_RBV" )
 }
 record( longin, "$(P)$(R)EdtBinY" )
 {
-	field( FLNK, "$(P)$(R)GoldEyeBinY" )
+#	field( FLNK, "$(P)$(R)GoldEyeBinY" )
 }
 record( longout, "$(P)$(R)EdtBinY_RBV" )
 {
@@ -58,34 +58,38 @@ record( longout, "$(P)$(R)EdtBinY_RBV" )
 }
 record( longin, "$(P)$(R)EdtMinX" )
 {
-	field( FLNK, "$(P)$(R)GoldEyeMinX" )
+#	field( FLNK, "$(P)$(R)GoldEyeMinX" )
 }
 record( longout, "$(P)$(R)EdtMinX_RBV" )
 {
+	field( OMSL, "closed_loop" )
 	field( DOL,  "$(P)$(R)GoldEyeMinX_RBV NPP MS" )
 }
 record( longin, "$(P)$(R)EdtMinY" )
 {
-	field( FLNK, "$(P)$(R)GoldEyeMinY" )
+#	field( FLNK, "$(P)$(R)GoldEyeMinY" )
 }
 record( longout, "$(P)$(R)EdtMinY_RBV" )
 {
+	field( OMSL, "closed_loop" )
 	field( DOL,  "$(P)$(R)GoldEyeMinY_RBV NPP MS" )
 }
 record( longin, "$(P)$(R)EdtSizeX" )
 {
-	field( FLNK, "$(P)$(R)GoldEyeSizeX" )
+#	field( FLNK, "$(P)$(R)GoldEyeSizeX" )
 }
 record( longout, "$(P)$(R)EdtSizeX_RBV" )
 {
+	field( OMSL, "closed_loop" )
 	field( DOL,  "$(P)$(R)GoldEyeSizeX_RBV NPP MS" )
 }
 record( longin, "$(P)$(R)EdtSizeY" )
 {
-	field( FLNK, "$(P)$(R)GoldEyeSizeY" )
+#	field( FLNK, "$(P)$(R)GoldEyeSizeY" )
 }
 record( longout, "$(P)$(R)EdtSizeY_RBV" )
 {
+	field( OMSL, "closed_loop" )
 	field( DOL,  "$(P)$(R)GoldEyeSizeY_RBV NPP MS" )
 }
 
@@ -123,7 +127,7 @@ record( calcout, "$(P)$(R)GoldEyeCalcAccessPrivilege" )
 {
 	field( INPA, "$(P)$(R)GoldEyeAccessPrivilege_RBV NPP NMS" )
 	field( CALC, "A!=1" )
-	field( OUT,  "$(P)$(R)GoldEyeAccessPrivilege PP NMS" )
+	field( OUT,  "$(P)$(R)GoldEyeAccessPrivilege.PROC PP NMS" )
 	field( OOPT, "When Non-zero" )
 	field( FLNK, "$(P)$(R)GoldEyeSerialDisable" )
 }
@@ -319,8 +323,8 @@ record( longin, "$(P)$(R)GoldEyeBinX_RBV" )
 	field( DTYP, "stream" )
 	field( INP,  "@avtGoldEye008.proto GetUint32(0x11108) $(PORT).SER" )
 	field( EGU,  "px" )
-	field( PINI, "YES" )
-    field( SDIS, "$(SerialDisable)")
+#	field( PINI, "YES" )
+    field( SDIS, "$(P)$(R)GoldEyeSerialDisable" )
 	field( FLNK, "$(P)$(R)EdtBinX_RBV" )
 }
 
@@ -340,8 +344,8 @@ record( longin, "$(P)$(R)GoldEyeBinY_RBV" )
 	field( DTYP, "stream" )
 	field( INP,  "@avtGoldEye008.proto GetUint32(0x11128) $(PORT).SER" )
 	field( EGU,  "px" )
-	field( PINI, "YES" )
-    field( SDIS, "$(SerialDisable)")
+#	field( PINI, "YES" )
+    field( SDIS, "$(P)$(R)GoldEyeSerialDisable" )
 	field( FLNK, "$(P)$(R)EdtBinY_RBV" )
 }
 
@@ -361,8 +365,8 @@ record( longin, "$(P)$(R)GoldEyeMinX_RBV" )
 	field( DTYP, "stream" )
 	field( INP,  "@avtGoldEye008.proto GetUint32(0x1212C) $(PORT).SER" )
 	field( EGU,  "px" )
-	field( PINI, "YES" )
-    field( SDIS, "$(SerialDisable)")
+#	field( PINI, "YES" )
+    field( SDIS, "$(P)$(R)GoldEyeSerialDisable" )
 	field( FLNK, "$(P)$(R)EdtMinX_RBV" )
 }
 
@@ -382,8 +386,8 @@ record( longin, "$(P)$(R)GoldEyeMinY_RBV" )
 	field( DTYP, "stream" )
 	field( INP,  "@avtGoldEye008.proto GetUint32(0x12130) $(PORT).SER" )
 	field( EGU,  "px" )
-	field( PINI, "YES" )
-    field( SDIS, "$(SerialDisable)")
+#	field( PINI, "YES" )
+    field( SDIS, "$(P)$(R)GoldEyeSerialDisable" )
 	field( FLNK, "$(P)$(R)EdtMinY_RBV" )
 }
 
@@ -405,8 +409,8 @@ record( longin, "$(P)$(R)GoldEyeSizeX_RBV" )
 	field( DTYP, "stream" )
 	field( INP,  "@avtGoldEye008.proto GetUint32(0x12124) $(PORT).SER" )
 	field( EGU,  "px" )
-	field( PINI, "YES" )
-    field( SDIS, "$(SerialDisable)")
+#	field( PINI, "YES" )
+    field( SDIS, "$(P)$(R)GoldEyeSerialDisable" )
 	field( FLNK, "$(P)$(R)EdtSizeX_RBV" )
 }
 
@@ -428,8 +432,8 @@ record( longin, "$(P)$(R)GoldEyeSizeY_RBV" )
 	field( DTYP, "stream" )
 	field( INP,  "@avtGoldEye008.proto GetUint32(0x12128) $(PORT).SER" )
 	field( EGU,  "px" )
-	field( PINI, "YES" )
-    field( SDIS, "$(SerialDisable)")
+#	field( PINI, "YES" )
+    field( SDIS, "$(P)$(R)GoldEyeSerialDisable" )
 	field( FLNK, "$(P)$(R)EdtSizeY_RBV" )
 }
 

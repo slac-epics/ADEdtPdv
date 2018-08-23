@@ -91,9 +91,9 @@
 #
 InTerminator	= LF;
 OutTerminator	= LF;
-ReplyTimeout	= 800;
-ReadTimeout		= 100;
-WriteTimeout	= 500;
+ReplyTimeout	= 1500;
+ReadTimeout		= 300;
+WriteTimeout	= 200;
 PeekSize		= 0;
 ExtraInput		= Ignore;
 
