@@ -28,6 +28,7 @@
 #include <epicsExit.h>
 #include <epicsExport.h>
 #include <epicsThread.h>
+#include "epicsStdio.h"
 #include <epicsVersion.h>
 #include <errlog.h>
 #include <registryFunction.h>

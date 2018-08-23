@@ -8,16 +8,10 @@
 #include <sstream>
 #endif
 
-#include <iocsh.h>
-#include <registryFunction.h>
-#include <epicsExport.h>
-// #include <epicsThread.h>
-// #include <dbFldTypes.h>
-#include <aSubRecord.h>
-// #include <dbAddr.h>
-// #include <dbAccess.h>
-// #include <dbScan.h>
-// #include <recGbl.h>
+#include "iocsh.h"
+#include "registryFunction.h"
+#include "epicsExport.h"
+#include "aSubRecord.h"
 
 using namespace		std;
 

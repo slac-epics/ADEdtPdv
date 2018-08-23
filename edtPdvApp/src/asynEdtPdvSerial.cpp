@@ -13,7 +13,8 @@
 //	Asyn device support using EDT framegrabber serial interface via CamLink
 //
 
-#include <epicsExport.h>
+#include "epicsExport.h"
+#include "epicsStdio.h"
 #include "asynEdtPdvSerial.h"
 
 #include "edtinc.h"
