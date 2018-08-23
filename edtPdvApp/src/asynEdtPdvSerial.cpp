@@ -263,8 +263,8 @@ asynStatus	asynEdtPdvSerial::readOctet(
 		 */
 		if ( m_pPdvDev && m_fConnected )
 		{
-            int nMsTimeout = 1000; // Default timeout of 500 milliseconds
-			if ( pasynUser->timeout > 0 && pasynUser->timeout < nMsTimeout )
+            int nMsTimeout = 200; // Default and max timeout
+			if ( pasynUser->timeout > 0 )
 				nMsTimeout	= static_cast<int>( pasynUser->timeout * 1000 );
 			nAvailToRead = pdv_serial_wait( m_pPdvDev, nMsTimeout, sReadBuffer );
 		}
@@ -439,13 +439,15 @@ asynStatus	asynEdtPdvSerial::writeOctet(
 	{
 		// Flush the read buffer
 		char		flushBuf[1000];
-		int	nAvailToRead = pdv_serial_wait( m_pPdvDev, 500, 1000 );
-#if 0
-		if ( nAvailToRead > 0 )
-			(void) pdv_serial_read( m_pPdvDev, flushBuf, nAvailToRead );
-#else
-		nAvailToRead = pdv_serial_read( m_pPdvDev, flushBuf, 1000 );
-#endif
+		int			nAvailToRead = 0;
+		epicsMutexLock( m_serialLock );
+		if ( m_pPdvDev )
+		{
+			nAvailToRead = pdv_serial_wait( m_pPdvDev, 500, 1000 );
+			if ( nAvailToRead > 0 )
+				nAvailToRead = pdv_serial_read( m_pPdvDev, flushBuf, nAvailToRead );
+		}
+		epicsMutexUnlock( m_serialLock );
 		printf( "%s: Flushed %d bytes\n", functionName, nAvailToRead );
 		m_fInputFlushNeeded = false;
 	}
