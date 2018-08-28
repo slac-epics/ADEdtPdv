@@ -950,7 +950,7 @@ record( longin, "$(P)$(R)GoldEyeAcqStopFullTrMode_RBV" )
 # Needed to add about 3ms to get avg 0.5ms DiffVsExp
 record( ao, "$(P)$(R)CamProcDelay" )
 {
-    field( DOL,  "3.0e-3" )
+    field( DOL,  "3.7e-3" )
 }
 
 #	0x151D0	RegLineInGlitch Filter[Line1]: 4 byte minimum trigger width in ns
