@@ -1,6 +1,17 @@
 #
 # SLAC RELEASE_NOTES
 #
+R3.4.0 2018-8-28 bhill
+	Update to ADCore/R3.1-2.2.0 and diagTimer/R1.9.2
+	Many fixes for avtGoldEye008 and ptm4200_12 cameras.
+	Normalized ptm4200_12 gain settings to 0-100% and added PulnixGainFine PV
+	Minor fixes for opal1000m_12 and hamaOrcaFlash4_0 cameras.
+	Serial commands monitored and sent only when needed.
+	Fixed some startup warnings and error msgs
+	Add #include epicsStdio.h to support redirection from device report functions
+	Don't reject dup timestamps in FreeRun mode so FreeRun is usable while EVR link is down.
+	Adding IOC_PV, POWER_PV, etc to edtModel.edl container screen.
+
 R3.3.0 2018-7-19 bhill
 	Change enum SerialDisable names to Enabled and Disabled in edtPdvBase.template
 	Pulnix 6740:
