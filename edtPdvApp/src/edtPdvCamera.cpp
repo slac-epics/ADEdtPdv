@@ -161,8 +161,8 @@ edtPdvCamera::edtPdvCamera(
 		m_ClVTaps(			0					),
 		m_tyInterlace(	PDV_INTLV_IN_PDV_LIB	),
 		m_EdtMode(			EDTMODE_BASE		),
-		m_TriggerMode(		TRIGMODE_FREERUN	),
-		m_TriggerModeReq(	TRIGMODE_FREERUN	),
+		m_TriggerMode(		TRIGMODE_PULSE		),
+		m_TriggerModeReq(	TRIGMODE_PULSE		),
 		m_BinX(				1					),
 		m_BinXReq(			1					),
 		m_BinY(				1					),
@@ -479,7 +479,7 @@ asynStatus edtPdvCamera::ConnectCamera( )
 		printf( "%s: %s in thread %s ...\n", functionName, m_CameraName.c_str(), epicsThreadGetNameSelf() );
 
     // Disable the Serial Communication
-    SetSerDisable(1);
+    // SetSerDisable(1);
 
 	// Initialize (or re-initialize) EDT framegrabber connection
 	Reopen( );
@@ -532,6 +532,7 @@ asynStatus edtPdvCamera::DisconnectCamera( )
 				driverName, functionName, m_CameraName.c_str() );
 
 	SetAcquireMode( false );
+
 	// Wait for acquire loop to terminate
 	// TODO: Make this safer
 	while ( m_pSyncDataAcquirer != NULL && m_pSyncDataAcquirer->IsAcquiring() )
@@ -541,6 +542,7 @@ asynStatus edtPdvCamera::DisconnectCamera( )
 
     // Disable the Serial Communication
     SetSerDisable(1);
+	epicsThreadSleep(0.5);
 
     // Block reconfigured until serial device is disconnected
 	epicsMutexLock(	m_reconfigLock );
@@ -667,8 +669,8 @@ int edtPdvCamera::Reconfigure( )
 	epicsMutexLock(		m_reconfigLock );
     
     // Disable the Serial Communication
-    SetSerDisable(1); 
-    m_pAsynSerial->pdvDevDisconnected( NULL );
+    // SetSerDisable(1); 
+    // m_pAsynSerial->pdvDevDisconnected( NULL );
 
 	UpdateStatus( ADStatusInitializing );
 	if ( m_fReopen )
@@ -1083,8 +1085,11 @@ int edtPdvCamera::_Reopen( )
 {
     static const char	*	functionName = "edtPdvCamera::_Reopen";
 	CONTEXT_TIMER( "_Reopen" );
+    
+	// Disable the Serial Communication
+    SetSerDisable(1); 
 
-	double		cameraReOpenDelay	= 0.0;
+	double		cameraReOpenDelay	= 0.5;	// Wait for serial commands to complete
 	if ( cameraReOpenDelay > 0.0 )
 	{
 		if ( DEBUG_EDT_PDV >= 2 )
@@ -1098,6 +1103,9 @@ int edtPdvCamera::_Reopen( )
 		printf( "%s: Setting Pdv_debug = %d, Edt msg level debug = %d\n",
 				functionName,  m_EdtDebugLevel, m_EdtDebugMsgLevel );
 	}
+
+	// Notify serial port we're disconnected
+    m_pAsynSerial->pdvDevDisconnected( NULL );
 
 	// Close old PdvDev if needed
 	if ( m_pPdvDev )
@@ -1150,6 +1158,9 @@ int edtPdvCamera::_Reopen( )
 		m_pPdvDev	= NULL;
         return -1;
     }
+
+	// Notify serial port we're connected
+	m_pAsynSerial->pdvDevConnected( m_pPdvDev );
 
 	// Diagnostics
 	if ( DEBUG_EDT_PDV >= 1 )
@@ -2397,7 +2408,7 @@ void edtPdvCamera::report( FILE * fp, int details )
         fprintf( fp, "  Horiz taps:        %d\n",	m_ClHTaps );
         fprintf( fp, "  Vert  taps:        %d\n",	m_ClVTaps );
         fprintf( fp, "  Mode:              %s\n",	EdtModeToString( m_EdtMode ) );
-        fprintf( fp, "  Trig Level:        %s\n",	TrigLevelToString( m_trigLevel ) );
+//      fprintf( fp, "  Trig Level:        %s\n",	TrigLevelToString( m_trigLevel ) );
         fprintf( fp, "  PDV DebugLevel:    %u\n",	m_EdtDebugLevel );
         fprintf( fp, "  PDV DebugMsgLevel: %u\n",	m_EdtDebugMsgLevel );
 		fprintf( fp, "  asyn TraceLevel:   %u\n",	GetTraceLevel() );
