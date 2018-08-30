@@ -1,6 +1,11 @@
 #
 # SLAC RELEASE_NOTES
 #
+R3.5.0 2018-8-29 bhill
+	Adds a 0.5sec delay between disabling serial PVs and disconnecting CAM.SER device
+	Guards against streamdevice locking CAM.SER if a disconnect happens while reading a reply,
+	a problem which appears to happen more often with older pe8dva camlink cards.
+
 R3.4.0 2018-8-28 bhill
 	Update to ADCore/R3.1-2.2.0 and diagTimer/R1.9.2
 	Many fixes for avtGoldEye008 and ptm4200_12 cameras.
