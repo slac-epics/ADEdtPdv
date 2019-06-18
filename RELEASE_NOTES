@@ -1,6 +1,14 @@
 #
 # SLAC RELEASE_NOTES
 #
+R3.6.0 2019-06-17 Bruce Hill
+	Fix some minor bootup error msgs in ptm6740_10.template
+	Add check for already connected before calling asynManager->exceptionConnect()
+	Improved comments in edtPdvBase.template
+	Update to ADCore/R3.1-2.3.3
+
+	Update to ADCore/R3.1-2.3.0
+
 R3.5.1 2018-8-29 bhill
 	Update to ADCore/R3.1-2.3.0
 
