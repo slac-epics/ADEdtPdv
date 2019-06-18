@@ -13,14 +13,11 @@
 # and monitor event code trigger timing.
 #	CAM_EC			- PV to set camera trigger event code
 #	CAM_EC_RBV		- PV to get camera trigger event code
-#	CAM_DLY			- PV to set camera trigger event delay in sec
-#	CAM_DLY_EGU		- EGU for   camera trigger event delay values, defaults to sec
-#	CAM_DLY_RBV		- PV to get camera trigger event delay readback value in sec
 #	CAM_RATE_RBV	- PV to get camera trigger event code rep rate in Hz
 #	EVR_DLY_SCALE	- Scale factor for cam delay to evr delay, default 1000000000 for ns
 #	EVR_DLY_EGU		- EGU for   camera event delay values, defaults to ns
 #
-# These two are typically not needed
+# These macros are typically not needed
 # For the Orca and other rolling shutter cameras whose shutter ramp time is
 # longer than the few ms advance notice before the beam arrives
 # you can specify an event code which will be used to filter camera images
@@ -500,6 +497,8 @@ record( longout, "$(P)$(R)EdtDelayScale" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 }
+
+# These records are also in ioc/common/edtCam/VERSION/edtApp/Db/timeStampEventCode.db
 record( longout, "$(P)$(R)CamEventCode" )
 {
 	field( VAL,  "40" )
@@ -535,10 +534,14 @@ record( calc, "$(P)$(R)CamRepDur" )
 }
 
 #
-# For rolling shutter MODEL.db, use these lines as appropriate
+# For rolling shutter MODEL.db, set these fields as appropriate
 #	field( PINI, "YES" )
-#	field( OUT,  "$(BEAM_EC=$(P)$(R)CamEventCode) CPP NMS" )
-#	field( INP,  "$(BEAM_RATE_RBV=$(P)$(R)CamRepRate_RBV) CPP MS" )
+#record( longout, "$(P)$(R)BeamEventCode" ) {
+#	field( OUT,  "$(BEAM_EC=$(P)$(R)CamEventCode) CPP NMS" ) }
+#record( longin, "$(P)$(R)BeamEventCode_RBV" ) {
+#	field( INP,  "$(BEAM_EC_RBV=$(P)$(R)CamEventCode_RBV) CPP MS" ) }
+#record( ai, "$(P)$(R)BeamRepRate_RBV" ) {
+#	field( INP,  "$(BEAM_RATE_RBV=$(P)$(R)CamRepRate_RBV) CPP MS" ) }
 #	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 #
 # By default this beam event code is disabled, not autosaved and
