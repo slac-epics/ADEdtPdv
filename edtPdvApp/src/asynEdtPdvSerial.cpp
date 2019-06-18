@@ -109,12 +109,17 @@ asynStatus	asynEdtPdvSerial::connect(
 	m_fConnected	= true;
 	epicsMutexUnlock(m_serialLock);
 
-	// Signal asynManager that we are connected
-	int  status = pasynManager->exceptionConnect( pasynUser );
-	if ( status != asynSuccess )
-		asynPrint(	pasynUser, ASYN_TRACE_ERROR,
-					"%s port %s: Error calling pasynManager->exceptionConnect, error=%s\n",
-					functionName, this->portName, pasynUser->errorMessage );
+	int			connected	= 0;
+	pasynManager->isConnected( pasynUserSelf, &connected );
+	if ( !connected )
+	{
+		// Signal asynManager that we're connected.
+		int  status = pasynManager->exceptionConnect( pasynUser );
+		if ( status != asynSuccess )
+			asynPrint(	pasynUser, ASYN_TRACE_ERROR,
+						"%s port %s: Error calling pasynManager->exceptionConnect, error=%s\n",
+						functionName, this->portName, pasynUser->errorMessage );
+	}
 
 	return asynSuccess;
 }
