@@ -137,8 +137,6 @@ EDTAPI int edt_bitfile_read_header(const char *bitpath,
 EDTAPI int edt_get_bitfile_header(EdtBitfile *bp,
 				  EdtBitfileHeader *bfh);
 
-
-
 EDTAPI int edt_access_bitfile(const char *tmppath, int perm);
 EDTAPI int edt_oc192_rev2_fname_hack(EdtDev *edt_p, const char *bitname, char *hacked_bitname); 
 EDTAPI int edt_program_mezzanine(EdtDev *edt_p, const u_char *buf, u_int size, int channel);

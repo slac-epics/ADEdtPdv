@@ -112,23 +112,41 @@
 
 #define PE4DVVL_ID               0x00a3
 
+#define PE16G3_OCTEON3_ID        0x00b3
+
 /*
  * LCR group IDs
  */
 #define PE4BL_RADIO_ID          0x00a4
 #define PE1BL_TIMING_ID         0x00a5
+#define PE8BL_NIC_ID            0x00a6 /* 2x10G, 2x12.5G */
+#define PE8BL_2X10G_ID          0x00a6 /* aliases (DO NOT DELETE THESE) */ 
+#define PE8BL_10GNI_ID          0x00a6
 #define PE8BL_10GNIC_ID         0x00a6
 #define LCRBOOT_ID              0x00a7
-
 #define PE8G2V7_ID              0x00a8
-#define PE4DVVLSIM_ID           0x00a9
+#define PE8VLCLS_ID             0x00a9
 #define PE8G3KU_ID              0x00aa
 #define PE8G3A5_ID              0x00ab
+#define RESERVED_AC_ID          0x00ac /* was 2x12.5G now reserved, could re-use */
+#define PE4BL_RXLFRADIO_ID      0x00ad
+#define PE4BL_LFRADIO_ID        0x00ad /* old (compat) */
+#define RESERVED_AE_ID          0x00ae /* was E3NIC_ID now reserved, could re-use */
+#define PE4BL_TXLFRADIO_ID      0x00af
+#define PE4BL_TXRADIO_ID        0x00af /* old (compat) */
+#define PE1BL_WBADC_ID          0x00b1
+#define PE8BL_WBDSP_ID          0x00b2
 
-#define UNKNOWNAC_ID            0x00ac /* change when assigned */
-#define UNKNOWNAD_ID            0x00ad /* change when assigned */
-#define UNKNOWNAE_ID            0x00ae /* change when assigned */
-#define UNKNOWNAF_ID            0x00af /* change when assigned */
+#define PE8G2CML_ID             0x00b0
+
+/*
+ * Processer IDs
+ */
+#define PE16G3_OCTEON3P_ID      0x00b4
+
+/*
+ * reserved -- change here and everywhere else when assigned
+ */
 
 /*************************************
  * Mezzanine ID values 
