@@ -1,6 +1,10 @@
 #
 # SLAC RELEASE_NOTES
 #
+R3.7.0 2020-03-02 Bruce Hill
+	Update EDTpdv version to R5.5.8.2
+	Rename linuxRT_glibc-x86_64 to linuxRT-x86_64
+
 R3.6.0 2019-06-17 Bruce Hill
 	Fix some minor bootup error msgs in ptm6740_10.template
 	Add check for already connected before calling asynManager->exceptionConnect()
