@@ -1,6 +1,9 @@
 #
 # SLAC RELEASE_NOTES
 #
+R3.7.1 2020-03-03 Bruce Hill
+	Update to ADCore/R3.1-2.3.4
+
 R3.7.0 2020-03-02 Bruce Hill
 	Update EDTpdv version to R5.5.8.2
 	Rename linuxRT_glibc-x86_64 to linuxRT-x86_64
