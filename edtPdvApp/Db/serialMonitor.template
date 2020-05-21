@@ -7,7 +7,18 @@ record( calcout, "$(SER_OK_PV):MON_SER" )
 	field( OUT,	 "$(SER_OK_PV).PROC PP NMS" )
 	field( SCAN, "$(MON_SCAN=10 second)" )
 	field( HIGH, "1" )
-	field( HSV,  "MINOR" )
+	field( HSV,  "MAJOR" )
+	field( FLNK, "$(P)$(R)SER_OK" )
 	info( autosaveFields, "" )
 	info( archiveFields,  "" )
+}
+
+record( bo, "$(P)$(R)SER_DEAD" )
+{
+	field( DOL,  "$(SER_OK_PV):MON_SER" )
+	field( OMSL, "closed_loop" )
+	field( ZNAM, "OK" )
+	field( ONAM, "No Comms" )
+	field( ZSV,  "NO_ALARM" )
+	field( OSV,  "MAJOR" )
 }

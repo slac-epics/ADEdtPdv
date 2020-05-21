@@ -15,22 +15,22 @@ record( stringin, "$(P)$(R)CamModelScreen" )
 	field( PINI, "YES" )
 }
 
-record( seq, "$(P)$(R):DoReport" )
+record( seq, "$(P)$(R)DoReport" )
 {
 	field( DESC,	"Do delayed report" )
 	field( DOL1,    "0" )
 	field( DLY1,    "2" )
-	field( LNK1,    "$(P)$(R):Report PP" )
+	field( LNK1,    "$(P)$(R)Report PP" )
 }
 
-record( longin,	"$(P)$(R):Report" )
+record( longin,	"$(P)$(R)Report" )
 {
 	field( DESC,	"Report camera settings" )
 	field( DTYP,	"stream" )
 	field( INP,		"@up685.proto Report $(PORT).SER" )
 }
 
-record( longin,	"$(P)$(R):ReadGain" )
+record( longin,	"$(P)$(R)ReadGain" )
 {
 	field( DESC,	"Gain from camera report" )
 	field( DTYP,	"stream" )
@@ -38,7 +38,7 @@ record( longin,	"$(P)$(R):ReadGain" )
 	field( SCAN,	"I/O Intr" )
 }
 
-record( longin,	"$(P)$(R):ReadReference" )
+record( longin,	"$(P)$(R)ReadReference" )
 {
 	field( DESC,	"Reference from camera report" )
 	field( DTYP,	"stream" )
@@ -46,7 +46,7 @@ record( longin,	"$(P)$(R):ReadReference" )
 	field( SCAN,	"I/O Intr" )
 }
 
-record( longin,	"$(P)$(R):ReadDoubleSpeed" )
+record( longin,	"$(P)$(R)ReadDoubleSpeed" )
 {
 	field( DESC,	"DblSpd from camera report" )
 	field( DTYP,	"stream" )
@@ -54,7 +54,7 @@ record( longin,	"$(P)$(R):ReadDoubleSpeed" )
 	field( SCAN,	"I/O Intr" )
 }
 
-record( ao, "$(P)$(R):Gain" )
+record( ao, "$(P)$(R)Gain" )
 {
 	field( DESC,	"Camera gain (0..1023)" )
 	field( DRVH,	"1023" )
@@ -62,23 +62,23 @@ record( ao, "$(P)$(R):Gain" )
 	field( HOPR,	"1023" )
 	field( LOPR,	"0" )
 	field( PINI,	"YES" )
-	field( FLNK,	"$(P)$(R):SetGain" )
+	field( FLNK,	"$(P)$(R)SetGain" )
 }
 
-record( ao, "$(P)$(R):SetGain" )
+record( ao, "$(P)$(R)SetGain" )
 {
 	field( DESC,	"Set camera gain (0..1023)" )
-	field( DOL,		"$(P)$(R):Gain" )
+	field( DOL,		"$(P)$(R)Gain" )
 	field( OMSL,	"closed_loop" )
 	field( DTYP,	"stream" )
 	field( OUT,		"@up685.proto SetGain $(PORT).SER" )
 	field( DRVH,	"1023" )
 	field( DRVL,	"0" )
 	field( PINI,	"YES" )
-	field( FLNK,	"$(P)$(R):DoReport" )
+	field( FLNK,	"$(P)$(R)DoReport" )
 }
 
-record( mbbi,	"$(P)$(R):Shutter" )
+record( mbbi,	"$(P)$(R)Shutter" )
 {
 	field( DESC,	"Camera shutter speed" )
 	field( ZRVL,	"0"	)
@@ -116,25 +116,25 @@ record( mbbi,	"$(P)$(R):Shutter" )
 	field( PINI,	"YES" )
 }
 
-record( calcout, "$(P)$(R):CalcShutterOut" )
+record( calcout, "$(P)$(R)CalcShutterOut" )
 {
 	field( DESC,	"Calc shtr val" )
-	field( INPA,	"$(P)$(R):Shutter CPP" )
-	field( INPB,	"$(P)$(R):ShutterMode CPP" )
+	field( INPA,	"$(P)$(R)Shutter CPP" )
+	field( INPB,	"$(P)$(R)ShutterMode CPP" )
 	field( CALC,	"B ? A : (A>5?A-1:A)" )
-	field( OUT,		"$(P)$(R):SetRawShutter PP" )
+	field( OUT,		"$(P)$(R)SetRawShutter PP" )
 	field( OOPT,	"On Change" )
 }
 
-record( longout, "$(P)$(R):SetRawShutter" )
+record( longout, "$(P)$(R)SetRawShutter" )
 {
 	field( DESC,	"Numeric shutter value" )
 	field( DTYP,	"stream" )
 	field( OUT,		"@up685.proto SetShutter $(PORT).SER" )
-	field( FLNK,	"$(P)$(R):DoReport" )
+	field( FLNK,	"$(P)$(R)DoReport" )
 }
 
-record( longin,	"$(P)$(R):ReadRawShutter" )
+record( longin,	"$(P)$(R)ReadRawShutter" )
 {
 	field( DESC,	"Shutter from camera report" )
 	field( DTYP,	"stream" )
@@ -142,17 +142,17 @@ record( longin,	"$(P)$(R):ReadRawShutter" )
 	field( SCAN,	"I/O Intr" )
 }
 
-record( calcout, "$(P)$(R):CalcShutterIn" )
+record( calcout, "$(P)$(R)CalcShutterIn" )
 {
 	field( DESC,	"Calc shtr val" )
-	field( INPA,	"$(P)$(R):ReadRawShutter CPP" )
-	field( INPB,	"$(P)$(R):ShutterMode CPP" )
+	field( INPA,	"$(P)$(R)ReadRawShutter CPP" )
+	field( INPB,	"$(P)$(R)ShutterMode CPP" )
 	field( CALC,	"B ? A : (A>5?A+1:A)" )
-	field( OUT,		"$(P)$(R):ReadShutter PP" )
+	field( OUT,		"$(P)$(R)ReadShutter PP" )
 	field( OOPT,	"On Change" )
 }
 
-record( mbbi,	"$(P)$(R):ReadShutter" )
+record( mbbi,	"$(P)$(R)ReadShutter" )
 {
 	field( DESC,	"Camera shutter speed" )
 	field( ZRVL,	"0"	)
@@ -189,7 +189,7 @@ record( mbbi,	"$(P)$(R):ReadShutter" )
 	field( FFST,	"1/110000"	)
 }
 
-record( mbbi,	"$(P)$(R):ShutterMode" )
+record( mbbi,	"$(P)$(R)ShutterMode" )
 {
 	field( DESC,	"Camera shutter mode" )
 	field( DTYP,	"stream" )
@@ -201,7 +201,7 @@ record( mbbi,	"$(P)$(R):ShutterMode" )
 	field( ONST,	"FreeRun"	)
 }
 
-record( bo,	"$(P)$(R):AutoGain" )
+record( bo,	"$(P)$(R)AutoGain" )
 {
 	field( DESC,	"Not supported" )
 	field( DOL,		"0" )
@@ -209,7 +209,7 @@ record( bo,	"$(P)$(R):AutoGain" )
 	field( ONAM,	"Enabled" )
 }
 
-record( stringin, "$(P)$(R):ID" )
+record( stringin, "$(P)$(R)ID" )
 {
 	field( DESC,	"Camera reported model" )
 	field( VAL,	"UP685" )
@@ -243,30 +243,30 @@ record( ao, "$(P)$(R)XmitRate" )
 # Include a serialMonitor.template monitor
 # This should be the first PV you process in the EdtReConfigSeq
 substitute "MON_SCAN=10 second"
-substitute "SER_OK_PV= $(P)$(R):Report"
+substitute "SER_OK_PV= $(P)$(R)Report"
 include "serialMonitor.template"
 
 # 1 second RBV monitors
 substitute "MON_SCAN=1 second"
 substitute "MON_DISABLED=1"
-substitute "MON_PV= $(P)$(R):ReadRawShutter"
+substitute "MON_PV= $(P)$(R)ReadRawShutter"
 include "rbvMonitor.template"
-substitute "MON_PV= $(P)$(R):ReadGain"
+substitute "MON_PV= $(P)$(R)ReadGain"
 include "rbvMonitor.template"
-substitute "MON_PV= $(P)$(R):ShutterMode"
+substitute "MON_PV= $(P)$(R)ShutterMode"
 include "rbvMonitor.template"
 
 # 10 second RBV monitors
 substitute "MON_SCAN=10 second"
 substitute "MON_DISABLED=1"
-substitute "MON_PV= $(P)$(R):ReadReference"
+substitute "MON_PV= $(P)$(R)ReadReference"
 include "rbvMonitor.template"
-substitute "MON_PV= $(P)$(R):ReadDoubleSpeed"
+substitute "MON_PV= $(P)$(R)ReadDoubleSpeed"
 include "rbvMonitor.template"
 
 substitute "MON_SCAN=1 second"
 substitute "MON_DISABLED=1"
-substitute "MON_PV= $(P)$(R):SetGain"
+substitute "MON_PV= $(P)$(R)SetGain"
 include "putMonitor.template"
-substitute "MON_PV= $(P)$(R):SetRawShutter"
+substitute "MON_PV= $(P)$(R)SetRawShutter"
 include "putMonitor.template"
