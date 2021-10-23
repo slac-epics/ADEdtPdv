@@ -71,8 +71,8 @@ private:
 /// timestamping, and shutdown.
 /// Policy based configuration for whether or not to reject data objects
 ///	Example instantiations:
-///		syncDataAcq	edtSyncDataAcq< edtImage, edtCamera >
-///		syncDataAcq	rawSyncDataAcq< rawData, rawDataSource >
+///		syncDataAcq	edtSyncDataAcq< edtCamera, edtImage >
+///		syncDataAcq	rawSyncDataAcq< rawDataSource, rawData >
 template < class Dev, class Data >	class syncDataAcq
 {
  public:
@@ -170,10 +170,7 @@ template < class Dev, class Data >	class syncDataAcq
 	{
 		static const char	*	functionName = "syncDataAcq::acquireSyncData";
 
-		// Also create a data object for EDT image data
-		//	edtSyncData		edtImageObject;
-		//	edtSyncData	*	pImage	= &edtImageObject;
-		Data		edtImageObject;
+		Data		edtImageObject;		// Data type is typically edtImage
 		Data	*	pImage	= &edtImageObject;
 
 		ACQ_TRACE(	ACQ_TRACE_START_STOP,	"%s: Entering forever loop in thread %s\n", functionName, epicsThreadGetNameSelf() );
