@@ -899,11 +899,8 @@ int edtPdvCamera::_Reconfigure( )
 					driverName, functionName, m_DrvVersion.c_str(), m_LibVersion.c_str() );
         return -1;
     }
-	if ( DEBUG_EDT_PDV >= 2 )
-	{
-		printf( "EDT Driver  version: %s\n", m_DrvVersion.c_str() ); 
-		printf( "EDT Library version: %s\n", m_LibVersion.c_str() );
-	}
+	printf( "EDT Driver  version: %s\n", m_DrvVersion.c_str() ); 
+	printf( "EDT Library version: %s\n", m_LibVersion.c_str() );
 
 	// Fetch the full image geometry parameters and write them to ADBase parameters
     m_ClMaxWidth	= pdv_get_width(	m_pPdvDev );
