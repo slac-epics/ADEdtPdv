@@ -21,9 +21,6 @@
 //	EPICS headers
 #include <iocsh.h>
 #include <callback.h>
-#include <dbScan.h>
-#include <dbAccess.h>
-#include <cantProceed.h>
 #include <epicsEvent.h>
 #include <epicsExit.h>
 #include <epicsExport.h>

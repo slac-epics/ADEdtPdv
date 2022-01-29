@@ -9,9 +9,6 @@
 //////////////////////////////////////////////////////////////////////////////
 #include <iocsh.h>
 #include <callback.h>
-#include <dbScan.h>
-#include <dbAccess.h>
-#include <cantProceed.h>
 #include <epicsThread.h>
 #include <epicsExport.h>
 #include <registryFunction.h>

@@ -29,6 +29,8 @@ LIB_SRCS += syncDataAcq.cpp
 LIB_SRCS += GenCpPacket.cpp
 LIB_SRCS += aSubs.cpp
 
+USR_CPPFLAGS += -DUSE_TYPED_RSET -DUSE_TYPED_DSET -DUSE_TYPED_DRVET
+
 # TODO: Remove this local copy of an EDT src file for
 # future pdv lib versions that provide it
 LIB_SRCS += promheader.c
