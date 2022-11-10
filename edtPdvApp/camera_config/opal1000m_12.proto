@@ -22,10 +22,46 @@ GetQStr
     @init { out "@\$1?";    in  ACK "@\"%#s"; }
 }
 
+#GetCCE0
+#{
+#    out "@CCE?";    in  ACK "@%d;%*d";
+#    @init { out "@CCE?";    in  ACK "@%d;%*d"; }
+#}
+#
+#GetCCE1
+#{
+#    out "@CCE?";    in  ACK "@%*d;%d";
+#    @init { out "@CCE?";    in  ACK "@%*d;%d"; }
+#}
+#
+#GetFST0
+#{
+#    out "@FST?";    in  ACK "@%d;%*d";
+#    @init { out "@FST?";    in  ACK "@%d;%*d"; }
+#}
+#
+#GetFST1
+#{
+#    out "@FST?";    in  ACK "@%*d;%d";
+#    @init { out "@FST?";    in  ACK "@%*d;%d"; }
+#}
+
 GetInt
 {
     out "@\$1?";    in  ACK "@%d";
     @init { out "@\$1?";    in  ACK "@%d"; }
+}
+
+GetIntF1
+{
+    out "@\$1?";    in  ACK "@%d;%*d";
+    @init { out "@\$1?";    in  ACK "@%d;%*d"; }
+}
+
+GetIntF2
+{
+    out "@\$1?";    in  ACK "@%*d;%d";
+    @init { out "@\$1?";    in  ACK "@%*d;%d"; }
 }
 
 GetTempC
@@ -72,4 +108,28 @@ SetStr
 {
     InTerminator	= ACK;
     out "@\$1%s";   in  "";
+}
+
+SetIntF1
+{
+    InTerminator	= ACK;
+    out "@\1%d;%(\$2)";   in  "";
+}
+
+SetIntF2
+{
+    InTerminator	= ACK;
+    out "@\1%(\$2);%d";   in  "";
+}
+
+SetTrigIn
+{
+    InTerminator	= ACK;
+    out "@CCE%d;%(\$1:OpalTriggerPolarity)d";   in  "";
+}
+
+SetTrigPol
+{
+    InTerminator	= ACK;
+    out "@CCE%(\$1:OpalTriggerInput)d;%d";   in  "";
 }
