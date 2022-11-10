@@ -20,7 +20,7 @@
 # could match a directory name.
 # ==========================================================
 ADCORE_MODULE_VERSION		= R3.9-1.1.0
-ASYN_MODULE_VERSION		= R4.39-1.0.1
+ASYN_MODULE_VERSION			= R4.39-1.0.1
 DIAG_TIMER_MODULE_VERSION	= R1.9.2.1
 
 # ==========================================================
