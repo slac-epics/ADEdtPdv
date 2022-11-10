@@ -1,6 +1,15 @@
 #
 # SLAC RELEASE_NOTES
 #
+R3.8.0	2022-01-29 Bruce Hill
+	Update to ADCore/R3.9-1.0.3 and asyn/R4.39-1.0.1
+	Always show driver and lib version during bootup.
+	Fix extra : in some PV names and references.
+	Misc db cleanup.
+
+R3.7.2	2021-10-28 Michael Browne
+	Opal4000 support.
+
 R3.7.1 2020-03-03 Bruce Hill
 	Update to ADCore/R3.1-2.3.4
 
