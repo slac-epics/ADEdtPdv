@@ -1,6 +1,13 @@
 #
 # SLAC RELEASE_NOTES
 #
+R3.8.2	2023-02-21 Bruce Hill
+	Updated to ADCore/R3.10-1.1.0
+	Fixing Opal CCE, CCFS, and FST protocols.
+
+R3.8.1	2023-02-08 Michael Browne
+	Upgrade packages.
+
 R3.8.0	2022-01-29 Bruce Hill
 	Update to ADCore/R3.9-1.0.3 and asyn/R4.39-1.0.1
 	Always show driver and lib version during bootup.
