@@ -528,14 +528,14 @@ record( longout, "$(P)$(R)CamEventCode" )
 	field( OMSL, "closed_loop" )
 	field( DOL,  "$(P)$(R)OrcaEventCode NPP NMS`" )
 }
-# But image acuisition is filtered with this beam event code
+# But image acquisition is filtered with this beam event code
 # so we enable it by setting DISA to 0
 record( longout, "$(P)$(R)BeamEventCode" )
 {
 	field( DOL,  "140" )
 	field( PINI, "YES" )
 	field( DISA, "0" )
-	field( OUT,  "$(BEAM_EC) CPP NMS" )
+	field( OUT,  "$(BEAM_EC) PP NMS" )
 }
 record( longin, "$(P)$(R)BeamEventCode_RBV" )
 {

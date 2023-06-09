@@ -502,7 +502,7 @@ record( longout, "$(P)$(R)EdtDelayScale" )
 record( longout, "$(P)$(R)CamEventCode" )
 {
 	field( VAL,  "40" )
-	field( OUT,  "$(CAM_EC=Unused) CPP NMS" )
+	field( OUT,  "$(CAM_EC=Unused) PP NMS" )
 	field( PINI, "YES" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
@@ -537,7 +537,7 @@ record( calc, "$(P)$(R)CamRepDur" )
 # For rolling shutter MODEL.db, set these fields as appropriate
 #	field( PINI, "YES" )
 #record( longout, "$(P)$(R)BeamEventCode" ) {
-#	field( OUT,  "$(BEAM_EC=$(P)$(R)CamEventCode) CPP NMS" ) }
+#	field( OUT,  "$(BEAM_EC=$(P)$(R)CamEventCode) PP NMS" ) }
 #record( longin, "$(P)$(R)BeamEventCode_RBV" ) {
 #	field( INP,  "$(BEAM_EC_RBV=$(P)$(R)CamEventCode_RBV) CPP MS" ) }
 #record( ai, "$(P)$(R)BeamRepRate_RBV" ) {
@@ -552,7 +552,7 @@ record( longout, "$(P)$(R)BeamEventCode" )
 {
 	field( VAL,  "140" )
 	field( PINI, "NO" )
-	field( OUT,  "$(P)$(R)CamEventCode CPP NMS" )
+	field( OUT,  "$(P)$(R)CamEventCode PP NMS" )
 	field( DISA, "1" )
 	info( autosaveFields, "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR" )
 	info( archiveFields,  "HHSV HIGH HIHI HSV LLSV LOLO LOW LSV EGU DESC HOPR LOPR VAL" )
