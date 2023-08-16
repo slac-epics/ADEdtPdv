@@ -624,7 +624,7 @@ record( calc, "$(P)$(R)XmitDelay" )
 
 record( ao, "$(P)$(R)DriverProcDelay" )
 {
-    field( DOL,  "0.0007" )
+    field( DOL,  "0.0002" )
     field( EGU,  "Sec" )
     field( PREC, "3" ) 
     field( PINI, "YES" )
