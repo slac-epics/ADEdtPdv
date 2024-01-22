@@ -5,6 +5,10 @@
 #ifndef INCLUDE_libedt_timing_h
 #define INCLUDE_libedt_timing_h
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 /*
 * Timing register offsets:
@@ -13,6 +17,7 @@
 * 	Net10G:			0xac
 * 	SRXL-2:			0x5c
 * 	CLINK:			0x31
+* 	A5/TacWrap:		0x6d
 */
 #define TIMECODE_BASE_REGISTER		0x60
 #define TIMECODE_MSDV_BASE_REGISTER	0xa4
@@ -21,7 +26,8 @@
 #define TIMECODE_CLINK_BASE_REGISTER	0xb1
 #define PDV_IRIG_SPI_BASE 0xb1
 
-typedef	struct _ts_raw_t {	/* Raw timecode format */
+/* Raw timecode format */
+typedef	struct _ts_raw_t {
     u_int seconds:6;
     u_int minutes:6;
     u_int hours:5;
@@ -44,9 +50,6 @@ typedef	struct _ts_raw_t {	/* Raw timecode format */
 #define FIFO_IN_OV	0x01
 #define FIFO_RESET	0x01
 
-/* SPI input datapath. */
-#define ACK			0x90
-#define NAK			0xA0
 /* Packet based commands: */
 #define SPI_PKT_START		0x82	/* Start of packet byte. */
 #define SPI_PACKET_LOOP		0	/* Send packet to msp430 which loops it back to FPGA host.  No ACK/NAK response. */
@@ -84,14 +87,18 @@ EDTAPI int    edt_spi_invoke_flash_loader(EdtDev *edt_p);
 
 //timecode_utility
 EDTAPI u_char edt_spi_get_byte(EdtDev *edt_p);
-EDTAPI u_char edt_spi_get_byte_nointr(EdtDev *edt_p);
+EDTAPI u_char edt_spi_get_byte_nointr(EdtDev *edt_p); /**< @deprecated Alias of @ref edt_spi_get_byte() */
 EDTAPI u_char edt_spi_put_byte(EdtDev *edt_p, u_char ch);
 EDTAPI void   edt_spi_flush_fifo(EdtDev *edt_p);
-EDTAPI char  *edt_spi_putstr(EdtDev *edt_p, char *str);
+EDTAPI char  *edt_spi_putstr(EdtDev *edt_p, char *const str);
 EDTAPI u_int  edt_spi_reg_read(EdtDev *edt_p, u_int desc);
 EDTAPI void   edt_spi_reg_write(EdtDev *edt_p, u_int desc, u_int val);
 EDTAPI u_char edt_crc16_lowbyte(u_char *buf, int len);
 EDTAPI u_char edt_crc16_highbyte(u_char *buf, int len);
 EDTAPI void   edt_spi_send_packet(EdtDev *edt_p, u_char *cmdbuf);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INCLUDE_libedt_h */

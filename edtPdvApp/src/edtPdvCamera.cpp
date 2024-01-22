@@ -1144,14 +1144,14 @@ int edtPdvCamera::_Reopen( )
 			m_unit, m_channel, EdtModeToString( m_EdtMode ) );
     printf( "Boot sector FPGA header: \"%s\"\n",
 			get_pci_fpga_header( m_pPdvDev , fpga_name));
-	if ( m_EdtMode == EDTMODE_FULL && !strstr( fpga_name, "_fm" ) )
+	if ( m_EdtMode == EDTMODE_FULL && !strstr( fpga_name, "_fm" ) && !strstr( fpga_name, "visionlinkf4" ) )
 	{
 	    printf( "\n\nERROR: Wrong firmware. You need to use full-mode FPGA version for this camera!\n\n" );
 		pdv_close( m_pPdvDev );
 		m_pPdvDev	= NULL;
         return -1;
     }
-	if ( m_EdtMode != EDTMODE_FULL && strstr( fpga_name, "_fm" ) )
+	if ( m_EdtMode != EDTMODE_FULL && (strstr( fpga_name, "_fm" ) || strstr( fpga_name, "visionlinkf4" ) ) )
 	{
 	    printf( "\n\nERROR: Wrong firmware. You need to use a non-full-mode FPGA version for this camera!\n\n" );
 		pdv_close( m_pPdvDev );

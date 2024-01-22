@@ -72,6 +72,10 @@ typedef off_t EdtFileOffset;
 
 #define INFINITE 0
 
+#ifndef PAGE_SIZE
+#define PAGE_SIZE getpagesize()
+#endif
+
 #define PAGESIZE PAGE_SIZE
 #define SECTOR_SIZE PAGE_SIZE
 

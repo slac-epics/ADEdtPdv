@@ -14,6 +14,23 @@ extern int sect;
 #define MAX_BOARD_SEARCH 32
 #define NUM_DEVICE_TYPES 5
 
+/**
+ * Given the bitfile name, path or basename, get the actual file name to load.
+ * Replacement for the fix_fname function in pciload_main.c
+ *
+ * @param is_5_volt - -1 if no voltage option, 1 if 5 volt, 0 if 3.3 volt.
+ * @param nofs - 1 if no filesystem, 0 otherwise. Not sure if this still being used, but kept for 
+ *               compatibility.
+ * @param orig_fname - The original file name as passed in.
+ * @param flash_dir - The flash directory path.
+ * @param fname_to_load - The file name used to load the bitfile. Will be
+ *                        mutated by this function.
+ *
+ * @returns 0 on success, -1 on failure.
+ */
+int find_fname_to_load(int promcode, int is_5_volt, int nofs, const char *const orig_fname, 
+                       const char *const flash_dir, char* fname_to_load);
+
 #ifndef _KERNEL
 
 #include "edt_bitload.h"
