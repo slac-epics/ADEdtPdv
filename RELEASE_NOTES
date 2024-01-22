@@ -1,6 +1,9 @@
 #
 # SLAC RELEASE_NOTES
 #
+R3.7.1-1.0 2024-01-22 Michael Skoufis
+	    Add support for VisionLink F4 with EDT driver R5.6.7.0
+
 R3.7.1 2020-03-03 Bruce Hill
 	Update to ADCore/R3.1-2.3.4
 
