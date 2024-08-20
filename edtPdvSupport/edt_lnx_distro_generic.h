@@ -3,5 +3,5 @@
 //
 #ifndef _EDT_DISTRO_H__
 #define _EDT_DISTRO_H_
-#define EDT_LINUX_DISTRO "generic"
+#define EDT_LINUX_DISTRO_GENERIC 1
 #endif

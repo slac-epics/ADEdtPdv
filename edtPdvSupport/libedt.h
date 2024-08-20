@@ -369,7 +369,7 @@
 /** @} */ /* end dma_internal */
 #endif
 
-#define EDTAPI_VERSION 0x05050802
+#define EDTAPI_VERSION 0x05060700
 
 #define EDT_NORMAL_DMA 0
 #define EDT_DIRECT_DMA 1
@@ -534,6 +534,7 @@ typedef char edt_version_string[128];
 #define MIC_N25Q064A13ESE40G 25
 #define AMD_5AGZME1          26
 #define MIC_N25Q256A13EF840  27
+#define HH_RB_MIC_MT25QL256ABA1EW9 38
 
 /* device (chip) programming types for pciload etc. */
 #define FTYPE_X     0
@@ -1913,8 +1914,6 @@ typedef struct {
 #define EDTS_PDMA_MODE          EIOC(145, EIO_SET, sizeof(u_int))
 #define EDTG_MEMSIZE            EIOC(146, EIO_GET, sizeof(u_int))
 #define EDTS_DIRECTION          EIOC(147, EIO_SET, sizeof(u_int))
-#define EDTG_CLRCIFLAGS         EIOC(148, EIO_GET, sizeof(u_int))
-#define EDTS_CLRCIFLAGS         EIOC(149, EIO_SET, sizeof(u_int))
 #define EDTS_MERGEPARMS         EIOC(150, EIO_SET, sizeof(edt_merge_args))
 #define EDTS_ABORTDMA_ONINTR    EIOC(151, EIO_SET, sizeof(u_int))
 #define EDTS_FVAL_DONE          EIOC(152, EIO_SET, sizeof(u_char))
@@ -2175,8 +2174,6 @@ typedef struct {
 #define ES_DIRECTION           EMAPI(EDTS_DIRECTION)
 #define EG_MEMSIZE          EMAPI(EDTG_MEMSIZE)
 #define EG_MEM2SIZE          EMAPI(EDTG_MEM2SIZE)
-#define ES_CLRCIFLAGS         EMAPI(EDTS_CLRCIFLAGS)
-#define EG_CLRCIFLAGS         EMAPI(EDTG_CLRCIFLAGS)
 #define ES_MERGEPARMS        EMAPI(EDTS_MERGEPARMS)
 #define ES_ABORTDMA_ONINTR        EMAPI(EDTS_ABORTDMA_ONINTR)
 #define ES_FVAL_DONE         EMAPI(EDTS_FVAL_DONE)
@@ -2322,6 +2319,8 @@ typedef struct {
         || (id == WSU1_ID) \
         || (id == SNAP1_ID) \
         || (id == PE4BL_RADIO_ID) \
+        || (id == PE8G2_HH_RADIO_ID) \
+        || (id == PE8G2_HH_RADIO_M2_ID) \
         || (id == PE4BL_RXLFRADIO_ID) \
         || (id == PE4BL_TXLFRADIO_ID) \
         || (id == PE8BL_NIC_ID) \
@@ -2331,7 +2330,7 @@ typedef struct {
         || (id == PE8BL_WBDSP_ID) \
         || (id == PE1BL_WBADC_ID) \
         || (id == PE16G3_OCTEON3_ID) \
-        || (id == PE16G3_OCTEON3P_ID) \
+        || (id == PE8BL_40G_ID) \
         )
 
  /* move / remove these from this list as they are assigned */
@@ -2359,6 +2358,8 @@ typedef struct {
         || (id == PE8LX16_ID) \
         || (id == PE8BL_NIC_ID) \
         || (id == PE4BL_RADIO_ID) \
+        || (id == PE8G2_HH_RADIO_ID) \
+        || (id == PE8G2_HH_RADIO_M2_ID) \
         || (id == PE4BL_RXLFRADIO_ID) \
         || (id == PE4BL_TXLFRADIO_ID) \
         || (id == PE8LX32_ID) \
@@ -2448,6 +2449,7 @@ typedef struct {
         || (id == PE8BL_NIC_ID) \
         || (id == PE4AMC16_ID) \
         || (id == PE8BL_WBDSP_ID) \
+        || (id == PE8BL_40G_ID) \
     )
 
 #define ID_IS_LCRBLADE(id) \
@@ -2458,10 +2460,13 @@ typedef struct {
         || (id == PE8BL_NIC_ID) \
         || (id == PE8BL_WBDSP_ID) \
         || (id == PE1BL_WBADC_ID) \
+        || (id == PE8BL_40G_ID) \
     )
 
 #define ID_IS_RADIOBLADE(id) \
-    || (id == PE4BL_RADIO_ID) \
+    ((id == PE4BL_RADIO_ID) \
+    || (id == PE8G2_HH_RADIO_ID) \
+    || (id == PE8G2_HH_RADIO_M2_ID) \
     || (id == PE4BL_RXLFRADIO_ID) \
     || (id == PE4BL_TXLFRADIO_ID) \
     )
@@ -2491,6 +2496,8 @@ typedef struct {
     || (id == WSU1_ID) \
     || (id == SNAP1_ID) \
     || (id == PE4BL_RADIO_ID) \
+    || (id == PE8G2_HH_RADIO_ID) \
+    || (id == PE8G2_HH_RADIO_M2_ID) \
     || (id == PE4BL_RXLFRADIO_ID) \
     || (id == PE4BL_TXLFRADIO_ID) \
     || (id == PE1BL_TIMING_ID) \
@@ -2503,7 +2510,7 @@ typedef struct {
     || (id == PE8BL_WBDSP_ID) \
     || (id == PE1BL_WBADC_ID) \
     || (id == PCDFCI_PCD_ID) \
-    || (id == PE1BL_WBADC_ID) \
+    || (id == PE8BL_40G_ID) \
     )
 
 #define ID_HAS_16BIT_PROM(id) \
@@ -2523,6 +2530,8 @@ typedef struct {
     || (id == PE8VLCLS_ID) \
     || (id == PE4DVVLFOX_ID) \
     || (id == PE4BL_RADIO_ID) \
+    || (id == PE8G2_HH_RADIO_ID) \
+    || (id == PE8G2_HH_RADIO_M2_ID) \
     || (id == PE4BL_RXLFRADIO_ID) \
     || (id == PE4BL_TXLFRADIO_ID) \
     || (id == PE1BL_TIMING_ID) \
@@ -2531,6 +2540,8 @@ typedef struct {
     || (id == LCRBOOT_ID) \
     || (id == PE8BL_WBDSP_ID) \
     || (id == PE1BL_WBADC_ID) \
+    || (id == PE16G3_OCTEON3_ID) \
+    || (id == PE8BL_40G_ID) \
     )
 
 #define ID_IS_MULTICHAN(id) \
@@ -2554,10 +2565,13 @@ typedef struct {
     || (id == WSU1_ID) \
     || (id == SNAP1_ID) \
     || (id == PE4BL_RADIO_ID) \
+    || (id == PE8G2_HH_RADIO_ID) \
+    || (id == PE8G2_HH_RADIO_M2_ID) \
     || (id == PE4BL_RXLFRADIO_ID) \
     || (id == PE4BL_TXLFRADIO_ID) \
     || (id == PE8LX16_LS_ID) \
     || (id == PE8BL_WBDSP_ID) \
+    || (id == PE8BL_40G_ID) \
     )
 
 #define ID_IS_2CHANNEL(id) \
@@ -2623,6 +2637,8 @@ typedef struct {
     || (id == SNAP1_ID) \
     || (id == PE8BL_NIC_ID) \
     || (id == PE4BL_RADIO_ID) \
+    || (id == PE8G2_HH_RADIO_ID) \
+    || (id == PE8G2_HH_RADIO_M2_ID) \
     || (id == PE4BL_RXLFRADIO_ID) \
     || (id == PE4BL_TXLFRADIO_ID) \
     || (id == PE8G3S5_ID) \
@@ -2632,6 +2648,7 @@ typedef struct {
     || (id == PE8LX16_LS_ID) \
     || (id == PE4AMC16_ID) \
     || (id == PE8BL_WBDSP_ID) \
+    || (id == PE8BL_40G_ID) \
     )
 
 #define ID_IS_32CHANNEL(id) \
@@ -2681,6 +2698,9 @@ typedef struct {
     || ( id == PE8G2CML_ID) \
     || ( id == PE8VLCLS_ID) \
     || ( id == PE8BL_WBDSP_ID) \
+    || ( id == PE8BL_40G_ID) \
+    || (id == PE8G2_HH_RADIO_ID) \
+    || (id == PE8G2_HH_RADIO_M2_ID) \
     )
 
 #define ID_PCILOAD_INFO_NA(id) \
@@ -2689,6 +2709,7 @@ typedef struct {
 
 #define ID_HAS_SUBUNIT(id) \
     (  ( id == PE8BL_WBDSP_ID) \
+    || ( id == PE8BL_40G_ID) \
     )
 
 
