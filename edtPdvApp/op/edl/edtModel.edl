@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 920
-y 417
+x 4138
+y 3400
 w 739
 h 659
 font "helvetica-medium-r-12.0"
@@ -342,7 +342,7 @@ offColor index 5
 topShadowColor index 1
 botShadowColor index 11
 controlPv "$(CAM):SET_POWER_PV"
-pressValue "0"
+pressValue "2"
 onLabel "Off"
 offLabel "Off"
 3d
@@ -365,7 +365,7 @@ offColor index 5
 topShadowColor index 1
 botShadowColor index 11
 controlPv "$(CAM):SET_POWER_PV"
-pressValue "2"
+pressValue "3"
 onLabel "Cycle"
 offLabel "Cycle"
 3d
