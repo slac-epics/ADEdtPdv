@@ -117,6 +117,8 @@
  */
 #define PE4BL_RADIO_ID          0x00a4
 #define PE1BL_TIMING_ID         0x00a5
+#define PE8BL_2X10G_ID          0x00a6 
+#define PE8BL_10GNI_ID          0x00a6 /* alias (DO NOT DELETE EITHER OF THESE!) */
 #define PE8BL_10GNIC_ID         0x00a6
 #define LCRBOOT_ID              0x00a7
 
@@ -124,9 +126,12 @@
 #define PE4DVVLSIM_ID           0x00a9
 #define PE8G3KU_ID              0x00aa
 #define PE8G3A5_ID              0x00ab
+#define PE8BL_2X125G_ID         0x00ac
+#define PE4BL_LFRADIO_ID        0x00ad
 
-#define UNKNOWNAC_ID            0x00ac /* change when assigned */
-#define UNKNOWNAD_ID            0x00ad /* change when assigned */
+/*
+ * reserved -- change here and everywhere else when assigned
+ */
 #define UNKNOWNAE_ID            0x00ae /* change when assigned */
 #define UNKNOWNAF_ID            0x00af /* change when assigned */
 
