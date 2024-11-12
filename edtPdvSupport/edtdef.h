@@ -10,6 +10,6 @@
 #endif
 #define FULLBUILD BUILD " " __DATE__ " " __TIME__
 
-#define EDT_LIBRARY_VERSION "5.5.2.6"
+#define EDT_LIBRARY_VERSION "5.5.5.4"
 
 #endif

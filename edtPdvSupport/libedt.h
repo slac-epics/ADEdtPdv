@@ -369,7 +369,7 @@
 /** @} */ /* end dma_internal */
 #endif
 
-#define EDTAPI_VERSION 0x05050206
+#define EDTAPI_VERSION 0x05050504
 
 #define EDT_NORMAL_DMA 0
 #define EDT_DIRECT_DMA 1
@@ -2310,6 +2310,8 @@ typedef struct {
         || (id == PE1BL_TIMING_ID) \
         || (id == LCRBOOT_ID) \
         || (id == PE4AMC16_ID) \
+        || (id == PE8BL_WBDSP_ID) \
+        || (id == PE1BL_WBADC_ID) \
         )
 
  /* move /remove these from this list as they are assigned */
@@ -2601,8 +2603,10 @@ typedef struct {
     || (id == PE4DVAFOX_ID) \
     || (id == PE4DVFCI_ID) \
     || (id == PE4BL_RADIO_ID) \
-    || (id == PE4BL_LFRADIO_ID) \
-    || (id == PE4AMC16_ID))
+    || (id == PE4BL_RXLFRADIO_ID) \
+    || (id == PE4BL_TXLFRADIO_ID) \
+    || (id == PE4AMC16_ID) \
+    )
 
 #define ID_IS_8LANE(id) \
     (  ( id == PE8DVAFOX_ID) \
@@ -2619,8 +2623,14 @@ typedef struct {
     || ( id == PE8G3S5_ID) \
     || ( id == PE8G3A5_ID) \
     || ( id == PE8G3KU_ID) \
+    || ( id == PE8G2CML_ID) \
+    || ( id == PE8VLCLS_ID) \
+    || ( id == PE8BL_WBDSP_ID) \
     )
 
+#define ID_PCILOAD_INFO_NA(id) \
+    (  ( id == PE8VLCLS_ID) \
+    )
 
 #define ID_HAS_MEZZ(id) (ID_IS_SS(id) || ID_IS_GS(id) || ID_IS_LX(id)) || id == PE8G2V7_ID
 
@@ -2658,6 +2668,7 @@ typedef struct {
 #define edt_is_4lane(edt_p) (ID_IS_4LANE(edt_p->devid))
 #define edt_is_8lane(edt_p) (ID_IS_8LANE(edt_p->devid))
 #define edt_is_unknown(edt_p) (ID_IS_UNKNOWN(edt_p->devid))
+#define edt_pciload_info_na(edt_p) (ID_PCILOAD_INFO_NA(edt_p->devid))
 
 #define edt_is_dv_multichannel(edt_p) (edt_is_dvcl(edt_p) || edt_is_dvfox(edt_p) || edt_p->devid == PDVAERO_ID)
 
