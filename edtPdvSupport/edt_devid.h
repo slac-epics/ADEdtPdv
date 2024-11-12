@@ -112,6 +112,11 @@
 
 #define PE4DVVL_ID               0x00a3
 
+#define PE16G3_OCTEON3_ID        0x00b3
+
+#define PE8G2_HH_RADIO_ID        0x00b5
+#define PE8G2_HH_RADIO_M2_ID     0x00b6
+
 /*
  * LCR group IDs
  */
@@ -126,8 +131,17 @@
 #define PE4DVVLSIM_ID           0x00a9
 #define PE8G3KU_ID              0x00aa
 #define PE8G3A5_ID              0x00ab
-#define PE8BL_2X125G_ID         0x00ac
-#define PE4BL_LFRADIO_ID        0x00ad
+#define RESERVED_AC_ID          0x00ac /* was 2x12.5G now reserved, could re-use */
+#define PE4BL_RXLFRADIO_ID      0x00ad
+#define PE4BL_LFRADIO_ID        0x00ad /* old (compat) */
+#define RESERVED_AE_ID          0x00ae /* was E3NIC_ID now reserved, could re-use */
+#define PE4BL_TXLFRADIO_ID      0x00af
+#define PE4BL_TXRADIO_ID        0x00af /* old (compat) */
+#define PE1BL_WBADC_ID          0x00b1
+#define PE8BL_WBDSP_ID          0x00b2
+#define PE8BL_40G_ID            0x00b4
+
+#define PE8G2CML_ID             0x00b0
 
 /*
  * reserved -- change here and everywhere else when assigned
