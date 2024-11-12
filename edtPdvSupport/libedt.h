@@ -369,7 +369,7 @@
 /** @} */ /* end dma_internal */
 #endif
 
-#define EDTAPI_VERSION 0x05050106
+#define EDTAPI_VERSION 0x05050405
 
 #define EDT_NORMAL_DMA 0
 #define EDT_DIRECT_DMA 1
@@ -847,6 +847,7 @@ typedef struct _dma_data_block {
 #define EDT_GS_TYPE 2
 #define EDT_CD_TYPE 3
 #define EDT_LX_TYPE 4
+#define EDT_LC_TYPE 5
 
 
 #define DDMA_FIFOSIZE 2048
@@ -1021,6 +1022,10 @@ typedef struct edt_device {
 
     u_int       adt7461_reg ; /* register definition */
 
+    u_int dmy_started;
+    void    (*dmy_wait_for_buffers_callback) (struct edt_device *edt_p, u_char *buf);
+    u_short (*dmy_reg_read_callback)         (struct edt_device *edt_p, u_int reg_desc);
+    void    (*dmy_reg_write_callback)        (struct edt_device *edt_p, u_int reg_desc, u_int reg_value);
 
 } EdtDev;
 
@@ -1113,6 +1118,13 @@ EDTAPI int     edt_configure_ring_buffers(EdtDev *edt_p, int bufsize,
                                             int numbufs, int write_flag,
                                             unsigned char **bufarray) ;
 
+EDTAPI void    edt_set_dmy_wait_for_buffers_callback(EdtDev *edt_p,
+    		    void (*callBack)(struct edt_device *edt_p, u_char *buf));
+
+EDTAPI void    edt_set_dmy_reg_read_callback(EdtDev *edt_p, u_int (*callBack)(struct edt_device *edt_p, u_int reg_desc));
+EDTAPI void    edt_set_dmy_reg_write_callback(EdtDev *edt_p, void (*callBack)(struct edt_device *edt_p, u_int reg_desc, u_int reg_value));
+
+
 EDTAPI int     edt_configure_block_buffers_mem(EdtDev *edt_p, int bufsize,
                                                 int numbufs, int write_flag,
                                                 int header_size, int header_before,
@@ -1122,10 +1134,9 @@ EDTAPI int     edt_configure_block_buffers(EdtDev *edt_p, int bufsize,
                                         int header_size, int header_before);
 
 EDTAPI caddr_t edt_map_dmamem(EdtDev *edt_p);
-EDTAPI int     edt_disable_ring_buffers(EdtDev *edt_p) ;
 
 EDTAPI int     edt_disable_ring_buffers(EdtDev *edt_p) ;
- 
+
 EDTAPI int     edt_get_numbufs(EdtDev *edt_p);
 
 EDTAPI int     edt_reset_ring_buffers(EdtDev *edt_p, uint_t bufnum);
@@ -1660,7 +1671,7 @@ typedef struct {
     uint_t inSize   ;
     uint_t outSize ;
     uint_t bytesReturned ;
-    uint32_t inBuffer ;      /* userspace address */
+    u_int inBuffer ;      /* userspace address */
     uint32_t outBuffer ;     /* userspace address */
 #if defined(__APPLE__)
     u_short unit ;
@@ -2301,25 +2312,28 @@ typedef struct {
         || (id == PE8G3S5_ID) \
         || (id == PE8G3A5_ID) \
         || (id == PE8G3KU_ID) \
+        || (id == PE8G2CML_ID) \
         || (id == WSU1_ID) \
         || (id == SNAP1_ID) \
         || (id == PE4BL_RADIO_ID) \
-        || (id == PE8BL_10GNIC_ID) \
+        || (id == PE4BL_LFRADIO_ID) \
+        || (id == PE4BL_TXRADIO_ID) \
+        || (id == PE8BL_NIC_ID) \
+        || (id == PE8BL_E3NIC_ID) \
         || (id == PE1BL_TIMING_ID) \
         || (id == LCRBOOT_ID) \
         || (id == PE4AMC16_ID) \
         )
 
- /* move /remove these from this list as they are assigned */
+ /* move / remove these from this list as they are assigned */
 #define ID_IS_UNKNOWN(id) ( \
-           ( id == UNKNOWNAC_ID) \
-        || ( id == UNKNOWNAD_ID) \
-        || ( id == UNKNOWNAE_ID) \
-        || ( id == UNKNOWNAF_ID) \
+          id == 0xffff  \
         )
 
-#define ID_IS_1553(id) ((id == P53B_ID) \
-        || (id == PE1_53B_ID))
+#define ID_IS_1553(id) ( \
+           ( id == P53B_ID) \
+        || ( id == PE1_53B_ID) \
+        )
 
 #define ID_IS_SS(id) ((id == PSS4_ID) \
         || (id == PSS16_ID))
@@ -2327,43 +2341,50 @@ typedef struct {
 #define ID_IS_GS(id) ((id == PGS4_ID) \
         || (id == PGS16_ID))
 
-#define ID_IS_LX(id) ((id == PE8LX1_ID) \
+#define ID_IS_LX(id) ( \
+           (id == PE8LX1_ID) \
         || (id == PE8LX16_LS_ID) \
         || (id == PE4AMC16_ID) \
         || (id == PE4CDA_ID) \
         || (id == PE4CDA16_ID) \
         || (id == PE8LX16_ID) \
-        || (id == PE8BL_10GNIC_ID) \
+        || (id == PE8BL_NIC_ID) \
+        || (id == PE8BL_E3NIC_ID) \
         || (id == PE4BL_RADIO_ID) \
-        || (id == PE8LX32_ID))
+        || (id == PE4BL_LFRADIO_ID) \
+        || (id == PE4BL_TXRADIO_ID) \
+        || (id == PE8LX32_ID) \
+        )
 
 #define ID_HAS_CHANREG(id) (ID_HAS_MEZZ(id) || (id == PCDA_ID))
 
-#define ID_IS_PDV(id) ((id == PDV_ID) \
-        || (id == PDVK_ID) \
-        || (id == PDV44_ID) \
-        || (id == PDVAERO_ID) \
-        || (id == PDVCL_ID) \
-        || (id == PE1DVVL_ID) \
-        || (id == PE4DVVL_ID) \
-        || (id == PE4DVCL_ID) \
-        || (id == PE8DVCL_ID) \
-        || (id == PE8DVCLS_ID) \
-        || (id == PE4DVVLSIM_ID) \
-        || (id == PDVCL2_ID) \
-        || (id == PDVFOI_ID) \
-        || (id == PDVFCI_AIAG_ID) \
-        || (id == PDVFCI_USPS_ID) \
-        || (id == PDVA_ID) \
-        || (id == PDVFOX_ID) \
-        || (id == PE4DVAFOX_ID) \
-        || (id == PE8DVFOX_ID) \
-        || (id == PE4DVVLFOX_ID) \
-        || (id == PDVA16_ID) \
-        || (id == PGP_RGB_ID) \
-        || (id == PE4DVFCI_ID) \
-        || (id == PE8DVFCI_ID) \
-        || (id == PC104ICB_ID))
+#define ID_IS_PDV(id) ( \
+            (id == PDV_ID) \
+         || (id == PDVK_ID) \
+         || (id == PDV44_ID) \
+         || (id == PDVAERO_ID) \
+         || (id == PDVCL_ID) \
+         || (id == PE1DVVL_ID) \
+         || (id == PE4DVVL_ID) \
+         || (id == PE4DVCL_ID) \
+         || (id == PE8DVCL_ID) \
+         || (id == PE8DVCLS_ID) \
+         || (id == PE8VLCLS_ID) \
+         || (id == PDVCL2_ID) \
+         || (id == PDVFOI_ID) \
+         || (id == PDVFCI_AIAG_ID) \
+         || (id == PDVFCI_USPS_ID) \
+         || (id == PDVA_ID) \
+         || (id == PDVFOX_ID) \
+         || (id == PE4DVAFOX_ID) \
+         || (id == PE8DVFOX_ID) \
+         || (id == PE4DVVLFOX_ID) \
+         || (id == PDVA16_ID) \
+         || (id == PGP_RGB_ID) \
+         || (id == PE4DVFCI_ID) \
+         || (id == PE8DVFCI_ID) \
+         || (id == PC104ICB_ID) \
+        )
 
 #define ID_IS_DVFOX(id) \
     (    (id == PDVFOX_ID) \
@@ -2385,15 +2406,15 @@ typedef struct {
       || (id == PE8DVCL_ID) \
       || (id == PE4DVAFOX_ID))
 
-#define ID_IS_DVCL2(id) \
-    (    (id == PDVCL2_ID) \
-      || (id == PE8DVCLS_ID))  /* ALERT: we're going with distinct ID for PCIe CLS */
-/* so removed IDs for those boards as of 4.2.4.5 */
-
-/* this one is for all PCIE -- for PCIE + PCI, use ID_IS_DVCL2 */
+/* pcie cl simulators only  */
 #define ID_IS_DVCLS(id) \
       ( (id == PE8DVCLS_ID) \
-      || (id == PE4DVVLSIM_ID))
+      || (id == PE8VLCLS_ID))
+
+/* all cl simulators */
+#define ID_IS_CLSIM(id) \
+    (    (id == PDVCL2_ID) \
+      || (ID_IS_DVCLS(id)))  
 
 #define ID_IS_FCIUSPS(id) \
     (    (id == PDVFCI_USPS_ID) \
@@ -2401,26 +2422,40 @@ typedef struct {
 
 #define ID_HAS_IRIGB(id) \
     (    (id == PE1DVVL_ID) \
-      || (id == PE4DVVL_ID) \
-      || (id == PE4DVCL_ID) \
-      || (id == PE8DVCL_ID) \
-      || (id == PE4DVAFOX_ID))
+        || (id == PE4DVVL_ID) \
+        || (id == PE4DVCL_ID) \
+        || (id == PE8DVCL_ID) \
+        || (id == PE4DVAFOX_ID) \
+    )
 
 #define ID_STORES_MACADDRS(id) \
-    (  (ID_HAS_MEZZ(id)) \
-    || (id == PE8G3S5_ID) \
-    || (id == PE8G3A5_ID) \
-    || (id == PE8G3KU_ID) \
-    || (id == WSU1_ID) \
-    || (id == SNAP1_ID) \
-    || (id == LCRBOOT_ID) \
-    || (id == PE8BL_10GNIC_ID) \
-    || (id == PE4AMC16_ID))
+    (      (ID_HAS_MEZZ(id)) \
+        || (id == PE8G3S5_ID) \
+        || (id == PE8G3A5_ID) \
+        || (id == PE8G3KU_ID) \
+        || (id == PE8G2CML_ID) \
+        || (id == WSU1_ID) \
+        || (id == SNAP1_ID) \
+        || (id == LCRBOOT_ID) \
+        || (id == PE8BL_NIC_ID) \
+        || (id == PE8BL_E3NIC_ID) \
+        || (id == PE4AMC16_ID) \
+    )
 
 #define ID_IS_LCRBLADE(id) \
-    (  (id == PE4BL_RADIO_ID) \
-    || (id == PE1BL_TIMING_ID) \
-    || (id == PE8BL_10GNIC_ID))
+    (      (id == PE4BL_RADIO_ID) \
+        || (id == PE4BL_LFRADIO_ID) \
+        || (id == PE4BL_TXRADIO_ID) \
+        || (id == PE1BL_TIMING_ID) \
+        || (id == PE8BL_NIC_ID) \
+        || (id == PE8BL_E3NIC_ID) \
+    )
+
+#define ID_IS_RADIOBLADE(id) \
+    || (id == PE4BL_RADIO_ID) \
+    || (id == PE4BL_LFRADIO_ID) \
+    || (id == PE4BL_TXRADIO_ID) \
+    )
 
 /* ADD any devices that don't have a separate interface FPGA here */
 #define ID_HAS_COMBINED_FPGA(id) \
@@ -2438,6 +2473,7 @@ typedef struct {
     || (id == PE8DVFCI_ID) \
     || (id == PC104ICB_ID) \
     || (id == PE8DVCL2_ID) \
+    || (id == PE8VLCLS_ID) \
     || (id == PDVFCI_AIAG_ID) \
     || (id == PDVFCI_USPS_ID) \
     || (id == PCDFCI_SIM_ID) \
@@ -2446,8 +2482,11 @@ typedef struct {
     || (id == WSU1_ID) \
     || (id == SNAP1_ID) \
     || (id == PE4BL_RADIO_ID) \
+    || (id == PE4BL_LFRADIO_ID) \
+    || (id == PE4BL_TXRADIO_ID) \
     || (id == PE1BL_TIMING_ID) \
-    || (id == PE8BL_10GNIC_ID) \
+    || (id == PE8BL_NIC_ID) \
+    || (id == PE8BL_E3NIC_ID) \
     || (id == PE8G2V7_ID) \
     || (ID_IS_MICRON_PROM(id)) /* ALERT : VisionLink and G3A5 have micron proms + combined flash, will future boards? Make sure! */ \
     || (id == PCDFCI_PCD_ID))
@@ -2460,20 +2499,23 @@ typedef struct {
     || (id == PE4CDA_ID)      \
     || (id == PE4CDA16_ID)    \
     || (id == PE8G3KU_ID)     \
+    || (id == PE8G2CML_ID)     \
     )
 
 #define ID_IS_MICRON_PROM(id) ( \
        (id == PE1DVVL_ID) \
     || (id == PE4DVVL_ID) \
-    || (id == PE4DVVLSIM_ID) \
+    || (id == PE8VLCLS_ID) \
     || (id == PE4DVVLFOX_ID) \
     || (id == PE4BL_RADIO_ID) \
+    || (id == PE4BL_LFRADIO_ID) \
+    || (id == PE4BL_TXRADIO_ID) \
     || (id == PE1BL_TIMING_ID) \
-    || (id == PE8BL_10GNIC_ID) \
+    || (id == PE8BL_NIC_ID) \
+    || (id == PE8BL_E3NIC_ID) \
     || (id == PE8G3A5_ID) \
     || (id == LCRBOOT_ID) \
     )
-
 
 #define ID_IS_MULTICHAN(id) \
     (  (id == PSS16_ID) \
@@ -2486,22 +2528,26 @@ typedef struct {
     || (id == PE8LX16_ID) \
     || (id == PE8LX32_ID) \
     || (id == PE8G2V7_ID) \
-    || (id == PE8BL_10GNIC_ID) \
+    || (id == PE8BL_NIC_ID) \
+    || (id == PE8BL_E3NIC_ID) \
     || (id == PE8LX32_ID) \
     || (id == PE4AMC16_ID) \
     || (id == PE8G3S5_ID) \
     || (id == PE8G3A5_ID) \
     || (id == PE8G3KU_ID) \
+    || (id == PE8G2CML_ID) \
     || (id == WSU1_ID) \
     || (id == SNAP1_ID) \
     || (id == PE4BL_RADIO_ID) \
+    || (id == PE4BL_LFRADIO_ID) \
+    || (id == PE4BL_TXRADIO_ID) \
     || (id == PE8LX16_LS_ID))
 
 #define ID_IS_2CHANNEL(id) \
     (  (id == PDVFCI_USPS_ID) \
     || (id == PE4DVFCI_ID) \
     || (id == PE8DVFCI_ID) \
-    || (id == PE4DVVLSIM_ID) \
+    || (id == PE8VLCLS_ID) \
     || (id == PE8DVCLS_ID))
 
 #define ID_IS_3CHANNEL(id) \
@@ -2557,11 +2603,15 @@ typedef struct {
     || (id == PE8LX16_ID) \
     || (id == WSU1_ID) \
     || (id == SNAP1_ID) \
-    || (id == PE8BL_10GNIC_ID) \
+    || (id == PE8BL_NIC_ID) \
+    || (id == PE8BL_E3NIC_ID) \
     || (id == PE4BL_RADIO_ID) \
+    || (id == PE4BL_LFRADIO_ID) \
+    || (id == PE4BL_TXRADIO_ID) \
     || (id == PE8G3S5_ID) \
     || (id == PE8G3A5_ID) \
     || (id == PE8G3KU_ID) \
+    || (id == PE8G2CML_ID) \
     || (id == PE8LX16_LS_ID) \
     || (id == PE4AMC16_ID))
 
@@ -2587,6 +2637,8 @@ typedef struct {
     || (id == PE4DVAFOX_ID) \
     || (id == PE4DVFCI_ID) \
     || (id == PE4BL_RADIO_ID) \
+    || (id == PE4BL_LFRADIO_ID) \
+    || (id == PE4BL_TXRADIO_ID) \
     || (id == PE4AMC16_ID))
 
 #define ID_IS_8LANE(id) \
@@ -2597,12 +2649,15 @@ typedef struct {
     || ( id == PE8LX16_ID) \
     || ( id == PE8LX16_LS_ID) \
     || ( id == PE8DVCL2_ID) \
-    || ( id == PE8BL_10GNIC_ID) \
+    || ( id == PE8BL_NIC_ID) \
+    || ( id == PE8BL_E3NIC_ID) \
     || ( id == PE8LX32_ID) \
     || ( id == PE8G2V7_ID) \
     || ( id == PE8G3S5_ID) \
     || ( id == PE8G3A5_ID) \
     || ( id == PE8G3KU_ID) \
+    || ( id == PE8G2CML_ID) \
+    || ( id == PE8VLCLS_ID) \
     )
 
 
@@ -2619,12 +2674,14 @@ typedef struct {
 #define edt_is_dvfox(edt_p) (ID_IS_DVFOX(edt_p->devid))
 #define edt_is_pcie_dvfox(edt_p) (ID_IS_PCIE_DVFOX(edt_p->devid))
 #define edt_is_dvcl(edt_p) (ID_IS_DVCL(edt_p->devid))
-#define edt_is_dvcl2(edt_p) (ID_IS_DVCL2(edt_p->devid)) /* both PCI and PCIe simulators */
-#define edt_is_simulator(edt_p) (ID_IS_DVCL2(edt_p->devid)) /* same as previous */
-#define edt_is_dvcls(edt_p) (ID_IS_DVCLS(edt_p->devid)) /* only PCIe (2-ch) simulators */
+#define edt_is_simulator(edt_p) (ID_IS_CLSIM(edt_p->devid)) /* all simulators */
+#define edt_is_dvcl2(edt_p) (ID_IS_CLSIM(edt_p->devid))     /* alias (old) */
+#define edt_is_dvcls(edt_p) (ID_IS_DVCLS(edt_p->devid))     /* only PCIe (2-ch) simulators */
 #define edt_is_fciusps(edt_p) (ID_IS_FCIUSPS(edt_p->devid))
 #define edt_has_irigb(edt_p) (ID_HAS_IRIGB(edt_p->devid))
 #define edt_has_combined_fpga(edt_p) (ID_HAS_COMBINED_FPGA(edt_p->devid))
+#define edt_is_lcr_blade(edt_p) (ID_IS_LCRBLADE(edt_p->devid))
+#define edt_is_radio_blade(edt_p) (ID_IS_RADIOBLADE(edt_p->devid))
 #define edt_has_chanreg(edt_p) (ID_HAS_CHANREG(edt_p->devid))
 #define edt_stores_macaddrs(edt_p) (ID_STORES_MACADDRS(edt_p->devid))
 #define edt_is_16bit_prom(edt_p) (ID_HAS_16BIT_PROM(edt_p->devid))

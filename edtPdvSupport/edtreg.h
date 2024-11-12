@@ -383,6 +383,11 @@
 /* EDT PCI FPGA registers */
 #define EDT_PCI_FPGA_REGISTER          0x04000000
 
+/* check capability register to see if has_bytecount and has_ddma are present */
+#define EDT_CAP_REGISTER (EDT_PCI_FPGA_REGISTER + 0xD8)
+#define EDT_HAS_BYTECOUNT 0x10000
+#define EDT_HAS_DDMA	  0x20000
+
 /* EDT UI FPGA registers */
 #define EDT_UI_FPGA_REGISTER           0x01010000
 
@@ -1880,5 +1885,4 @@ typedef enum edt_driver_class {
 #define EDT_ORDER_MASK  0x7
 #define EDT_INVERT      0x4000
 #endif /* EDTREG_H */
-
 
