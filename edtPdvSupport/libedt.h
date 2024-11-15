@@ -369,7 +369,7 @@
 /** @} */ /* end dma_internal */
 #endif
 
-#define EDTAPI_VERSION 0x05060700
+#define EDTAPI_VERSION 0x05060800
 
 #define EDT_NORMAL_DMA 0
 #define EDT_DIRECT_DMA 1

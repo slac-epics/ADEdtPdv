@@ -122,13 +122,13 @@
  */
 #define PE4BL_RADIO_ID          0x00a4
 #define PE1BL_TIMING_ID         0x00a5
-#define PE8BL_2X10G_ID          0x00a6 
-#define PE8BL_10GNI_ID          0x00a6 /* alias (DO NOT DELETE EITHER OF THESE!) */
+#define PE8BL_NIC_ID            0x00a6 /* 2x10G, 2x12.5G */
+#define PE8BL_2X10G_ID          0x00a6 /* aliases (DO NOT DELETE THESE) */ 
+#define PE8BL_10GNI_ID          0x00a6
 #define PE8BL_10GNIC_ID         0x00a6
 #define LCRBOOT_ID              0x00a7
-
 #define PE8G2V7_ID              0x00a8
-#define PE4DVVLSIM_ID           0x00a9
+#define PE8VLCLS_ID             0x00a9
 #define PE8G3KU_ID              0x00aa
 #define PE8G3A5_ID              0x00ab
 #define RESERVED_AC_ID          0x00ac /* was 2x12.5G now reserved, could re-use */
@@ -146,8 +146,6 @@
 /*
  * reserved -- change here and everywhere else when assigned
  */
-#define UNKNOWNAE_ID            0x00ae /* change when assigned */
-#define UNKNOWNAF_ID            0x00af /* change when assigned */
 
 /*************************************
  * Mezzanine ID values 

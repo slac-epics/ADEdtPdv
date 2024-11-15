@@ -65,6 +65,7 @@ EDTAPI unsigned char  *pdv_wait_last_image_timed_raw(PdvDev *pdv_p, u_int *timep
 EDTAPI unsigned char  *pdv_wait_image_timed_raw(PdvDev *pdv_p, u_int *timep, int doRaw) ;
 EDTAPI unsigned char  *pdv_wait_images_timed_raw(PdvDev *pdv_p, int count, u_int *timep, int doRaw) ;
 EDTAPI unsigned char  *pdv_wait_images_raw(PdvDev *pdv_p, int count) ;
+EDTAPI double          pdv_decode_timestamp(PdvDev *edt_p, u_int timestamp[]);
 
 EDTAPI char *pdv_get_cameratype(PdvDev *pdv_p);
 
